@@ -15,13 +15,6 @@ permissions:
 jobs:
   build:
     name: Build
-    if: >-
-      ${{
-        github.event_name == 'pull_request' ||
-        (github.event_name == 'push' &&
-          github.ref != 'refs/heads/main' &&
-          github.ref != 'refs/heads/master')
-      }}
     runs-on: ubuntu-latest
 
     steps:
@@ -29,22 +22,3 @@ jobs:
       - uses: leanprover/lean-action@v1
         with:
           use-mathlib-cache: "auto"
-
-  docs:
-    name: Build And Deploy Docs
-    if: >-
-      ${{
-        github.event_name == 'workflow_dispatch' ||
-        (github.event_name == 'push' &&
-          (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'))
-      }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    steps:
-      - uses: actions/checkout@v5
-      - uses: leanprover-community/docgen-action@v1
-        with:
-          build-page: "false"

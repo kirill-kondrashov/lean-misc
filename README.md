@@ -39,6 +39,6 @@ make docs       # build API docs
 ## CI workflow (GitHub Actions)
 
 - `.github/workflows/lean_action_ci.yml`
-- Pull requests (and non-main/non-master pushes): run `leanprover/lean-action`.
-- Main/master pushes and manual runs: run `leanprover-community/docgen-action` (docs deploy).
+- Pull requests, pushes, and manual runs all execute a single `leanprover/lean-action` build job.
+- Docs are not generated/deployed in CI.
 - Workflow concurrency is enabled with `cancel-in-progress: true`.
