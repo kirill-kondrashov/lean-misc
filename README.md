@@ -17,6 +17,8 @@ Lean formalizations of exercises, using a project structure modeled after:
   Erdős Problem #142 formalization (statement-level):
   define `r_k(N)` as the maximal size of a subset of `{1, ..., N}` avoiding non-trivial
   `k`-term arithmetic progressions, and state the asymptotic-formula goal for fixed `k ≥ 3`.
+  Also includes an explicit equivalence theorem with the DeepMind-style formulation:
+  `Erdos142.erdos_problem_142_iff_deepmind`.
 
 - Plan for solving #142:
   `plan/PLAN_erdos_problem_142.md`
@@ -40,6 +42,8 @@ All solved exercises are checked to ensure they:
 
 - do not use `sorry`
 - depend only on the base axioms `propext`, `Quot.sound`, and `Classical.choice`
+- include the Problem #142 DeepMind-equivalence theorem
+  (`Erdos142.erdos_problem_142_iff_deepmind`)
 
 Run:
 
@@ -57,6 +61,11 @@ Axioms used:
 - Quot.sound
 - Classical.choice
 ✅ The proof of 'TaoExercises.TaoBook.Chapter2.exercise_2_6' is free of 'sorry' and uses only base axioms.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+✅ The proof of 'Erdos142.erdos_problem_142_iff_deepmind' is free of 'sorry' and uses only base axioms.
 Axioms used:
 - propext
 - Quot.sound

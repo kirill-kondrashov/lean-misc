@@ -1,5 +1,6 @@
 import TaoExercises.TaoBook.Chapter2.Exercise2_3
 import TaoExercises.TaoBook.Chapter2.Exercise2_6
+import TaoExercises.ErdosProblems.Problem142
 import Lean
 
 open Lean Meta
@@ -7,6 +8,7 @@ open Lean Meta
 def checkedTheorems : List Name :=
   [ ``TaoExercises.TaoBook.Chapter2.exercise_2_3
   , ``TaoExercises.TaoBook.Chapter2.exercise_2_6
+  , ``Erdos142.erdos_problem_142_iff_deepmind
   ]
 
 def baseAxioms : Array Name :=
@@ -47,6 +49,7 @@ def main : IO UInt32 := do
   let env ← importModules
     #[ { module := `TaoExercises.TaoBook.Chapter2.Exercise2_3 }
      , { module := `TaoExercises.TaoBook.Chapter2.Exercise2_6 }
+     , { module := `TaoExercises.ErdosProblems.Problem142 }
      ]
     {}
 

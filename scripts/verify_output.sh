@@ -27,10 +27,18 @@ if [ $EXIT_CODE -ne 0 ]; then
 fi
 
 # Drop wrapper/build noise so README comparison stays stable.
-grep -Ev '^(info: \[root\]:|lake exe check_axioms$|make(\[[0-9]+\])?: (Entering|Leaving) directory)' \
+grep -Ev '^(info: \[root\]:|lake exe check_axioms$|make(\[[0-9]+\])?: (Entering|Leaving) directory|⚠ \[[0-9]+/[0-9]+\]|✔ \[[0-9]+/[0-9]+\]|warning: |Note: This linter can be disabled)' \
   "$ACTUAL" \
-  | sed '/^$/d' > actual_cleaned.txt
+  | sed '/^$/d' > actual_filtered.txt
+
+# Keep only the checker summary block beginning with the first status line.
+awk '
+  /^[✅❌]/ { capture=1 }
+  capture { print }
+' actual_filtered.txt > actual_cleaned.txt
+
 mv actual_cleaned.txt "$ACTUAL"
+rm -f actual_filtered.txt
 
 cat "$ACTUAL"
 
