@@ -63,6 +63,92 @@ Added a stronger non-tautological statement layer in `ErdosProblems/Problem142.l
    `Erdos142.erdos_problem_142_explicit_solution_axiom` and
    `Erdos142.erdos_problem_142_solution_from_explicit_axiom`.
 
+## Incremental update (uniform explicit-bridge refactor)
+
+Implemented a single bridge shape for all branches (`k = 3`, `k = 4`, `k ≥ 5`):
+
+1. Added generic theorem:
+   `Erdos142.erdos_142_explicit_of_eventual_bounds`.
+2. Replaced coarse `k ≥ 5` branch axiom with explicit-profile parameter + upper/lower bound families.
+3. Added branch-specific explicit profile parameter packages and fixed profiles.
+4. Derived all explicit branch cases via the same generic bridge theorem:
+   - `Erdos142.erdos_problem_142_explicit_k3_case`
+   - `Erdos142.erdos_problem_142_explicit_k4_case`
+   - `Erdos142.erdos_problem_142_explicit_kge5_case`
+5. Routed the statement-level theorem
+   `Erdos142.erdos_problem_142_solution_axiom` through explicit cases using
+   `Erdos142.erdos_142_explicit_implies_erdos_142`.
+
+## Incremental update (`k = 3` debt consolidation)
+
+Started the first direct debt-burndown step on the critical path to a real solution claim:
+
+1. Collapsed two separate `k = 3` upper-side debt axioms into one structured witness axiom:
+   - removed: `Erdos142.erdos_problem_142_explicit_k3_params_axiom`
+   - removed: `Erdos142.erdos_problem_142_explicit_k3_upper_bound_axiom` (as an axiom)
+   - added: `Erdos142.erdos_problem_142_explicit_k3_upper_profile_axiom`
+2. Reintroduced `Erdos142.erdos_problem_142_explicit_k3_upper_bound_axiom` as a **derived theorem**
+   from the structured witness (no longer an axiom).
+3. Updated checker allowlist and README expected-output snapshot accordingly.
+
+Net result:
+
+- Temporary explicit-branch axiom debt reduced from **9** items to **8** items.
+
+## Incremental update (`k = 3` two-sided witness consolidation)
+
+Completed the next `k = 3` debt reduction step by folding lower-side debt into the same witness:
+
+1. Replaced the upper-only witness
+   `Erdos142.erdos_problem_142_explicit_k3_upper_profile_axiom`
+   with a two-sided witness
+   `Erdos142.erdos_problem_142_explicit_k3_profile_witness_axiom`.
+2. Replaced `Erdos142.erdos_problem_142_explicit_k3_lower_bound_axiom` as an **axiom** with a
+   derived theorem from the two-sided witness.
+3. Kept both bridge theorems (`k3_upper_bound_axiom`, `k3_lower_bound_axiom`) as theorem-level
+   interfaces so downstream code did not change.
+4. Updated checker allowlist and README expected output.
+
+Net result:
+
+- Temporary explicit-branch axiom debt reduced from **8** items to **7** items.
+
+## Incremental update (`k = 4` two-sided witness consolidation)
+
+Completed the same consolidation pattern for `k = 4`:
+
+1. Replaced three separate `k = 4` temporary axioms
+   (`k4_params`, `k4_upper_bound`, `k4_lower_bound`) with a single two-sided witness axiom:
+   `Erdos142.erdos_problem_142_explicit_k4_profile_witness_axiom`.
+2. Reintroduced `k4_upper_bound_axiom` and `k4_lower_bound_axiom` as **derived theorems**
+   from that witness, preserving theorem-level interfaces.
+3. Updated checker allowlist and README expected output to reflect the new debt surface.
+
+Net result:
+
+- Temporary explicit-branch axiom debt reduced from **7** items to **5** items.
+
+## Incremental update (`k ≥ 5` witness-family consolidation)
+
+Completed the same consolidation for the `k ≥ 5` family:
+
+1. Replaced the three temporary `k ≥ 5` debt families
+   (`kge5_params`, `kge5_upper_bound`, `kge5_lower_bound`) with one witness family:
+   `Erdos142.erdos_problem_142_explicit_kge5_profile_witness_axiom`.
+2. Reintroduced `kge5_upper_bound_axiom` and `kge5_lower_bound_axiom` as **derived theorems**
+   from the witness family, keeping theorem-level interfaces stable.
+3. Updated checker allowlist and README expected output to the new debt surface.
+
+Net result:
+
+- Temporary explicit-branch axiom debt reduced from **5** items to **3** items.
+
+## Blocked-plan elimination
+
+- The earlier narrow `k = 3`-only burndown track is now superseded by the unified
+  explicit-branch burndown plan:
+  `PLAN_erdos_problem_142_explicit_branch_axiom_burndown_2026-03-04.md`.
+
 ## Completed in code
 
 File: `ErdosProblems/Problem142.lean`

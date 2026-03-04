@@ -28,6 +28,9 @@ Lean formalization experiments and problem-focused developments, using a project
 - Plan for solving #142:
   `plan/PLAN_erdos_problem_142.md`
 
+- Active explicit-branch debt-burndown plan:
+  `plan/PLAN_erdos_problem_142_explicit_branch_axiom_burndown_2026-03-04.md`
+
 ## Toolchain and dependencies
 
 - Lean: `leanprover/lean4:v4.27.0`
@@ -52,11 +55,9 @@ All solved exercises are checked to ensure they:
 - include the strengthened explicit-profile DeepMind-equivalence theorem
   (`Erdos142.erdos_problem_142_explicit_iff_deepmind`)
 - explicitly track temporary open-problem debt axioms for the roadmap branches:
-  - `Erdos142.erdos_problem_142_k3_upper_profile_bound_axiom`
-  - `Erdos142.erdos_problem_142_k3_lower_profile_bound_axiom`
-  - `Erdos142.erdos_problem_142_k4_upper_profile_bound_axiom`
-  - `Erdos142.erdos_problem_142_k4_lower_profile_bound_axiom`
-  - `Erdos142.erdos_problem_142_kge5_case_axiom`
+  - `Erdos142.erdos_problem_142_explicit_k3_profile_witness_axiom`
+  - `Erdos142.erdos_problem_142_explicit_k4_profile_witness_axiom`
+  - `Erdos142.erdos_problem_142_explicit_kge5_profile_witness_axiom`
   (temporarily allowed so CI stays green, and must eventually be removed)
 
 Run:
@@ -94,17 +95,13 @@ Axioms used:
 - propext
 - Quot.sound
 - Classical.choice
-- Erdos142.erdos_problem_142_k3_upper_profile_bound_axiom
-- Erdos142.erdos_problem_142_k3_lower_profile_bound_axiom
-- Erdos142.erdos_problem_142_k4_upper_profile_bound_axiom
-- Erdos142.erdos_problem_142_k4_lower_profile_bound_axiom
-- Erdos142.erdos_problem_142_kge5_case_axiom
+- Erdos142.erdos_problem_142_explicit_k3_profile_witness_axiom
+- Erdos142.erdos_problem_142_explicit_k4_profile_witness_axiom
+- Erdos142.erdos_problem_142_explicit_kge5_profile_witness_axiom
 Temporarily allowed non-base axioms (must be proved later):
-- Erdos142.erdos_problem_142_k3_upper_profile_bound_axiom
-- Erdos142.erdos_problem_142_k3_lower_profile_bound_axiom
-- Erdos142.erdos_problem_142_k4_upper_profile_bound_axiom
-- Erdos142.erdos_problem_142_k4_lower_profile_bound_axiom
-- Erdos142.erdos_problem_142_kge5_case_axiom
+- Erdos142.erdos_problem_142_explicit_k3_profile_witness_axiom
+- Erdos142.erdos_problem_142_explicit_k4_profile_witness_axiom
+- Erdos142.erdos_problem_142_explicit_kge5_profile_witness_axiom
 ✅ All checked items are free of 'sorry'. Temporary Erdős #142 axiom debt is explicitly allowed.
 ```
 
@@ -137,11 +134,9 @@ make docs       # build API docs
 - A structured theorem outline
   (`Erdos142.erdos_problem_142_solution_axiom`) is tracked in checker output with explicit
   branch debt axioms:
-  - `Erdos142.erdos_problem_142_k3_upper_profile_bound_axiom`
-  - `Erdos142.erdos_problem_142_k3_lower_profile_bound_axiom`
-  - `Erdos142.erdos_problem_142_k4_upper_profile_bound_axiom`
-  - `Erdos142.erdos_problem_142_k4_lower_profile_bound_axiom`
-  - `Erdos142.erdos_problem_142_kge5_case_axiom`
+  - `Erdos142.erdos_problem_142_explicit_k3_profile_witness_axiom`
+  - `Erdos142.erdos_problem_142_explicit_k4_profile_witness_axiom`
+  - `Erdos142.erdos_problem_142_explicit_kge5_profile_witness_axiom`
   These are unresolved proof debt that must be removed by real proofs.
 - The Erdős Problems page notes that an asymptotic formula remains far out of reach, and cites
   current upper-bound progress by:
