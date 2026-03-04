@@ -9,7 +9,7 @@ Formalize and (eventually) solve:
 
 The statement is currently introduced in Lean as:
 
-- `TaoExercises.ErdosProblems.erdos_problem_142`
+- `ErdosProblems.erdos_problem_142`
 
 ## Current formalization status
 

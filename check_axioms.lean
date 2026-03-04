@@ -1,6 +1,6 @@
 import TaoExercises.TaoBook.Chapter2.Exercise2_3
 import TaoExercises.TaoBook.Chapter2.Exercise2_6
-import TaoExercises.ErdosProblems.Problem142
+import ErdosProblems.Problem142
 import Lean
 
 open Lean Meta
@@ -49,7 +49,7 @@ def main : IO UInt32 := do
   let env ← importModules
     #[ { module := `TaoExercises.TaoBook.Chapter2.Exercise2_3 }
      , { module := `TaoExercises.TaoBook.Chapter2.Exercise2_6 }
-     , { module := `TaoExercises.ErdosProblems.Problem142 }
+     , { module := `ErdosProblems.Problem142 }
      ]
     {}
 

@@ -2,7 +2,6 @@ import Mathlib
 
 open Filter
 
-namespace TaoExercises
 namespace ErdosProblems
 
 /-- A finite set of naturals contains a non-trivial `k`-term arithmetic progression if there are
@@ -113,11 +112,10 @@ def erdos_problem_142 : Prop :=
   ∀ ⦃k : ℕ⦄, 3 ≤ k → HasAsymptoticFormula k
 
 end ErdosProblems
-end TaoExercises
 
 namespace Erdos142
 
-noncomputable abbrev r := TaoExercises.ErdosProblems.rk
+noncomputable abbrev r := ErdosProblems.rk
 
 /-- DeepMind `formal-conjectures`-aligned statement shape for Problem #142. -/
 def erdos_142 (k : ℕ) : Prop :=
@@ -142,11 +140,11 @@ end variants
 end erdos_142
 
 theorem hasAsymptoticFormula_iff_erdos142 (k : ℕ) :
-    TaoExercises.ErdosProblems.HasAsymptoticFormula k ↔ erdos_142 k := by
+    ErdosProblems.HasAsymptoticFormula k ↔ erdos_142 k := by
   rfl
 
 theorem erdos_problem_142_iff_deepmind :
-    TaoExercises.ErdosProblems.erdos_problem_142 ↔
+    ErdosProblems.erdos_problem_142 ↔
       ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142 k := by
   constructor
   · intro h k hk
