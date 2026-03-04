@@ -95,6 +95,40 @@ theorem one_le_rk_of_two_le {k : ℕ} (hk : 2 ≤ k) : 1 ≤ rk k 1 := by
 theorem rk_one_eq_one_of_two_le {k : ℕ} (hk : 2 ≤ k) : rk k 1 = 1 := by
   exact Nat.le_antisymm (by simpa using rk_le_N k 1) (one_le_rk_of_two_le hk)
 
+/-- Any element of `A` witnesses a non-trivial `1`-term progression in `A`. -/
+theorem containsNontrivialOneTermAP_of_mem {A : Finset ℕ} {a : ℕ} (ha : a ∈ A) :
+    ContainsNontrivialKTermAP 1 A := by
+  refine ⟨a, 1, by decide, ?_⟩
+  intro i hi
+  have hi0 : i = 0 := Nat.lt_one_iff.mp hi
+  subst hi0
+  simpa using ha
+
+/-- A finite set is `1`-term-AP-free iff it is empty. -/
+theorem apfree_one_iff_eq_empty (A : Finset ℕ) : KTermAPFree 1 A ↔ A = ∅ := by
+  constructor
+  · intro hfree
+    apply Finset.eq_empty_iff_forall_notMem.2
+    intro a ha
+    exact hfree (containsNontrivialOneTermAP_of_mem ha)
+  · intro hA
+    subst hA
+    simp [KTermAPFree, ContainsNontrivialKTermAP]
+
+/-- Every admissible cardinal for `k = 1` is `0`. -/
+theorem admissible_card_eq_zero_of_k_one {N m : ℕ} (hm : m ∈ admissibleSetCardinals 1 N) :
+    m = 0 := by
+  rcases hm with ⟨A, -, hfree, rfl⟩
+  have hA : A = ∅ := (apfree_one_iff_eq_empty A).1 hfree
+  simp [hA]
+
+/-- Unconditional benchmark: `r_1(N) = 0` for all `N`. -/
+theorem rk_one_eq_zero (N : ℕ) : rk 1 N = 0 := by
+  apply Nat.eq_zero_of_le_zero
+  refine csSup_le' ?_
+  intro m hm
+  simp [admissible_card_eq_zero_of_k_one hm]
+
 /-- There is an asymptotic formula for `r_k(N)` (formalized as asymptotic equivalence to some
 comparison function). -/
 def HasAsymptoticFormula (k : ℕ) : Prop :=
@@ -138,6 +172,35 @@ def three : Prop :=
 
 end variants
 end erdos_142
+
+namespace bound_targets
+
+/-- Literature target corresponding to Kelley-Meka (2023): the `k = 3` upper-bound regime. -/
+def k3_upper_kelley_meka : Prop :=
+  erdos_142.variants.upper 3
+
+/-- Literature target corresponding to Green-Tao (2017): the `k = 4` upper-bound regime. -/
+def k4_upper_green_tao : Prop :=
+  erdos_142.variants.upper 4
+
+/-- Literature target corresponding to Leng-Sah-Sawhney (2024): upper bounds for all `k ≥ 5`. -/
+def kge5_upper_leng_sah_sawhney : Prop :=
+  ∀ ⦃k : ℕ⦄, 5 ≤ k → erdos_142.variants.upper k
+
+end bound_targets
+
+/-- Structured container for deep external benchmark inputs.
+Using a typeclass keeps all such dependencies explicit in theorem statements. -/
+class LiteratureAssumptions : Prop where
+  k3_upper_kelley_meka : bound_targets.k3_upper_kelley_meka
+  k4_upper_green_tao : bound_targets.k4_upper_green_tao
+  kge5_upper_leng_sah_sawhney : bound_targets.kge5_upper_leng_sah_sawhney
+
+theorem literatureAssumptions_provide_all_targets [h : LiteratureAssumptions] :
+    bound_targets.k3_upper_kelley_meka ∧
+      bound_targets.k4_upper_green_tao ∧
+      bound_targets.kge5_upper_leng_sah_sawhney := by
+  exact ⟨h.k3_upper_kelley_meka, h.k4_upper_green_tao, h.kge5_upper_leng_sah_sawhney⟩
 
 theorem hasAsymptoticFormula_iff_erdos142 (k : ℕ) :
     ErdosProblems.HasAsymptoticFormula k ↔ erdos_142 k := by
