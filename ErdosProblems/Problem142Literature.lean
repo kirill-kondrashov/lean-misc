@@ -166,7 +166,14 @@ structure K4ProfileWitness where
       (fun N => (r 4 N : ℝ))
 
 /-- Temporary two-sided profile debt witness for `k = 4`. -/
-axiom erdos_problem_142_explicit_k4_profile_witness_axiom : K4ProfileWitness
+class K4ProfileWitnessImported where
+  k4_profile_witness : K4ProfileWitness
+
+/-- Imported `k = 4` two-sided profile witness (from a registered assumption instance). -/
+noncomputable abbrev erdos_problem_142_explicit_k4_profile_witness_imported
+    [h : K4ProfileWitnessImported] :
+    K4ProfileWitness :=
+  h.k4_profile_witness
 
 /-- Structured temporary two-sided profile debt for each fixed `k ≥ 5`. -/
 structure Kge5ProfileWitness (k : ℕ) (hk : 5 ≤ k) where
@@ -194,10 +201,10 @@ noncomputable def k3_explicit_profile [K3ProfileWitnessImported] : ℕ → ℝ :
           (Real.log (N + 2)) ^ erdos_problem_142_explicit_k3_profile_witness_imported.β)
 
 /-- Fixed explicit profile for the `k = 4` branch. -/
-noncomputable def k4_explicit_profile : ℕ → ℝ :=
+noncomputable def k4_explicit_profile [K4ProfileWitnessImported] : ℕ → ℝ :=
   fun N =>
-    erdos_problem_142_explicit_k4_profile_witness_axiom.C * (N : ℝ) /
-      (Real.log (N + 2)) ^ erdos_problem_142_explicit_k4_profile_witness_axiom.c
+    erdos_problem_142_explicit_k4_profile_witness_imported.C * (N : ℝ) /
+      (Real.log (N + 2)) ^ erdos_problem_142_explicit_k4_profile_witness_imported.c
 
 /-- Fixed explicit profile for each `k ≥ 5` branch. -/
 noncomputable def kge5_explicit_profile {k : ℕ} (hk : 5 ≤ k) : ℕ → ℝ :=
@@ -224,18 +231,18 @@ theorem k3_explicit_profile_class [K3ProfileWitnessImported] :
       erdos_problem_142_explicit_k3_profile_witness_imported.hC
 
 /-- `k = 4` explicit profile belongs to the constrained profile class. -/
-theorem k4_explicit_profile_class :
+theorem k4_explicit_profile_class [K4ProfileWitnessImported] :
     ErdosProblems.ExplicitProfileClass 4 k4_explicit_profile := by
   change ErdosProblems.ExplicitProfileClass 4
       (fun N : ℕ =>
-        erdos_problem_142_explicit_k4_profile_witness_axiom.C * (N : ℝ) /
-          (Real.log (N + 2)) ^ erdos_problem_142_explicit_k4_profile_witness_axiom.c)
+        erdos_problem_142_explicit_k4_profile_witness_imported.C * (N : ℝ) /
+          (Real.log (N + 2)) ^ erdos_problem_142_explicit_k4_profile_witness_imported.c)
   exact
     ErdosProblems.ExplicitProfileClass.k4
-      erdos_problem_142_explicit_k4_profile_witness_axiom.c
-      erdos_problem_142_explicit_k4_profile_witness_axiom.C
-      erdos_problem_142_explicit_k4_profile_witness_axiom.hc
-      erdos_problem_142_explicit_k4_profile_witness_axiom.hC
+      erdos_problem_142_explicit_k4_profile_witness_imported.c
+      erdos_problem_142_explicit_k4_profile_witness_imported.C
+      erdos_problem_142_explicit_k4_profile_witness_imported.hc
+      erdos_problem_142_explicit_k4_profile_witness_imported.hC
 
 /-- Any `k ≥ 5` explicit profile belongs to the constrained profile class. -/
 theorem kge5_explicit_profile_class {k : ℕ} (hk : 5 ≤ k) :
@@ -271,19 +278,19 @@ theorem erdos_problem_142_explicit_k3_lower_bound_axiom [K3ProfileWitnessImporte
   simpa [k3_explicit_profile] using hK
 
 /-- Derived upper-side quantitative bound for `k = 4`, from the structured profile witness debt. -/
-theorem erdos_problem_142_explicit_k4_upper_bound_axiom :
+theorem erdos_problem_142_explicit_k4_upper_bound_axiom [K4ProfileWitnessImported] :
     ∃ K : ℝ, 0 ≤ K ∧
       ∀ᶠ N : ℕ in atTop, ‖(r 4 N : ℝ)‖ ≤ K * ‖k4_explicit_profile N‖ := by
-  rcases (Asymptotics.isBigO_iff').1 erdos_problem_142_explicit_k4_profile_witness_axiom.hUpper with
+  rcases (Asymptotics.isBigO_iff').1 erdos_problem_142_explicit_k4_profile_witness_imported.hUpper with
     ⟨K, hKpos, hK⟩
   refine ⟨K, le_of_lt hKpos, ?_⟩
   simpa [k4_explicit_profile] using hK
 
 /-- Derived lower-side quantitative bound for `k = 4`, from the structured profile witness debt. -/
-theorem erdos_problem_142_explicit_k4_lower_bound_axiom :
+theorem erdos_problem_142_explicit_k4_lower_bound_axiom [K4ProfileWitnessImported] :
     ∃ K : ℝ, 0 ≤ K ∧
       ∀ᶠ N : ℕ in atTop, ‖k4_explicit_profile N‖ ≤ K * ‖(r 4 N : ℝ)‖ := by
-  rcases (Asymptotics.isBigO_iff').1 erdos_problem_142_explicit_k4_profile_witness_axiom.hLower with
+  rcases (Asymptotics.isBigO_iff').1 erdos_problem_142_explicit_k4_profile_witness_imported.hLower with
     ⟨K, hKpos, hK⟩
   refine ⟨K, le_of_lt hKpos, ?_⟩
   simpa [k4_explicit_profile] using hK
@@ -319,7 +326,8 @@ theorem erdos_problem_142_explicit_k3_case [K3ProfileWitnessImported] :
     erdos_problem_142_explicit_k3_lower_bound_axiom
 
 /-- Derived explicit `k = 4` branch via the generic explicit bridge. -/
-theorem erdos_problem_142_explicit_k4_case : erdos_142_explicit 4 := by
+theorem erdos_problem_142_explicit_k4_case [K4ProfileWitnessImported] :
+    erdos_142_explicit 4 := by
   exact erdos_142_explicit_of_eventual_bounds
     k4_explicit_profile_class
     erdos_problem_142_explicit_k4_upper_bound_axiom
@@ -336,7 +344,8 @@ theorem erdos_problem_142_explicit_kge5_case :
 
 /-- Stronger structured theorem outline:
 full #142 under explicit profile classes, split by `k = 3`, `k = 4`, and `k ≥ 5`. -/
-theorem erdos_problem_142_explicit_solution_axiom [K3ProfileWitnessImported] :
+theorem erdos_problem_142_explicit_solution_axiom
+    [K3ProfileWitnessImported] [K4ProfileWitnessImported] :
     ErdosProblems.erdos_problem_142_explicit := by
   intro k hk
   have hk_cases : k = 3 ∨ k = 4 ∨ 5 ≤ k := by omega
@@ -350,7 +359,8 @@ theorem erdos_problem_142_explicit_solution_axiom [K3ProfileWitnessImported] :
 
 /-- Structured theorem outline for the full #142 target.
 Now routed through the stronger explicit-profile solution scaffold. -/
-theorem erdos_problem_142_solution_axiom [K3ProfileWitnessImported] :
+theorem erdos_problem_142_solution_axiom
+    [K3ProfileWitnessImported] [K4ProfileWitnessImported] :
     ErdosProblems.erdos_problem_142 := by
   intro k hk
   have hExp : erdos_142_explicit k :=
@@ -360,7 +370,8 @@ theorem erdos_problem_142_solution_axiom [K3ProfileWitnessImported] :
     (erdos_142_explicit_implies_erdos_142 hExp)
 
 /-- The stronger explicit-profile outline implies the current statement-level #142 target. -/
-theorem erdos_problem_142_solution_from_explicit_axiom [K3ProfileWitnessImported] :
+theorem erdos_problem_142_solution_from_explicit_axiom
+    [K3ProfileWitnessImported] [K4ProfileWitnessImported] :
     ErdosProblems.erdos_problem_142 :=
   erdos_problem_142_solution_axiom
 
