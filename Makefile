@@ -1,4 +1,4 @@
-.PHONY: all build check cache auto-build docs clean
+.PHONY: all build check verify cache auto-build docs clean
 
 # Default target
 all: check
@@ -15,6 +15,10 @@ build:
 # Check axioms
 check:
 	lake exe check_axioms
+
+# Verify check output matches README's expected output block
+verify:
+	./scripts/verify_output.sh
 
 # Fetch cache automatically when dependency metadata changes
 .cache_marker: lake-manifest.json lean-toolchain
