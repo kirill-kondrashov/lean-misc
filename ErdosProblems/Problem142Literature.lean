@@ -9,18 +9,45 @@ namespace Erdos142
 def k3_matched_profile (g : ℕ → ℝ) : Prop :=
   (fun N => (r 3 N : ℝ)) =O[atTop] g ∧ g =O[atTop] (fun N => (r 3 N : ℝ))
 
+/-- Fixed explicit comparison profile used for narrowing temporary `k = 3` debt. -/
+noncomputable def k3_profile : ℕ → ℝ :=
+  fun N => (N : ℝ) / Real.log (N + 2)
+
+/-- Two eventual inequality bounds imply a matched `O`-sandwich for the chosen `k = 3` profile. -/
+theorem k3_matched_profile_of_eventual_bounds
+    (hUpper : ∃ C : ℝ, 0 ≤ C ∧
+      ∀ᶠ N : ℕ in atTop, ‖(r 3 N : ℝ)‖ ≤ C * ‖k3_profile N‖)
+    (hLower : ∃ C : ℝ, 0 ≤ C ∧
+      ∀ᶠ N : ℕ in atTop, ‖k3_profile N‖ ≤ C * ‖(r 3 N : ℝ)‖) :
+    k3_matched_profile k3_profile := by
+  rcases hUpper with ⟨C, -, hC⟩
+  rcases hLower with ⟨C', -, hC'⟩
+  exact ⟨Asymptotics.IsBigO.of_bound C hC, Asymptotics.IsBigO.of_bound C' hC'⟩
+
 /-- The reduction bridge: a matched two-sided profile implies the DeepMind-style `k = 3` goal. -/
 theorem erdos_142_three_of_matched_profile {g : ℕ → ℝ} (hg : k3_matched_profile g) :
     erdos_142 3 := by
   exact ⟨g, Asymptotics.IsBigO.antisymm hg.1 hg.2⟩
 
-/-- Temporary branch debt for `k = 3`, now reduced to a matched-profile target. -/
-axiom erdos_problem_142_k3_matched_profile_axiom : ∃ g : ℕ → ℝ, k3_matched_profile g
+/-- Temporary `k = 3` debt (upper side): eventual inequality versus the chosen profile. -/
+axiom erdos_problem_142_k3_upper_profile_bound_axiom :
+  ∃ C : ℝ, 0 ≤ C ∧
+    ∀ᶠ N : ℕ in atTop, ‖(r 3 N : ℝ)‖ ≤ C * ‖k3_profile N‖
+
+/-- Temporary `k = 3` debt (lower side): eventual reverse inequality versus the chosen profile. -/
+axiom erdos_problem_142_k3_lower_profile_bound_axiom :
+  ∃ C : ℝ, 0 ≤ C ∧
+    ∀ᶠ N : ℕ in atTop, ‖k3_profile N‖ ≤ C * ‖(r 3 N : ℝ)‖
+
+/-- Combined matched-profile statement for `k = 3`, derived from the two narrower debts. -/
+theorem erdos_problem_142_k3_matched_profile : k3_matched_profile k3_profile := by
+  exact k3_matched_profile_of_eventual_bounds
+    erdos_problem_142_k3_upper_profile_bound_axiom
+    erdos_problem_142_k3_lower_profile_bound_axiom
 
 /-- Derived `k = 3` branch from the matched-profile temporary debt axiom. -/
 theorem erdos_problem_142_k3_case : erdos_142 3 := by
-  rcases erdos_problem_142_k3_matched_profile_axiom with ⟨g, hg⟩
-  exact erdos_142_three_of_matched_profile hg
+  exact erdos_142_three_of_matched_profile erdos_problem_142_k3_matched_profile
 
 /-- Temporary branch debt for the `k = 4` case in the #142 roadmap. -/
 axiom erdos_problem_142_k4_case_axiom : erdos_142 4

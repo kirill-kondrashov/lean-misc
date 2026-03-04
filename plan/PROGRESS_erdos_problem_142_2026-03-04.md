@@ -20,7 +20,8 @@ New items in `ErdosProblems/Problem142Literature.lean`:
 
 - `Erdos142.k3_matched_profile`
 - `Erdos142.erdos_142_three_of_matched_profile`
-- `Erdos142.erdos_problem_142_k3_matched_profile_axiom`
+- `Erdos142.erdos_problem_142_k3_upper_profile_bound_axiom`
+- `Erdos142.erdos_problem_142_k3_lower_profile_bound_axiom`
 - `Erdos142.erdos_problem_142_k3_case`
 
 ## Completed in code
