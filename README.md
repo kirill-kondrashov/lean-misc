@@ -45,7 +45,7 @@ All solved exercises are checked to ensure they:
 - include the Problem #142 DeepMind-equivalence theorem
   (`Erdos142.erdos_problem_142_iff_deepmind`)
 - explicitly track temporary open-problem debt axioms for the roadmap branches:
-  - `Erdos142.erdos_problem_142_k3_case_axiom`
+  - `Erdos142.erdos_problem_142_k3_matched_profile_axiom`
   - `Erdos142.erdos_problem_142_k4_case_axiom`
   - `Erdos142.erdos_problem_142_kge5_case_axiom`
   (temporarily allowed so CI stays green, and must eventually be removed)
@@ -80,11 +80,11 @@ Axioms used:
 - propext
 - Quot.sound
 - Classical.choice
-- Erdos142.erdos_problem_142_k3_case_axiom
+- Erdos142.erdos_problem_142_k3_matched_profile_axiom
 - Erdos142.erdos_problem_142_k4_case_axiom
 - Erdos142.erdos_problem_142_kge5_case_axiom
 Temporarily allowed non-base axioms (must be proved later):
-- Erdos142.erdos_problem_142_k3_case_axiom
+- Erdos142.erdos_problem_142_k3_matched_profile_axiom
 - Erdos142.erdos_problem_142_k4_case_axiom
 - Erdos142.erdos_problem_142_kge5_case_axiom
 ✅ All checked items are free of 'sorry'. Temporary Erdős #142 axiom debt is explicitly allowed.
@@ -116,7 +116,7 @@ make docs       # build API docs
 - A structured theorem outline
   (`Erdos142.erdos_problem_142_solution_axiom`) is tracked in checker output with explicit
   branch debt axioms:
-  - `Erdos142.erdos_problem_142_k3_case_axiom`
+  - `Erdos142.erdos_problem_142_k3_matched_profile_axiom`
   - `Erdos142.erdos_problem_142_k4_case_axiom`
   - `Erdos142.erdos_problem_142_kge5_case_axiom`
   These are unresolved proof debt that must be removed by real proofs.

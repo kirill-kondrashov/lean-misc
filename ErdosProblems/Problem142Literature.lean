@@ -4,8 +4,23 @@ open Filter
 
 namespace Erdos142
 
-/-- Temporary branch debt for the `k = 3` case in the #142 roadmap. -/
-axiom erdos_problem_142_k3_case_axiom : erdos_142 3
+/-- Structured reduction target for `k = 3`:
+`r_3(N)` is sandwiched (up to constants) by one common profile `g`. -/
+def k3_matched_profile (g : ℕ → ℝ) : Prop :=
+  (fun N => (r 3 N : ℝ)) =O[atTop] g ∧ g =O[atTop] (fun N => (r 3 N : ℝ))
+
+/-- The reduction bridge: a matched two-sided profile implies the DeepMind-style `k = 3` goal. -/
+theorem erdos_142_three_of_matched_profile {g : ℕ → ℝ} (hg : k3_matched_profile g) :
+    erdos_142 3 := by
+  exact ⟨g, Asymptotics.IsBigO.antisymm hg.1 hg.2⟩
+
+/-- Temporary branch debt for `k = 3`, now reduced to a matched-profile target. -/
+axiom erdos_problem_142_k3_matched_profile_axiom : ∃ g : ℕ → ℝ, k3_matched_profile g
+
+/-- Derived `k = 3` branch from the matched-profile temporary debt axiom. -/
+theorem erdos_problem_142_k3_case : erdos_142 3 := by
+  rcases erdos_problem_142_k3_matched_profile_axiom with ⟨g, hg⟩
+  exact erdos_142_three_of_matched_profile hg
 
 /-- Temporary branch debt for the `k = 4` case in the #142 roadmap. -/
 axiom erdos_problem_142_k4_case_axiom : erdos_142 4
@@ -19,7 +34,7 @@ theorem erdos_problem_142_solution_axiom : ErdosProblems.erdos_problem_142 := by
   intro k hk
   have hk_cases : k = 3 ∨ k = 4 ∨ 5 ≤ k := by omega
   rcases hk_cases with rfl | rfl | hk5
-  · exact (hasAsymptoticFormula_iff_erdos142 3).2 erdos_problem_142_k3_case_axiom
+  · exact (hasAsymptoticFormula_iff_erdos142 3).2 erdos_problem_142_k3_case
   · exact (hasAsymptoticFormula_iff_erdos142 4).2 erdos_problem_142_k4_case_axiom
   · exact (hasAsymptoticFormula_iff_erdos142 k).2 (erdos_problem_142_kge5_case_axiom hk5)
 

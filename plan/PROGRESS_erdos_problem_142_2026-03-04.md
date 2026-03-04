@@ -8,6 +8,21 @@ Executed the first concrete steps from `PLAN_erdos_problem_142.md`:
 2. Added a first unconditional nontrivial theorem about `r_k(N)`.
 3. Added a structured assumptions layer for deep external results.
 
+## Incremental update (same day)
+
+Implemented the next realism step for the open-problem placeholder:
+
+1. Replaced the raw `k = 3` branch axiom with a structured matched-profile axiom.
+2. Added a theorem reduction proving `erdos_142 3` from that matched-profile target.
+3. Kept `k = 4` and `k ≥ 5` as explicit temporary branch debt axioms.
+
+New items in `ErdosProblems/Problem142Literature.lean`:
+
+- `Erdos142.k3_matched_profile`
+- `Erdos142.erdos_142_three_of_matched_profile`
+- `Erdos142.erdos_problem_142_k3_matched_profile_axiom`
+- `Erdos142.erdos_problem_142_k3_case`
+
 ## Completed in code
 
 File: `ErdosProblems/Problem142.lean`
