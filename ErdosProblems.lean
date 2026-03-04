@@ -1,1 +1,2 @@
 import ErdosProblems.Problem142
+import ErdosProblems.Problem142Literature

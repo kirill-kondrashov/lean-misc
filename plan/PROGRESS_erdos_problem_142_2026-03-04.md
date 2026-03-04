@@ -54,6 +54,17 @@ File: `ErdosProblems/Problem142.lean`
   - `ErdosProblems.rk_two_eq_ite`
   - `Erdos142.erdos_142_two`
   - `Erdos142.upper_variant_two`
+- Split bibliography-indexed assumptions into dedicated module:
+  - new file `ErdosProblems/Problem142Literature.lean`
+  - moved:
+    - `Erdos142.LiteratureAssumptions`
+    - `Erdos142.LiteratureRateAssumptions`
+    - `Erdos142.upper_variant_of_literature_for_all_k_ge_three`
+    - `Erdos142.k3_two_sided_sandwich_of_literature_rates`
+    - `Erdos142.nat_div_log_isBigO_natCast`
+    - `Erdos142.k3_sublinear_of_literature_rates`
+- Added feasible lower-variant small-case bridge:
+  - `Erdos142.lower_variant_two_of_growth`
 
 ## Validation
 
@@ -68,7 +79,7 @@ File: `ErdosProblems/Problem142.lean`
 
 ## Next execution targets
 
-1. Split bibliography-indexed assumptions into a dedicated file to keep statement signatures,
-   provenance, and consequences modular.
-2. Add a lower-variant small-case bridge (where feasible) so both `upper` and `lower` variant
-   workflows are exercised by concrete non-open examples.
+1. Add one more unconditional exact-value family beyond `k = 2` (or prove impossibility/limits
+   for immediate next cases) to keep the finite API growth disciplined.
+2. Reduce assumptions of `lower_variant_two_of_growth` by proving/importing a reusable growth lemma
+   for `‖N / log N‖ → ∞` in the nat-indexed real setting.
