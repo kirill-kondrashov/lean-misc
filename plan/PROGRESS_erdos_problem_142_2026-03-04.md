@@ -32,6 +32,17 @@ File: `ErdosProblems/Problem142.lean`
 - Added strengthened assumptions + derived consequence:
   - `Erdos142.LiteratureRateAssumptions`
   - `Erdos142.upper_variant_of_literature_for_all_k_ge_three`
+- Added lower-bound benchmark target layer for `k = 3`:
+  - `Erdos142.bound_targets.k3_behrend_lower_profile`
+- Added two-sided benchmark target:
+  - `Erdos142.bound_targets.k3_two_sided_sandwich_profile`
+  - `Erdos142.k3_two_sided_sandwich_of_literature_rates`
+- Added conditional asymptotic corollary target + theorem:
+  - `Erdos142.bound_targets.k3_sublinear`
+  - `Erdos142.k3_sublinear_of_literature_rates`
+- Proved the growth helper needed to clean the corollary:
+  - `Erdos142.nat_div_log_isBigO_natCast`
+  - `k3_sublinear_of_literature_rates` now uses this internally (no extra external parameter).
 
 ## Validation
 
@@ -46,8 +57,6 @@ File: `ErdosProblems/Problem142.lean`
 
 ## Next execution targets
 
-1. Add explicit lower-bound target profiles (e.g. Behrend-type) so upper/lower benchmark
-   statements coexist in one formal interface.
-2. Prove additional unconditional lemmas for small `k, N` to harden the combinatorial API.
-3. Add a dedicated bibliography-indexed assumptions file to decouple statement signatures from
-   `Problem142.lean` and keep dependency provenance minimal and auditable.
+1. Prove additional unconditional lemmas for small `k, N` to harden the combinatorial API.
+2. Split bibliography-indexed assumptions into a dedicated file to keep statement signatures,
+   provenance, and consequences modular.

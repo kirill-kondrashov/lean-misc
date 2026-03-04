@@ -187,6 +187,13 @@ def k4_upper_green_tao : Prop :=
 def kge5_upper_leng_sah_sawhney : Prop :=
   ∀ ⦃k : ℕ⦄, 5 ≤ k → erdos_142.variants.upper k
 
+/-- Behrend-type lower-profile target for `k = 3`.
+This is a statement-shape placeholder for benchmark lower bounds from the literature. -/
+def k3_behrend_lower_profile : Prop :=
+  ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+    ∀ᶠ N : ℕ in atTop,
+      C * (N : ℝ) * Real.exp (-c * Real.sqrt (Real.log (N + 2))) ≤ (r 3 N : ℝ)
+
 /-- Rate-template target for `k = 3`: super-polylogarithmic decay in an explicit `O`-profile. -/
 def k3_superpolylog_upper_profile : Prop :=
   ∃ β c C : ℝ, 0 < β ∧ 0 < c ∧ 0 < C ∧
@@ -206,6 +213,14 @@ def kge5_iteratedlog_upper_profile : Prop :=
       (fun N => (r k N : ℝ)) =O[atTop]
         (fun N : ℕ => C * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ c)
 
+/-- Two-sided benchmark sandwich for `k = 3`: one lower profile and one upper profile. -/
+def k3_two_sided_sandwich_profile : Prop :=
+  k3_behrend_lower_profile ∧ k3_superpolylog_upper_profile
+
+/-- Conditional asymptotic corollary target for `k = 3`. -/
+def k3_sublinear : Prop :=
+  (fun N => (r 3 N : ℝ)) =o[atTop] (fun N : ℕ => (N : ℝ))
+
 end bound_targets
 
 /-- Structured container for deep external benchmark inputs.
@@ -223,9 +238,11 @@ theorem literatureAssumptions_provide_all_targets [h : LiteratureAssumptions] :
 
 /-- Strengthened container that also stores explicit rate-profile targets. -/
 class LiteratureRateAssumptions : Prop extends LiteratureAssumptions where
+  k3_behrend_lower_profile : bound_targets.k3_behrend_lower_profile
   k3_superpolylog_upper_profile : bound_targets.k3_superpolylog_upper_profile
   k4_polylog_upper_profile : bound_targets.k4_polylog_upper_profile
   kge5_iteratedlog_upper_profile : bound_targets.kge5_iteratedlog_upper_profile
+  k3_smallo_n_div_log : erdos_142.variants.lower 3 (by decide)
 
 /-- Under benchmark assumptions, all `k ≥ 3` have a nontrivial `upper`-variant statement. -/
 theorem upper_variant_of_literature_for_all_k_ge_three [h : LiteratureAssumptions] :
@@ -236,6 +253,44 @@ theorem upper_variant_of_literature_for_all_k_ge_three [h : LiteratureAssumption
   · exact h.k3_upper_kelley_meka
   · exact h.k4_upper_green_tao
   · exact h.kge5_upper_leng_sah_sawhney hk5
+
+/-- The benchmark rate assumptions imply a two-sided `k = 3` sandwich profile. -/
+theorem k3_two_sided_sandwich_of_literature_rates [h : LiteratureRateAssumptions] :
+    bound_targets.k3_two_sided_sandwich_profile := by
+  exact ⟨h.k3_behrend_lower_profile, h.k3_superpolylog_upper_profile⟩
+
+/-- Elementary helper: `N / log N = O(N)` along `atTop` (for `ℕ`-indexed reals). -/
+theorem nat_div_log_isBigO_natCast :
+    (fun N : ℕ => (N : ℝ) / (N : ℝ).log) =O[atTop] (fun N : ℕ => (N : ℝ)) := by
+  refine Asymptotics.IsBigO.of_bound 1 ?_
+  filter_upwards [eventually_ge_atTop (3 : ℕ)] with N hN
+  have hNreal : (3 : ℝ) ≤ (N : ℝ) := by exact_mod_cast hN
+  have hNpos : 0 < (N : ℝ) := by linarith
+  have hlog_gt_one : 1 < (N : ℝ).log := by
+    exact (Real.lt_log_iff_exp_lt hNpos).2 (lt_of_lt_of_le Real.exp_one_lt_three hNreal)
+  have hlog_pos : 0 < (N : ℝ).log := lt_trans zero_lt_one hlog_gt_one
+  have hlog_ge_one : (1 : ℝ) ≤ (N : ℝ).log := le_of_lt hlog_gt_one
+  have hle : (N : ℝ) / (N : ℝ).log ≤ (N : ℝ) := by
+    calc
+      (N : ℝ) / (N : ℝ).log ≤ (N : ℝ) / 1 := by
+        gcongr
+      _ = (N : ℝ) := by ring
+  have hnonneg : 0 ≤ (N : ℝ) / (N : ℝ).log := div_nonneg (by positivity) hlog_pos.le
+  have hnorm : ‖(N : ℝ) / (N : ℝ).log‖ ≤ ‖(N : ℝ)‖ := by
+    calc
+      ‖(N : ℝ) / (N : ℝ).log‖ = (N : ℝ) / (N : ℝ).log := by
+        exact Real.norm_of_nonneg hnonneg
+      _ ≤ (N : ℝ) := hle
+      _ = ‖(N : ℝ)‖ := by
+        symm
+        exact Real.norm_of_nonneg (show 0 ≤ (N : ℝ) by positivity)
+  simpa using hnorm
+
+/-- Conditional asymptotic corollary:
+the assumed `k = 3` `o(N/log N)` bound implies `o(N)`. -/
+theorem k3_sublinear_of_literature_rates [h : LiteratureRateAssumptions] :
+    bound_targets.k3_sublinear := by
+  exact h.k3_smallo_n_div_log.trans_isBigO nat_div_log_isBigO_natCast
 
 theorem hasAsymptoticFormula_iff_erdos142 (k : ℕ) :
     ErdosProblems.HasAsymptoticFormula k ↔ erdos_142 k := by
