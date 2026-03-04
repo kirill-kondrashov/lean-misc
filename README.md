@@ -125,6 +125,10 @@ make docs       # build API docs
   Open mathematical debt is represented through imported-assumption interfaces:
   `Erdos142.K3ProfileWitnessImported`, `Erdos142.K4ProfileWitnessImported`,
   `Erdos142.Kge5ProfileWitnessImported`.
+- What this means now:
+  - the temporary-axiom burndown phase is complete (no temporary non-base checker debt)
+  - the theorem still depends on imported witness interfaces that must be instantiated by real results
+  - Erdős Problem #142 itself remains open
 - The Erdős Problems page notes that an asymptotic formula remains far out of reach, and cites
   current upper-bound progress by:
   - Kelley-Meka (`k = 3`)
