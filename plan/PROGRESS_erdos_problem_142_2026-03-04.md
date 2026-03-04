@@ -189,6 +189,26 @@ Net result:
 
 - Eliminated the `k = 4` temporary-axiom dependency plane from the checker debt surface.
 
+## Incremental update (`k ≥ 5` witness family replaced by imported-assumption interface)
+
+Executed Step 3 of the witness-replacement phase on the `k ≥ 5` branch family:
+
+1. Removed temporary checker-allowlisted axiom usage for `k ≥ 5`.
+2. Introduced imported-assumption interface:
+   - `Erdos142.Kge5ProfileWitnessImported` (class)
+   - `Erdos142.erdos_problem_142_explicit_kge5_profile_witness_imported` (abbrev)
+3. Threaded this interface through the `k ≥ 5` explicit profile family and the final solution
+   scaffold (`erdos_problem_142_explicit_solution_axiom`, `erdos_problem_142_solution_axiom`).
+4. Updated checker allowlist and README expected output.
+
+Net result:
+
+- Temporary explicit-branch axiom debt reduced from **1** item to **0** items.
+
+## Blocked-plan elimination (current step, k ≥ 5)
+
+- Eliminated the `k ≥ 5` temporary-axiom dependency plane from the checker debt surface.
+
 ## Completed in code
 
 File: `ErdosProblems/Problem142.lean`
