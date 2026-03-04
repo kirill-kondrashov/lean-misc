@@ -43,6 +43,26 @@ New items in `ErdosProblems/Problem142Literature.lean`:
 - `Erdos142.erdos_problem_142_k4_matched_profile`
 - `Erdos142.erdos_problem_142_k4_case`
 
+## Incremental update (explicit-profile strengthening)
+
+Added a stronger non-tautological statement layer in `ErdosProblems/Problem142.lean`:
+
+1. Introduced explicit profile classes:
+   `ErdosProblems.ExplicitProfileClass`.
+2. Added strengthened target:
+   `ErdosProblems.HasExplicitAsymptoticFormula` and
+   `ErdosProblems.erdos_problem_142_explicit`.
+3. Added reduction theorem:
+   `ErdosProblems.erdos_problem_142_explicit_implies_erdos_problem_142`.
+4. Added DeepMind-style explicit counterpart and equivalence:
+   `Erdos142.erdos_142_explicit`,
+   `Erdos142.hasExplicitAsymptoticFormula_iff_erdos142_explicit`,
+   `Erdos142.erdos_problem_142_explicit_iff_deepmind`.
+5. Added explicit-profile solution outline scaffold in
+   `ErdosProblems/Problem142Literature.lean`:
+   `Erdos142.erdos_problem_142_explicit_solution_axiom` and
+   `Erdos142.erdos_problem_142_solution_from_explicit_axiom`.
+
 ## Completed in code
 
 File: `ErdosProblems/Problem142.lean`

@@ -14,6 +14,7 @@ def checkedTheorems : List Name :=
   [ ``TaoExercises.TaoBook.Chapter2.exercise_2_3
   , ``TaoExercises.TaoBook.Chapter2.exercise_2_6
   , ``Erdos142.erdos_problem_142_iff_deepmind
+  , ``Erdos142.erdos_problem_142_explicit_iff_deepmind
   , ``Erdos142.erdos_problem_142_solution_axiom
   ]
 

@@ -20,6 +20,11 @@ Lean formalization experiments and problem-focused developments, using a project
   Also includes an explicit equivalence theorem with the DeepMind-style formulation:
   `Erdos142.erdos_problem_142_iff_deepmind`.
 
+- `ErdosProblems.erdos_problem_142_explicit`:
+  strengthened non-tautological target requiring `r_k` to be `Θ` of an explicit profile class
+  (`ErdosProblems.ExplicitProfileClass`), with DeepMind-style equivalence theorem:
+  `Erdos142.erdos_problem_142_explicit_iff_deepmind`.
+
 - Plan for solving #142:
   `plan/PLAN_erdos_problem_142.md`
 
@@ -44,6 +49,8 @@ All solved exercises are checked to ensure they:
 - depend only on the base axioms `propext`, `Quot.sound`, and `Classical.choice`
 - include the Problem #142 DeepMind-equivalence theorem
   (`Erdos142.erdos_problem_142_iff_deepmind`)
+- include the strengthened explicit-profile DeepMind-equivalence theorem
+  (`Erdos142.erdos_problem_142_explicit_iff_deepmind`)
 - explicitly track temporary open-problem debt axioms for the roadmap branches:
   - `Erdos142.erdos_problem_142_k3_upper_profile_bound_axiom`
   - `Erdos142.erdos_problem_142_k3_lower_profile_bound_axiom`
@@ -73,6 +80,11 @@ Axioms used:
 - Quot.sound
 - Classical.choice
 ✅ The proof of 'Erdos142.erdos_problem_142_iff_deepmind' is free of 'sorry' and uses only base axioms.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+✅ The proof of 'Erdos142.erdos_problem_142_explicit_iff_deepmind' is free of 'sorry' and uses only base axioms.
 Axioms used:
 - propext
 - Quot.sound
@@ -119,6 +131,9 @@ make docs       # build API docs
 - As of March 4, 2026, Problem #142 is still open.
 - This repository formalizes the statement and related infrastructure; it does not claim a full
   asymptotic-formula proof.
+- A stronger target is now formalized:
+  `ErdosProblems.erdos_problem_142_explicit`, where comparison profiles are constrained to explicit
+  template classes rather than arbitrary functions.
 - A structured theorem outline
   (`Erdos142.erdos_problem_142_solution_axiom`) is tracked in checker output with explicit
   branch debt axioms:

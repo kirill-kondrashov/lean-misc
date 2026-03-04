@@ -106,6 +106,36 @@ theorem erdos_problem_142_solution_axiom : ErdosProblems.erdos_problem_142 := by
   · exact (hasAsymptoticFormula_iff_erdos142 4).2 erdos_problem_142_k4_case
   · exact (hasAsymptoticFormula_iff_erdos142 k).2 (erdos_problem_142_kge5_case_axiom hk5)
 
+/-- Temporary explicit-profile branch debt for `k = 3`. -/
+axiom erdos_problem_142_explicit_k3_case_axiom : erdos_142_explicit 3
+
+/-- Temporary explicit-profile branch debt for `k = 4`. -/
+axiom erdos_problem_142_explicit_k4_case_axiom : erdos_142_explicit 4
+
+/-- Temporary explicit-profile branch debt for `k ≥ 5`. -/
+axiom erdos_problem_142_explicit_kge5_case_axiom :
+  ∀ ⦃k : ℕ⦄, 5 ≤ k → erdos_142_explicit k
+
+/-- Stronger structured theorem outline:
+full #142 under explicit profile classes, split by `k = 3`, `k = 4`, and `k ≥ 5`. -/
+theorem erdos_problem_142_explicit_solution_axiom :
+    ErdosProblems.erdos_problem_142_explicit := by
+  intro k hk
+  have hk_cases : k = 3 ∨ k = 4 ∨ 5 ≤ k := by omega
+  rcases hk_cases with rfl | rfl | hk5
+  · exact (hasExplicitAsymptoticFormula_iff_erdos142_explicit 3).2
+      erdos_problem_142_explicit_k3_case_axiom
+  · exact (hasExplicitAsymptoticFormula_iff_erdos142_explicit 4).2
+      erdos_problem_142_explicit_k4_case_axiom
+  · exact (hasExplicitAsymptoticFormula_iff_erdos142_explicit k).2
+      (erdos_problem_142_explicit_kge5_case_axiom hk5)
+
+/-- The stronger explicit-profile outline implies the current statement-level #142 target. -/
+theorem erdos_problem_142_solution_from_explicit_axiom :
+    ErdosProblems.erdos_problem_142 := by
+  exact ErdosProblems.erdos_problem_142_explicit_implies_erdos_problem_142
+    erdos_problem_142_explicit_solution_axiom
+
 /-- Structured container for deep external benchmark inputs.
 Using a typeclass keeps all such dependencies explicit in theorem statements. -/
 class LiteratureAssumptions : Prop where

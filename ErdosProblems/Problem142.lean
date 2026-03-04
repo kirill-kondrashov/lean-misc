@@ -230,6 +230,33 @@ def HasAsymptoticFormula (k : ℕ) : Prop :=
   ∃ f : ℕ → ℝ,
     (fun N => (rk k N : ℝ)) =Θ[atTop] f
 
+/-- Constrained explicit profile templates used to make asymptotic targets non-tautological. -/
+inductive ExplicitProfileClass : ℕ → (ℕ → ℝ) → Prop
+  | k3 (β c C : ℝ) (hβ : 0 < β) (hc : 0 < c) (hC : 0 < C) :
+      ExplicitProfileClass 3
+        (fun N : ℕ => C * (N : ℝ) * Real.exp (-c * (Real.log (N + 2)) ^ β))
+  | k4 (c C : ℝ) (hc : 0 < c) (hC : 0 < C) :
+      ExplicitProfileClass 4
+        (fun N : ℕ => C * (N : ℝ) / (Real.log (N + 2)) ^ c)
+  | kge5 (k : ℕ) (hk : 5 ≤ k) (c C : ℝ) (hc : 0 < c) (hC : 0 < C) :
+      ExplicitProfileClass k
+        (fun N : ℕ => C * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ c)
+
+/-- Strengthened asymptotic-formula target: `r_k` is `Θ` of an explicit profile template. -/
+def HasExplicitAsymptoticFormula (k : ℕ) : Prop :=
+  ∃ f : ℕ → ℝ, ExplicitProfileClass k f ∧
+    (fun N => (rk k N : ℝ)) =Θ[atTop] f
+
+/-- Strengthened (non-tautological) version of Problem #142 using explicit profile classes. -/
+def erdos_problem_142_explicit : Prop :=
+  ∀ ⦃k : ℕ⦄, 3 ≤ k → HasExplicitAsymptoticFormula k
+
+/-- Any explicit-profile asymptotic formula is, in particular, an asymptotic formula. -/
+theorem hasExplicitAsymptoticFormula_implies_hasAsymptoticFormula {k : ℕ}
+    (h : HasExplicitAsymptoticFormula k) : HasAsymptoticFormula k := by
+  rcases h with ⟨f, -, hf⟩
+  exact ⟨f, hf⟩
+
 /--
 Erdős Problem #142:
 "Let `r_k(N)` be the largest possible size of a subset of `{1,…,N}` that does not contain any
@@ -240,6 +267,12 @@ Formalized as: for each fixed `k ≥ 3`, `r_k` has an asymptotic formula.
 def erdos_problem_142 : Prop :=
   ∀ ⦃k : ℕ⦄, 3 ≤ k → HasAsymptoticFormula k
 
+/-- The strengthened explicit target implies the existing statement-level formalization. -/
+theorem erdos_problem_142_explicit_implies_erdos_problem_142
+    (h : erdos_problem_142_explicit) : erdos_problem_142 := by
+  intro k hk
+  exact hasExplicitAsymptoticFormula_implies_hasAsymptoticFormula (h hk)
+
 end ErdosProblems
 
 namespace Erdos142
@@ -249,6 +282,11 @@ noncomputable abbrev r := ErdosProblems.rk
 /-- DeepMind `formal-conjectures`-aligned statement shape for Problem #142. -/
 def erdos_142 (k : ℕ) : Prop :=
   ∃ f : ℕ → ℝ, (fun N => (r k N : ℝ)) =Θ[atTop] f
+
+/-- DeepMind-style shape for the strengthened explicit-profile target. -/
+def erdos_142_explicit (k : ℕ) : Prop :=
+  ∃ f : ℕ → ℝ, ErdosProblems.ExplicitProfileClass k f ∧
+    (fun N => (r k N : ℝ)) =Θ[atTop] f
 
 namespace erdos_142
 namespace variants
@@ -338,6 +376,10 @@ theorem hasAsymptoticFormula_iff_erdos142 (k : ℕ) :
     ErdosProblems.HasAsymptoticFormula k ↔ erdos_142 k := by
   rfl
 
+theorem hasExplicitAsymptoticFormula_iff_erdos142_explicit (k : ℕ) :
+    ErdosProblems.HasExplicitAsymptoticFormula k ↔ erdos_142_explicit k := by
+  rfl
+
 theorem erdos_problem_142_iff_deepmind :
     ErdosProblems.erdos_problem_142 ↔
       ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142 k := by
@@ -346,5 +388,22 @@ theorem erdos_problem_142_iff_deepmind :
     exact (hasAsymptoticFormula_iff_erdos142 k).1 (h hk)
   · intro h k hk
     exact (hasAsymptoticFormula_iff_erdos142 k).2 (h hk)
+
+theorem erdos_problem_142_explicit_iff_deepmind :
+    ErdosProblems.erdos_problem_142_explicit ↔
+      ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142_explicit k := by
+  constructor
+  · intro h k hk
+    exact (hasExplicitAsymptoticFormula_iff_erdos142_explicit k).1 (h hk)
+  · intro h k hk
+    exact (hasExplicitAsymptoticFormula_iff_erdos142_explicit k).2 (h hk)
+
+theorem erdos_problem_142_explicit_implies_erdos_problem_142_deepmind
+    (h : ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142_explicit k) :
+    ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142 k := by
+  intro k hk
+  exact (hasAsymptoticFormula_iff_erdos142 k).1
+    (ErdosProblems.erdos_problem_142_explicit_implies_erdos_problem_142
+      ((erdos_problem_142_explicit_iff_deepmind).2 h) hk)
 
 end Erdos142
