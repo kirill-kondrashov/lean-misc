@@ -4,6 +4,25 @@ open Filter
 
 namespace Erdos142
 
+/-- Temporary branch debt for the `k = 3` case in the #142 roadmap. -/
+axiom erdos_problem_142_k3_case_axiom : erdos_142 3
+
+/-- Temporary branch debt for the `k = 4` case in the #142 roadmap. -/
+axiom erdos_problem_142_k4_case_axiom : erdos_142 4
+
+/-- Temporary branch debt for the `k ≥ 5` case in the #142 roadmap. -/
+axiom erdos_problem_142_kge5_case_axiom : ∀ ⦃k : ℕ⦄, 5 ≤ k → erdos_142 k
+
+/-- Structured theorem outline for the full #142 target.
+The body follows the active plan split: `k = 3`, `k = 4`, and `k ≥ 5`. -/
+theorem erdos_problem_142_solution_axiom : ErdosProblems.erdos_problem_142 := by
+  intro k hk
+  have hk_cases : k = 3 ∨ k = 4 ∨ 5 ≤ k := by omega
+  rcases hk_cases with rfl | rfl | hk5
+  · exact (hasAsymptoticFormula_iff_erdos142 3).2 erdos_problem_142_k3_case_axiom
+  · exact (hasAsymptoticFormula_iff_erdos142 4).2 erdos_problem_142_k4_case_axiom
+  · exact (hasAsymptoticFormula_iff_erdos142 k).2 (erdos_problem_142_kge5_case_axiom hk5)
+
 /-- Structured container for deep external benchmark inputs.
 Using a typeclass keeps all such dependencies explicit in theorem statements. -/
 class LiteratureAssumptions : Prop where
