@@ -65,6 +65,10 @@ File: `ErdosProblems/Problem142.lean`
     - `Erdos142.k3_sublinear_of_literature_rates`
 - Added feasible lower-variant small-case bridge:
   - `Erdos142.lower_variant_two_of_growth`
+- Added broader unconditional exact-value family at `N = 1`:
+  - `ErdosProblems.rk_zero_eq_zero`
+  - `ErdosProblems.rk_at_one_eq_zero_of_le_one`
+  - `ErdosProblems.rk_at_one_eq_ite`
 
 ## Validation
 
@@ -79,7 +83,7 @@ File: `ErdosProblems/Problem142.lean`
 
 ## Next execution targets
 
-1. Add one more unconditional exact-value family beyond `k = 2` (or prove impossibility/limits
-   for immediate next cases) to keep the finite API growth disciplined.
-2. Reduce assumptions of `lower_variant_two_of_growth` by proving/importing a reusable growth lemma
+1. Reduce assumptions of `lower_variant_two_of_growth` by proving/importing a reusable growth lemma
    for `‖N / log N‖ → ∞` in the nat-indexed real setting.
+2. Consider adding a dedicated `BoundTargets` file so benchmark statement-shapes are separated from
+   both core combinatorial definitions and literature assumptions.

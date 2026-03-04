@@ -129,6 +129,31 @@ theorem rk_one_eq_zero (N : ℕ) : rk 1 N = 0 := by
   intro m hm
   simp [admissible_card_eq_zero_of_k_one hm]
 
+/-- Any finite set contains a non-trivial `0`-term progression (vacuously). -/
+theorem containsNontrivialZeroTermAP (A : Finset ℕ) : ContainsNontrivialKTermAP 0 A := by
+  refine ⟨0, 1, by decide, ?_⟩
+  intro i hi
+  exact (Nat.not_lt_zero _ hi).elim
+
+/-- No finite set is `0`-term-AP-free. -/
+theorem not_apfree_zero (A : Finset ℕ) : ¬ KTermAPFree 0 A := by
+  intro hfree
+  exact hfree (containsNontrivialZeroTermAP A)
+
+/-- Every admissible cardinal for `k = 0` is impossible. -/
+theorem not_mem_admissibleSetCardinals_zero (N m : ℕ) :
+    m ∉ admissibleSetCardinals 0 N := by
+  intro hm
+  rcases hm with ⟨A, -, hfree, -⟩
+  exact not_apfree_zero A hfree
+
+/-- Unconditional benchmark: `r_0(N) = 0` for all `N`. -/
+theorem rk_zero_eq_zero (N : ℕ) : rk 0 N = 0 := by
+  apply Nat.eq_zero_of_le_zero
+  refine csSup_le' ?_
+  intro m hm
+  exact (not_mem_admissibleSetCardinals_zero N m hm).elim
+
 /-- If `a < b` are both in `A`, they form a non-trivial `2`-term progression in `A`. -/
 theorem containsNontrivialTwoTermAP_of_lt {A : Finset ℕ} {a b : ℕ}
     (ha : a ∈ A) (hb : b ∈ A) (hab : a < b) :
@@ -177,6 +202,20 @@ theorem one_le_rk_two_of_one_le {N : ℕ} (hN : 1 ≤ N) : 1 ≤ rk 2 N := by
 theorem rk_two_eq_one_of_pos {N : ℕ} (hN : 0 < N) : rk 2 N = 1 := by
   have hN' : 1 ≤ N := Nat.succ_le_of_lt hN
   exact Nat.le_antisymm (rk_two_le_one N) (one_le_rk_two_of_one_le hN')
+
+/-- At `N = 1`, we have `r_k(1) = 0` whenever `k ≤ 1`. -/
+theorem rk_at_one_eq_zero_of_le_one {k : ℕ} (hk : k ≤ 1) : rk k 1 = 0 := by
+  interval_cases k
+  · simpa using rk_zero_eq_zero 1
+  · simpa using rk_one_eq_zero 1
+
+/-- Complete exact-value family at `N = 1`:
+`r_k(1) = 0` for `k ≤ 1` and `r_k(1) = 1` for `k ≥ 2`. -/
+theorem rk_at_one_eq_ite (k : ℕ) : rk k 1 = if k ≤ 1 then 0 else 1 := by
+  by_cases hk : k ≤ 1
+  · simp [hk, rk_at_one_eq_zero_of_le_one hk]
+  · have hk2 : 2 ≤ k := by omega
+    simp [hk, rk_one_eq_one_of_two_le hk2]
 
 /-- Complete exact characterization for `k = 2`. -/
 theorem rk_two_eq_ite (N : ℕ) : rk 2 N = if N = 0 then 0 else 1 := by
