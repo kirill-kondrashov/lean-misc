@@ -34,12 +34,43 @@ lake build
 lake exe check_axioms
 ```
 
+## Verification
+
+All solved exercises are checked to ensure they:
+
+- do not use `sorry`
+- depend only on the base axioms `propext`, `Quot.sound`, and `Classical.choice`
+
+Run:
+
+```bash
+make check
+make verify
+```
+
+Expected Output:
+
+```text
+✅ The proof of 'TaoExercises.TaoBook.Chapter2.exercise_2_3' is free of 'sorry' and uses only base axioms.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+✅ The proof of 'TaoExercises.TaoBook.Chapter2.exercise_2_6' is free of 'sorry' and uses only base axioms.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+✅ All checked solutions are free of 'sorry' and use only base axioms.
+```
+
 ## Useful Make targets
 
 ```bash
 make cache      # fetch Mathlib cache
 make build      # lake build
 make check      # lake exe check_axioms
+make verify     # compare make check output with README expected output
 make auto-build # cache refresh + build + check
 make docs       # build API docs
 ```
