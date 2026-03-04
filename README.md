@@ -90,3 +90,24 @@ make docs       # build API docs
 - Pull requests, pushes, and manual runs all execute a single `leanprover/lean-action` build job.
 - Docs are not generated/deployed in CI.
 - Workflow concurrency is enabled with `cancel-in-progress: true`.
+
+## Erdős #142: current status and references
+
+- As of March 4, 2026, Problem #142 is still open.
+- This repository formalizes the statement and related infrastructure; it does not claim a full
+  asymptotic-formula proof.
+- The Erdős Problems page notes that an asymptotic formula remains far out of reach, and cites
+  current upper-bound progress by:
+  - Kelley-Meka (`k = 3`)
+  - Green-Tao (`k = 4`)
+  - Leng-Sah-Sawhney (`k ≥ 5`)
+
+References:
+
+- Erdős Problems #142 (status/discussion): <https://www.erdosproblems.com/142>
+- Kelley, Z.; Meka, R. (2023), *Strong Bounds for 3-Progressions*:
+  <https://arxiv.org/abs/2302.05537>
+- Green, B.; Tao, T. (2017), *New bounds for Szemerédi's theorem, III: a polylogarithmic bound
+  for r_4(N)* (Mathematika): <https://ora.ox.ac.uk/objects/uuid:1d09eef3-01e2-4ce0-ab9d-2892019812c8>
+- Leng, J.; Sah, A.; Sawhney, M. (2024), *Improved bounds for Szemerédi's theorem*:
+  <https://arxiv.org/abs/2402.17995>
