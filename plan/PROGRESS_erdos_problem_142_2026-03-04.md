@@ -25,6 +25,13 @@ File: `ErdosProblems/Problem142.lean`
 - Added structured external-input container:
   - `Erdos142.LiteratureAssumptions` (typeclass)
   - `Erdos142.literatureAssumptions_provide_all_targets`
+- Added explicit rate-profile target propositions:
+  - `Erdos142.bound_targets.k3_superpolylog_upper_profile`
+  - `Erdos142.bound_targets.k4_polylog_upper_profile`
+  - `Erdos142.bound_targets.kge5_iteratedlog_upper_profile`
+- Added strengthened assumptions + derived consequence:
+  - `Erdos142.LiteratureRateAssumptions`
+  - `Erdos142.upper_variant_of_literature_for_all_k_ge_three`
 
 ## Validation
 
@@ -39,8 +46,8 @@ File: `ErdosProblems/Problem142.lean`
 
 ## Next execution targets
 
-1. Introduce statement-level theorem stubs with exact asymptotic rates from literature
-   (`k=3`, `k=4`, `k≥5`) in a dedicated bounds module.
+1. Add explicit lower-bound target profiles (e.g. Behrend-type) so upper/lower benchmark
+   statements coexist in one formal interface.
 2. Prove additional unconditional lemmas for small `k, N` to harden the combinatorial API.
-3. Start a dependency-indexed assumptions namespace (paper -> Lean theorem signatures ->
-   downstream consequences).
+3. Add a dedicated bibliography-indexed assumptions file to decouple statement signatures from
+   `Problem142.lean` and keep dependency provenance minimal and auditable.

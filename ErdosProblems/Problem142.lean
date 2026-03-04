@@ -187,6 +187,25 @@ def k4_upper_green_tao : Prop :=
 def kge5_upper_leng_sah_sawhney : Prop :=
   ∀ ⦃k : ℕ⦄, 5 ≤ k → erdos_142.variants.upper k
 
+/-- Rate-template target for `k = 3`: super-polylogarithmic decay in an explicit `O`-profile. -/
+def k3_superpolylog_upper_profile : Prop :=
+  ∃ β c C : ℝ, 0 < β ∧ 0 < c ∧ 0 < C ∧
+    (fun N => (r 3 N : ℝ)) =O[atTop]
+      (fun N : ℕ => C * (N : ℝ) * Real.exp (-c * (Real.log (N + 2)) ^ β))
+
+/-- Rate-template target for `k = 4`: polylogarithmic decay in an explicit `O`-profile. -/
+def k4_polylog_upper_profile : Prop :=
+  ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+    (fun N => (r 4 N : ℝ)) =O[atTop]
+      (fun N : ℕ => C * (N : ℝ) / (Real.log (N + 2)) ^ c)
+
+/-- Rate-template target for `k ≥ 5`: iterated-log decay in an explicit `O`-profile. -/
+def kge5_iteratedlog_upper_profile : Prop :=
+  ∀ ⦃k : ℕ⦄, 5 ≤ k →
+    ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+      (fun N => (r k N : ℝ)) =O[atTop]
+        (fun N : ℕ => C * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ c)
+
 end bound_targets
 
 /-- Structured container for deep external benchmark inputs.
@@ -201,6 +220,22 @@ theorem literatureAssumptions_provide_all_targets [h : LiteratureAssumptions] :
       bound_targets.k4_upper_green_tao ∧
       bound_targets.kge5_upper_leng_sah_sawhney := by
   exact ⟨h.k3_upper_kelley_meka, h.k4_upper_green_tao, h.kge5_upper_leng_sah_sawhney⟩
+
+/-- Strengthened container that also stores explicit rate-profile targets. -/
+class LiteratureRateAssumptions : Prop extends LiteratureAssumptions where
+  k3_superpolylog_upper_profile : bound_targets.k3_superpolylog_upper_profile
+  k4_polylog_upper_profile : bound_targets.k4_polylog_upper_profile
+  kge5_iteratedlog_upper_profile : bound_targets.kge5_iteratedlog_upper_profile
+
+/-- Under benchmark assumptions, all `k ≥ 3` have a nontrivial `upper`-variant statement. -/
+theorem upper_variant_of_literature_for_all_k_ge_three [h : LiteratureAssumptions] :
+    ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142.variants.upper k := by
+  intro k hk
+  have hk_cases : k = 3 ∨ k = 4 ∨ 5 ≤ k := by omega
+  rcases hk_cases with rfl | rfl | hk5
+  · exact h.k3_upper_kelley_meka
+  · exact h.k4_upper_green_tao
+  · exact h.kge5_upper_leng_sah_sawhney hk5
 
 theorem hasAsymptoticFormula_iff_erdos142 (k : ℕ) :
     ErdosProblems.HasAsymptoticFormula k ↔ erdos_142 k := by

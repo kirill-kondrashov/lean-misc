@@ -1,6 +1,6 @@
-# TaoExercises
+# Lean Experiments
 
-Lean formalizations of exercises, using a project structure modeled after:
+Lean formalization experiments and problem-focused developments, using a project structure modeled after:
 <https://github.com/kirill-kondrashov/yoccos-theorem>.
 
 ## Current contents
