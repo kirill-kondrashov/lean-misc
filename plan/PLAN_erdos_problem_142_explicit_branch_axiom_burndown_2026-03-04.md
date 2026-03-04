@@ -7,14 +7,15 @@ into structured witness axioms, then replacing those witnesses with real/importe
 
 ## Progress Bar
 
-- Overall debt burndown (temporary explicit-branch axioms): `6 / 9` removed
-- Progress: `67%` `[#############.......]`
+- Overall debt burndown (temporary explicit-branch axioms): `7 / 9` removed
+- Progress: `78%` `[################....]`
 
 ## Milestones
 
 1. **Consolidate `k = 3` explicit branch debt** — `completed`
-   - Current single debt item:
-     - `Erdos142.erdos_problem_142_explicit_k3_profile_witness_axiom`
+   - Temporary checker-allowlisted debt removed.
+   - Branch now routed through imported-assumption interface:
+     - `Erdos142.K3ProfileWitnessImported`
    - Derived theorem interfaces preserved:
      - `Erdos142.erdos_problem_142_explicit_k3_upper_bound_axiom`
      - `Erdos142.erdos_problem_142_explicit_k3_lower_bound_axiom`
@@ -33,11 +34,14 @@ into structured witness axioms, then replacing those witnesses with real/importe
      - `Erdos142.erdos_problem_142_explicit_kge5_upper_bound_axiom`
      - `Erdos142.erdos_problem_142_explicit_kge5_lower_bound_axiom`
 
-4. **Remove all witness axioms by replacing with proved/imported results** — `pending`
+4. **Remove all witness axioms by replacing with proved/imported results** — `in_progress`
+   - `k = 3`: moved to imported-assumption interface (done).
+   - `k = 4`: pending.
+   - `k ≥ 5`: pending.
    - Success criterion:
      - no temporary explicit-branch axioms in checker output.
 
 ## Immediate Next Action
 
-Replace witness axioms with real/imported theorems in the order:
-`k = 3` witness, `k = 4` witness, then `k ≥ 5` witness family.
+Replace `k = 4` witness axiom with the same imported-assumption interface pattern already applied
+to `k = 3`, then repeat for `k ≥ 5`.

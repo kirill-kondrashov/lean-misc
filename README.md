@@ -55,7 +55,6 @@ All solved exercises are checked to ensure they:
 - include the strengthened explicit-profile DeepMind-equivalence theorem
   (`Erdos142.erdos_problem_142_explicit_iff_deepmind`)
 - explicitly track temporary open-problem debt axioms for the roadmap branches:
-  - `Erdos142.erdos_problem_142_explicit_k3_profile_witness_axiom`
   - `Erdos142.erdos_problem_142_explicit_k4_profile_witness_axiom`
   - `Erdos142.erdos_problem_142_explicit_kge5_profile_witness_axiom`
   (temporarily allowed so CI stays green, and must eventually be removed)
@@ -95,11 +94,9 @@ Axioms used:
 - propext
 - Quot.sound
 - Classical.choice
-- Erdos142.erdos_problem_142_explicit_k3_profile_witness_axiom
 - Erdos142.erdos_problem_142_explicit_k4_profile_witness_axiom
 - Erdos142.erdos_problem_142_explicit_kge5_profile_witness_axiom
 Temporarily allowed non-base axioms (must be proved later):
-- Erdos142.erdos_problem_142_explicit_k3_profile_witness_axiom
 - Erdos142.erdos_problem_142_explicit_k4_profile_witness_axiom
 - Erdos142.erdos_problem_142_explicit_kge5_profile_witness_axiom
 ✅ All checked items are free of 'sorry'. Temporary Erdős #142 axiom debt is explicitly allowed.
@@ -134,9 +131,10 @@ make docs       # build API docs
 - A structured theorem outline
   (`Erdos142.erdos_problem_142_solution_axiom`) is tracked in checker output with explicit
   branch debt axioms:
-  - `Erdos142.erdos_problem_142_explicit_k3_profile_witness_axiom`
   - `Erdos142.erdos_problem_142_explicit_k4_profile_witness_axiom`
   - `Erdos142.erdos_problem_142_explicit_kge5_profile_witness_axiom`
+  The `k = 3` branch is now routed through an imported-assumption interface
+  (`Erdos142.K3ProfileWitnessImported`) rather than temporary checker-allowlisted axioms.
   These are unresolved proof debt that must be removed by real proofs.
 - The Erdős Problems page notes that an asymptotic formula remains far out of reach, and cites
   current upper-bound progress by:

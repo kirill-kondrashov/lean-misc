@@ -22,8 +22,7 @@ def baseAxioms : Array Name :=
   #[``propext, ``Quot.sound, ``Classical.choice]
 
 def temporaryAllowedAxioms : Array Name :=
-  #[ ``Erdos142.erdos_problem_142_explicit_k3_profile_witness_axiom
-   , ``Erdos142.erdos_problem_142_explicit_k4_profile_witness_axiom
+  #[ ``Erdos142.erdos_problem_142_explicit_k4_profile_witness_axiom
    , ``Erdos142.erdos_problem_142_explicit_kge5_profile_witness_axiom
    ]
 

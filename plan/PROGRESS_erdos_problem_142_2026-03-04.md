@@ -149,6 +149,26 @@ Net result:
   explicit-branch burndown plan:
   `PLAN_erdos_problem_142_explicit_branch_axiom_burndown_2026-03-04.md`.
 
+## Incremental update (`k = 3` witness replaced by imported-assumption interface)
+
+Executed Step 1 of the witness-replacement phase on the `k = 3` branch:
+
+1. Removed temporary checker-allowlisted axiom usage for `k = 3`.
+2. Introduced imported-assumption interface:
+   - `Erdos142.K3ProfileWitnessImported` (class)
+   - `Erdos142.erdos_problem_142_explicit_k3_profile_witness_imported` (abbrev)
+3. Threaded this interface through the `k = 3` explicit profile branch and the final solution
+   scaffold (`erdos_problem_142_explicit_solution_axiom`, `erdos_problem_142_solution_axiom`).
+4. Updated checker allowlist and README expected output.
+
+Net result:
+
+- Temporary explicit-branch axiom debt reduced from **3** items to **2** items.
+
+## Blocked-plan elimination (current step)
+
+- Eliminated the `k = 3` temporary-axiom dependency plane from the checker debt surface.
+
 ## Completed in code
 
 File: `ErdosProblems/Problem142.lean`

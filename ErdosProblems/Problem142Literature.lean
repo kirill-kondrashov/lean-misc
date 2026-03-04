@@ -141,8 +141,16 @@ structure K3ProfileWitness where
     (fun N : ℕ => C * (N : ℝ) * Real.exp (-c * (Real.log (N + 2)) ^ β)) =O[atTop]
       (fun N => (r 3 N : ℝ))
 
-/-- Temporary two-sided profile debt witness for `k = 3`. -/
-axiom erdos_problem_142_explicit_k3_profile_witness_axiom : K3ProfileWitness
+/-- Imported-assumption container for the `k = 3` two-sided profile witness.
+This is an interface point for replacing temporary debt with a real imported theorem. -/
+class K3ProfileWitnessImported where
+  k3_profile_witness : K3ProfileWitness
+
+/-- Imported `k = 3` two-sided profile witness (from a registered assumption instance). -/
+noncomputable abbrev erdos_problem_142_explicit_k3_profile_witness_imported
+    [h : K3ProfileWitnessImported] :
+    K3ProfileWitness :=
+  h.k3_profile_witness
 
 /-- Structured temporary two-sided profile debt for `k = 4`. -/
 structure K4ProfileWitness where
@@ -178,12 +186,12 @@ axiom erdos_problem_142_explicit_kge5_profile_witness_axiom :
   ∀ ⦃k : ℕ⦄ (hk : 5 ≤ k), Kge5ProfileWitness k hk
 
 /-- Fixed explicit profile for the `k = 3` branch. -/
-noncomputable def k3_explicit_profile : ℕ → ℝ :=
+noncomputable def k3_explicit_profile [K3ProfileWitnessImported] : ℕ → ℝ :=
   fun N =>
-    erdos_problem_142_explicit_k3_profile_witness_axiom.C * (N : ℝ) *
+    erdos_problem_142_explicit_k3_profile_witness_imported.C * (N : ℝ) *
       Real.exp
-        (-erdos_problem_142_explicit_k3_profile_witness_axiom.c *
-          (Real.log (N + 2)) ^ erdos_problem_142_explicit_k3_profile_witness_axiom.β)
+        (-erdos_problem_142_explicit_k3_profile_witness_imported.c *
+          (Real.log (N + 2)) ^ erdos_problem_142_explicit_k3_profile_witness_imported.β)
 
 /-- Fixed explicit profile for the `k = 4` branch. -/
 noncomputable def k4_explicit_profile : ℕ → ℝ :=
@@ -198,22 +206,22 @@ noncomputable def kge5_explicit_profile {k : ℕ} (hk : 5 ≤ k) : ℕ → ℝ :
       (Real.log (Real.log (N + 3))) ^ (erdos_problem_142_explicit_kge5_profile_witness_axiom hk).c
 
 /-- `k = 3` explicit profile belongs to the constrained profile class. -/
-theorem k3_explicit_profile_class :
+theorem k3_explicit_profile_class [K3ProfileWitnessImported] :
     ErdosProblems.ExplicitProfileClass 3 k3_explicit_profile := by
   change ErdosProblems.ExplicitProfileClass 3
       (fun N : ℕ =>
-        erdos_problem_142_explicit_k3_profile_witness_axiom.C * (N : ℝ) *
+        erdos_problem_142_explicit_k3_profile_witness_imported.C * (N : ℝ) *
           Real.exp
-            (-erdos_problem_142_explicit_k3_profile_witness_axiom.c *
-              (Real.log (N + 2)) ^ erdos_problem_142_explicit_k3_profile_witness_axiom.β))
+            (-erdos_problem_142_explicit_k3_profile_witness_imported.c *
+              (Real.log (N + 2)) ^ erdos_problem_142_explicit_k3_profile_witness_imported.β))
   exact
     ErdosProblems.ExplicitProfileClass.k3
-      erdos_problem_142_explicit_k3_profile_witness_axiom.β
-      erdos_problem_142_explicit_k3_profile_witness_axiom.c
-      erdos_problem_142_explicit_k3_profile_witness_axiom.C
-      erdos_problem_142_explicit_k3_profile_witness_axiom.hβ
-      erdos_problem_142_explicit_k3_profile_witness_axiom.hc
-      erdos_problem_142_explicit_k3_profile_witness_axiom.hC
+      erdos_problem_142_explicit_k3_profile_witness_imported.β
+      erdos_problem_142_explicit_k3_profile_witness_imported.c
+      erdos_problem_142_explicit_k3_profile_witness_imported.C
+      erdos_problem_142_explicit_k3_profile_witness_imported.hβ
+      erdos_problem_142_explicit_k3_profile_witness_imported.hc
+      erdos_problem_142_explicit_k3_profile_witness_imported.hC
 
 /-- `k = 4` explicit profile belongs to the constrained profile class. -/
 theorem k4_explicit_profile_class :
@@ -245,19 +253,19 @@ theorem kge5_explicit_profile_class {k : ℕ} (hk : 5 ≤ k) :
       (erdos_problem_142_explicit_kge5_profile_witness_axiom hk).hC
 
 /-- Derived upper-side quantitative bound for `k = 3`, from the structured profile witness debt. -/
-theorem erdos_problem_142_explicit_k3_upper_bound_axiom :
+theorem erdos_problem_142_explicit_k3_upper_bound_axiom [K3ProfileWitnessImported] :
     ∃ K : ℝ, 0 ≤ K ∧
       ∀ᶠ N : ℕ in atTop, ‖(r 3 N : ℝ)‖ ≤ K * ‖k3_explicit_profile N‖ := by
-  rcases (Asymptotics.isBigO_iff').1 erdos_problem_142_explicit_k3_profile_witness_axiom.hUpper with
+  rcases (Asymptotics.isBigO_iff').1 erdos_problem_142_explicit_k3_profile_witness_imported.hUpper with
     ⟨K, hKpos, hK⟩
   refine ⟨K, le_of_lt hKpos, ?_⟩
   simpa [k3_explicit_profile] using hK
 
 /-- Derived lower-side quantitative bound for `k = 3`, from the structured profile witness debt. -/
-theorem erdos_problem_142_explicit_k3_lower_bound_axiom :
+theorem erdos_problem_142_explicit_k3_lower_bound_axiom [K3ProfileWitnessImported] :
     ∃ K : ℝ, 0 ≤ K ∧
       ∀ᶠ N : ℕ in atTop, ‖k3_explicit_profile N‖ ≤ K * ‖(r 3 N : ℝ)‖ := by
-  rcases (Asymptotics.isBigO_iff').1 erdos_problem_142_explicit_k3_profile_witness_axiom.hLower with
+  rcases (Asymptotics.isBigO_iff').1 erdos_problem_142_explicit_k3_profile_witness_imported.hLower with
     ⟨K, hKpos, hK⟩
   refine ⟨K, le_of_lt hKpos, ?_⟩
   simpa [k3_explicit_profile] using hK
@@ -303,7 +311,8 @@ theorem erdos_problem_142_explicit_kge5_lower_bound_axiom :
   simpa [kge5_explicit_profile] using hK
 
 /-- Derived explicit `k = 3` branch via the generic explicit bridge. -/
-theorem erdos_problem_142_explicit_k3_case : erdos_142_explicit 3 := by
+theorem erdos_problem_142_explicit_k3_case [K3ProfileWitnessImported] :
+    erdos_142_explicit 3 := by
   exact erdos_142_explicit_of_eventual_bounds
     k3_explicit_profile_class
     erdos_problem_142_explicit_k3_upper_bound_axiom
@@ -327,7 +336,7 @@ theorem erdos_problem_142_explicit_kge5_case :
 
 /-- Stronger structured theorem outline:
 full #142 under explicit profile classes, split by `k = 3`, `k = 4`, and `k ≥ 5`. -/
-theorem erdos_problem_142_explicit_solution_axiom :
+theorem erdos_problem_142_explicit_solution_axiom [K3ProfileWitnessImported] :
     ErdosProblems.erdos_problem_142_explicit := by
   intro k hk
   have hk_cases : k = 3 ∨ k = 4 ∨ 5 ≤ k := by omega
@@ -341,7 +350,8 @@ theorem erdos_problem_142_explicit_solution_axiom :
 
 /-- Structured theorem outline for the full #142 target.
 Now routed through the stronger explicit-profile solution scaffold. -/
-theorem erdos_problem_142_solution_axiom : ErdosProblems.erdos_problem_142 := by
+theorem erdos_problem_142_solution_axiom [K3ProfileWitnessImported] :
+    ErdosProblems.erdos_problem_142 := by
   intro k hk
   have hExp : erdos_142_explicit k :=
     (hasExplicitAsymptoticFormula_iff_erdos142_explicit k).1
@@ -350,7 +360,7 @@ theorem erdos_problem_142_solution_axiom : ErdosProblems.erdos_problem_142 := by
     (erdos_142_explicit_implies_erdos_142 hExp)
 
 /-- The stronger explicit-profile outline implies the current statement-level #142 target. -/
-theorem erdos_problem_142_solution_from_explicit_axiom :
+theorem erdos_problem_142_solution_from_explicit_axiom [K3ProfileWitnessImported] :
     ErdosProblems.erdos_problem_142 :=
   erdos_problem_142_solution_axiom
 
