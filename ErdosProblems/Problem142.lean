@@ -380,6 +380,11 @@ theorem hasExplicitAsymptoticFormula_iff_erdos142_explicit (k : ℕ) :
     ErdosProblems.HasExplicitAsymptoticFormula k ↔ erdos_142_explicit k := by
   rfl
 
+theorem erdos_142_explicit_implies_erdos_142 {k : ℕ}
+    (h : erdos_142_explicit k) : erdos_142 k := by
+  rcases h with ⟨f, -, hf⟩
+  exact ⟨f, hf⟩
+
 theorem erdos_problem_142_iff_deepmind :
     ErdosProblems.erdos_problem_142 ↔
       ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142 k := by
