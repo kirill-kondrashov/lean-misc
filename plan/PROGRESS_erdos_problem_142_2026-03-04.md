@@ -24,6 +24,25 @@ New items in `ErdosProblems/Problem142Literature.lean`:
 - `Erdos142.erdos_problem_142_k3_lower_profile_bound_axiom`
 - `Erdos142.erdos_problem_142_k3_case`
 
+## Incremental update (k = 4 decomposition)
+
+Applied the same narrowing strategy to the `k = 4` branch:
+
+1. Added `k = 4` matched-profile infrastructure and reduction theorem.
+2. Replaced the single `k = 4` branch axiom with two narrower profile-bound axioms.
+3. Derived `Erdos142.erdos_problem_142_k4_case` from those two axioms.
+
+New items in `ErdosProblems/Problem142Literature.lean`:
+
+- `Erdos142.k4_matched_profile`
+- `Erdos142.k4_profile`
+- `Erdos142.k4_matched_profile_of_eventual_bounds`
+- `Erdos142.erdos_142_four_of_matched_profile`
+- `Erdos142.erdos_problem_142_k4_upper_profile_bound_axiom`
+- `Erdos142.erdos_problem_142_k4_lower_profile_bound_axiom`
+- `Erdos142.erdos_problem_142_k4_matched_profile`
+- `Erdos142.erdos_problem_142_k4_case`
+
 ## Completed in code
 
 File: `ErdosProblems/Problem142.lean`

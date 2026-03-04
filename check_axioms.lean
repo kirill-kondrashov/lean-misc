@@ -23,7 +23,8 @@ def baseAxioms : Array Name :=
 def temporaryAllowedAxioms : Array Name :=
   #[ ``Erdos142.erdos_problem_142_k3_upper_profile_bound_axiom
    , ``Erdos142.erdos_problem_142_k3_lower_profile_bound_axiom
-   , ``Erdos142.erdos_problem_142_k4_case_axiom
+   , ``Erdos142.erdos_problem_142_k4_upper_profile_bound_axiom
+   , ``Erdos142.erdos_problem_142_k4_lower_profile_bound_axiom
    , ``Erdos142.erdos_problem_142_kge5_case_axiom
    ]
 

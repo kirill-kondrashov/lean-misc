@@ -47,7 +47,8 @@ All solved exercises are checked to ensure they:
 - explicitly track temporary open-problem debt axioms for the roadmap branches:
   - `Erdos142.erdos_problem_142_k3_upper_profile_bound_axiom`
   - `Erdos142.erdos_problem_142_k3_lower_profile_bound_axiom`
-  - `Erdos142.erdos_problem_142_k4_case_axiom`
+  - `Erdos142.erdos_problem_142_k4_upper_profile_bound_axiom`
+  - `Erdos142.erdos_problem_142_k4_lower_profile_bound_axiom`
   - `Erdos142.erdos_problem_142_kge5_case_axiom`
   (temporarily allowed so CI stays green, and must eventually be removed)
 
@@ -83,12 +84,14 @@ Axioms used:
 - Classical.choice
 - Erdos142.erdos_problem_142_k3_upper_profile_bound_axiom
 - Erdos142.erdos_problem_142_k3_lower_profile_bound_axiom
-- Erdos142.erdos_problem_142_k4_case_axiom
+- Erdos142.erdos_problem_142_k4_upper_profile_bound_axiom
+- Erdos142.erdos_problem_142_k4_lower_profile_bound_axiom
 - Erdos142.erdos_problem_142_kge5_case_axiom
 Temporarily allowed non-base axioms (must be proved later):
 - Erdos142.erdos_problem_142_k3_upper_profile_bound_axiom
 - Erdos142.erdos_problem_142_k3_lower_profile_bound_axiom
-- Erdos142.erdos_problem_142_k4_case_axiom
+- Erdos142.erdos_problem_142_k4_upper_profile_bound_axiom
+- Erdos142.erdos_problem_142_k4_lower_profile_bound_axiom
 - Erdos142.erdos_problem_142_kge5_case_axiom
 ✅ All checked items are free of 'sorry'. Temporary Erdős #142 axiom debt is explicitly allowed.
 ```
@@ -121,7 +124,8 @@ make docs       # build API docs
   branch debt axioms:
   - `Erdos142.erdos_problem_142_k3_upper_profile_bound_axiom`
   - `Erdos142.erdos_problem_142_k3_lower_profile_bound_axiom`
-  - `Erdos142.erdos_problem_142_k4_case_axiom`
+  - `Erdos142.erdos_problem_142_k4_upper_profile_bound_axiom`
+  - `Erdos142.erdos_problem_142_k4_lower_profile_bound_axiom`
   - `Erdos142.erdos_problem_142_kge5_case_axiom`
   These are unresolved proof debt that must be removed by real proofs.
 - The Erdős Problems page notes that an asymptotic formula remains far out of reach, and cites

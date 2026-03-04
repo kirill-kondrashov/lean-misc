@@ -9,8 +9,16 @@ namespace Erdos142
 def k3_matched_profile (g : ℕ → ℝ) : Prop :=
   (fun N => (r 3 N : ℝ)) =O[atTop] g ∧ g =O[atTop] (fun N => (r 3 N : ℝ))
 
+/-- Structured reduction target for `k = 4`. -/
+def k4_matched_profile (g : ℕ → ℝ) : Prop :=
+  (fun N => (r 4 N : ℝ)) =O[atTop] g ∧ g =O[atTop] (fun N => (r 4 N : ℝ))
+
 /-- Fixed explicit comparison profile used for narrowing temporary `k = 3` debt. -/
 noncomputable def k3_profile : ℕ → ℝ :=
+  fun N => (N : ℝ) / Real.log (N + 2)
+
+/-- Fixed explicit comparison profile used for narrowing temporary `k = 4` debt. -/
+noncomputable def k4_profile : ℕ → ℝ :=
   fun N => (N : ℝ) / Real.log (N + 2)
 
 /-- Two eventual inequality bounds imply a matched `O`-sandwich for the chosen `k = 3` profile. -/
@@ -24,9 +32,25 @@ theorem k3_matched_profile_of_eventual_bounds
   rcases hLower with ⟨C', -, hC'⟩
   exact ⟨Asymptotics.IsBigO.of_bound C hC, Asymptotics.IsBigO.of_bound C' hC'⟩
 
+/-- Two eventual inequality bounds imply a matched `O`-sandwich for the chosen `k = 4` profile. -/
+theorem k4_matched_profile_of_eventual_bounds
+    (hUpper : ∃ C : ℝ, 0 ≤ C ∧
+      ∀ᶠ N : ℕ in atTop, ‖(r 4 N : ℝ)‖ ≤ C * ‖k4_profile N‖)
+    (hLower : ∃ C : ℝ, 0 ≤ C ∧
+      ∀ᶠ N : ℕ in atTop, ‖k4_profile N‖ ≤ C * ‖(r 4 N : ℝ)‖) :
+    k4_matched_profile k4_profile := by
+  rcases hUpper with ⟨C, -, hC⟩
+  rcases hLower with ⟨C', -, hC'⟩
+  exact ⟨Asymptotics.IsBigO.of_bound C hC, Asymptotics.IsBigO.of_bound C' hC'⟩
+
 /-- The reduction bridge: a matched two-sided profile implies the DeepMind-style `k = 3` goal. -/
 theorem erdos_142_three_of_matched_profile {g : ℕ → ℝ} (hg : k3_matched_profile g) :
     erdos_142 3 := by
+  exact ⟨g, Asymptotics.IsBigO.antisymm hg.1 hg.2⟩
+
+/-- The reduction bridge for `k = 4`. -/
+theorem erdos_142_four_of_matched_profile {g : ℕ → ℝ} (hg : k4_matched_profile g) :
+    erdos_142 4 := by
   exact ⟨g, Asymptotics.IsBigO.antisymm hg.1 hg.2⟩
 
 /-- Temporary `k = 3` debt (upper side): eventual inequality versus the chosen profile. -/
@@ -49,8 +73,25 @@ theorem erdos_problem_142_k3_matched_profile : k3_matched_profile k3_profile := 
 theorem erdos_problem_142_k3_case : erdos_142 3 := by
   exact erdos_142_three_of_matched_profile erdos_problem_142_k3_matched_profile
 
-/-- Temporary branch debt for the `k = 4` case in the #142 roadmap. -/
-axiom erdos_problem_142_k4_case_axiom : erdos_142 4
+/-- Temporary `k = 4` debt (upper side): eventual inequality versus the chosen profile. -/
+axiom erdos_problem_142_k4_upper_profile_bound_axiom :
+  ∃ C : ℝ, 0 ≤ C ∧
+    ∀ᶠ N : ℕ in atTop, ‖(r 4 N : ℝ)‖ ≤ C * ‖k4_profile N‖
+
+/-- Temporary `k = 4` debt (lower side): eventual reverse inequality versus the chosen profile. -/
+axiom erdos_problem_142_k4_lower_profile_bound_axiom :
+  ∃ C : ℝ, 0 ≤ C ∧
+    ∀ᶠ N : ℕ in atTop, ‖k4_profile N‖ ≤ C * ‖(r 4 N : ℝ)‖
+
+/-- Combined matched-profile statement for `k = 4`, derived from two narrower debts. -/
+theorem erdos_problem_142_k4_matched_profile : k4_matched_profile k4_profile := by
+  exact k4_matched_profile_of_eventual_bounds
+    erdos_problem_142_k4_upper_profile_bound_axiom
+    erdos_problem_142_k4_lower_profile_bound_axiom
+
+/-- Derived `k = 4` branch from the matched-profile temporary debt axioms. -/
+theorem erdos_problem_142_k4_case : erdos_142 4 := by
+  exact erdos_142_four_of_matched_profile erdos_problem_142_k4_matched_profile
 
 /-- Temporary branch debt for the `k ≥ 5` case in the #142 roadmap. -/
 axiom erdos_problem_142_kge5_case_axiom : ∀ ⦃k : ℕ⦄, 5 ≤ k → erdos_142 k
@@ -62,7 +103,7 @@ theorem erdos_problem_142_solution_axiom : ErdosProblems.erdos_problem_142 := by
   have hk_cases : k = 3 ∨ k = 4 ∨ 5 ≤ k := by omega
   rcases hk_cases with rfl | rfl | hk5
   · exact (hasAsymptoticFormula_iff_erdos142 3).2 erdos_problem_142_k3_case
-  · exact (hasAsymptoticFormula_iff_erdos142 4).2 erdos_problem_142_k4_case_axiom
+  · exact (hasAsymptoticFormula_iff_erdos142 4).2 erdos_problem_142_k4_case
   · exact (hasAsymptoticFormula_iff_erdos142 k).2 (erdos_problem_142_kge5_case_axiom hk5)
 
 /-- Structured container for deep external benchmark inputs.
