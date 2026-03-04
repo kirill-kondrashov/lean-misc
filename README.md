@@ -13,6 +13,14 @@ Lean formalizations of exercises, using a project structure modeled after:
   Problem 2.6 (Shklarsky et al. 1962, p. 14):
   if `k` is odd, then `1^k + 2^k + · · · + n^k` is divisible by `1 + 2 + · · · + n`.
 
+- `TaoExercises.ErdosProblems.erdos_problem_142`:
+  Erdős Problem #142 formalization (statement-level):
+  define `r_k(N)` as the maximal size of a subset of `{1, ..., N}` avoiding non-trivial
+  `k`-term arithmetic progressions, and state the asymptotic-formula goal for fixed `k ≥ 3`.
+
+- Plan for solving #142:
+  `plan/PLAN_erdos_problem_142.md`
+
 ## Toolchain and dependencies
 
 - Lean: `leanprover/lean4:v4.27.0`
