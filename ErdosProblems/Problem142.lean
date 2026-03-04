@@ -129,6 +129,62 @@ theorem rk_one_eq_zero (N : ℕ) : rk 1 N = 0 := by
   intro m hm
   simp [admissible_card_eq_zero_of_k_one hm]
 
+/-- If `a < b` are both in `A`, they form a non-trivial `2`-term progression in `A`. -/
+theorem containsNontrivialTwoTermAP_of_lt {A : Finset ℕ} {a b : ℕ}
+    (ha : a ∈ A) (hb : b ∈ A) (hab : a < b) :
+    ContainsNontrivialKTermAP 2 A := by
+  refine ⟨a, b - a, Nat.sub_pos_of_lt hab, ?_⟩
+  intro i hi
+  interval_cases i
+  · simpa
+  · have hab' : a + (b - a) = b := Nat.add_sub_of_le (Nat.le_of_lt hab)
+    simpa [one_mul, hab'] using hb
+
+/-- Any `2`-term-AP-free finite set has cardinality at most `1`. -/
+theorem apfree_two_card_le_one {A : Finset ℕ} (hfree : KTermAPFree 2 A) : A.card ≤ 1 := by
+  by_contra hcard
+  have htwo : 2 ≤ A.card := by omega
+  have hone : 1 < A.card := by omega
+  rcases Finset.one_lt_card.mp hone with ⟨a, ha, b, hb, hne⟩
+  cases lt_or_gt_of_ne hne with
+  | inl hab =>
+      exact hfree (containsNontrivialTwoTermAP_of_lt ha hb hab)
+  | inr hba =>
+      exact hfree (containsNontrivialTwoTermAP_of_lt hb ha hba)
+
+/-- Every admissible cardinal for `k = 2` is at most `1`. -/
+theorem admissible_card_le_one_of_k_two {N m : ℕ} (hm : m ∈ admissibleSetCardinals 2 N) :
+    m ≤ 1 := by
+  rcases hm with ⟨A, -, hfree, rfl⟩
+  exact apfree_two_card_le_one hfree
+
+/-- Unconditional upper bound for `k = 2`: `r_2(N) ≤ 1`. -/
+theorem rk_two_le_one (N : ℕ) : rk 2 N ≤ 1 := by
+  refine csSup_le' ?_
+  intro m hm
+  exact admissible_card_le_one_of_k_two hm
+
+/-- A singleton witness gives `r_2(N) ≥ 1` for all `N ≥ 1`. -/
+theorem one_le_rk_two_of_one_le {N : ℕ} (hN : 1 ≤ N) : 1 ≤ rk 2 N := by
+  have hmem : 1 ∈ admissibleSetCardinals 2 N := by
+    refine ⟨{1}, ?_, singleton_one_apfree (by decide), by simp⟩
+    intro x hx
+    rcases Finset.mem_singleton.mp hx with rfl
+    exact Finset.mem_Icc.mpr ⟨le_rfl, hN⟩
+  exact le_csSup (admissibleSetCardinals_bddAbove 2 N) hmem
+
+/-- Exact value for `k = 2` at positive `N`: `r_2(N) = 1`. -/
+theorem rk_two_eq_one_of_pos {N : ℕ} (hN : 0 < N) : rk 2 N = 1 := by
+  have hN' : 1 ≤ N := Nat.succ_le_of_lt hN
+  exact Nat.le_antisymm (rk_two_le_one N) (one_le_rk_two_of_one_le hN')
+
+/-- Complete exact characterization for `k = 2`. -/
+theorem rk_two_eq_ite (N : ℕ) : rk 2 N = if N = 0 then 0 else 1 := by
+  by_cases hN : N = 0
+  · simp [hN, rk_zero]
+  · have hpos : 0 < N := Nat.pos_of_ne_zero hN
+    simp [hN, rk_two_eq_one_of_pos hpos]
+
 /-- There is an asymptotic formula for `r_k(N)` (formalized as asymptotic equivalence to some
 comparison function). -/
 def HasAsymptoticFormula (k : ℕ) : Prop :=
@@ -291,6 +347,22 @@ the assumed `k = 3` `o(N/log N)` bound implies `o(N)`. -/
 theorem k3_sublinear_of_literature_rates [h : LiteratureRateAssumptions] :
     bound_targets.k3_sublinear := by
   exact h.k3_smallo_n_div_log.trans_isBigO nat_div_log_isBigO_natCast
+
+/-- Small-case benchmark connection: `k = 2` already has an asymptotic formula
+(indeed eventual equality to the constant `1`). -/
+theorem erdos_142_two : erdos_142 2 := by
+  refine ⟨fun _ => (1 : ℝ), ?_⟩
+  have hEq : (fun N => (r 2 N : ℝ)) =ᶠ[atTop] (fun _ : ℕ => (1 : ℝ)) := by
+    refine (eventually_ge_atTop (1 : ℕ)).mono ?_
+    intro N hN
+    have hpos : 0 < N := lt_of_lt_of_le Nat.zero_lt_one hN
+    simp [ErdosProblems.rk_two_eq_one_of_pos hpos]
+  exact hEq.isTheta
+
+/-- Consequently, the `upper` variant is immediate for `k = 2`. -/
+theorem upper_variant_two : erdos_142.variants.upper 2 := by
+  rcases erdos_142_two with ⟨f, hf⟩
+  exact ⟨f, hf.1⟩
 
 theorem hasAsymptoticFormula_iff_erdos142 (k : ℕ) :
     ErdosProblems.HasAsymptoticFormula k ↔ erdos_142 k := by

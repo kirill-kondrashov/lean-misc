@@ -43,6 +43,17 @@ File: `ErdosProblems/Problem142.lean`
 - Proved the growth helper needed to clean the corollary:
   - `Erdos142.nat_div_log_isBigO_natCast`
   - `k3_sublinear_of_literature_rates` now uses this internally (no extra external parameter).
+- Added new unconditional small-`k` API (`k = 2`):
+  - `containsNontrivialTwoTermAP_of_lt`
+  - `apfree_two_card_le_one`
+  - `admissible_card_le_one_of_k_two`
+  - `rk_two_le_one`
+  - `one_le_rk_two_of_one_le`
+  - `rk_two_eq_one_of_pos`
+- Completed `k = 2` exact characterization and benchmark connection:
+  - `ErdosProblems.rk_two_eq_ite`
+  - `Erdos142.erdos_142_two`
+  - `Erdos142.upper_variant_two`
 
 ## Validation
 
@@ -57,6 +68,7 @@ File: `ErdosProblems/Problem142.lean`
 
 ## Next execution targets
 
-1. Prove additional unconditional lemmas for small `k, N` to harden the combinatorial API.
-2. Split bibliography-indexed assumptions into a dedicated file to keep statement signatures,
+1. Split bibliography-indexed assumptions into a dedicated file to keep statement signatures,
    provenance, and consequences modular.
+2. Add a lower-variant small-case bridge (where feasible) so both `upper` and `lower` variant
+   workflows are exercised by concrete non-open examples.
