@@ -25,6 +25,11 @@ Lean formalization experiments and problem-focused developments, using a project
   (`ErdosProblems.ExplicitProfileClass`), with DeepMind-style equivalence theorem:
   `Erdos142.erdos_problem_142_explicit_iff_deepmind`.
 
+- `ErdosProblems.Problem142Gap`:
+  explicit packaging of the current main theoretical gap via
+  `Erdos142.MainTheoreticalGap`, with bridge theorem
+  `Erdos142.erdos_problem_142_of_main_theoretical_gap`.
+
 - Plan for solving #142:
   `plan/PLAN_erdos_problem_142.md`
 
