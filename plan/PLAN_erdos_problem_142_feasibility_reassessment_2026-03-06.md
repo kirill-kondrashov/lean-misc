@@ -46,7 +46,7 @@ Re-score the current Erdos-142 formalization pipeline against concrete, availabl
 - **Status**: not feasible until assumptions are proven or replaced.
 - **Progress bar**: `2 / 5` `[#####-------------]`
 - **Current status of fields**:
-  - `CouplingTargetK3`: unresolved in this exact shape.
+  - `CouplingTargetK3`: reduced to explicit dominance target `import_targets.split_gap_k3_profile_dominance_target` (still unproven).
   - `CouplingTargetK4`: unresolved.
   - `CouplingTargetKge5`: unresolved.
 
@@ -57,7 +57,7 @@ Re-score the current Erdos-142 formalization pipeline against concrete, availabl
 
 2. **Promote coupling assumptions to explicit search targets** (in progress)
    - Define a prioritized search order:
-     1. `k=3`: prove a direct coupling from Behrend lower data plus the current upper profile in a branch-justified way.
+     1. `k=3`: prove `import_targets.split_gap_k3_profile_dominance_target` (branch-justified coupling of upper/superpolylog and Behrend/sqrt branches).
      2. `k=4`: import or prove matching lower polylog profile witness.
      3. `k≥5`: import or prove matching lower iterated-log profile family.
    - Cycle-6 implementation has added explicit branch-local coupling target templates in

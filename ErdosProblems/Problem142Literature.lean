@@ -769,6 +769,21 @@ to recover a full two-sided witness in the `k = 3` branch. -/
 def split_gap_k3_coupling_target : Type :=
   ∀ [K3UpperProfileWitnessImported] [K3BehrendLowerProfileWitnessImported], K3ProfileWitness
 
+/-- Explicit dominance bridge needed to turn upper/lower split data for `k = 3` into
+the same template used by `K3ProfileWitness`.
+This keeps the blocker as a concrete `IsBigO` relation between the
+`k = 3` upper-superpolylog and Behrend-lower templates. -/
+def split_gap_k3_profile_dominance_target : Prop :=
+  ∀ [K3UpperProfileWitnessImported] [K3BehrendLowerProfileWitnessImported],
+    (fun N : ℕ =>
+      erdos_problem_142_explicit_k3_upper_profile_witness_imported.C * (N : ℝ) *
+        Real.exp (-erdos_problem_142_explicit_k3_upper_profile_witness_imported.c *
+          (Real.log (N + 2)) ^ erdos_problem_142_explicit_k3_upper_profile_witness_imported.β))
+      =O[Filter.atTop] (fun N : ℕ =>
+      erdos_problem_142_k3_behrend_lower_profile_witness_imported.C * (N : ℝ) *
+        Real.exp (-erdos_problem_142_k3_behrend_lower_profile_witness_imported.c *
+          Real.sqrt (Real.log (N + 2))))
+
 /-- Import-ready branch coupling target for `k = 4`:
 from split upper/lower branch data to a full two-sided `K4ProfileWitness`. -/
 def split_gap_k4_coupling_target : Type :=

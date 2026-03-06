@@ -230,8 +230,24 @@ structure SplitGapToMainTheoreticalGapAssumptions where
 /-- Frontier axiom placeholders for unresolved split-to-full coupling:
 `k = 3`, `k = 4`, and `k ≥ 5` branch recovery still lacks direct derivations from current local
 literature assumptions, so these are kept as explicit temporary assumptions. -/
-axiom splitGap_k3_coupling_frontier :
-  CouplingTargetK3
+axiom splitGap_k3_profile_dominance_frontier :
+  import_targets.split_gap_k3_profile_dominance_target
+
+/-- Branch-local `k = 3` coupling can be built from an explicit upper/lower template dominance target. -/
+noncomputable def splitGap_k3_coupling_target_of_profile_dominance_target
+    [K3UpperProfileWitnessImported] [K3BehrendLowerProfileWitnessImported]
+    (hDom :
+      import_targets.split_gap_k3_profile_dominance_target) :
+    import_targets.split_gap_k3_coupling_target := by
+  intro _ _
+  let wU : K3UpperProfileWitness := erdos_problem_142_explicit_k3_upper_profile_witness_imported
+  let wL : K3BehrendLowerProfileWitness := erdos_problem_142_k3_behrend_lower_profile_witness_imported
+  refine ⟨wU.β, wU.c, wU.C, wU.hβ, wU.hc, wU.hC, wU.hUpper, ?_⟩
+  simpa [wU, wL] using (hDom).trans wL.hLower
+
+noncomputable def splitGap_k3_coupling_frontier : CouplingTargetK3 :=
+  splitGap_k3_coupling_target_of_profile_dominance_target
+    splitGap_k3_profile_dominance_frontier
 
 axiom splitGap_k4_coupling_frontier :
   CouplingTargetK4

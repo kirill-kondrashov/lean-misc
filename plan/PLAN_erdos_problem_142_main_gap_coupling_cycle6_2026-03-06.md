@@ -6,8 +6,8 @@ Close the remaining branch-local promotion step from `MainSplitGap` to `MainTheo
 
 ## Progress Bar
 
-- Cycle 6 coupling implementation: `4 / 6` completed
-- Progress: `[########------]` `67%`
+- Cycle 6 coupling implementation: `5 / 6` completed
+- Progress: `[##########------]` `83%`
 
 ## Milestones
 
@@ -33,7 +33,7 @@ Close the remaining branch-local promotion step from `MainSplitGap` to `MainTheo
      3. `k ≥ 5`: align plausible iterated-log lower profile.
 
 3. **Materialize remaining coupling blockers as explicit temporary axioms** — `completed`
-   - Added `splitGap_k3_coupling_frontier`, `splitGap_k4_coupling_frontier`,
+   - Added `splitGap_k3_profile_dominance_frontier`, `splitGap_k4_coupling_frontier`,
      and `splitGap_kge5_coupling_frontier` as temporary axioms in
      [Problem142Gap.lean](ErdosProblems/Problem142Gap.lean).
    - Updated [check_axioms.lean](../check_axioms.lean) to explicitly permit these three names
@@ -42,13 +42,15 @@ Close the remaining branch-local promotion step from `MainSplitGap` to `MainTheo
      import-target namespace (`import_targets.split_gap_*_coupling_target`) into the concrete coupling
      assumption structure used by the promotion theorem.
 
-4. **Search for direct `k = 3` coupling proof path** — `pending`
+4. **Search for direct `k = 3` coupling proof path** — `completed`
    - Evaluate whether `k=3` Behrend lower profile can be re-expanded into the same profile template used
      by `K3ProfileWitnessImported` via exponent-parameter weakening/strengthening lemmas.
    - Capture precise parameter-loss formula if possible.
-   - Current status: reduced to an explicit mismatch of lower-vs-upper template exponents and
-     coefficients; branch-local coupling is therefore left as explicit axiom frontier for now:
-     `splitGap_k3_coupling_frontier`.
+   - Outcome: mismatch is now isolated behind an explicit dominance assumption
+     `import_targets.split_gap_k3_profile_dominance_target`, with a bridge theorem
+     from this target to `import_targets.split_gap_k3_coupling_target`.
+   - Current remaining blocker: explicit proof of this dominance target:
+     `splitGap_k3_profile_dominance_frontier`.
 
 5. **Search for `k = 4` matching lower-profile source** — `pending`
    - Add import-ready skeleton theorem statement with explicit provenance notes so future literature imports can

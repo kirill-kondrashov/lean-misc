@@ -24,7 +24,7 @@ def baseAxioms : Array Name :=
   #[``propext, ``Quot.sound, ``Classical.choice]
 
 def temporaryAllowedAxioms : Array Name :=
-  #[``Erdos142.splitGap_k3_coupling_frontier, ``Erdos142.splitGap_k4_coupling_frontier,
+  #[``Erdos142.splitGap_k3_profile_dominance_frontier, ``Erdos142.splitGap_k4_coupling_frontier,
     ``Erdos142.splitGap_kge5_coupling_frontier]
 
 def checkOne (env : Environment) (name : Name) : IO CheckResult := do
