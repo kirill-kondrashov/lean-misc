@@ -13,28 +13,11 @@ Lean formalization experiments and problem-focused developments, using a project
   Problem 2.6 (Shklarsky et al. 1962, p. 14):
   if `k` is odd, then `1^k + 2^k + · · · + n^k` is divisible by `1 + 2 + · · · + n`.
 
-- `ErdosProblems.erdos_problem_142`:
-  Erdős Problem #142 formalization (statement-level):
-  define `r_k(N)` as the maximal size of a subset of `{1, ..., N}` avoiding non-trivial
-  `k`-term arithmetic progressions, and state the asymptotic-formula goal for fixed `k ≥ 3`.
-  Also includes an explicit equivalence theorem with the DeepMind-style formulation:
-  `Erdos142.erdos_problem_142_iff_deepmind`.
-
-- `ErdosProblems.erdos_problem_142_explicit`:
-  strengthened non-tautological target requiring `r_k` to be `Θ` of an explicit profile class
-  (`ErdosProblems.ExplicitProfileClass`), with DeepMind-style equivalence theorem:
-  `Erdos142.erdos_problem_142_explicit_iff_deepmind`.
-
-- `ErdosProblems.Problem142Gap`:
-  explicit packaging of the current main theoretical gap via
-  `Erdos142.MainTheoreticalGap`, with bridge theorem
-  `Erdos142.erdos_problem_142_of_main_theoretical_gap`.
-
-- Plan for solving #142:
-  `plan/PLAN_erdos_problem_142.md`
-
-- Active explicit-branch debt-burndown plan:
-  `plan/PLAN_erdos_problem_142_explicit_branch_axiom_burndown_2026-03-04.md`
+- `ErdosProblems` (Erdős #142 family):
+  statement, explicit-profile strengthening, and gap decomposition are present under
+  `Erdos142` (`erdos_problem_142`, `erdos_problem_142_explicit`, `Problem142Gap`)
+  with `erdos_problem_142_iff_deepmind`, `erdos_problem_142_explicit_iff_deepmind`,
+  and the current plan series in `plan/` (`PLAN_erdos_problem_142.md` and follow-on files).
 
 ## Toolchain and dependencies
 
@@ -59,7 +42,7 @@ All solved exercises are checked to ensure they:
   (`Erdos142.erdos_problem_142_iff_deepmind`)
 - include the strengthened explicit-profile DeepMind-equivalence theorem
   (`Erdos142.erdos_problem_142_explicit_iff_deepmind`)
-- keep checker output free of temporary non-base axioms
+- keep checker output explicit about temporary axiom frontier debt where present
 
 Run:
 
@@ -96,7 +79,19 @@ Axioms used:
 - propext
 - Quot.sound
 - Classical.choice
-✅ All checked solutions are free of 'sorry' and use only base axioms.
+🟡 The proof of 'Erdos142.erdos_problem_142_of_mainSplitGap_and_frontier' is free of 'sorry' but relies on temporary allowed axiom debt.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+- Erdos142.splitGap_k3_coupling_frontier
+- Erdos142.splitGap_k4_coupling_frontier
+- Erdos142.splitGap_kge5_coupling_frontier
+Temporarily allowed non-base axioms (must be proved later):
+- Erdos142.splitGap_k3_coupling_frontier
+- Erdos142.splitGap_k4_coupling_frontier
+- Erdos142.splitGap_kge5_coupling_frontier
+✅ All checked items are free of 'sorry'. Temporary Erdős #142 axiom debt is explicitly allowed.
 ```
 
 ## Useful Make targets
@@ -119,26 +114,10 @@ make docs       # build API docs
 
 ## Erdős #142: current status and references
 
-- As of March 4, 2026, Problem #142 is still open.
-- This repository formalizes the statement and related infrastructure; it does not claim a full
-  asymptotic-formula proof.
-- A stronger target is now formalized:
-  `ErdosProblems.erdos_problem_142_explicit`, where comparison profiles are constrained to explicit
-  template classes rather than arbitrary functions.
-- A structured theorem outline
-  (`Erdos142.erdos_problem_142_solution_axiom`) is currently checker-clean (base axioms only).
-  Open mathematical debt is represented through imported-assumption interfaces:
-  `Erdos142.K3ProfileWitnessImported`, `Erdos142.K4ProfileWitnessImported`,
-  `Erdos142.Kge5ProfileWitnessImported`.
-- What this means now:
-  - the temporary-axiom burndown phase is complete (no temporary non-base checker debt)
-  - the theorem still depends on imported witness interfaces that must be instantiated by real results
-  - Erdős Problem #142 itself remains open
-- The Erdős Problems page notes that an asymptotic formula remains far out of reach, and cites
-  current upper-bound progress by:
-  - Kelley-Meka (`k = 3`)
-  - Green-Tao (`k = 4`)
-  - Leng-Sah-Sawhney (`k ≥ 5`)
+- As of March 4, 2026, Problem #142 remains open; this repository keeps a clean split between checker-clean
+  base-level infrastructure and an explicit, temporary coupling axiom frontier:
+  `Erdos142.splitGap_k3_coupling_frontier`, `Erdos142.splitGap_k4_coupling_frontier`,
+  and `Erdos142.splitGap_kge5_coupling_frontier`.
 
 References:
 

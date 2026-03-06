@@ -198,6 +198,352 @@ noncomputable abbrev erdos_problem_142_explicit_kge5_profile_witness_imported
     Kge5ProfileWitness k hk :=
   h.kge5_profile_witness hk
 
+/-- Structured lower-profile witness for `k = 3` in Behrend shape, decoupled from upper side. -/
+structure K3BehrendLowerProfileWitness where
+  c : ℝ
+  C : ℝ
+  hc : 0 < c
+  hC : 0 < C
+  hLower :
+    (fun N : ℕ => C * (N : ℝ) * Real.exp (-c * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+      (fun N => (r 3 N : ℝ))
+
+/-- Imported Behrend-shape lower-profile witness for `k = 3`. -/
+class K3BehrendLowerProfileWitnessImported where
+  k3_behrend_lower_profile_witness : K3BehrendLowerProfileWitness
+
+/-- Imported Behrend-shape lower-profile witness for `k = 3`
+(from a registered assumption instance). -/
+noncomputable abbrev erdos_problem_142_k3_behrend_lower_profile_witness_imported
+    [h : K3BehrendLowerProfileWitnessImported] :
+    K3BehrendLowerProfileWitness :=
+  h.k3_behrend_lower_profile_witness
+
+/-- Structured lower-profile witness for `k = 4`, decoupled from upper side. -/
+structure K4LowerProfileWitness where
+  c : ℝ
+  C : ℝ
+  hc : 0 < c
+  hC : 0 < C
+  hLower :
+    (fun N : ℕ => C * (N : ℝ) / (Real.log (N + 2)) ^ c) =O[atTop]
+      (fun N => (r 4 N : ℝ))
+
+/-- Imported lower-profile witness for `k = 4`. -/
+class K4LowerProfileWitnessImported where
+  k4_lower_profile_witness : K4LowerProfileWitness
+
+/-- Imported lower-profile witness for `k = 4` (from a registered assumption instance). -/
+noncomputable abbrev erdos_problem_142_k4_lower_profile_witness_imported
+    [h : K4LowerProfileWitnessImported] :
+    K4LowerProfileWitness :=
+  h.k4_lower_profile_witness
+
+/-- Structured lower-profile witness family for each fixed `k ≥ 5`, decoupled from upper side. -/
+structure Kge5LowerProfileWitness (k : ℕ) (hk : 5 ≤ k) where
+  c : ℝ
+  C : ℝ
+  hc : 0 < c
+  hC : 0 < C
+  hLower :
+    (fun N : ℕ => C * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ c) =O[atTop]
+      (fun N => (r k N : ℝ))
+
+/-- Imported lower-profile witness family for each fixed `k ≥ 5`. -/
+class Kge5LowerProfileWitnessImported where
+  kge5_lower_profile_witness : ∀ ⦃k : ℕ⦄ (hk : 5 ≤ k), Kge5LowerProfileWitness k hk
+
+/-- Imported lower-profile witness for `k ≥ 5` (from a registered assumption instance). -/
+noncomputable abbrev erdos_problem_142_kge5_lower_profile_witness_imported
+    [h : Kge5LowerProfileWitnessImported] {k : ℕ} (hk : 5 ≤ k) :
+    Kge5LowerProfileWitness k hk :=
+  h.kge5_lower_profile_witness hk
+
+/-- Any two-sided `k = 4` witness provides a lower-only `k = 4` witness. -/
+noncomputable instance k4LowerProfileWitnessImported_of_k4ProfileWitnessImported
+    [K4ProfileWitnessImported] : K4LowerProfileWitnessImported where
+  k4_lower_profile_witness :=
+    { c := erdos_problem_142_explicit_k4_profile_witness_imported.c
+      C := erdos_problem_142_explicit_k4_profile_witness_imported.C
+      hc := erdos_problem_142_explicit_k4_profile_witness_imported.hc
+      hC := erdos_problem_142_explicit_k4_profile_witness_imported.hC
+      hLower := erdos_problem_142_explicit_k4_profile_witness_imported.hLower }
+
+/-- Any two-sided `k ≥ 5` witness family provides a lower-only witness family. -/
+noncomputable instance kge5LowerProfileWitnessImported_of_kge5ProfileWitnessImported
+    [Kge5ProfileWitnessImported] : Kge5LowerProfileWitnessImported where
+  kge5_lower_profile_witness {_} hk :=
+    { c := (erdos_problem_142_explicit_kge5_profile_witness_imported hk).c
+      C := (erdos_problem_142_explicit_kge5_profile_witness_imported hk).C
+      hc := (erdos_problem_142_explicit_kge5_profile_witness_imported hk).hc
+      hC := (erdos_problem_142_explicit_kge5_profile_witness_imported hk).hC
+      hLower := (erdos_problem_142_explicit_kge5_profile_witness_imported hk).hLower }
+
+/-- Extract explicit `k = 3` Behrend-shape lower-profile data from an imported lower witness. -/
+theorem k3_behrend_lower_profile_of_imported_witness [K3BehrendLowerProfileWitnessImported] :
+    ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+      (fun N : ℕ => C * (N : ℝ) * Real.exp (-c * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+        (fun N => (r 3 N : ℝ)) := by
+  refine ⟨erdos_problem_142_k3_behrend_lower_profile_witness_imported.c,
+    erdos_problem_142_k3_behrend_lower_profile_witness_imported.C,
+    erdos_problem_142_k3_behrend_lower_profile_witness_imported.hc,
+    erdos_problem_142_k3_behrend_lower_profile_witness_imported.hC, ?_⟩
+  exact erdos_problem_142_k3_behrend_lower_profile_witness_imported.hLower
+
+/-- Extract explicit `k = 4` lower-profile data from an imported lower witness. -/
+theorem k4_lower_profile_of_imported_witness [K4LowerProfileWitnessImported] :
+    ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+      (fun N : ℕ => C * (N : ℝ) / (Real.log (N + 2)) ^ c) =O[atTop]
+        (fun N => (r 4 N : ℝ)) := by
+  refine ⟨erdos_problem_142_k4_lower_profile_witness_imported.c,
+    erdos_problem_142_k4_lower_profile_witness_imported.C,
+    erdos_problem_142_k4_lower_profile_witness_imported.hc,
+    erdos_problem_142_k4_lower_profile_witness_imported.hC, ?_⟩
+  exact erdos_problem_142_k4_lower_profile_witness_imported.hLower
+
+/-- Extract explicit `k ≥ 5` lower-profile family data from imported lower witnesses. -/
+theorem kge5_lower_profile_of_imported_witness [Kge5LowerProfileWitnessImported] :
+    ∀ ⦃k : ℕ⦄, 5 ≤ k → ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+      (fun N : ℕ => C * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ c) =O[atTop]
+        (fun N => (r k N : ℝ)) := by
+  intro k hk
+  refine ⟨(erdos_problem_142_kge5_lower_profile_witness_imported hk).c,
+    (erdos_problem_142_kge5_lower_profile_witness_imported hk).C,
+    (erdos_problem_142_kge5_lower_profile_witness_imported hk).hc,
+    (erdos_problem_142_kge5_lower_profile_witness_imported hk).hC, ?_⟩
+  exact (erdos_problem_142_kge5_lower_profile_witness_imported hk).hLower
+
+/-- Structured upper-profile witness for `k = 3`, decoupled from lower-side obligations. -/
+structure K3UpperProfileWitness where
+  β : ℝ
+  c : ℝ
+  C : ℝ
+  hβ : 0 < β
+  hc : 0 < c
+  hC : 0 < C
+  hUpper :
+    (fun N => (r 3 N : ℝ)) =O[atTop]
+      (fun N : ℕ => C * (N : ℝ) * Real.exp (-c * (Real.log (N + 2)) ^ β))
+
+/-- Imported upper-profile witness for `k = 3`. -/
+class K3UpperProfileWitnessImported where
+  k3_upper_profile_witness : K3UpperProfileWitness
+
+/-- Imported `k = 3` upper-profile witness (from a registered assumption instance). -/
+noncomputable abbrev erdos_problem_142_explicit_k3_upper_profile_witness_imported
+    [h : K3UpperProfileWitnessImported] :
+    K3UpperProfileWitness :=
+  h.k3_upper_profile_witness
+
+/-- Structured upper-profile witness for `k = 4`, decoupled from lower-side obligations. -/
+structure K4UpperProfileWitness where
+  c : ℝ
+  C : ℝ
+  hc : 0 < c
+  hC : 0 < C
+  hUpper :
+    (fun N => (r 4 N : ℝ)) =O[atTop]
+      (fun N : ℕ => C * (N : ℝ) / (Real.log (N + 2)) ^ c)
+
+/-- Imported upper-profile witness for `k = 4`. -/
+class K4UpperProfileWitnessImported where
+  k4_upper_profile_witness : K4UpperProfileWitness
+
+/-- Imported `k = 4` upper-profile witness (from a registered assumption instance). -/
+noncomputable abbrev erdos_problem_142_explicit_k4_upper_profile_witness_imported
+    [h : K4UpperProfileWitnessImported] :
+    K4UpperProfileWitness :=
+  h.k4_upper_profile_witness
+
+/-- Structured upper-profile witness family for each fixed `k ≥ 5`. -/
+structure Kge5UpperProfileWitness (k : ℕ) (hk : 5 ≤ k) where
+  c : ℝ
+  C : ℝ
+  hc : 0 < c
+  hC : 0 < C
+  hUpper :
+    (fun N => (r k N : ℝ)) =O[atTop]
+      (fun N : ℕ => C * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ c)
+
+/-- Imported upper-profile witness family for each fixed `k ≥ 5`. -/
+class Kge5UpperProfileWitnessImported where
+  kge5_upper_profile_witness : ∀ ⦃k : ℕ⦄ (hk : 5 ≤ k), Kge5UpperProfileWitness k hk
+
+/-- Imported `k ≥ 5` upper-profile witness (from a registered assumption instance). -/
+noncomputable abbrev erdos_problem_142_explicit_kge5_upper_profile_witness_imported
+    [h : Kge5UpperProfileWitnessImported] {k : ℕ} (hk : 5 ≤ k) :
+    Kge5UpperProfileWitness k hk :=
+  h.kge5_upper_profile_witness hk
+
+/-- Any two-sided `k = 3` witness provides an upper-only witness. -/
+noncomputable instance k3UpperProfileWitnessImported_of_k3ProfileWitnessImported
+    [K3ProfileWitnessImported] : K3UpperProfileWitnessImported where
+  k3_upper_profile_witness :=
+    { β := erdos_problem_142_explicit_k3_profile_witness_imported.β
+      c := erdos_problem_142_explicit_k3_profile_witness_imported.c
+      C := erdos_problem_142_explicit_k3_profile_witness_imported.C
+      hβ := erdos_problem_142_explicit_k3_profile_witness_imported.hβ
+      hc := erdos_problem_142_explicit_k3_profile_witness_imported.hc
+      hC := erdos_problem_142_explicit_k3_profile_witness_imported.hC
+      hUpper := erdos_problem_142_explicit_k3_profile_witness_imported.hUpper }
+
+/-- Any two-sided `k = 4` witness provides an upper-only witness. -/
+noncomputable instance k4UpperProfileWitnessImported_of_k4ProfileWitnessImported
+    [K4ProfileWitnessImported] : K4UpperProfileWitnessImported where
+  k4_upper_profile_witness :=
+    { c := erdos_problem_142_explicit_k4_profile_witness_imported.c
+      C := erdos_problem_142_explicit_k4_profile_witness_imported.C
+      hc := erdos_problem_142_explicit_k4_profile_witness_imported.hc
+      hC := erdos_problem_142_explicit_k4_profile_witness_imported.hC
+      hUpper := erdos_problem_142_explicit_k4_profile_witness_imported.hUpper }
+
+/-- Any two-sided `k ≥ 5` witness family provides an upper-only witness family. -/
+noncomputable instance kge5UpperProfileWitnessImported_of_kge5ProfileWitnessImported
+    [Kge5ProfileWitnessImported] : Kge5UpperProfileWitnessImported where
+  kge5_upper_profile_witness {_} hk :=
+    { c := (erdos_problem_142_explicit_kge5_profile_witness_imported hk).c
+      C := (erdos_problem_142_explicit_kge5_profile_witness_imported hk).C
+      hc := (erdos_problem_142_explicit_kge5_profile_witness_imported hk).hc
+      hC := (erdos_problem_142_explicit_kge5_profile_witness_imported hk).hC
+      hUpper := (erdos_problem_142_explicit_kge5_profile_witness_imported hk).hUpper }
+
+/-- Fixed upper-profile candidate for the `k = 3` branch. -/
+noncomputable def k3_upper_profile [K3UpperProfileWitnessImported] : ℕ → ℝ :=
+  fun N =>
+    erdos_problem_142_explicit_k3_upper_profile_witness_imported.C * (N : ℝ) *
+      Real.exp
+        (-erdos_problem_142_explicit_k3_upper_profile_witness_imported.c *
+          (Real.log (N + 2)) ^ erdos_problem_142_explicit_k3_upper_profile_witness_imported.β)
+
+/-- Fixed upper-profile candidate for the `k = 4` branch. -/
+noncomputable def k4_upper_profile [K4UpperProfileWitnessImported] : ℕ → ℝ :=
+  fun N =>
+    erdos_problem_142_explicit_k4_upper_profile_witness_imported.C * (N : ℝ) /
+      (Real.log (N + 2)) ^ erdos_problem_142_explicit_k4_upper_profile_witness_imported.c
+
+/-- Fixed upper-profile candidate for each `k ≥ 5` branch. -/
+noncomputable def kge5_upper_profile [Kge5UpperProfileWitnessImported]
+    {k : ℕ} (hk : 5 ≤ k) : ℕ → ℝ :=
+  fun N =>
+    (erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk).C * (N : ℝ) /
+      (Real.log (Real.log (N + 3))) ^ (erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk).c
+
+/-- Upper variant for `k = 3` from an imported upper-profile witness. -/
+theorem upper_variant_three_of_upper_profile_witness [K3UpperProfileWitnessImported] :
+    erdos_142.variants.upper 3 := by
+  refine ⟨k3_upper_profile, ?_⟩
+  change
+    (fun N => (r 3 N : ℝ)) =O[atTop]
+      (fun N : ℕ =>
+        erdos_problem_142_explicit_k3_upper_profile_witness_imported.C * (N : ℝ) *
+          Real.exp
+            (-erdos_problem_142_explicit_k3_upper_profile_witness_imported.c *
+              (Real.log (N + 2)) ^ erdos_problem_142_explicit_k3_upper_profile_witness_imported.β))
+  exact erdos_problem_142_explicit_k3_upper_profile_witness_imported.hUpper
+
+/-- Upper variant for `k = 4` from an imported upper-profile witness. -/
+theorem upper_variant_four_of_upper_profile_witness [K4UpperProfileWitnessImported] :
+    erdos_142.variants.upper 4 := by
+  refine ⟨k4_upper_profile, ?_⟩
+  change
+    (fun N => (r 4 N : ℝ)) =O[atTop]
+      (fun N : ℕ =>
+        erdos_problem_142_explicit_k4_upper_profile_witness_imported.C * (N : ℝ) /
+          (Real.log (N + 2)) ^ erdos_problem_142_explicit_k4_upper_profile_witness_imported.c)
+  exact erdos_problem_142_explicit_k4_upper_profile_witness_imported.hUpper
+
+/-- Upper variant for any `k ≥ 5` from an imported upper-profile witness family. -/
+theorem upper_variant_ge_five_of_upper_profile_witness [Kge5UpperProfileWitnessImported] :
+    ∀ ⦃k : ℕ⦄, 5 ≤ k → erdos_142.variants.upper k := by
+  intro k hk
+  refine ⟨kge5_upper_profile hk, ?_⟩
+  change
+    (fun N => (r k N : ℝ)) =O[atTop]
+      (fun N : ℕ =>
+        (erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk).C * (N : ℝ) /
+          (Real.log (Real.log (N + 3))) ^
+            (erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk).c)
+  exact (erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk).hUpper
+
+/-- Aggregated upper-variant consequence for all `k ≥ 3` from branch-local upper witnesses. -/
+theorem upper_variant_of_upper_profile_witnesses_for_all_k_ge_three
+    [K3UpperProfileWitnessImported] [K4UpperProfileWitnessImported]
+    [Kge5UpperProfileWitnessImported] :
+    ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142.variants.upper k := by
+  intro k hk
+  have hk_cases : k = 3 ∨ k = 4 ∨ 5 ≤ k := by omega
+  rcases hk_cases with rfl | rfl | hk5
+  · exact upper_variant_three_of_upper_profile_witness
+  · exact upper_variant_four_of_upper_profile_witness
+  · exact upper_variant_ge_five_of_upper_profile_witness hk5
+
+/-- Mixed-profile two-sided `k = 3` consequence from decoupled imported lower/upper witnesses. -/
+theorem k3_mixed_two_sided_profile_of_imported_split_witnesses
+    [K3BehrendLowerProfileWitnessImported] [K3UpperProfileWitnessImported] :
+    ∃ cL CL β cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < β ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+          (fun N => (r 3 N : ℝ)) ∧
+        (fun N => (r 3 N : ℝ)) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ β)) := by
+  refine
+    ⟨erdos_problem_142_k3_behrend_lower_profile_witness_imported.c,
+      erdos_problem_142_k3_behrend_lower_profile_witness_imported.C,
+      erdos_problem_142_explicit_k3_upper_profile_witness_imported.β,
+      erdos_problem_142_explicit_k3_upper_profile_witness_imported.c,
+      erdos_problem_142_explicit_k3_upper_profile_witness_imported.C,
+      erdos_problem_142_k3_behrend_lower_profile_witness_imported.hc,
+      erdos_problem_142_k3_behrend_lower_profile_witness_imported.hC,
+      erdos_problem_142_explicit_k3_upper_profile_witness_imported.hβ,
+      erdos_problem_142_explicit_k3_upper_profile_witness_imported.hc,
+      erdos_problem_142_explicit_k3_upper_profile_witness_imported.hC,
+      erdos_problem_142_k3_behrend_lower_profile_witness_imported.hLower,
+      erdos_problem_142_explicit_k3_upper_profile_witness_imported.hUpper⟩
+
+/-- Mixed-profile two-sided `k = 4` consequence from decoupled imported lower/upper witnesses. -/
+theorem k4_mixed_two_sided_profile_of_imported_split_witnesses
+    [K4LowerProfileWitnessImported] [K4UpperProfileWitnessImported] :
+    ∃ cL CL cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) / (Real.log (N + 2)) ^ cL) =O[atTop]
+          (fun N => (r 4 N : ℝ)) ∧
+        (fun N => (r 4 N : ℝ)) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) / (Real.log (N + 2)) ^ cU) := by
+  refine
+    ⟨erdos_problem_142_k4_lower_profile_witness_imported.c,
+      erdos_problem_142_k4_lower_profile_witness_imported.C,
+      erdos_problem_142_explicit_k4_upper_profile_witness_imported.c,
+      erdos_problem_142_explicit_k4_upper_profile_witness_imported.C,
+      erdos_problem_142_k4_lower_profile_witness_imported.hc,
+      erdos_problem_142_k4_lower_profile_witness_imported.hC,
+      erdos_problem_142_explicit_k4_upper_profile_witness_imported.hc,
+      erdos_problem_142_explicit_k4_upper_profile_witness_imported.hC,
+      erdos_problem_142_k4_lower_profile_witness_imported.hLower,
+      erdos_problem_142_explicit_k4_upper_profile_witness_imported.hUpper⟩
+
+/-- Mixed-profile two-sided `k ≥ 5` family consequence from decoupled imported lower/upper
+witness families. -/
+theorem kge5_mixed_two_sided_profile_of_imported_split_witnesses
+    [Kge5LowerProfileWitnessImported] [Kge5UpperProfileWitnessImported] :
+    ∀ ⦃k : ℕ⦄, 5 ≤ k → ∃ cL CL cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ cL) =O[atTop]
+          (fun N => (r k N : ℝ)) ∧
+        (fun N => (r k N : ℝ)) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ cU) := by
+  intro k hk
+  refine
+    ⟨(erdos_problem_142_kge5_lower_profile_witness_imported hk).c,
+      (erdos_problem_142_kge5_lower_profile_witness_imported hk).C,
+      (erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk).c,
+      (erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk).C,
+      (erdos_problem_142_kge5_lower_profile_witness_imported hk).hc,
+      (erdos_problem_142_kge5_lower_profile_witness_imported hk).hC,
+      (erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk).hc,
+      (erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk).hC,
+      (erdos_problem_142_kge5_lower_profile_witness_imported hk).hLower,
+      (erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk).hUpper⟩
+
 /-- Fixed explicit profile for the `k = 3` branch. -/
 noncomputable def k3_explicit_profile [K3ProfileWitnessImported] : ℕ → ℝ :=
   fun N =>
@@ -403,6 +749,117 @@ class LiteratureRateAssumptions : Prop extends LiteratureAssumptions where
   kge5_iteratedlog_upper_profile : bound_targets.kge5_iteratedlog_upper_profile
   k3_smallo_n_div_log : erdos_142.variants.lower 3 (by decide)
 
+namespace import_targets
+
+/-- Import-ready target shape for potential future `k = 4` lower-profile results. -/
+def k4_polylog_lower_profile : Prop :=
+  ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+    (fun N : ℕ => C * (N : ℝ) / (Real.log (N + 2)) ^ c) =O[atTop]
+      (fun N => (r 4 N : ℝ))
+
+/-- Import-ready target shape for potential future `k ≥ 5` lower-profile family results. -/
+def kge5_iteratedlog_lower_profile : Prop :=
+  ∀ ⦃k : ℕ⦄, 5 ≤ k → ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+    (fun N : ℕ => C * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ c) =O[atTop]
+      (fun N => (r k N : ℝ))
+
+/-- Import-ready branch coupling target for `k = 3`:
+`MainSplitGap` currently provides separate upper/lower branches; this is the exact coupled target needed
+to recover a full two-sided witness in the `k = 3` branch. -/
+def split_gap_k3_coupling_target : Type :=
+  ∀ [K3UpperProfileWitnessImported] [K3BehrendLowerProfileWitnessImported], K3ProfileWitness
+
+/-- Import-ready branch coupling target for `k = 4`:
+from split upper/lower branch data to a full two-sided `K4ProfileWitness`. -/
+def split_gap_k4_coupling_target : Type :=
+  ∀ [K4UpperProfileWitnessImported] [K4LowerProfileWitnessImported], K4ProfileWitness
+
+/-- Import-ready branch coupling target for `k ≥ 5`:
+family-wise variant of the full two-sided `Kge5ProfileWitness` recovery. -/
+def split_gap_kge5_coupling_target : Type :=
+  ∀ [Kge5UpperProfileWitnessImported] [Kge5LowerProfileWitnessImported] ⦃k : ℕ⦄
+    (hk : 5 ≤ k), Kge5ProfileWitness k hk
+
+end import_targets
+
+/-- Strengthened import-assumption layer that includes explicit lower-profile target templates
+for the currently missing `k = 4` and `k ≥ 5` branches. -/
+class LiteratureLowerImportAssumptions : Prop extends LiteratureRateAssumptions where
+  k4_polylog_lower_profile : import_targets.k4_polylog_lower_profile
+  kge5_iteratedlog_lower_profile : import_targets.kge5_iteratedlog_lower_profile
+
+/-- If lower branch imports are supplied, the two missing lower-target stubs are available. -/
+theorem lower_import_targets_of_literatureLowerImportAssumptions
+    [h : LiteratureLowerImportAssumptions] :
+    import_targets.k4_polylog_lower_profile ∧
+      import_targets.kge5_iteratedlog_lower_profile := by
+  exact ⟨h.k4_polylog_lower_profile, h.kge5_iteratedlog_lower_profile⟩
+
+/-- Any imported `k = 4` lower witness realizes the `k = 4` lower import-target template. -/
+theorem k4_lower_import_target_of_imported_witness [K4LowerProfileWitnessImported] :
+    import_targets.k4_polylog_lower_profile := by
+  exact k4_lower_profile_of_imported_witness
+
+/-- Any imported `k ≥ 5` lower witness family realizes the `k ≥ 5` lower import-target template. -/
+theorem kge5_lower_import_target_of_imported_witness [Kge5LowerProfileWitnessImported] :
+    import_targets.kge5_iteratedlog_lower_profile := by
+  exact kge5_lower_profile_of_imported_witness
+
+/-- Noncomputable extraction of a `k = 3` upper-profile witness from
+`LiteratureRateAssumptions`, via classical choice. -/
+noncomputable def k3UpperProfileWitness_of_literatureRateAssumptions
+    [h : LiteratureRateAssumptions] : K3UpperProfileWitness := by
+  classical
+  let hw : ∃ w : K3UpperProfileWitness, True := by
+    rcases h.k3_superpolylog_upper_profile with ⟨β, c, C, hβ, hc, hC, hUpper⟩
+    refine ⟨{ β := β, c := c, C := C, hβ := hβ, hc := hc, hC := hC, hUpper := hUpper }, trivial⟩
+  exact Classical.choose hw
+
+/-- Noncomputable extraction of a `k = 4` upper-profile witness from
+`LiteratureRateAssumptions`, via classical choice. -/
+noncomputable def k4UpperProfileWitness_of_literatureRateAssumptions
+    [h : LiteratureRateAssumptions] : K4UpperProfileWitness := by
+  classical
+  let hw : ∃ w : K4UpperProfileWitness, True := by
+    rcases h.k4_polylog_upper_profile with ⟨c, C, hc, hC, hUpper⟩
+    refine ⟨{ c := c, C := C, hc := hc, hC := hC, hUpper := hUpper }, trivial⟩
+  exact Classical.choose hw
+
+/-- Noncomputable extraction of any fixed `k ≥ 5` upper-profile witness from
+`LiteratureRateAssumptions`, via classical choice. -/
+noncomputable def kge5UpperProfileWitness_of_literatureRateAssumptions
+    [h : LiteratureRateAssumptions] {k : ℕ} (hk : 5 ≤ k) : Kge5UpperProfileWitness k hk := by
+  classical
+  let hw : ∃ w : Kge5UpperProfileWitness k hk, True := by
+    rcases h.kge5_iteratedlog_upper_profile hk with ⟨c, C, hc, hC, hUpper⟩
+    refine ⟨{ c := c, C := C, hc := hc, hC := hC, hUpper := hUpper }, trivial⟩
+  exact Classical.choose hw
+
+/-- `LiteratureRateAssumptions` provide the `k = 3` upper-profile witness interface. -/
+noncomputable instance k3UpperProfileWitnessImported_of_literatureRateAssumptions
+    [h : LiteratureRateAssumptions] : K3UpperProfileWitnessImported where
+  k3_upper_profile_witness := k3UpperProfileWitness_of_literatureRateAssumptions
+
+/-- `LiteratureRateAssumptions` provide the `k = 4` upper-profile witness interface. -/
+noncomputable instance k4UpperProfileWitnessImported_of_literatureRateAssumptions
+    [h : LiteratureRateAssumptions] : K4UpperProfileWitnessImported where
+  k4_upper_profile_witness := k4UpperProfileWitness_of_literatureRateAssumptions
+
+/-- `LiteratureRateAssumptions` provide the `k ≥ 5` upper-profile witness family interface. -/
+noncomputable instance kge5UpperProfileWitnessImported_of_literatureRateAssumptions
+    [h : LiteratureRateAssumptions] : Kge5UpperProfileWitnessImported where
+  kge5_upper_profile_witness {_} hk := kge5UpperProfileWitness_of_literatureRateAssumptions hk
+
+/-- Upper-variant consequences for all `k ≥ 3`, routed through upper-profile witness interfaces
+extracted from `LiteratureRateAssumptions`. -/
+theorem upper_variant_of_literature_rates_via_upper_profile_witnesses
+    [h : LiteratureRateAssumptions] :
+    ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142.variants.upper k := by
+  letI : K3UpperProfileWitnessImported := k3UpperProfileWitnessImported_of_literatureRateAssumptions
+  letI : K4UpperProfileWitnessImported := k4UpperProfileWitnessImported_of_literatureRateAssumptions
+  letI : Kge5UpperProfileWitnessImported := kge5UpperProfileWitnessImported_of_literatureRateAssumptions
+  exact upper_variant_of_upper_profile_witnesses_for_all_k_ge_three
+
 /-- Under benchmark assumptions, all `k ≥ 3` have a nontrivial `upper`-variant statement. -/
 theorem upper_variant_of_literature_for_all_k_ge_three [h : LiteratureAssumptions] :
     ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142.variants.upper k := by
@@ -412,6 +869,91 @@ theorem upper_variant_of_literature_for_all_k_ge_three [h : LiteratureAssumption
   · exact h.k3_upper_kelley_meka
   · exact h.k4_upper_green_tao
   · exact h.kge5_upper_leng_sah_sawhney hk5
+
+/-- Convert eventual Behrend-style lower inequalities into an `isBigO` lower-profile statement. -/
+theorem k3_behrend_lower_isBigO_of_eventual_le {c C : ℝ}
+    (hC : 0 ≤ C)
+    (hLower :
+      ∀ᶠ N : ℕ in atTop,
+        C * (N : ℝ) * Real.exp (-c * Real.sqrt (Real.log (N + 2))) ≤ (r 3 N : ℝ)) :
+    (fun N : ℕ => C * (N : ℝ) * Real.exp (-c * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+      (fun N => (r 3 N : ℝ)) := by
+  refine Asymptotics.IsBigO.of_bound 1 ?_
+  filter_upwards [hLower] with N hN
+  have hN_nonneg : 0 ≤ (N : ℝ) := by positivity
+  have hExp_nonneg : 0 ≤ Real.exp (-c * Real.sqrt (Real.log (N + 2))) := by positivity
+  have hLeft_nonneg :
+      0 ≤ C * (N : ℝ) * Real.exp (-c * Real.sqrt (Real.log (N + 2))) := by
+    exact mul_nonneg (mul_nonneg hC hN_nonneg) hExp_nonneg
+  have hRight_nonneg : 0 ≤ (r 3 N : ℝ) := by
+    exact_mod_cast (Nat.zero_le (r 3 N))
+  calc
+    ‖C * (N : ℝ) * Real.exp (-c * Real.sqrt (Real.log (N + 2)))‖
+        = C * (N : ℝ) * Real.exp (-c * Real.sqrt (Real.log (N + 2))) := by
+          exact Real.norm_of_nonneg hLeft_nonneg
+    _ ≤ (r 3 N : ℝ) := hN
+    _ = ‖(r 3 N : ℝ)‖ := by
+          symm
+          exact Real.norm_of_nonneg hRight_nonneg
+    _ = (1 : ℝ) * ‖(r 3 N : ℝ)‖ := by ring
+
+/-- Behrend-style `k = 3` lower-profile target gives an explicit `isBigO` lower-profile witness
+in the same shape (without coupling to the upper-side exponent parameter). -/
+theorem k3_behrend_lower_profile_implies_isBigO_lower :
+    bound_targets.k3_behrend_lower_profile →
+      ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+        (fun N : ℕ => C * (N : ℝ) * Real.exp (-c * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+          (fun N => (r 3 N : ℝ)) := by
+  intro h
+  rcases h with ⟨c, C, hc, hC, hLower⟩
+  refine ⟨c, C, hc, hC, ?_⟩
+  exact k3_behrend_lower_isBigO_of_eventual_le (le_of_lt hC) hLower
+
+/-- `LiteratureRateAssumptions` imply an explicit `isBigO` lower-profile witness for the Behrend
+shape at `k = 3`. -/
+theorem k3_behrend_lower_isBigO_of_literature_rates [h : LiteratureRateAssumptions] :
+    ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+      (fun N : ℕ => C * (N : ℝ) * Real.exp (-c * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+        (fun N => (r 3 N : ℝ)) := by
+  exact k3_behrend_lower_profile_implies_isBigO_lower h.k3_behrend_lower_profile
+
+/-- Noncomputable extraction of a `k = 3` Behrend-lower witness from
+`LiteratureRateAssumptions`, via classical choice. -/
+noncomputable def k3BehrendLowerProfileWitness_of_literatureRateAssumptions
+    [h : LiteratureRateAssumptions] : K3BehrendLowerProfileWitness := by
+  classical
+  let hw : ∃ w : K3BehrendLowerProfileWitness, True := by
+    rcases k3_behrend_lower_isBigO_of_literature_rates (h := h) with ⟨c, C, hc, hC, hLower⟩
+    refine ⟨{ c := c, C := C, hc := hc, hC := hC, hLower := hLower }, trivial⟩
+  exact Classical.choose hw
+
+/-- `LiteratureRateAssumptions` provide the `k = 3` Behrend-lower witness interface. -/
+noncomputable instance k3BehrendLowerProfileWitnessImported_of_literatureRateAssumptions
+    [h : LiteratureRateAssumptions] : K3BehrendLowerProfileWitnessImported where
+  k3_behrend_lower_profile_witness := k3BehrendLowerProfileWitness_of_literatureRateAssumptions
+
+/-- `k = 3` Behrend-lower profile route through the imported-lower interface layer. -/
+theorem k3_behrend_lower_profile_of_literature_rates_via_imported_lower_witness
+    [h : LiteratureRateAssumptions] :
+    ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+      (fun N : ℕ => C * (N : ℝ) * Real.exp (-c * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+        (fun N => (r 3 N : ℝ)) := by
+  letI : K3BehrendLowerProfileWitnessImported :=
+    k3BehrendLowerProfileWitnessImported_of_literatureRateAssumptions
+  exact k3_behrend_lower_profile_of_imported_witness
+
+/-- Mixed-profile two-sided `k = 3` consequence from benchmark rate assumptions:
+Behrend-shape lower profile together with superpolylog upper profile. -/
+theorem k3_mixed_two_sided_profile_of_literature_rates [h : LiteratureRateAssumptions] :
+    ∃ cL CL β cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < β ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+          (fun N => (r 3 N : ℝ)) ∧
+        (fun N => (r 3 N : ℝ)) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ β)) := by
+  rcases k3_behrend_lower_isBigO_of_literature_rates (h := h) with ⟨cL, CL, hcL, hCL, hLower⟩
+  rcases h.k3_superpolylog_upper_profile with ⟨β, cU, CU, hβ, hcU, hCU, hUpper⟩
+  exact ⟨cL, CL, β, cU, CU, hcL, hCL, hβ, hcU, hCU, hLower, hUpper⟩
 
 /-- The benchmark rate assumptions imply a two-sided `k = 3` sandwich profile. -/
 theorem k3_two_sided_sandwich_of_literature_rates [h : LiteratureRateAssumptions] :
