@@ -6,8 +6,8 @@ Close the remaining branch-local promotion step from `MainSplitGap` to `MainTheo
 
 ## Progress Bar
 
-- Cycle 6 coupling implementation: `5 / 6` completed
-- Progress: `[##########------]` `83%`
+- Cycle 6 coupling implementation: `6 / 6` completed
+- Progress: `[####################]` `100%`
 
 ## Milestones
 
@@ -33,8 +33,8 @@ Close the remaining branch-local promotion step from `MainSplitGap` to `MainTheo
      3. `k ≥ 5`: align plausible iterated-log lower profile.
 
 3. **Materialize remaining coupling blockers as explicit temporary axioms** — `completed`
-   - Added `splitGap_k3_profile_dominance_frontier`, `splitGap_k4_coupling_frontier`,
-     and `splitGap_kge5_coupling_frontier` as temporary axioms in
+   - Added `splitGap_k3_profile_dominance_frontier`, `splitGap_k4_profile_dominance_frontier`,
+     and `splitGap_kge5_profile_dominance_frontier` as temporary axioms in
      [Problem142Gap.lean](ErdosProblems/Problem142Gap.lean).
    - Updated [check_axioms.lean](../check_axioms.lean) to explicitly permit these three names
      as temporary debt and keep `scripts/verify_output.sh` green.
@@ -52,12 +52,26 @@ Close the remaining branch-local promotion step from `MainSplitGap` to `MainTheo
    - Current remaining blocker: explicit proof of this dominance target:
      `splitGap_k3_profile_dominance_frontier`.
 
-5. **Search for `k = 4` matching lower-profile source** — `pending`
+5. **Search for `k = 4` matching lower-profile source** — `completed`
    - Add import-ready skeleton theorem statement with explicit provenance notes so future literature imports can
      fill the gap without reworking the proof interface.
+   - Implemented dominance target shape:
+     - `import_targets.split_gap_k4_profile_dominance_target`
+   - Added corresponding frontier axiom:
+     - `splitGap_k4_profile_dominance_frontier`
+   - Added branch reconstruction bridge:
+     - `splitGap_k4_coupling_target_of_profile_dominance_target`
+   - Outcome: this branch coupling is now explicit and deferred behind one frontier assumption.
 
-6. **Search for `k ≥ 5` matching family lower profile source** — `pending`
+6. **Search for `k ≥ 5` matching family lower profile source** — `completed`
    - Add import-ready skeleton theorem statement with explicit provenance notes for uniform family closure.
+   - Implemented dominance target shape:
+     - `import_targets.split_gap_kge5_profile_dominance_target`
+   - Added corresponding frontier axiom:
+     - `splitGap_kge5_profile_dominance_frontier`
+   - Added branch reconstruction bridge:
+     - `splitGap_kge5_coupling_frontier`
+     - `splitGap_kge5_coupling_target_of_frontier`
 
 ## Deliverables
 

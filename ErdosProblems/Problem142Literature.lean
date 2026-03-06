@@ -784,6 +784,31 @@ def split_gap_k3_profile_dominance_target : Prop :=
         Real.exp (-erdos_problem_142_k3_behrend_lower_profile_witness_imported.c *
           Real.sqrt (Real.log (N + 2))))
 
+/-- Explicit dominance bridge needed to turn split upper/lower data for `k = 4` into the same profile
+template used by `K4ProfileWitness`. -/
+def split_gap_k4_profile_dominance_target : Prop :=
+  ∀ [K4UpperProfileWitnessImported] [K4LowerProfileWitnessImported],
+    (fun N : ℕ =>
+      erdos_problem_142_explicit_k4_upper_profile_witness_imported.C * (N : ℝ) /
+        (Real.log (N + 2)) ^ erdos_problem_142_explicit_k4_upper_profile_witness_imported.c)
+      =O[Filter.atTop] (fun N : ℕ =>
+      erdos_problem_142_k4_lower_profile_witness_imported.C * (N : ℝ) /
+        (Real.log (N + 2)) ^ erdos_problem_142_k4_lower_profile_witness_imported.c)
+
+/-- Explicit dominance bridge needed to turn split upper/lower data for `k ≥ 5` into the same profile
+template used by `Kge5ProfileWitness`. -/
+def split_gap_kge5_profile_dominance_target : Prop :=
+  ∀ [Kge5UpperProfileWitnessImported] [Kge5LowerProfileWitnessImported] ⦃k : ℕ⦄
+    (hk : 5 ≤ k),
+    (fun N : ℕ =>
+      (erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk).C * (N : ℝ) /
+        (Real.log (Real.log (N + 3))) ^
+          (erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk).c)
+      =O[Filter.atTop] (fun N : ℕ =>
+      (erdos_problem_142_kge5_lower_profile_witness_imported hk).C * (N : ℝ) /
+        (Real.log (Real.log (N + 3))) ^
+          (erdos_problem_142_kge5_lower_profile_witness_imported hk).c)
+
 /-- Import-ready branch coupling target for `k = 4`:
 from split upper/lower branch data to a full two-sided `K4ProfileWitness`. -/
 def split_gap_k4_coupling_target : Type :=

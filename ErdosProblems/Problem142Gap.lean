@@ -233,6 +233,12 @@ literature assumptions, so these are kept as explicit temporary assumptions. -/
 axiom splitGap_k3_profile_dominance_frontier :
   import_targets.split_gap_k3_profile_dominance_target
 
+axiom splitGap_k4_profile_dominance_frontier :
+  import_targets.split_gap_k4_profile_dominance_target
+
+axiom splitGap_kge5_profile_dominance_frontier :
+  import_targets.split_gap_kge5_profile_dominance_target
+
 /-- Branch-local `k = 3` coupling can be built from an explicit upper/lower template dominance target. -/
 noncomputable def splitGap_k3_coupling_target_of_profile_dominance_target
     [K3UpperProfileWitnessImported] [K3BehrendLowerProfileWitnessImported]
@@ -249,11 +255,41 @@ noncomputable def splitGap_k3_coupling_frontier : CouplingTargetK3 :=
   splitGap_k3_coupling_target_of_profile_dominance_target
     splitGap_k3_profile_dominance_frontier
 
-axiom splitGap_k4_coupling_frontier :
-  CouplingTargetK4
+/-- Branch-local `k = 4` coupling can be built from an explicit upper/lower template dominance target. -/
+noncomputable def splitGap_k4_coupling_target_of_profile_dominance_target
+    [K4UpperProfileWitnessImported] [K4LowerProfileWitnessImported]
+    (hDom :
+      import_targets.split_gap_k4_profile_dominance_target) :
+    import_targets.split_gap_k4_coupling_target := by
+  intro _ _
+  let wU : K4UpperProfileWitness := erdos_problem_142_explicit_k4_upper_profile_witness_imported
+  let wL : K4LowerProfileWitness := erdos_problem_142_k4_lower_profile_witness_imported
+  refine ⟨wU.c, wU.C, wU.hc, wU.hC, wU.hUpper, ?_⟩
+  simpa [wU, wL] using (hDom).trans wL.hLower
 
-axiom splitGap_kge5_coupling_frontier :
-  ∀ ⦃k : ℕ⦄, (hk : 5 ≤ k) → Kge5ProfileWitness k hk
+noncomputable def splitGap_k4_coupling_frontier : CouplingTargetK4 :=
+  splitGap_k4_coupling_target_of_profile_dominance_target
+    splitGap_k4_profile_dominance_frontier
+
+/-- Branch-local `k ≥ 5` coupling can be built from an explicit upper/lower template dominance target. -/
+noncomputable def splitGap_kge5_coupling_target_of_profile_dominance_target
+    [Kge5UpperProfileWitnessImported] [Kge5LowerProfileWitnessImported]
+    (hDom :
+      import_targets.split_gap_kge5_profile_dominance_target) :
+    ∀ {k : ℕ} (hk : 5 ≤ k), Kge5ProfileWitness k hk := by
+  intro k hk
+  let wU : Kge5UpperProfileWitness k hk := erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk
+  let wL : Kge5LowerProfileWitness k hk := erdos_problem_142_kge5_lower_profile_witness_imported hk
+  refine ⟨wU.c, wU.C, wU.hc, wU.hC, wU.hUpper, ?_⟩
+  simpa [wU, wL] using (hDom (k := k) hk).trans wL.hLower
+
+noncomputable def splitGap_kge5_coupling_frontier :
+    CouplingTargetKge5 := by
+  intro _ _ k hk
+  let wU : Kge5UpperProfileWitness k hk := erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk
+  let wL : Kge5LowerProfileWitness k hk := erdos_problem_142_kge5_lower_profile_witness_imported hk
+  refine ⟨wU.c, wU.C, wU.hc, wU.hC, wU.hUpper, ?_⟩
+  simpa [wU, wL] using (splitGap_kge5_profile_dominance_frontier (k := k) hk).trans wL.hLower
 
 /-- Pack the current axiom frontier into the split-to-full coupling assumption structure. -/
 noncomputable def splitGapToMainTheoreticalGapAssumptions_frontier :

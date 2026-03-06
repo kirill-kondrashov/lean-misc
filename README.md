@@ -85,12 +85,12 @@ Axioms used:
 - Quot.sound
 - Classical.choice
 - Erdos142.splitGap_k3_profile_dominance_frontier
-- Erdos142.splitGap_k4_coupling_frontier
-- Erdos142.splitGap_kge5_coupling_frontier
+- Erdos142.splitGap_k4_profile_dominance_frontier
+- Erdos142.splitGap_kge5_profile_dominance_frontier
 Temporarily allowed non-base axioms (must be proved later):
 - Erdos142.splitGap_k3_profile_dominance_frontier
-- Erdos142.splitGap_k4_coupling_frontier
-- Erdos142.splitGap_kge5_coupling_frontier
+- Erdos142.splitGap_k4_profile_dominance_frontier
+- Erdos142.splitGap_kge5_profile_dominance_frontier
 ✅ All checked items are free of 'sorry'. Temporary Erdős #142 axiom debt is explicitly allowed.
 ```
 
@@ -116,8 +116,9 @@ make docs       # build API docs
 
 - As of March 4, 2026, Problem #142 remains open; this repository keeps a clean split between checker-clean
   base-level infrastructure and an explicit, temporary coupling axiom frontier:
-  `Erdos142.splitGap_k3_profile_dominance_frontier`, `Erdos142.splitGap_k4_coupling_frontier`,
-  and `Erdos142.splitGap_kge5_coupling_frontier`.
+  `Erdos142.splitGap_k3_profile_dominance_frontier`,
+  `Erdos142.splitGap_k4_profile_dominance_frontier`,
+  and `Erdos142.splitGap_kge5_profile_dominance_frontier`.
 
 References:
 

@@ -73,9 +73,9 @@ Cycle 5 is complete. Next cycle candidate:
 
 ## Cycle 6 (Coupling Implementation Continuation)
 
-- Status: initiated
-- Progress: `2 / 5` ( `40%` ) `[########--------]`
+- Status: completed
+- Progress: `5 / 5` ( `100%` ) `[####################]`
 - Implementation plan: [PLAN_erdos_problem_142_main_gap_coupling_cycle6_2026-03-06.md](PLAN_erdos_problem_142_main_gap_coupling_cycle6_2026-03-06.md)
 - Current focus:
-  - define branch-specific coupling proof obligations with minimal additional assumptions,
-  - pursue `k=3` first, then `k=4`, then `k ≥ 5` as evidence becomes available.
+  - branch-local explicit coupling assumptions are now recorded (`k=3,4,≥5`) as
+    frontier axioms.
