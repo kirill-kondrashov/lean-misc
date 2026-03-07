@@ -22,8 +22,10 @@ In the local Lean files, the currently relevant theorem surfaces are:
   - `a(9) = 161`
   - `a(10) = 309`
 - As of March 7, 2026, the local repo proves `a(3) = 4` and `a(5) = 13` by finite verification.
-- `a(9) = 161` is still only an axiom-level statement in Lean.
-- `a(10) = 309` is not yet represented in the Lean surface.
+- `a(9) = 161` is still only an axiom-level optimality statement in Lean, but the repo now
+  contains a certified explicit witness for the upper half `HasSumDistinctSetCard 161 9`.
+- `a(10) = 309` is not yet represented as an optimality statement, but the repo now contains a
+  certified explicit witness for `HasSumDistinctSetCard 309 10`.
 
 ## Feasibility split
 
@@ -36,6 +38,8 @@ This approach succeeded locally for:
 
 - nonexistence at `N = 12`, `k = 5`
 - existence at `N = 13`, `k = 5`
+- explicit witness checking at `(N, k) = (161, 9)`
+- explicit witness checking at `(N, k) = (309, 10)`
 
 ### 2. Medium exact values
 
@@ -69,6 +73,9 @@ This should avoid asking Lean to perform the entire combinatorial search.
    - one nonexistence certificate for the predecessor ambient size.
 3. Keep exact-value proofs separate from asymptotic/literature imports; they are a different
    engineering problem.
+
+The witness side is now partly done: the repository contains explicit checked witnesses for
+`(161, 9)` and `(309, 10)`. The missing part is still the lower/nonexistence certificate side.
 
 ## Recommended implementation shape
 

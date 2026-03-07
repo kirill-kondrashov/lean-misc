@@ -1,6 +1,7 @@
 import ErdosProblems.Problem1
 import ErdosProblems.Problem1Literature
 import ErdosProblems.Problem1Derived
+import ErdosProblems.Problem1ExactValues
 import ErdosProblems.Problem142
 import ErdosProblems.Problem142Literature
 import ErdosProblems.Problem142Gap

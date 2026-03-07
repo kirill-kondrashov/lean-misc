@@ -138,6 +138,9 @@ Current proof status:
 - `Erdos1.erdos_1.variants.least_N_3` and `Erdos1.erdos_1.variants.least_N_5` are proved exactly
   by finite verification.
 - `Erdos1.erdos_1.variants.least_N_9` remains axiomatized.
+- [ErdosProblems/Problem1ExactValues.lean](./ErdosProblems/Problem1ExactValues.lean) now records
+  certified OEIS witness sets for `HasSumDistinctSetCard 161 9` and `HasSumDistinctSetCard 309 10`,
+  exposed as `Erdos1.erdos_1.variants.exists_N_9` and `Erdos1.erdos_1.variants.exists_N_10`.
 - [ErdosProblems/Problem1Literature.lean](./ErdosProblems/Problem1Literature.lean) now contains:
   the exact imported Dubroff-Fox-Xu lower bound, its real-valued analogue, a Bohman
   upper-construction surface, and derived lower-bound packages

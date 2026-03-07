@@ -194,8 +194,10 @@ Closing that gap requires new mathematics, not just Lean engineering.
       asymptotic machinery; the sharp central-binomial asymptotic is now proved.
 - [x] Honest real-valued `2^n / sqrt(n)` theorem surface added.
 - [x] Bohman upper-construction theorem surface added.
-- [~] Exact-value strategy partly executed: `least_N_5` is now proved by finite verification;
-      `least_N_9` and `a(10) = 309` remain open implementation targets.
+- [~] Exact-value strategy partly executed: `least_N_5` is now proved by finite verification,
+      and explicit witnesses for `HasSumDistinctSetCard 161 9` and `HasSumDistinctSetCard 309 10`
+      are now checked locally; the nonexistence/optimality side for `least_N_9` and `a(10)=309`
+      remains open.
 - [ ] Repo surface made explicit about the remaining open `sqrt(n)` gap.
 
 ## Immediate next actions
