@@ -116,9 +116,48 @@ make docs       # build API docs
 
 - As of March 7, 2026, Problem #142 remains open; this repository keeps the full matched-profile route behind the temporary frontier axioms `Erdos142.splitGap_k3_upper_exponent_gt_half_frontier`, `Erdos142.splitGap_k4_profile_dominance_frontier`, and `Erdos142.splitGap_kge5_profile_dominance_frontier`, while the strongest honest local $k=3$ endpoint is now the source-backed split package `Erdos142.K3SourceBackedSplitGap`, built from Kelley-Meka's explicit $\beta = 1 / 12$ upper witness together with Behrend lower data and the true compatibility direction `k3_behrend_lower_template =O k3_upper_profile`.
 
+Exact formulation of Erdős Problem #142 in this repository:
+
+- First define the extremal function
+  $$
+  r_k(N)=\max\bigl\{|A| : A \subseteq \{1,\dots,N\},\ A \text{ contains no non-trivial } k\text{-term arithmetic progression}\bigr\}.
+  $$
+- Then the problem asks:
+  $$
+  \forall k \ge 3,\ \exists f_k : \mathbb{N} \to \mathbb{R}
+  \text{ such that }
+  r_k(N)=\Theta(f_k(N)) \qquad (N \to \infty).
+  $$
+- Equivalently: for each fixed $k \ge 3$, the function $r_k(N)$ has an asymptotic formula up to multiplicative constants.
+- In the local Lean formalization, this is exactly the statement
+  `ErdosProblems.erdos_problem_142`; see [Problem142.lean:267](/home/kir/pers/lean-misc/ErdosProblems/Problem142.lean:267)
+  and [Problem142.lean:283](/home/kir/pers/lean-misc/ErdosProblems/Problem142.lean:283).
+
 The active missing mathematical theorems are now the higher-branch profile-matching statements.
 
-1. $k = 4$ split hypotheses.
+Definition of Landau asymptotic domination:
+
+- For real-valued functions $f(N)$ and $g(N)$, the statement
+  $$
+  f(N)=O(g(N)) \qquad (N \to \infty)
+  $$
+  means that there exist constants $A > 0$ and $N_0$ such that
+  $$
+  |f(N)| \le A\,|g(N)| \qquad \text{for all } N \ge N_0.
+  $$
+- In this section, every occurrence of $=O$ is used in exactly this sense.
+- Likewise,
+  $$
+  f(N)=\Theta(g(N))
+  $$
+  means both
+  $$
+  f(N)=O(g(N))
+  \qquad \text{and} \qquad
+  g(N)=O(f(N)).
+  $$
+
+1. Theorem target for $k = 4$.
 
    **Given**
 
@@ -137,11 +176,7 @@ The active missing mathematical theorems are now the higher-branch profile-match
    - $=O$ is Landau asymptotic domination as $N \to \infty$.
    - $N+2$ is a harmless positive shift used so the logarithm is always defined in the formal model.
 
-2. $k = 4$ target dominance theorem.
-
-   **Given** formula `1`.
-
-   **Target theorem**
+   **What to prove**
 
    $$
    \frac{C_u N}{(\log(N+2))^{c_u}}
@@ -154,7 +189,7 @@ The active missing mathematical theorems are now the higher-branch profile-match
    - $C_\ell N / (\log(N+2))^{c_\ell}$ is the current split lower-profile template.
    - $=O$ is the desired eventual dominance needed to turn the split $k = 4$ data into one matched `K4ProfileWitness`.
 
-3. $k \ge 5$ split hypotheses.
+2. Theorem target for each fixed $k \ge 5$.
 
    **Given**
 
@@ -175,11 +210,7 @@ The active missing mathematical theorems are now the higher-branch profile-match
    - $=O$ is Landau asymptotic domination as $N \to \infty$ for each fixed $k$.
    - $N+3$ is a harmless positive shift used so both logarithms are defined in the formal model.
 
-4. $k \ge 5$ target family dominance theorem.
-
-   **Given** formula `3`.
-
-   **Target theorem**
+   **What to prove**
 
    $$
    \frac{C_u(k)\,N}{(\log\log(N+3))^{c_u(k)}}
@@ -194,14 +225,63 @@ The active missing mathematical theorems are now the higher-branch profile-match
    - $k \ge 5$ means the theorem is needed uniformly as a family over all higher branches.
    - $=O$ is the desired eventual dominance needed to turn the split $k \ge 5$ data into matched `Kge5ProfileWitness` packages.
 
-Geometric illustration (schematic; common factor `N` suppressed):
+Geometric illustration (schematic; common factor $N$ suppressed):
 
 ![Schematic profile-matching frontier for the k=4 and k>=5 branches](./assets/erdos142/profile_matching_frontier.png)
 
-The figure is schematic only:
-- the blue curve is the current split upper template
-- the red curve is the current split lower template
-- the missing theorem is the eventual dominance statement
+The figure is schematic only. It is not plotting computed data for $r_k(N)$; it is drawing the profile templates from Theorem `1` and Theorem `2` after suppressing the common factor $N$.
+
+- Left panel: the $k = 4$ branch.
+  - blue curve: the upper template from Theorem `1`,
+    $$
+    U_4(N)=\frac{C_u N}{(\log(N+2))^{c_u}}
+    $$
+  - red curve: the lower template from Theorem `1`,
+    $$
+    L_4(N)=\frac{C_\ell N}{(\log(N+2))^{c_\ell}}
+    $$
+  - dashed dark-red curve: a comparison envelope
+    $$
+    A\,L_4(N)
+    $$
+    for a schematic constant $A > 0$.
+  - shaded red region: the part where
+    $$
+    U_4(N)>A\,L_4(N),
+    $$
+    so the desired domination has not yet been achieved.
+  - dashed vertical line labeled $N_0$: a schematic threshold after which the picture shows
+    $$
+    U_4(N)\le A\,L_4(N) \qquad (N \ge N_0).
+    $$
+  - what is actually drawn is $U_4(N)/N$, $L_4(N)/N$, and $A\,L_4(N)/N$, so only the decay part in $\log(N)$ is visible.
+
+- Right panel: the $k \ge 5$ branch.
+  - blue curve: the upper template from Theorem `2`,
+    $$
+    U_k(N)=\frac{C_u(k)\,N}{(\log\log(N+3))^{c_u(k)}}
+    $$
+  - red curve: the lower template from Theorem `2`,
+    $$
+    L_k(N)=\frac{C_\ell(k)\,N}{(\log\log(N+3))^{c_\ell(k)}}
+    $$
+  - dashed dark-red curve: a comparison envelope
+    $$
+    A\,L_k(N)
+    $$
+    for a schematic constant $A > 0$.
+  - shaded red region: the part where
+    $$
+    U_k(N)>A\,L_k(N),
+    $$
+    so the desired domination has not yet been achieved.
+  - dashed vertical line labeled $N_0$: a schematic threshold after which the picture shows
+    $$
+    U_k(N)\le A\,L_k(N) \qquad (N \ge N_0).
+    $$
+  - what is actually drawn is $U_k(N)/N$, $L_k(N)/N$, and $A\,L_k(N)/N$, so only the decay part in $\log\log(N)$ is visible.
+
+- In both panels, the point of the picture is to visualize the missing theorem: eventually, the blue curve should lie below the dashed comparison envelope, which is itself a constant multiple of the red curve. That is exactly the dominance statement
 
 $$
 \text{upper profile} = O(\text{lower profile})
