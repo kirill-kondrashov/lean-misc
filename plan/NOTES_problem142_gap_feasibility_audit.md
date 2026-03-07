@@ -103,6 +103,59 @@ Updated `k = 3` verdict:
 - `instantiate now`: no
 - `redesign required`: yes (or explicit mixed-profile two-sided theorem path)
 
+## `k = 3` Sharpened Follow-up (2026-03-06)
+
+Further implementation has now made the remaining `k = 3` requirement explicit on both sides:
+
+- gap-side target:
+  - `import_targets.k3_upper_exponent_gt_half_target`
+- source-facing target:
+  - `bound_targets.k3_superpolylog_upper_profile_gt_half`
+
+What is now proved in code:
+
+- if one has the sharp exponent threshold `β > 1 / 2` for the chosen `k = 3` upper witness,
+  the Behrend lower profile dominates the upper profile in the needed direction;
+- if one imports the stronger source-facing target
+  `bound_targets.k3_superpolylog_upper_profile_gt_half`,
+  then the repository already builds the full `K3ProfileWitnessImported` instance.
+
+So the remaining `k = 3` blocker is no longer a missing coupling construction. It is exactly the
+absence of a source-backed local import of the stronger upper benchmark target.
+
+Local audit result for that source-backed import:
+
+- the source has now been checked directly from the downloaded arXiv source bundle;
+- the paper's explicit `many-3-progs` theorem yields a threshold of shape
+  `2^{-O((log N)^(1/12))} * N`, so the visible source-backed exponent is `β = 1 / 12`;
+- therefore the stronger source-facing target
+  `bound_targets.k3_superpolylog_upper_profile_gt_half` is not available from the current
+  Kelley-Meka extraction.
+- detailed source note:
+  [NOTES_problem142_k3_kelley_meka_source_audit_2026-03-07.md](NOTES_problem142_k3_kelley_meka_source_audit_2026-03-07.md)
+
+## `k = 3` Source-Backed Split Packaging Update (2026-03-07)
+
+The pivoted `k = 3` route now has a first-class formal endpoint:
+
+- `K3SourceBackedSplitWitness` in `Problem142Literature.lean`
+- gap-layer alias `K3SourceBackedSplitGap` in `Problem142Gap.lean`
+
+This package records exactly the strongest currently justified local `k = 3` content:
+
+- one explicit Kelley-Meka upper witness with exponent `β = 1 / 12`,
+- one Behrend lower witness,
+- and the true compatibility direction
+  `k3_behrend_lower_template =O k3_upper_profile`.
+
+Updated verdict:
+
+- the old `β > 1 / 2` matched-profile elimination route is closed;
+- the honest `k = 3` endpoint is now an explicit split-surface package, not a full
+  `K3ProfileWitnessImported` instantiation;
+- future redesign work should consume this split package directly instead of continuing the
+  failed matched-profile search.
+
 ## Milestone-3/4 Execution Update (`k = 4`, `k >= 5`) (2026-03-05)
 
 Implemented and verified in Lean (`ErdosProblems/Problem142Literature.lean`):

@@ -46,7 +46,32 @@ Re-score the current Erdos-142 formalization pipeline against concrete, availabl
 - **Status**: not feasible until assumptions are proven or replaced.
 - **Progress bar**: `2 / 5` `[#####-------------]`
 - **Current status of fields**:
-  - `CouplingTargetK3`: reduced to explicit dominance target `import_targets.split_gap_k3_profile_dominance_target` (still unproven).
+  - `CouplingTargetK3`: reduced to explicit dominance target `import_targets.split_gap_k3_profile_dominance_target`;
+    current elimination route is now factored further into:
+    `import_targets.k3_upper_exponent_gt_half_target`,
+    `import_targets.k3_decay_template_dominance_of_beta_gt_half_target`,
+    and `import_targets.k3_decay_to_profile_transport_target`.
+    The decay comparison and transport layers are now proved; the remaining open content is the
+    exponent regime `β > 1 / 2`.
+    This is now surfaced in code as `LiteratureK3ExponentGtHalfAssumptions`, and
+    `Problem142Gap.lean` already contains the corresponding end-to-end `k=3` coupling derivation
+    from that assumption layer.
+    The source-facing missing import is also explicit:
+    `bound_targets.k3_superpolylog_upper_profile_gt_half`.
+    Under `LiteratureK3ExponentGtHalfSourceAssumptions`, `Problem142Literature.lean`
+    now directly instantiates `K3ProfileWitnessImported`.
+    Audit status: completed with negative verdict for the current Kelley-Meka extraction.
+    The source audit now identifies an explicit exponent `β = 1 / 12` from the paper's
+    `many-3-progs` theorem, so the stronger `β > 1 / 2` import is not available from the
+    currently extracted source theorem shape.
+    The honest replacement endpoint is now implemented as the source-backed split package
+    `K3SourceBackedSplitGap`, which records:
+    one explicit `β = 1 / 12` upper witness, one Behrend lower witness, and the true
+    compatibility direction `k3_behrend_lower_template =O k3_upper_profile`.
+    See:
+    [NOTES_problem142_k3_kelley_meka_source_audit_2026-03-07.md](NOTES_problem142_k3_kelley_meka_source_audit_2026-03-07.md)
+    and
+    [PLAN_erdos_problem_142_k3_split_surface_packaging_2026-03-07.md](PLAN_erdos_problem_142_k3_split_surface_packaging_2026-03-07.md)
   - `CouplingTargetK4`: unresolved.
   - `CouplingTargetKge5`: unresolved.
 
@@ -65,6 +90,15 @@ Re-score the current Erdos-142 formalization pipeline against concrete, availabl
      - `import_targets.split_gap_k3_coupling_target`
      - `import_targets.split_gap_k4_coupling_target`
      - `import_targets.split_gap_kge5_coupling_target`
+   - `k=3` note:
+     the old matched-profile elimination route is closed; active `k=3` work should now treat
+     `K3SourceBackedSplitGap` as the fixed honest endpoint and avoid further optimization of the
+     false `β > 1 / 2` path.
+   - Post-pivot redesign status:
+     `Problem142Gap.lean` now contains an explicit asymmetric downstream interface
+     `MainK3ResolvedGap` with remaining assumption layer
+     `K3ResolvedSplitGapToMainK3ResolvedGapAssumptions`, so only `k=4` and `k≥5`
+     remain as true coupling frontier fields in the active redesign path.
 
 3. **Separate declaration of solvable vs. conjectural routes** (in progress)
    - Ensure README and plan docs continue to distinguish:
@@ -79,3 +113,7 @@ Re-score the current Erdos-142 formalization pipeline against concrete, availabl
 
 - **Real-solution feasibility today**: `~33%` (honest partial formalization frontiers are in place; full gap still blocked).
 - **Next concrete measurable milestone**: resolve at least one of `CouplingTargetK3/K4/Kge5` without changing core statement strength.
+- Latest completed `k=3` cycle:
+  [PLAN_erdos_problem_142_k3_split_surface_packaging_2026-03-07.md](PLAN_erdos_problem_142_k3_split_surface_packaging_2026-03-07.md)
+- Active next-cycle file:
+  [PLAN_erdos_problem_142_post_k3_split_gap_redesign_2026-03-07.md](PLAN_erdos_problem_142_post_k3_split_gap_redesign_2026-03-07.md)

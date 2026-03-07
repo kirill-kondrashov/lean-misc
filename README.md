@@ -84,11 +84,11 @@ Axioms used:
 - propext
 - Quot.sound
 - Classical.choice
-- Erdos142.splitGap_k3_profile_dominance_frontier
+- Erdos142.splitGap_k3_upper_exponent_gt_half_frontier
 - Erdos142.splitGap_k4_profile_dominance_frontier
 - Erdos142.splitGap_kge5_profile_dominance_frontier
 Temporarily allowed non-base axioms (must be proved later):
-- Erdos142.splitGap_k3_profile_dominance_frontier
+- Erdos142.splitGap_k3_upper_exponent_gt_half_frontier
 - Erdos142.splitGap_k4_profile_dominance_frontier
 - Erdos142.splitGap_kge5_profile_dominance_frontier
 ✅ All checked items are free of 'sorry'. Temporary Erdős #142 axiom debt is explicitly allowed.
@@ -114,11 +114,42 @@ make docs       # build API docs
 
 ## Erdős #142: current status and references
 
-- As of March 4, 2026, Problem #142 remains open; this repository keeps a clean split between checker-clean
-  base-level infrastructure and an explicit, temporary coupling axiom frontier:
-  `Erdos142.splitGap_k3_profile_dominance_frontier`,
-  `Erdos142.splitGap_k4_profile_dominance_frontier`,
-  and `Erdos142.splitGap_kge5_profile_dominance_frontier`.
+- As of March 7, 2026, Problem #142 remains open; this repository keeps the full matched-profile route behind the temporary frontier axioms `Erdos142.splitGap_k3_upper_exponent_gt_half_frontier`, `Erdos142.splitGap_k4_profile_dominance_frontier`, and `Erdos142.splitGap_kge5_profile_dominance_frontier`, while the strongest honest local `k=3` endpoint is now the source-backed split package `Erdos142.K3SourceBackedSplitGap`, built from Kelley-Meka's explicit `β = 1 / 12` upper witness together with Behrend lower data and the true compatibility direction `k3_behrend_lower_template =O k3_upper_profile`.
+
+The active missing mathematical theorems are now the higher-branch profile-matching statements. For `k = 4`, from split bounds
+
+$$
+r_4(N)=O\!\left(\frac{C_u N}{(\log(N+2))^{c_u}}\right),
+\qquad
+\frac{C_\ell N}{(\log(N+2))^{c_\ell}}=O(r_4(N)),
+$$
+
+the missing theorem is
+
+$$
+\frac{C_u N}{(\log(N+2))^{c_u}}
+=
+O\!\left(\frac{C_\ell N}{(\log(N+2))^{c_\ell}}\right).
+$$
+
+For each fixed `k \ge 5`, from split bounds
+
+$$
+r_k(N)=O\!\left(\frac{C_u(k)\,N}{(\log\log(N+3))^{c_u(k)}}\right),
+\qquad
+\frac{C_\ell(k)\,N}{(\log\log(N+3))^{c_\ell(k)}}=O(r_k(N)),
+$$
+
+the missing theorem is
+
+$$
+\frac{C_u(k)\,N}{(\log\log(N+3))^{c_u(k)}}
+=
+O\!\left(\frac{C_\ell(k)\,N}{(\log\log(N+3))^{c_\ell(k)}}\right)
+\qquad (k \ge 5).
+$$
+
+These are the exact dominance statements needed to turn the current split upper/lower data into matched `K4ProfileWitness` and `Kge5ProfileWitness` packages.
 
 References:
 

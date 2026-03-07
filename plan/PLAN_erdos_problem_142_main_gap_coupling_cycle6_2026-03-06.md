@@ -36,6 +36,10 @@ Close the remaining branch-local promotion step from `MainSplitGap` to `MainTheo
    - Added `splitGap_k3_profile_dominance_frontier`, `splitGap_k4_profile_dominance_frontier`,
      and `splitGap_kge5_profile_dominance_frontier` as temporary axioms in
      [Problem142Gap.lean](ErdosProblems/Problem142Gap.lean).
+   - Follow-up refinement:
+     - the `k=3` item has since been sharpened so the actual remaining axiom frontier is now
+       `splitGap_k3_upper_exponent_gt_half_frontier`, with
+       `splitGap_k3_profile_dominance_frontier` derived as a theorem.
    - Updated [check_axioms.lean](../check_axioms.lean) to explicitly permit these three names
      as temporary debt and keep `scripts/verify_output.sh` green.
    - Added bridge definitions in [Problem142Gap.lean](ErdosProblems/Problem142Gap.lean) from the

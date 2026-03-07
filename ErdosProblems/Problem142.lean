@@ -333,6 +333,39 @@ def k3_superpolylog_upper_profile : Prop :=
     (fun N => (r 3 N : ℝ)) =O[atTop]
       (fun N : ℕ => C * (N : ℝ) * Real.exp (-c * (Real.log (N + 2)) ^ β))
 
+/-- Strengthened `k = 3` upper-profile target: same shape as
+`k3_superpolylog_upper_profile`, but with the sharp exponent regime `β > 1/2`.
+This is the exact literature-facing target needed by the current `k = 3` frontier-elimination
+route. -/
+def k3_superpolylog_upper_profile_gt_half : Prop :=
+  ∃ β c C : ℝ, (1 : ℝ) / 2 < β ∧ 0 < c ∧ 0 < C ∧
+    (fun N => (r 3 N : ℝ)) =O[atTop]
+      (fun N : ℕ => C * (N : ℝ) * Real.exp (-c * (Real.log (N + 2)) ^ β))
+
+/-- The strengthened `β > 1/2` target implies the previously used weaker `β > 0` target. -/
+theorem k3_superpolylog_upper_profile_of_gt_half :
+    k3_superpolylog_upper_profile_gt_half → k3_superpolylog_upper_profile := by
+  intro h
+  rcases h with ⟨β, c, C, hβ, hc, hC, hUpper⟩
+  refine ⟨β, c, C, ?_, hc, hC, hUpper⟩
+  linarith
+
+/-- Source-backed `k = 3` upper-profile target extracted from the Kelley-Meka paper using the
+visible exponent coming from the `d^{12}` progression-count bound. -/
+def k3_superpolylog_upper_profile_one_twelfth : Prop :=
+  ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+    (fun N => (r 3 N : ℝ)) =O[atTop]
+      (fun N : ℕ => C * (N : ℝ) * Real.exp (-c * (Real.log (N + 2)) ^ ((1 : ℝ) / 12)))
+
+/-- The explicit Kelley-Meka-style `β = 1/12` target implies the weaker existential
+superpolylogarithmic upper-profile target. -/
+theorem k3_superpolylog_upper_profile_of_one_twelfth :
+    k3_superpolylog_upper_profile_one_twelfth → k3_superpolylog_upper_profile := by
+  intro h
+  rcases h with ⟨c, C, hc, hC, hUpper⟩
+  refine ⟨(1 : ℝ) / 12, c, C, ?_, hc, hC, hUpper⟩
+  norm_num
+
 /-- Rate-template target for `k = 4`: polylogarithmic decay in an explicit `O`-profile. -/
 def k4_polylog_upper_profile : Prop :=
   ∃ c C : ℝ, 0 < c ∧ 0 < C ∧

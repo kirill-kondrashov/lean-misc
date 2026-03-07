@@ -415,6 +415,43 @@ noncomputable def k3_upper_profile [K3UpperProfileWitnessImported] : ℕ → ℝ
         (-erdos_problem_142_explicit_k3_upper_profile_witness_imported.c *
           (Real.log (N + 2)) ^ erdos_problem_142_explicit_k3_upper_profile_witness_imported.β)
 
+/-- Fixed Behrend-shape lower-profile template for the `k = 3` branch. -/
+noncomputable def k3_behrend_lower_template [K3BehrendLowerProfileWitnessImported] : ℕ → ℝ :=
+  fun N =>
+    erdos_problem_142_k3_behrend_lower_profile_witness_imported.C * (N : ℝ) *
+      Real.exp
+        (-erdos_problem_142_k3_behrend_lower_profile_witness_imported.c *
+          Real.sqrt (Real.log (N + 2)))
+
+/-- Decay-only upper template for the `k = 3` branch, with the common factor `N`
+and multiplicative constant removed. -/
+noncomputable def k3_upper_decay_template [K3UpperProfileWitnessImported] : ℕ → ℝ :=
+  fun N =>
+    Real.exp
+      (-erdos_problem_142_explicit_k3_upper_profile_witness_imported.c *
+        (Real.log (N + 2)) ^ erdos_problem_142_explicit_k3_upper_profile_witness_imported.β)
+
+/-- Decay-only Behrend template for the `k = 3` branch, with the common factor `N`
+and multiplicative constant removed. -/
+noncomputable def k3_behrend_decay_template [K3BehrendLowerProfileWitnessImported] : ℕ → ℝ :=
+  fun N =>
+    Real.exp
+      (-erdos_problem_142_k3_behrend_lower_profile_witness_imported.c *
+        Real.sqrt (Real.log (N + 2)))
+
+/-- First-class source-backed `k = 3` split surface:
+one explicit upper witness, one Behrend lower witness, and the true compatibility
+direction between them. This is weaker than `K3ProfileWitness`, but it is the strongest
+currently justified `k = 3` packaging from the local source audit. -/
+structure K3SourceBackedSplitWitness where
+  upper : K3UpperProfileWitness
+  upper_beta_eq_one_twelfth : upper.β = (1 : ℝ) / 12
+  lower : K3BehrendLowerProfileWitness
+  hCompatibility :
+    letI : K3UpperProfileWitnessImported := ⟨upper⟩
+    letI : K3BehrendLowerProfileWitnessImported := ⟨lower⟩
+    k3_behrend_lower_template =O[atTop] k3_upper_profile
+
 /-- Fixed upper-profile candidate for the `k = 4` branch. -/
 noncomputable def k4_upper_profile [K4UpperProfileWitnessImported] : ℕ → ℝ :=
   fun N =>
@@ -773,16 +810,164 @@ def split_gap_k3_coupling_target : Type :=
 the same template used by `K3ProfileWitness`.
 This keeps the blocker as a concrete `IsBigO` relation between the
 `k = 3` upper-superpolylog and Behrend-lower templates. -/
+def k3_upper_exponent_gt_half_target : Prop :=
+  ∀ [K3UpperProfileWitnessImported],
+    (1 : ℝ) / 2 < erdos_problem_142_explicit_k3_upper_profile_witness_imported.β
+
+/-- Pure decay-comparison target for the `k = 3` elimination route.
+This isolates the only nontrivial asymptotic comparison after removing the common factor
+`N` and positive multiplicative constants. -/
+def k3_decay_template_dominance_of_beta_gt_half_target : Prop :=
+  ∀ [K3UpperProfileWitnessImported] [K3BehrendLowerProfileWitnessImported],
+    (1 : ℝ) / 2 < erdos_problem_142_explicit_k3_upper_profile_witness_imported.β →
+      k3_upper_decay_template =O[atTop] k3_behrend_decay_template
+
+/-- Transport target for the `k = 3` elimination route:
+upgrade decay-only dominance to the full profile dominance used by the split-gap frontier. -/
+def k3_decay_to_profile_transport_target : Prop :=
+  ∀ [K3UpperProfileWitnessImported] [K3BehrendLowerProfileWitnessImported],
+    k3_upper_decay_template =O[atTop] k3_behrend_decay_template →
+      k3_upper_profile =O[atTop] k3_behrend_lower_template
+
+/-- Explicit dominance bridge needed to turn upper/lower split data for `k = 3` into
+the same template used by `K3ProfileWitness`.
+This keeps the blocker as a concrete `IsBigO` relation between the
+`k = 3` upper-superpolylog and Behrend-lower templates. -/
 def split_gap_k3_profile_dominance_target : Prop :=
   ∀ [K3UpperProfileWitnessImported] [K3BehrendLowerProfileWitnessImported],
-    (fun N : ℕ =>
-      erdos_problem_142_explicit_k3_upper_profile_witness_imported.C * (N : ℝ) *
-        Real.exp (-erdos_problem_142_explicit_k3_upper_profile_witness_imported.c *
-          (Real.log (N + 2)) ^ erdos_problem_142_explicit_k3_upper_profile_witness_imported.β))
-      =O[Filter.atTop] (fun N : ℕ =>
-      erdos_problem_142_k3_behrend_lower_profile_witness_imported.C * (N : ℝ) *
-        Real.exp (-erdos_problem_142_k3_behrend_lower_profile_witness_imported.c *
-          Real.sqrt (Real.log (N + 2))))
+    k3_upper_profile =O[atTop] k3_behrend_lower_template
+
+/-- The `k = 3` split-gap dominance target is recovered from the explicit elimination-route
+subtargets: exponent regime, decay comparison, and transport back to the full profile templates. -/
+theorem split_gap_k3_profile_dominance_target_of_decay_route
+    (hBeta : k3_upper_exponent_gt_half_target)
+    (hDecay : k3_decay_template_dominance_of_beta_gt_half_target)
+    (hTransport : k3_decay_to_profile_transport_target) :
+    split_gap_k3_profile_dominance_target := by
+  intro _ _
+  exact hTransport (hDecay (hBeta))
+
+/-- Transport the `k = 3` decay-only comparison back to the full profile templates by restoring
+the common factor `N` and the positive multiplicative constants. -/
+theorem k3_decay_to_profile_transport :
+    k3_decay_to_profile_transport_target := by
+  intro _ _ hDecay
+  let wU : K3UpperProfileWitness := erdos_problem_142_explicit_k3_upper_profile_witness_imported
+  let wL : K3BehrendLowerProfileWitness := erdos_problem_142_k3_behrend_lower_profile_witness_imported
+  rcases (Asymptotics.isBigO_iff').1 hDecay with ⟨K, hK, hBound⟩
+  let K' : ℝ := wU.C * K / wL.C
+  refine Asymptotics.IsBigO.of_bound K' ?_
+  filter_upwards [hBound] with N hN
+  have hUpDecay_nonneg : 0 ≤ k3_upper_decay_template N := by
+    dsimp [k3_upper_decay_template]
+    positivity
+  have hLowDecay_nonneg : 0 ≤ k3_behrend_decay_template N := by
+    dsimp [k3_behrend_decay_template]
+    positivity
+  have hUpper_nonneg : 0 ≤ k3_upper_profile N := by
+    change 0 ≤ wU.C * (N : ℝ) * k3_upper_decay_template N
+    exact mul_nonneg (mul_nonneg (le_of_lt wU.hC) (by positivity)) hUpDecay_nonneg
+  have hLower_nonneg : 0 ≤ k3_behrend_lower_template N := by
+    change 0 ≤ wL.C * (N : ℝ) * k3_behrend_decay_template N
+    exact mul_nonneg (mul_nonneg (le_of_lt wL.hC) (by positivity)) hLowDecay_nonneg
+  have hFactor_nonneg : 0 ≤ wU.C * (N : ℝ) := by
+    exact mul_nonneg (le_of_lt wU.hC) (by positivity)
+  have hDecayBound :
+      k3_upper_decay_template N ≤ K * k3_behrend_decay_template N := by
+    simpa [Real.norm_of_nonneg hUpDecay_nonneg, Real.norm_of_nonneg hLowDecay_nonneg] using hN
+  have hwLC_ne : wL.C ≠ 0 := ne_of_gt wL.hC
+  calc
+    ‖k3_upper_profile N‖ = k3_upper_profile N := by
+      exact Real.norm_of_nonneg hUpper_nonneg
+    _ = wU.C * (N : ℝ) * k3_upper_decay_template N := by
+      simp [k3_upper_profile, k3_upper_decay_template, wU]
+    _ ≤ wU.C * (N : ℝ) * (K * k3_behrend_decay_template N) := by
+      exact mul_le_mul_of_nonneg_left hDecayBound hFactor_nonneg
+    _ = K' * (wL.C * (N : ℝ) * k3_behrend_decay_template N) := by
+      dsimp [K']
+      field_simp [hwLC_ne]
+    _ = K' * k3_behrend_lower_template N := by
+      simp [k3_behrend_lower_template, k3_behrend_decay_template, wL]
+    _ = K' * ‖k3_behrend_lower_template N‖ := by
+      rw [Real.norm_of_nonneg hLower_nonneg]
+
+/-- If the imported `k = 3` upper exponent satisfies `β > 1/2`, then the upper decay template is
+asymptotically dominated by the Behrend decay template. -/
+theorem k3_decay_template_dominance_of_beta_gt_half :
+    k3_decay_template_dominance_of_beta_gt_half_target := by
+  intro _ _ hβ
+  let wU : K3UpperProfileWitness := erdos_problem_142_explicit_k3_upper_profile_witness_imported
+  let wL : K3BehrendLowerProfileWitness := erdos_problem_142_k3_behrend_lower_profile_witness_imported
+  let p : ℝ := 2 * wU.β
+  let b : ℝ := wU.c / wL.c ^ p
+  have hp : 1 < p := by
+    dsimp [p]
+    linarith
+  have hwLp_pos : 0 < wL.c ^ p := by
+    exact Real.rpow_pos_of_pos wL.hc _
+  have hb : 0 < b := by
+    dsimp [b]
+    exact div_pos wU.hc hwLp_pos
+  have hShift : Tendsto (fun N : ℕ => (N : ℝ) + 2) atTop atTop := by
+    simpa using tendsto_natCast_atTop_atTop.atTop_add tendsto_const_nhds
+  have hLog : Tendsto (fun N : ℕ => Real.log ((N : ℝ) + 2)) atTop atTop := by
+    exact Real.tendsto_log_atTop.comp hShift
+  have hSqrt : Tendsto (fun N : ℕ => Real.sqrt (Real.log ((N : ℝ) + 2))) atTop atTop := by
+    simpa [Real.sqrt_eq_rpow] using
+      (tendsto_rpow_atTop (show 0 < (1 / (2 : ℝ)) by norm_num)).comp hLog
+  have hScaled : Tendsto (fun N : ℕ => wL.c * Real.sqrt (Real.log ((N : ℝ) + 2))) atTop atTop := by
+    exact Tendsto.const_mul_atTop wL.hc hSqrt
+  have hLittleBase :
+      ((fun x : ℝ => Real.exp (-b * x ^ p)) ∘ fun N : ℕ => wL.c * Real.sqrt (Real.log ((N : ℝ) + 2)))
+        =o[atTop]
+      ((fun x : ℝ => Real.exp (-x)) ∘ fun N : ℕ => wL.c * Real.sqrt (Real.log ((N : ℝ) + 2))) :=
+    (exp_neg_mul_rpow_isLittleO_exp_neg hb hp).comp_tendsto hScaled
+  have hNum :
+      (fun N : ℕ =>
+        Real.exp (-b * (wL.c * Real.sqrt (Real.log ((N : ℝ) + 2))) ^ p)) =ᶠ[atTop]
+      k3_upper_decay_template := by
+    refine Eventually.of_forall ?_
+    intro N
+    have hLog_nonneg : 0 ≤ Real.log ((N : ℝ) + 2) := by
+      have hN_nonneg : 0 ≤ (N : ℝ) := by positivity
+      apply Real.log_nonneg
+      nlinarith
+    have hSqrt_nonneg : 0 ≤ Real.sqrt (Real.log ((N : ℝ) + 2)) := by
+      exact Real.sqrt_nonneg _
+    have hSqrtPow :
+        (Real.sqrt (Real.log ((N : ℝ) + 2))) ^ p = (Real.log ((N : ℝ) + 2)) ^ wU.β := by
+      rw [Real.sqrt_eq_rpow, ← Real.rpow_mul hLog_nonneg]
+      have hp_id : (1 / (2 : ℝ)) * p = wU.β := by
+        dsimp [p]
+        ring
+      rw [hp_id]
+    have hMain :
+        b * (wL.c * Real.sqrt (Real.log ((N : ℝ) + 2))) ^ p =
+          wU.c * (Real.log ((N : ℝ) + 2)) ^ wU.β := by
+      rw [Real.mul_rpow (le_of_lt wL.hc) hSqrt_nonneg, hSqrtPow]
+      dsimp [b]
+      field_simp [hwLp_pos.ne']
+    simpa [k3_upper_decay_template, wU] using congrArg (fun t : ℝ => Real.exp (-t)) hMain
+  have hDen :
+      (fun N : ℕ =>
+        Real.exp (-(wL.c * Real.sqrt (Real.log ((N : ℝ) + 2))))) =ᶠ[atTop]
+      k3_behrend_decay_template := by
+    exact Eventually.of_forall fun N => by simp [k3_behrend_decay_template, wL]
+  have hDenBig :
+      (fun N : ℕ =>
+        Real.exp (-(wL.c * Real.sqrt (Real.log ((N : ℝ) + 2))))) =O[atTop]
+      k3_behrend_decay_template := by
+    exact hDen.trans_isBigO (Asymptotics.isBigO_refl _ _)
+  exact (hNum.symm.trans_isBigO hLittleBase.isBigO).trans hDenBig
+
+/-- Under the sharp exponent hypothesis `β > 1/2`, the `k = 3` split-gap dominance target follows. -/
+theorem split_gap_k3_profile_dominance_target_of_beta_gt_half
+    (hBeta : k3_upper_exponent_gt_half_target) :
+    split_gap_k3_profile_dominance_target := by
+  exact split_gap_k3_profile_dominance_target_of_decay_route
+    hBeta
+    k3_decay_template_dominance_of_beta_gt_half
+    k3_decay_to_profile_transport
 
 /-- Explicit dominance bridge needed to turn split upper/lower data for `k = 4` into the same profile
 template used by `K4ProfileWitness`. -/
@@ -827,6 +1012,193 @@ for the currently missing `k = 4` and `k ≥ 5` branches. -/
 class LiteratureLowerImportAssumptions : Prop extends LiteratureRateAssumptions where
   k4_polylog_lower_profile : import_targets.k4_polylog_lower_profile
   kge5_iteratedlog_lower_profile : import_targets.kge5_iteratedlog_lower_profile
+
+/-- Optional strengthened literature layer for the sharpened `k = 3` route:
+it records that the imported upper witness can be taken with exponent `β > 1/2`. -/
+class LiteratureK3ExponentGtHalfAssumptions : Prop extends LiteratureRateAssumptions where
+  k3_upper_exponent_gt_half : import_targets.k3_upper_exponent_gt_half_target
+
+/-- Source-facing strengthened literature layer for the sharpened `k = 3` route:
+it asks directly for the stronger `k = 3` upper profile shape with exponent `β > 1/2`.
+Unlike `LiteratureK3ExponentGtHalfAssumptions`, this names the missing benchmark import at the
+statement boundary rather than as a universal instance-side target. -/
+class LiteratureK3ExponentGtHalfSourceAssumptions : Prop extends LiteratureRateAssumptions where
+  k3_superpolylog_upper_profile_gt_half :
+    bound_targets.k3_superpolylog_upper_profile_gt_half
+
+/-- Source-facing literature layer for the pivoted `k = 3` route:
+it records the explicit Kelley-Meka-style upper profile with the currently extracted visible
+exponent `β = 1/12`. -/
+class LiteratureK3OneTwelfthSourceAssumptions : Prop extends LiteratureRateAssumptions where
+  k3_superpolylog_upper_profile_one_twelfth :
+    bound_targets.k3_superpolylog_upper_profile_one_twelfth
+
+/-- Expose the sharpened `k = 3` exponent-threshold target from the dedicated literature layer. -/
+theorem k3_upper_exponent_gt_half_target_of_literatureK3ExponentGtHalfAssumptions
+    [h : LiteratureK3ExponentGtHalfAssumptions] :
+    import_targets.k3_upper_exponent_gt_half_target := by
+  exact h.k3_upper_exponent_gt_half
+
+/-- Under the sharpened literature-side `k = 3` exponent hypothesis, the split-gap dominance target
+for `k = 3` is no longer an axiom-level mathematical gap. -/
+theorem split_gap_k3_profile_dominance_target_of_literatureK3ExponentGtHalfAssumptions
+    [h : LiteratureK3ExponentGtHalfAssumptions] :
+    import_targets.split_gap_k3_profile_dominance_target := by
+  exact import_targets.split_gap_k3_profile_dominance_target_of_beta_gt_half
+    h.k3_upper_exponent_gt_half
+
+/-- The pivoted source-facing `β = 1/12` target still implies the weaker existential
+superpolylogarithmic upper-profile benchmark. -/
+theorem k3_superpolylog_upper_profile_of_literatureK3OneTwelfthSourceAssumptions
+    [h : LiteratureK3OneTwelfthSourceAssumptions] :
+    bound_targets.k3_superpolylog_upper_profile := by
+  exact bound_targets.k3_superpolylog_upper_profile_of_one_twelfth
+    h.k3_superpolylog_upper_profile_one_twelfth
+
+/-- Direct local `k = 3` coupling from imported split witnesses plus the sharp exponent threshold.
+This avoids the stronger universal-target packaging when a specific upper witness is already fixed. -/
+noncomputable def k3ProfileWitness_of_imported_split_witnesses_and_beta_gt_half
+    [K3UpperProfileWitnessImported] [K3BehrendLowerProfileWitnessImported]
+    (hBeta : (1 : ℝ) / 2 < erdos_problem_142_explicit_k3_upper_profile_witness_imported.β) :
+    K3ProfileWitness := by
+  let wU : K3UpperProfileWitness := erdos_problem_142_explicit_k3_upper_profile_witness_imported
+  let wL : K3BehrendLowerProfileWitness := erdos_problem_142_k3_behrend_lower_profile_witness_imported
+  have hDecay :
+      k3_upper_decay_template =O[atTop] k3_behrend_decay_template :=
+    import_targets.k3_decay_template_dominance_of_beta_gt_half hBeta
+  have hDom :
+      k3_upper_profile =O[atTop] k3_behrend_lower_template :=
+    import_targets.k3_decay_to_profile_transport hDecay
+  refine ⟨wU.β, wU.c, wU.C, wU.hβ, wU.hc, wU.hC, wU.hUpper, ?_⟩
+  change k3_upper_profile =O[Filter.atTop] (fun N => (r 3 N : ℝ))
+  simpa [k3_behrend_lower_template, wL] using hDom.trans wL.hLower
+
+/-- If the imported `k = 3` upper exponent satisfies `β < 1/2`, then the Behrend decay template
+is asymptotically dominated by the upper decay template. -/
+theorem k3_behrend_decay_template_dominance_of_beta_lt_half
+    [K3UpperProfileWitnessImported] [K3BehrendLowerProfileWitnessImported]
+    (hβ : erdos_problem_142_explicit_k3_upper_profile_witness_imported.β < (1 : ℝ) / 2) :
+    k3_behrend_decay_template =O[atTop] k3_upper_decay_template := by
+  let wU : K3UpperProfileWitness := erdos_problem_142_explicit_k3_upper_profile_witness_imported
+  let wL : K3BehrendLowerProfileWitness := erdos_problem_142_k3_behrend_lower_profile_witness_imported
+  let p : ℝ := 1 / (2 * wU.β)
+  let b : ℝ := wL.c / wU.c ^ p
+  have h2β_pos : 0 < 2 * wU.β := by
+    nlinarith [wU.hβ]
+  have h2β_lt_one : 2 * wU.β < 1 := by linarith
+  have hp : 1 < p := by
+    dsimp [p]
+    have hInv : 1 / (1 : ℝ) < 1 / (2 * wU.β) :=
+      one_div_lt_one_div_of_lt h2β_pos h2β_lt_one
+    simpa using hInv
+  have hwUp_pos : 0 < wU.c ^ p := by
+    exact Real.rpow_pos_of_pos wU.hc _
+  have hb : 0 < b := by
+    dsimp [b]
+    exact div_pos wL.hc hwUp_pos
+  have hShift : Tendsto (fun N : ℕ => (N : ℝ) + 2) atTop atTop := by
+    simpa using tendsto_natCast_atTop_atTop.atTop_add tendsto_const_nhds
+  have hLog : Tendsto (fun N : ℕ => Real.log ((N : ℝ) + 2)) atTop atTop := by
+    exact Real.tendsto_log_atTop.comp hShift
+  have hPow : Tendsto (fun N : ℕ => (Real.log ((N : ℝ) + 2)) ^ wU.β) atTop atTop := by
+    exact (tendsto_rpow_atTop wU.hβ).comp hLog
+  have hScaled :
+      Tendsto (fun N : ℕ => wU.c * (Real.log ((N : ℝ) + 2)) ^ wU.β) atTop atTop := by
+    exact Tendsto.const_mul_atTop wU.hc hPow
+  have hLittleBase :
+      ((fun x : ℝ => Real.exp (-b * x ^ p)) ∘
+          fun N : ℕ => wU.c * (Real.log ((N : ℝ) + 2)) ^ wU.β) =o[atTop]
+      ((fun x : ℝ => Real.exp (-x)) ∘
+          fun N : ℕ => wU.c * (Real.log ((N : ℝ) + 2)) ^ wU.β) :=
+    (exp_neg_mul_rpow_isLittleO_exp_neg hb hp).comp_tendsto hScaled
+  have hNum :
+      (fun N : ℕ =>
+        Real.exp (-b * (wU.c * (Real.log ((N : ℝ) + 2)) ^ wU.β) ^ p)) =ᶠ[atTop]
+      k3_behrend_decay_template := by
+    refine Eventually.of_forall ?_
+    intro N
+    have hLog_nonneg : 0 ≤ Real.log ((N : ℝ) + 2) := by
+      have hN_nonneg : 0 ≤ (N : ℝ) := by positivity
+      apply Real.log_nonneg
+      nlinarith
+    have hPow_nonneg : 0 ≤ (Real.log ((N : ℝ) + 2)) ^ wU.β := by
+      exact Real.rpow_nonneg hLog_nonneg _
+    have hp_id : wU.β * p = (1 : ℝ) / 2 := by
+      dsimp [p]
+      field_simp [wU.hβ.ne']
+    have hMain :
+        b * (wU.c * (Real.log ((N : ℝ) + 2)) ^ wU.β) ^ p =
+          wL.c * (Real.log ((N : ℝ) + 2)) ^ ((1 : ℝ) / 2) := by
+      rw [Real.mul_rpow (le_of_lt wU.hc) hPow_nonneg, ← Real.rpow_mul hLog_nonneg, hp_id]
+      dsimp [b]
+      field_simp [hwUp_pos.ne']
+    simpa [k3_behrend_decay_template, wL, Real.sqrt_eq_rpow] using
+      congrArg (fun t : ℝ => Real.exp (-t)) hMain
+  have hDen :
+      (fun N : ℕ =>
+        Real.exp (-(wU.c * (Real.log ((N : ℝ) + 2)) ^ wU.β))) =ᶠ[atTop]
+      k3_upper_decay_template := by
+    exact Eventually.of_forall fun N => by simp [k3_upper_decay_template, wU]
+  have hDenBig :
+      (fun N : ℕ =>
+        Real.exp (-(wU.c * (Real.log ((N : ℝ) + 2)) ^ wU.β))) =O[atTop]
+      k3_upper_decay_template := by
+    exact hDen.trans_isBigO (Asymptotics.isBigO_refl _ _)
+  exact (hNum.symm.trans_isBigO hLittleBase.isBigO).trans hDenBig
+
+/-- Transport the reverse `k = 3` decay comparison back to the full profile templates by restoring
+the common factor `N` and the positive multiplicative constants. -/
+theorem k3_behrend_to_upper_profile_transport
+    [K3UpperProfileWitnessImported] [K3BehrendLowerProfileWitnessImported]
+    (hDecay : k3_behrend_decay_template =O[atTop] k3_upper_decay_template) :
+    k3_behrend_lower_template =O[atTop] k3_upper_profile := by
+  let wU : K3UpperProfileWitness := erdos_problem_142_explicit_k3_upper_profile_witness_imported
+  let wL : K3BehrendLowerProfileWitness := erdos_problem_142_k3_behrend_lower_profile_witness_imported
+  rcases (Asymptotics.isBigO_iff').1 hDecay with ⟨K, hK, hBound⟩
+  let K' : ℝ := wL.C * K / wU.C
+  refine Asymptotics.IsBigO.of_bound K' ?_
+  filter_upwards [hBound] with N hN
+  have hUpDecay_nonneg : 0 ≤ k3_upper_decay_template N := by
+    dsimp [k3_upper_decay_template]
+    positivity
+  have hLowDecay_nonneg : 0 ≤ k3_behrend_decay_template N := by
+    dsimp [k3_behrend_decay_template]
+    positivity
+  have hUpper_nonneg : 0 ≤ k3_upper_profile N := by
+    change 0 ≤ wU.C * (N : ℝ) * k3_upper_decay_template N
+    exact mul_nonneg (mul_nonneg (le_of_lt wU.hC) (by positivity)) hUpDecay_nonneg
+  have hLower_nonneg : 0 ≤ k3_behrend_lower_template N := by
+    change 0 ≤ wL.C * (N : ℝ) * k3_behrend_decay_template N
+    exact mul_nonneg (mul_nonneg (le_of_lt wL.hC) (by positivity)) hLowDecay_nonneg
+  have hFactor_nonneg : 0 ≤ wL.C * (N : ℝ) := by
+    exact mul_nonneg (le_of_lt wL.hC) (by positivity)
+  have hDecayBound :
+      k3_behrend_decay_template N ≤ K * k3_upper_decay_template N := by
+    simpa [Real.norm_of_nonneg hLowDecay_nonneg, Real.norm_of_nonneg hUpDecay_nonneg] using hN
+  have hwUC_ne : wU.C ≠ 0 := ne_of_gt wU.hC
+  calc
+    ‖k3_behrend_lower_template N‖ = k3_behrend_lower_template N := by
+      exact Real.norm_of_nonneg hLower_nonneg
+    _ = wL.C * (N : ℝ) * k3_behrend_decay_template N := by
+      simp [k3_behrend_lower_template, k3_behrend_decay_template, wL]
+    _ ≤ wL.C * (N : ℝ) * (K * k3_upper_decay_template N) := by
+      exact mul_le_mul_of_nonneg_left hDecayBound hFactor_nonneg
+    _ = K' * (wU.C * (N : ℝ) * k3_upper_decay_template N) := by
+      dsimp [K']
+      field_simp [hwUC_ne]
+    _ = K' * k3_upper_profile N := by
+      simp [k3_upper_profile, k3_upper_decay_template, wU]
+    _ = K' * ‖k3_upper_profile N‖ := by
+      rw [Real.norm_of_nonneg hUpper_nonneg]
+
+/-- Under the honest exponent regime `β < 1/2`, the Behrend lower template is asymptotically
+dominated by the upper profile template. -/
+theorem k3_behrend_lower_template_dominance_of_beta_lt_half
+    [K3UpperProfileWitnessImported] [K3BehrendLowerProfileWitnessImported]
+    (hβ : erdos_problem_142_explicit_k3_upper_profile_witness_imported.β < (1 : ℝ) / 2) :
+    k3_behrend_lower_template =O[atTop] k3_upper_profile := by
+  exact k3_behrend_to_upper_profile_transport
+    (k3_behrend_decay_template_dominance_of_beta_lt_half hβ)
 
 /-- If lower branch imports are supplied, the two missing lower-target stubs are available. -/
 theorem lower_import_targets_of_literatureLowerImportAssumptions
@@ -971,6 +1343,104 @@ noncomputable def k3BehrendLowerProfileWitness_of_literatureRateAssumptions
 noncomputable instance k3BehrendLowerProfileWitnessImported_of_literatureRateAssumptions
     [h : LiteratureRateAssumptions] : K3BehrendLowerProfileWitnessImported where
   k3_behrend_lower_profile_witness := k3BehrendLowerProfileWitness_of_literatureRateAssumptions
+
+/-- Noncomputable extraction of the explicit source-backed `k = 3` upper witness with exponent
+`β = 1/12` from the pivoted literature layer. -/
+noncomputable def k3UpperProfileWitness_of_literatureK3OneTwelfthSourceAssumptions
+    [h : LiteratureK3OneTwelfthSourceAssumptions] : K3UpperProfileWitness := by
+  classical
+  let hw : ∃ w : K3UpperProfileWitness, w.β = (1 : ℝ) / 12 := by
+    rcases h.k3_superpolylog_upper_profile_one_twelfth with ⟨c, C, hc, hC, hUpper⟩
+    let w : K3UpperProfileWitness :=
+      { β := (1 : ℝ) / 12
+        c := c
+        C := C
+        hβ := by
+          norm_num
+        hc := hc
+        hC := hC
+        hUpper := hUpper }
+    exact ⟨w, rfl⟩
+  exact Classical.choose hw
+
+/-- The explicit witness extracted from `LiteratureK3OneTwelfthSourceAssumptions`
+really carries exponent `β = 1 / 12`. -/
+theorem k3UpperProfileWitness_beta_eq_one_twelfth_of_literatureK3OneTwelfthSourceAssumptions
+    [h : LiteratureK3OneTwelfthSourceAssumptions] :
+    (k3UpperProfileWitness_of_literatureK3OneTwelfthSourceAssumptions (h := h)).β =
+      (1 : ℝ) / 12 := by
+  classical
+  let hw : ∃ w : K3UpperProfileWitness, w.β = (1 : ℝ) / 12 := by
+    rcases h.k3_superpolylog_upper_profile_one_twelfth with ⟨c, C, hc, hC, hUpper⟩
+    let w : K3UpperProfileWitness :=
+      { β := (1 : ℝ) / 12
+        c := c
+        C := C
+        hβ := by
+          norm_num
+        hc := hc
+        hC := hC
+        hUpper := hUpper }
+    exact ⟨w, rfl⟩
+  change (Classical.choose hw).β = (1 : ℝ) / 12
+  exact Classical.choose_spec hw
+
+/-- The pivoted `k = 3` literature layer produces a first-class source-backed split witness:
+explicit Kelley-Meka upper witness with `β = 1 / 12`, Behrend lower witness, and the true
+compatibility direction `lower =O upper`. -/
+noncomputable def k3SourceBackedSplitWitness_of_literatureK3OneTwelfthSourceAssumptions
+    [h : LiteratureK3OneTwelfthSourceAssumptions] :
+    K3SourceBackedSplitWitness := by
+  let wU : K3UpperProfileWitness :=
+    k3UpperProfileWitness_of_literatureK3OneTwelfthSourceAssumptions
+  let wL : K3BehrendLowerProfileWitness :=
+    k3BehrendLowerProfileWitness_of_literatureRateAssumptions
+  letI : K3UpperProfileWitnessImported := ⟨wU⟩
+  letI : K3BehrendLowerProfileWitnessImported := ⟨wL⟩
+  refine
+    { upper := wU
+      upper_beta_eq_one_twelfth :=
+        k3UpperProfileWitness_beta_eq_one_twelfth_of_literatureK3OneTwelfthSourceAssumptions
+      lower := wL
+      hCompatibility := ?_ }
+  have hβw : wU.β < (1 : ℝ) / 2 := by
+    rw [show wU.β =
+      (k3UpperProfileWitness_of_literatureK3OneTwelfthSourceAssumptions (h := h)).β by rfl]
+    rw [k3UpperProfileWitness_beta_eq_one_twelfth_of_literatureK3OneTwelfthSourceAssumptions
+      (h := h)]
+    norm_num
+  have hβ :
+      erdos_problem_142_explicit_k3_upper_profile_witness_imported.β < (1 : ℝ) / 2 := by
+    change wU.β < (1 : ℝ) / 2
+    exact hβw
+  exact k3_behrend_lower_template_dominance_of_beta_lt_half hβ
+
+/-- Under the stronger source-facing `β > 1/2` benchmark target, the repository can already build
+the full two-sided `k = 3` witness without any additional `k = 3` frontier axiom. -/
+noncomputable def k3ProfileWitness_of_literatureK3ExponentGtHalfSourceAssumptions
+    [h : LiteratureK3ExponentGtHalfSourceAssumptions] :
+    K3ProfileWitness := by
+  classical
+  let hw : ∃ w : K3UpperProfileWitness, (1 : ℝ) / 2 < w.β := by
+    rcases h.k3_superpolylog_upper_profile_gt_half with ⟨β, c, C, hβ, hc, hC, hUpper⟩
+    refine ⟨{ β := β, c := c, C := C, hβ := by linarith, hc := hc, hC := hC, hUpper := hUpper }, ?_⟩
+    simpa using hβ
+  let wU : K3UpperProfileWitness := Classical.choose hw
+  have hBeta_wU : (1 : ℝ) / 2 < wU.β := Classical.choose_spec hw
+  letI : K3UpperProfileWitnessImported := ⟨wU⟩
+  letI : K3BehrendLowerProfileWitnessImported :=
+    k3BehrendLowerProfileWitnessImported_of_literatureRateAssumptions
+  have hBeta :
+      (1 : ℝ) / 2 < erdos_problem_142_explicit_k3_upper_profile_witness_imported.β := by
+    change (1 : ℝ) / 2 < wU.β
+    exact hBeta_wU
+  exact k3ProfileWitness_of_imported_split_witnesses_and_beta_gt_half hBeta
+
+/-- The stronger source-facing `k = 3` exponent import is sufficient to instantiate the full
+two-sided `k = 3` witness interface. -/
+noncomputable instance k3ProfileWitnessImported_of_literatureK3ExponentGtHalfSourceAssumptions
+    [h : LiteratureK3ExponentGtHalfSourceAssumptions] : K3ProfileWitnessImported where
+  k3_profile_witness := k3ProfileWitness_of_literatureK3ExponentGtHalfSourceAssumptions
 
 /-- `k = 3` Behrend-lower profile route through the imported-lower interface layer. -/
 theorem k3_behrend_lower_profile_of_literature_rates_via_imported_lower_witness
