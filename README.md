@@ -159,6 +159,7 @@ Current proof status:
   real-valued branch into:
   `RealSpacingLowerBound`,
   `RealSpacingLowerBoundStrong`,
+  `KnownRealSpacingTheory`,
   `real_spacing_lower_bound_avg`, and the explicit open-conjecture alias
   `OpenRealExponentialVariant`.
 - The sharp middle-binomial asymptotic is now proved locally; the remaining Problem #1 bottlenecks

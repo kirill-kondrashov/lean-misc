@@ -209,9 +209,9 @@ Closing that gap requires new mathematics, not just Lean engineering.
    `Erdos1.erdos_1.variants.proved.lb_strong`.
 2. Add a notes file auditing exact-value sources and certificate strategy for `a(9)` and
    `a(10) = 309`.
-3. Refine the new `Problem1Real.lean` surface if we want a stronger downstream API than the current
-   separation into `RealSpacingLowerBound`, `RealSpacingLowerBoundStrong`, and the open conjecture
-   alias.
+3. If needed, extend the new `Problem1Real.lean` surface beyond the current bundled
+   `KnownRealSpacingTheory` API, for example by adding future certificate-backed exact witnesses or
+   more comparison lemmas between exact and asymptotic real statements.
 4. Add README coverage for the new exact/literature surfaces if the documentation should track the
    latest code state more closely.
 
