@@ -190,7 +190,8 @@ Closing that gap requires new mathematics, not just Lean engineering.
 - [x] Exact benchmark `Erdos1.erdos_1.variants.least_N_3`.
 - [x] `Erdos1.erdos_1.variants.weaker` proved without axioms.
 - [x] Exact Dubroff-Fox-Xu lower theorem added as the primary literature import.
-- [~] `lb` and `lb_strong` reduced to one asymptotic middle-binomial axiom plus exact imports.
+- [x] `lb` and `lb_strong` reduced to the exact imported lower theorem plus local middle-binomial
+      asymptotic machinery; the sharp central-binomial asymptotic is now proved.
 - [x] Honest real-valued `2^n / sqrt(n)` theorem surface added.
 - [x] Bohman upper-construction theorem surface added.
 - [~] Exact-value strategy partly executed: `least_N_5` is now proved by finite verification;
@@ -199,16 +200,16 @@ Closing that gap requires new mathematics, not just Lean engineering.
 
 ## Immediate next actions
 
-1. Replace the remaining separate public axioms `Erdos1.erdos_1.variants.lb` and
-   `Erdos1.erdos_1.variants.lb_strong` by routing callers through the derived literature theorems,
-   or rename the public surface to avoid the dotted-name conflict cleanly.
-2. Remove `choose_middle_lb_strong_asymptotic_axiom` by deriving the middle-binomial asymptotic
-   from mathlib's Stirling API and central-binomial lemmas.
-3. Add a notes file auditing exact-value sources and certificate strategy for `a(9)` and
+1. Refactor `Problem1.lean` if we want the original public dotted names
+   `Erdos1.erdos_1.variants.lb` and `Erdos1.erdos_1.variants.lb_strong` themselves to stop being
+   axioms, rather than merely providing the non-axiomatic aliases
+   `Erdos1.erdos_1.variants.proved.lb` and
+   `Erdos1.erdos_1.variants.proved.lb_strong`.
+2. Add a notes file auditing exact-value sources and certificate strategy for `a(9)` and
    `a(10) = 309`.
-4. Decide whether to keep the real-valued lower results in `Problem1Literature.lean` or split them
+3. Decide whether to keep the real-valued lower results in `Problem1Literature.lean` or split them
    into a dedicated `Problem1Real.lean`.
-5. Add README coverage for the new exact/literature surfaces if the documentation should track the
+4. Add README coverage for the new exact/literature surfaces if the documentation should track the
    latest code state more closely.
 
 ## External references anchoring this plan
