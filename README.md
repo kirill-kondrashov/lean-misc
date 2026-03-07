@@ -114,42 +114,100 @@ make docs       # build API docs
 
 ## Erdős #142: current status and references
 
-- As of March 7, 2026, Problem #142 remains open; this repository keeps the full matched-profile route behind the temporary frontier axioms `Erdos142.splitGap_k3_upper_exponent_gt_half_frontier`, `Erdos142.splitGap_k4_profile_dominance_frontier`, and `Erdos142.splitGap_kge5_profile_dominance_frontier`, while the strongest honest local `k=3` endpoint is now the source-backed split package `Erdos142.K3SourceBackedSplitGap`, built from Kelley-Meka's explicit `β = 1 / 12` upper witness together with Behrend lower data and the true compatibility direction `k3_behrend_lower_template =O k3_upper_profile`.
+- As of March 7, 2026, Problem #142 remains open; this repository keeps the full matched-profile route behind the temporary frontier axioms `Erdos142.splitGap_k3_upper_exponent_gt_half_frontier`, `Erdos142.splitGap_k4_profile_dominance_frontier`, and `Erdos142.splitGap_kge5_profile_dominance_frontier`, while the strongest honest local $k=3$ endpoint is now the source-backed split package `Erdos142.K3SourceBackedSplitGap`, built from Kelley-Meka's explicit $\beta = 1 / 12$ upper witness together with Behrend lower data and the true compatibility direction `k3_behrend_lower_template =O k3_upper_profile`.
 
-The active missing mathematical theorems are now the higher-branch profile-matching statements. For `k = 4`, from split bounds
+The active missing mathematical theorems are now the higher-branch profile-matching statements.
+
+1. $k = 4$ split hypotheses.
+
+   **Given**
+
+   $$
+   r_4(N)=O\!\left(\frac{C_u N}{(\log(N+2))^{c_u}}\right),
+   \qquad
+   \frac{C_\ell N}{(\log(N+2))^{c_\ell}}=O(r_4(N)).
+   $$
+
+   **Where**
+   - $r_4(N)$ is the maximal size of a $4$-term arithmetic-progression-free subset of $\{1,\dots,N\}$.
+   - $N$ is the ambient interval size.
+   - $C_u, C_\ell$ are positive constants independent of $N$.
+   - $c_u, c_\ell$ are positive polylogarithmic decay exponents.
+   - $\log$ is the natural logarithm.
+   - $=O$ is Landau asymptotic domination as $N \to \infty$.
+   - $N+2$ is a harmless positive shift used so the logarithm is always defined in the formal model.
+
+2. $k = 4$ target dominance theorem.
+
+   **Given** formula `1`.
+
+   **Target theorem**
+
+   $$
+   \frac{C_u N}{(\log(N+2))^{c_u}}
+   =
+   O\!\left(\frac{C_\ell N}{(\log(N+2))^{c_\ell}}\right).
+   $$
+
+   **Where**
+   - $C_u N / (\log(N+2))^{c_u}$ is the current split upper-profile template.
+   - $C_\ell N / (\log(N+2))^{c_\ell}$ is the current split lower-profile template.
+   - $=O$ is the desired eventual dominance needed to turn the split $k = 4$ data into one matched `K4ProfileWitness`.
+
+3. $k \ge 5$ split hypotheses.
+
+   **Given**
+
+   $$
+   r_k(N)=O\!\left(\frac{C_u(k)\,N}{(\log\log(N+3))^{c_u(k)}}\right),
+   \qquad
+   \frac{C_\ell(k)\,N}{(\log\log(N+3))^{c_\ell(k)}}=O(r_k(N)),
+   \qquad (k \ge 5).
+   $$
+
+   **Where**
+   - $r_k(N)$ is the maximal size of a $k$-term arithmetic-progression-free subset of $\{1,\dots,N\}$.
+   - $k$ is a fixed integer with $k \ge 5$.
+   - $N$ is the ambient interval size.
+   - $C_u(k), C_\ell(k)$ are positive constants that may depend on $k$ but not on $N$.
+   - $c_u(k), c_\ell(k)$ are positive iterated-log decay exponents that may depend on $k$.
+   - $\log\log$ is the iterated natural logarithm.
+   - $=O$ is Landau asymptotic domination as $N \to \infty$ for each fixed $k$.
+   - $N+3$ is a harmless positive shift used so both logarithms are defined in the formal model.
+
+4. $k \ge 5$ target family dominance theorem.
+
+   **Given** formula `3`.
+
+   **Target theorem**
+
+   $$
+   \frac{C_u(k)\,N}{(\log\log(N+3))^{c_u(k)}}
+   =
+   O\!\left(\frac{C_\ell(k)\,N}{(\log\log(N+3))^{c_\ell(k)}}\right)
+   \qquad (k \ge 5).
+   $$
+
+   **Where**
+   - $C_u(k)\,N / (\log\log(N+3))^{c_u(k)}$ is the current split upper-profile template in the $k \ge 5$ branch.
+   - $C_\ell(k)\,N / (\log\log(N+3))^{c_\ell(k)}$ is the current split lower-profile template in the $k \ge 5$ branch.
+   - $k \ge 5$ means the theorem is needed uniformly as a family over all higher branches.
+   - $=O$ is the desired eventual dominance needed to turn the split $k \ge 5$ data into matched `Kge5ProfileWitness` packages.
+
+Geometric illustration (schematic; common factor `N` suppressed):
+
+![Schematic profile-matching frontier for the k=4 and k>=5 branches](./assets/erdos142/profile_matching_frontier.png)
+
+The figure is schematic only:
+- the blue curve is the current split upper template
+- the red curve is the current split lower template
+- the missing theorem is the eventual dominance statement
 
 $$
-r_4(N)=O\!\left(\frac{C_u N}{(\log(N+2))^{c_u}}\right),
-\qquad
-\frac{C_\ell N}{(\log(N+2))^{c_\ell}}=O(r_4(N)),
+\text{upper profile} = O(\text{lower profile})
 $$
 
-the missing theorem is
-
-$$
-\frac{C_u N}{(\log(N+2))^{c_u}}
-=
-O\!\left(\frac{C_\ell N}{(\log(N+2))^{c_\ell}}\right).
-$$
-
-For each fixed `k \ge 5`, from split bounds
-
-$$
-r_k(N)=O\!\left(\frac{C_u(k)\,N}{(\log\log(N+3))^{c_u(k)}}\right),
-\qquad
-\frac{C_\ell(k)\,N}{(\log\log(N+3))^{c_\ell(k)}}=O(r_k(N)),
-$$
-
-the missing theorem is
-
-$$
-\frac{C_u(k)\,N}{(\log\log(N+3))^{c_u(k)}}
-=
-O\!\left(\frac{C_\ell(k)\,N}{(\log\log(N+3))^{c_\ell(k)}}\right)
-\qquad (k \ge 5).
-$$
-
-These are the exact dominance statements needed to turn the current split upper/lower data into matched `K4ProfileWitness` and `Kge5ProfileWitness` packages.
+up to a multiplicative constant.
 
 References:
 
