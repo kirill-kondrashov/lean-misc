@@ -1,6 +1,7 @@
 import ErdosProblems.Problem1
 
 open Filter
+open scoped Topology Real
 
 namespace Erdos1
 
@@ -213,6 +214,231 @@ theorem choose_middle_lower_quarter (n : ℕ) :
             simpa [hhalf] using hchoose
       exact le_of_mul_le_mul_right hmul (show (0 : ℝ) < m + 1 by positivity)
 
+/-- Exact normalized central-binomial identity in terms of Stirling's sequence. -/
+theorem centralBinom_mul_sqrt_div_four_pow_eq_stirling_ratio (n : ℕ) :
+    (Nat.centralBinom n : ℝ) * (n : ℝ).sqrt / (4 : ℝ)^n =
+      Stirling.stirlingSeq (2 * n) / (Stirling.stirlingSeq n)^2 := by
+  by_cases hn : n = 0
+  · subst n
+    simp [Stirling.stirlingSeq_zero]
+  · rw [Stirling.stirlingSeq, cast_centralBinom_eq_factorial_ratio]
+    simp [Stirling.stirlingSeq, div_eq_mul_inv]
+    field_simp [show (Nat.factorial n : ℝ) ≠ 0 by positivity,
+      show Real.sqrt (2 * n : ℝ) ≠ 0 by
+        exact Real.sqrt_ne_zero'.mpr (by positivity : (0 : ℝ) < 2 * n),
+      show (4 : ℝ)^n ≠ 0 by positivity,
+      show (Real.sqrt (2 * (2 * n : ℕ) : ℝ)) ≠ 0 by
+        exact Real.sqrt_ne_zero'.mpr (by positivity : (0 : ℝ) < 2 * (2 * n : ℕ))]
+    ring_nf
+    rw [show (2 : ℝ) ^ (n * 2) = (4 : ℝ) ^ n by
+      have hmul : n * 2 = 2 * n := Nat.mul_comm n 2
+      simpa [show (4 : ℝ) = 2 ^ 2 by norm_num, pow_mul] using
+        congrArg (fun m : ℕ => (2 : ℝ) ^ m) hmul]
+
+theorem tendsto_centralBinom_mul_sqrt_div_four_pow :
+    Tendsto (fun n : ℕ => (Nat.centralBinom n : ℝ) * (n : ℝ).sqrt / (4 : ℝ)^n)
+      atTop (𝓝 (1 / Real.sqrt Real.pi)) := by
+  have hstirling : Tendsto Stirling.stirlingSeq atTop (𝓝 (Real.sqrt Real.pi)) :=
+    Stirling.tendsto_stirlingSeq_sqrt_pi
+  have htwo : Tendsto (fun n : ℕ => 2 * n) atTop atTop :=
+    tendsto_atTop_mono (fun n => by dsimp; omega) tendsto_id
+  have hquot :
+      Tendsto (fun n : ℕ => Stirling.stirlingSeq (2 * n) / (Stirling.stirlingSeq n)^2)
+        atTop (𝓝 (Real.sqrt Real.pi / (Real.sqrt Real.pi)^2)) := by
+    exact (hstirling.comp htwo).div (hstirling.pow 2) (by positivity)
+  refine Tendsto.congr' (Eventually.of_forall fun n =>
+    (centralBinom_mul_sqrt_div_four_pow_eq_stirling_ratio n).symm) ?_
+  convert hquot using 1
+  have hpi : Real.sqrt Real.pi ≠ 0 := by positivity
+  field_simp [hpi]
+
+theorem choose_middle_normalized_even_eq (m : ℕ) :
+    (Nat.choose (2 * m) ((2 * m) / 2) : ℝ) * ((2 * m : ℕ) : ℝ).sqrt / (2 : ℝ) ^ (2 * m) =
+      Real.sqrt 2 * ((Nat.centralBinom m : ℝ) * (m : ℝ).sqrt / (4 : ℝ) ^ m) := by
+  rw [Nat.mul_div_cancel_left m zero_lt_two, Nat.centralBinom_eq_two_mul_choose]
+  rw [show (((2 * m : ℕ) : ℝ).sqrt) = Real.sqrt 2 * (m : ℝ).sqrt by
+    rw [show ((2 * m : ℕ) : ℝ) = (2 : ℝ) * m by norm_num [Nat.cast_mul], Real.sqrt_mul (by positivity)]]
+  rw [show (2 : ℝ) ^ (2 * m) = (4 : ℝ) ^ m by
+    have hmul : 2 * m = m * 2 := Nat.mul_comm 2 m
+    simpa [show (4 : ℝ) = 2 ^ 2 by norm_num, pow_mul] using
+      congrArg (fun n : ℕ => (2 : ℝ) ^ n) hmul]
+  ring
+
+theorem tendsto_choose_middle_normalized_even :
+    Tendsto
+      (fun m : ℕ => (Nat.choose (2 * m) ((2 * m) / 2) : ℝ) * ((2 * m : ℕ) : ℝ).sqrt /
+        (2 : ℝ) ^ (2 * m))
+      atTop (𝓝 (Real.sqrt (2 / Real.pi))) := by
+  have hsqrt :
+      Real.sqrt 2 * (1 / Real.sqrt Real.pi) = Real.sqrt (2 / Real.pi) := by
+    rw [Real.sqrt_div (by positivity : (0 : ℝ) ≤ 2), show Real.sqrt 2 / Real.sqrt Real.pi =
+        Real.sqrt 2 * (1 / Real.sqrt Real.pi) by field_simp]
+  have hmul :
+      Tendsto
+        (fun m : ℕ => Real.sqrt 2 * ((Nat.centralBinom m : ℝ) * (m : ℝ).sqrt / (4 : ℝ) ^ m))
+        atTop (𝓝 (Real.sqrt (2 / Real.pi))) := by
+    simpa [hsqrt] using (tendsto_const_nhds.mul tendsto_centralBinom_mul_sqrt_div_four_pow)
+  refine Tendsto.congr' (Eventually.of_forall fun m => (choose_middle_normalized_even_eq m).symm)
+    hmul
+
+theorem two_mul_choose_odd_eq_centralBinom_succ (m : ℕ) :
+    2 * Nat.choose (2 * m + 1) m = Nat.centralBinom (m + 1) := by
+  have hchoose :
+      Nat.choose (2 * m + 1) m * (m + 1) = Nat.centralBinom m * (2 * m + 1) := by
+    have htmp := (Nat.choose_mul_succ_eq (2 * m) m).symm
+    have hsub : 2 * m + 1 - m = m + 1 := by omega
+    rw [hsub] at htmp
+    simpa [Nat.centralBinom_eq_two_mul_choose] using htmp
+  apply Nat.eq_of_mul_eq_mul_left (Nat.succ_pos m)
+  calc
+    (m + 1) * (2 * Nat.choose (2 * m + 1) m)
+        = 2 * (Nat.choose (2 * m + 1) m * (m + 1)) := by ring
+    _ = 2 * (Nat.centralBinom m * (2 * m + 1)) := by rw [hchoose]
+    _ = (m + 1) * Nat.centralBinom (m + 1) := by
+      simpa [mul_assoc, mul_left_comm, mul_comm] using (Nat.succ_mul_centralBinom_succ m).symm
+
+theorem tendsto_choose_middle_odd_factor_ratio :
+    Tendsto (fun m : ℕ => (((2 * m + 1 : ℕ) : ℝ) / (2 * (m + 1) : ℕ))) atTop (𝓝 1) := by
+  have hden : Tendsto (fun m : ℕ => 2 * (m + 1)) atTop atTop :=
+    tendsto_atTop_mono (fun n => by dsimp; omega) tendsto_id
+  have hzero : Tendsto (fun m : ℕ => (1 : ℝ) / (2 * (m + 1) : ℕ)) atTop (𝓝 0) :=
+    (tendsto_const_div_atTop_nhds_zero_nat 1).comp hden
+  have hone : Tendsto (fun m : ℕ => 1 - (1 : ℝ) / (2 * (m + 1) : ℕ)) atTop (𝓝 1) := by
+    simpa using tendsto_const_nhds.sub hzero
+  have hEq :
+      (fun m : ℕ => (((2 * m + 1 : ℕ) : ℝ) / (2 * (m + 1) : ℕ))) =
+        fun m : ℕ => 1 - (1 : ℝ) / (2 * (m + 1) : ℕ) := by
+    funext m
+    have hden_ne : ((2 * (m + 1) : ℕ) : ℝ) ≠ 0 := by positivity
+    field_simp [hden_ne]
+    norm_num [Nat.cast_add, Nat.cast_mul]
+    ring
+  rw [hEq]
+  exact hone
+
+theorem tendsto_choose_middle_odd_factor :
+    Tendsto (fun m : ℕ => Real.sqrt ((((2 * m + 1 : ℕ) : ℝ) / (2 * (m + 1) : ℕ)))) atTop
+      (𝓝 1) := by
+  convert (Real.continuous_sqrt.tendsto 1).comp tendsto_choose_middle_odd_factor_ratio using 1
+  norm_num
+
+theorem choose_middle_normalized_odd_eq (m : ℕ) :
+    (Nat.choose (2 * m + 1) ((2 * m + 1) / 2) : ℝ) * ((2 * m + 1 : ℕ) : ℝ).sqrt /
+        (2 : ℝ) ^ (2 * m + 1) =
+      Real.sqrt ((((2 * m + 1 : ℕ) : ℝ) / (2 * (m + 1) : ℕ))) *
+        (Real.sqrt 2 * ((Nat.centralBinom (m + 1) : ℝ) * (m + 1 : ℝ).sqrt / (4 : ℝ) ^ (m + 1))) := by
+  have hhalf : (2 * m + 1) / 2 = m := by omega
+  have hchoose :
+      (Nat.choose (2 * m + 1) m : ℝ) = (Nat.centralBinom (m + 1) : ℝ) / 2 := by
+    have hreal : (2 : ℝ) * Nat.choose (2 * m + 1) m = Nat.centralBinom (m + 1) := by
+      exact_mod_cast two_mul_choose_odd_eq_centralBinom_succ m
+    exact (eq_div_iff (by norm_num : (2 : ℝ) ≠ 0)).2 (by simpa [mul_comm] using hreal)
+  have hsqrt_mul :
+      Real.sqrt ((((2 * m + 1 : ℕ) : ℝ) / (2 * (m + 1) : ℕ))) *
+          (Real.sqrt 2 * (m + 1 : ℝ).sqrt) =
+        ((2 * m + 1 : ℕ) : ℝ).sqrt := by
+    calc
+      Real.sqrt ((((2 * m + 1 : ℕ) : ℝ) / (2 * (m + 1) : ℕ))) * (Real.sqrt 2 * (m + 1 : ℝ).sqrt)
+          = Real.sqrt ((((2 * m + 1 : ℕ) : ℝ) / (2 * (m + 1) : ℕ))) *
+              (((2 * (m + 1) : ℕ) : ℝ).sqrt) := by
+                congr 1
+                rw [show (((2 * (m + 1) : ℕ) : ℝ).sqrt) = Real.sqrt 2 * (m + 1 : ℝ).sqrt by
+                  rw [show ((2 * (m + 1) : ℕ) : ℝ) = (2 : ℝ) * (m + 1) by norm_num [Nat.cast_mul],
+                    Real.sqrt_mul (by positivity)]]
+      _ = ((2 * m + 1 : ℕ) : ℝ).sqrt := by
+        have hratio_mul :
+            (((2 * m + 1 : ℕ) : ℝ) / (2 * (m + 1) : ℕ)) * ((2 * (m + 1) : ℕ) : ℝ) =
+              ((2 * m + 1 : ℕ) : ℝ) := by
+          have hden_ne : ((2 * (m + 1) : ℕ) : ℝ) ≠ 0 := by positivity
+          field_simp [hden_ne]
+        calc
+          Real.sqrt ((((2 * m + 1 : ℕ) : ℝ) / (2 * (m + 1) : ℕ))) * (((2 * (m + 1) : ℕ) : ℝ).sqrt)
+              = Real.sqrt
+                  ((((2 * m + 1 : ℕ) : ℝ) / (2 * (m + 1) : ℕ)) * ((2 * (m + 1) : ℕ) : ℝ)) := by
+                    symm
+                    exact Real.sqrt_mul (by positivity : (0 : ℝ) ≤ (((2 * m + 1 : ℕ) : ℝ) /
+                      (2 * (m + 1) : ℕ))) (((2 * (m + 1) : ℕ) : ℝ))
+          _ = ((2 * m + 1 : ℕ) : ℝ).sqrt := by rw [hratio_mul]
+  have hpow :
+      (2 : ℝ) ^ (2 * m + 1) = 2 * (4 : ℝ) ^ m := by
+    rw [pow_add, show (2 : ℝ) ^ (2 * m) = (4 : ℝ) ^ m by
+      have hmul : 2 * m = m * 2 := Nat.mul_comm 2 m
+      simpa [show (4 : ℝ) = 2 ^ 2 by norm_num, pow_mul] using
+        congrArg (fun n : ℕ => (2 : ℝ) ^ n) hmul]
+    simpa [mul_comm] using (show (4 : ℝ) ^ m * 2 = 2 * (4 : ℝ) ^ m by ring)
+  have hleft :
+      (Nat.choose (2 * m + 1) ((2 * m + 1) / 2) : ℝ) * ((2 * m + 1 : ℕ) : ℝ).sqrt /
+          (2 : ℝ) ^ (2 * m + 1) =
+        (Nat.centralBinom (m + 1) : ℝ) * ((2 * m + 1 : ℕ) : ℝ).sqrt / (4 : ℝ) ^ (m + 1) := by
+    have hfour_ne : (4 : ℝ) ^ m ≠ 0 := by positivity
+    have hpow4 : (4 : ℝ) * (4 : ℝ) ^ m = (4 : ℝ) ^ (m + 1) := by
+      rw [pow_succ']
+    rw [hhalf, hchoose, hpow]
+    calc
+      ((Nat.centralBinom (m + 1) : ℝ) / 2) * ((2 * m + 1 : ℕ) : ℝ).sqrt / (2 * (4 : ℝ) ^ m)
+          = (Nat.centralBinom (m + 1) : ℝ) * ((2 * m + 1 : ℕ) : ℝ).sqrt /
+              (4 * (4 : ℝ) ^ m) := by
+                field_simp [hfour_ne]
+                ring
+      _ = (Nat.centralBinom (m + 1) : ℝ) * ((2 * m + 1 : ℕ) : ℝ).sqrt / ((4 : ℝ) ^ (m + 1)) := by
+            rw [← hpow4]
+  calc
+    (Nat.choose (2 * m + 1) ((2 * m + 1) / 2) : ℝ) * ((2 * m + 1 : ℕ) : ℝ).sqrt /
+        (2 : ℝ) ^ (2 * m + 1)
+        = (Nat.centralBinom (m + 1) : ℝ) * ((2 * m + 1 : ℕ) : ℝ).sqrt / (4 : ℝ) ^ (m + 1) := hleft
+    _ = ((2 * m + 1 : ℕ) : ℝ).sqrt * ((Nat.centralBinom (m + 1) : ℝ) / (4 : ℝ) ^ (m + 1)) := by
+        ring
+    _ = (Real.sqrt ((((2 * m + 1 : ℕ) : ℝ) / (2 * (m + 1) : ℕ))) *
+          (Real.sqrt 2 * (m + 1 : ℝ).sqrt)) *
+            ((Nat.centralBinom (m + 1) : ℝ) / (4 : ℝ) ^ (m + 1)) := by
+        rw [hsqrt_mul]
+    _ = Real.sqrt ((((2 * m + 1 : ℕ) : ℝ) / (2 * (m + 1) : ℕ))) *
+          (Real.sqrt 2 * ((Nat.centralBinom (m + 1) : ℝ) * (m + 1 : ℝ).sqrt / (4 : ℝ) ^ (m + 1))) := by
+        ring
+
+theorem tendsto_choose_middle_normalized_odd :
+    Tendsto
+      (fun m : ℕ => (Nat.choose (2 * m + 1) ((2 * m + 1) / 2) : ℝ) * ((2 * m + 1 : ℕ) : ℝ).sqrt /
+        (2 : ℝ) ^ (2 * m + 1))
+      atTop (𝓝 (Real.sqrt (2 / Real.pi))) := by
+  have hbase :
+      Tendsto
+        (fun m : ℕ => Real.sqrt 2 *
+          ((Nat.centralBinom (m + 1) : ℝ) * (m + 1 : ℝ).sqrt / (4 : ℝ) ^ (m + 1)))
+        atTop (𝓝 (Real.sqrt (2 / Real.pi))) := by
+    have hsqrt :
+        Real.sqrt 2 * (1 / Real.sqrt Real.pi) = Real.sqrt (2 / Real.pi) := by
+      rw [Real.sqrt_div (by positivity : (0 : ℝ) ≤ 2), show Real.sqrt 2 / Real.sqrt Real.pi =
+          Real.sqrt 2 * (1 / Real.sqrt Real.pi) by field_simp]
+    simpa [hsqrt] using
+      (tendsto_const_nhds.mul (tendsto_centralBinom_mul_sqrt_div_four_pow.comp (tendsto_add_atTop_nat 1)))
+  have hmul :
+      Tendsto
+        (fun x : ℕ =>
+          Real.sqrt ((((2 * x + 1 : ℕ) : ℝ) / (2 * (x + 1) : ℕ))) *
+            (Real.sqrt 2 * ((Nat.centralBinom (x + 1) : ℝ) * (x + 1 : ℝ).sqrt / (4 : ℝ) ^ (x + 1))))
+        atTop (𝓝 (Real.sqrt (2 / Real.pi))) := by
+    simpa using tendsto_choose_middle_odd_factor.mul hbase
+  refine Tendsto.congr' (Eventually.of_forall fun m => (choose_middle_normalized_odd_eq m).symm) hmul
+
+/-- The normalized middle binomial coefficient tends to `sqrt (2 / pi)`. -/
+theorem tendsto_choose_middle_normalized :
+    Tendsto (fun n : ℕ => (Nat.choose n (n / 2) : ℝ) * (n : ℝ).sqrt / (2 : ℝ) ^ n)
+      atTop (𝓝 (Real.sqrt (2 / Real.pi))) := by
+  refine Metric.tendsto_nhds.2 ?_
+  intro ε hε
+  obtain ⟨Ne, hNe⟩ := Filter.eventually_atTop.mp
+    (Metric.tendsto_nhds.1 tendsto_choose_middle_normalized_even ε hε)
+  obtain ⟨No, hNo⟩ := Filter.eventually_atTop.mp
+    (Metric.tendsto_nhds.1 tendsto_choose_middle_normalized_odd ε hε)
+  refine Filter.eventually_atTop.2 ⟨max (2 * Ne) (2 * No + 1), ?_⟩
+  intro n hn
+  obtain ⟨m, rfl | rfl⟩ := Nat.even_or_odd' n
+  · have hm : Ne ≤ m := by omega
+    simpa using hNe m hm
+  · have hm : No ≤ m := by omega
+    simpa using hNo m hm
+
 /--
 Imported exact lower bound from Dubroff-Fox-Xu (2021): if `A ⊆ {1, ..., N}` is sum-distinct, then
 `N` is at least the middle binomial coefficient `choose |A| ⌊|A| / 2⌋`.
@@ -234,10 +460,34 @@ Asymptotic lower control on the middle binomial coefficient at the sharp `sqrt (
 This is the purely analytic/binomial ingredient needed to derive the standard Erdős-Moser style
 lower bounds for Problem #1 from the exact Dubroff-Fox-Xu theorem.
 -/
-axiom choose_middle_lb_strong_asymptotic_axiom :
+theorem choose_middle_lb_strong_asymptotic_axiom :
     ∃ (o : ℕ → ℝ), o =o[atTop] (1 : ℕ → ℝ) ∧
       ∀ n : ℕ,
         (Real.sqrt (2 / Real.pi) - o n) * 2 ^ n / (n : ℝ).sqrt ≤ Nat.choose n (n / 2)
+    := by
+  let o : ℕ → ℝ := fun n =>
+    Real.sqrt (2 / Real.pi) - (Nat.choose n (n / 2) : ℝ) * (n : ℝ).sqrt / (2 : ℝ) ^ n
+  refine ⟨o, ?_, ?_⟩
+  · have hzero : Tendsto o atTop (𝓝 0) := by
+      convert (tendsto_const_nhds.sub tendsto_choose_middle_normalized) using 1 <;> simp [o]
+    exact (Asymptotics.isLittleO_one_iff ℝ).2 hzero
+  · intro n
+    by_cases hn : n = 0
+    · subst n
+      norm_num [o]
+    · have hsqrt_ne : (n : ℝ).sqrt ≠ 0 := by
+        exact Real.sqrt_ne_zero'.mpr (Nat.cast_pos.mpr (Nat.pos_of_ne_zero hn))
+      have ho :
+          Real.sqrt (2 / Real.pi) - o n =
+            (Nat.choose n (n / 2) : ℝ) * (n : ℝ).sqrt / (2 : ℝ) ^ n := by
+        simp [o]
+      rw [ho]
+      have hpow_ne : (2 : ℝ) ^ n ≠ 0 := by positivity
+      have hmain :
+          ((Nat.choose n (n / 2) : ℝ) * (n : ℝ).sqrt / (2 : ℝ) ^ n) * 2 ^ n / (n : ℝ).sqrt =
+            Nat.choose n (n / 2) := by
+        field_simp [hpow_ne, hsqrt_ne]
+      rw [hmain]
 
 /--
 Imported Bohman upper construction: for all sufficiently large `n`, there exists an `n`-element
