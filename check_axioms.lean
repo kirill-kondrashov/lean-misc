@@ -2,6 +2,7 @@ import TaoExercises.TaoBook.Chapter2.Exercise2_3
 import TaoExercises.TaoBook.Chapter2.Exercise2_6
 import ErdosProblems.Problem142
 import ErdosProblems.Problem142Literature
+import ErdosProblems.Problem142Gap
 import Lean
 
 open Lean Meta
@@ -16,13 +17,15 @@ def checkedTheorems : List Name :=
   , ``Erdos142.erdos_problem_142_iff_deepmind
   , ``Erdos142.erdos_problem_142_explicit_iff_deepmind
   , ``Erdos142.erdos_problem_142_solution_axiom
+  , ``Erdos142.erdos_problem_142_of_mainSplitGap_and_frontier
   ]
 
 def baseAxioms : Array Name :=
   #[``propext, ``Quot.sound, ``Classical.choice]
 
 def temporaryAllowedAxioms : Array Name :=
-  #[]
+  #[``Erdos142.splitGap_k3_upper_exponent_gt_half_frontier, ``Erdos142.splitGap_k4_profile_dominance_frontier,
+    ``Erdos142.splitGap_kge5_profile_dominance_frontier]
 
 def checkOne (env : Environment) (name : Name) : IO CheckResult := do
   let coreContext : Core.Context := { fileName := "<check_axioms>", fileMap := default }
@@ -70,6 +73,7 @@ def main : IO UInt32 := do
      , { module := `TaoExercises.TaoBook.Chapter2.Exercise2_6 }
      , { module := `ErdosProblems.Problem142 }
      , { module := `ErdosProblems.Problem142Literature }
+     , { module := `ErdosProblems.Problem142Gap }
      ]
     {}
 
