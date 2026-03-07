@@ -95,10 +95,11 @@ Re-score the current Erdos-142 formalization pipeline against concrete, availabl
      `K3SourceBackedSplitGap` as the fixed honest endpoint and avoid further optimization of the
      false `β > 1 / 2` path.
   - Post-pivot redesign status:
-    `Problem142Gap.lean` now contains the further asymmetric downstream interface
-    `MainK34ResolvedGap` with remaining assumption layer
-    `K34ResolvedSplitGapToMainK34ResolvedGapAssumptions`, so only `k≥5`
-    remains as a true coupling frontier field on the active redesign path.
+    `Problem142Gap.lean` now contains the further asymmetric downstream interfaces
+    `MainK34ResolvedGap` and `MainK345ResolvedGap`.
+    On the active redesigned path, `k=3`, `k=4`, and now also `k=5`
+    are treated only at honest source-backed split strength, and the remaining
+    true coupling frontier field has been narrowed to the tail `k≥6`.
   - `k≥5` note:
     the first elimination route through
     `import_targets.kge5_exponent_order_target`
@@ -124,12 +125,11 @@ Re-score the current Erdos-142 formalization pipeline against concrete, availabl
 ## Progress Summary
 
 - **Real-solution feasibility today**: `~33%` (honest partial formalization frontiers are in place; full gap still blocked).
-- **Next concrete measurable milestone**: implement the `k≥5` source-backed pivot far enough to
-  refute the old iterated-log placeholder on the active route and package a `k=5` toy-model split
-  witness.
+- **Next concrete measurable milestone**: keep the `k=5` toy model fixed and redesign the
+  downstream route so that only the tail `k≥6` remains as an active coupling frontier.
 - Latest completed `k=3` cycle:
   [PLAN_erdos_problem_142_k3_split_surface_packaging_2026-03-07.md](PLAN_erdos_problem_142_k3_split_surface_packaging_2026-03-07.md)
 - Active next-cycle files:
   [PLAN_erdos_problem_142_k34_split_resolved_redesign_2026-03-07.md](PLAN_erdos_problem_142_k34_split_resolved_redesign_2026-03-07.md)
   and
-  [PLAN_erdos_problem_142_kge5_source_backed_pivot_2026-03-07.md](PLAN_erdos_problem_142_kge5_source_backed_pivot_2026-03-07.md)
+  [PLAN_erdos_problem_142_k345_split_resolved_redesign_2026-03-07.md](PLAN_erdos_problem_142_k345_split_resolved_redesign_2026-03-07.md)

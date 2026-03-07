@@ -551,6 +551,167 @@ noncomputable def mainK34ResolvedSplitGap_of_mainK34ResolvedGap
   letI : Kge5ProfileWitnessImported := hGap.kge5
   exact mainK34ResolvedSplitGap_of_instances hGap.k3 hGap.k4
 
+/-- A `k ≥ 6` witness automatically carries the weaker `k ≥ 5` side condition expected by the
+legacy `Kge5...` witness families. -/
+theorem five_le_of_six_le {k : ℕ} (hk : 6 ≤ k) : 5 ≤ k :=
+  Nat.le_trans (by decide : 5 ≤ 6) hk
+
+/-- Tail-family upper witnesses for the remaining `k ≥ 6` branch after isolating the special
+source-backed `k = 5` toy model. -/
+abbrev Kge6UpperWitnessFamily : Type :=
+  ∀ ⦃k : ℕ⦄ (hk : 6 ≤ k), Kge5UpperProfileWitness k (five_le_of_six_le hk)
+
+/-- Tail-family lower witnesses for the remaining `k ≥ 6` branch after isolating the special
+source-backed `k = 5` toy model. -/
+abbrev Kge6LowerWitnessFamily : Type :=
+  ∀ ⦃k : ℕ⦄ (hk : 6 ≤ k), Kge5LowerProfileWitness k (five_le_of_six_le hk)
+
+/-- Tail-family matched-profile witnesses for the remaining `k ≥ 6` frontier. -/
+abbrev Kge6ProfileWitnessFamily : Type :=
+  ∀ ⦃k : ℕ⦄ (hk : 6 ≤ k), Kge5ProfileWitness k (five_le_of_six_le hk)
+
+/-- Further asymmetric split-gap packaging after the honest `k = 5` pivot:
+`k = 3`, `k = 4`, and `k = 5` are fixed by source-backed split packages, while only the
+remaining tail `k ≥ 6` still uses the ordinary split upper/lower interface family. -/
+structure Problem142K345ResolvedSplitImportedWitnessBundle where
+  k3 : K3SourceBackedSplitGap
+  k4 : K4SourceBackedSplitGap
+  k5 : K5SourceBackedSplitGap
+  kge6Upper : Kge6UpperWitnessFamily
+  kge6Lower : Kge6LowerWitnessFamily
+
+/-- Active asymmetric split-gap surface after the `k = 5` pivot:
+`k = 3,4,5` are fixed honestly, and only `k ≥ 6` remains split-only. -/
+abbrev MainK345ResolvedSplitGap : Type := Problem142K345ResolvedSplitImportedWitnessBundle
+
+/-- Package the `k = 3,4,5` split-resolved surface directly from existing interfaces by
+restricting the inherited `k ≥ 5` family to the tail `k ≥ 6`. -/
+noncomputable def mainK345ResolvedSplitGap_of_instances
+    (hK3 : K3SourceBackedSplitGap) (hK4 : K4SourceBackedSplitGap) (hK5 : K5SourceBackedSplitGap)
+    [Kge5UpperProfileWitnessImported] [Kge5LowerProfileWitnessImported] :
+    MainK345ResolvedSplitGap :=
+  { k3 := hK3
+    k4 := hK4
+    k5 := hK5
+    kge6Upper := by
+      intro k hk
+      simpa using
+        (erdos_problem_142_explicit_kge5_upper_profile_witness_imported (five_le_of_six_le hk))
+    kge6Lower := by
+      intro k hk
+      simpa using
+        (erdos_problem_142_kge5_lower_profile_witness_imported (five_le_of_six_le hk)) }
+
+/-- Upgrade the `k = 3,4`-resolved split surface to the `k = 3,4,5`-resolved split surface once
+the explicit source-backed `k = 5` split package is supplied. -/
+noncomputable def mainK345ResolvedSplitGap_of_mainK34ResolvedSplitGap_and_k5SourceBackedSplitGap
+    (hSplit : MainK34ResolvedSplitGap) (hK5 : K5SourceBackedSplitGap) :
+    MainK345ResolvedSplitGap := by
+  letI : Kge5UpperProfileWitnessImported := hSplit.kge5Upper
+  letI : Kge5LowerProfileWitnessImported := hSplit.kge5Lower
+  exact mainK345ResolvedSplitGap_of_instances hSplit.k3 hSplit.k4 hK5
+
+/-- The current literature-side source-backed assumptions already instantiate the active
+`k = 3,4,5`-resolved split surface: `k = 3` via the explicit Kelley-Meka `β = 1/12` route,
+`k = 4` via the lower-import split route, `k = 5` via the new mixed source-backed toy model,
+and only the tail `k ≥ 6` inherited from the remaining generic split interfaces. -/
+noncomputable def
+    mainK345ResolvedSplitGap_of_literatureK3OneTwelfth_and_lowerImportAssumptions_and_k5SourceBackedSplitAssumptions
+    [h3 : LiteratureK3OneTwelfthSourceAssumptions] [hLower : LiteratureLowerImportAssumptions]
+    [h5 : LiteratureK5SourceBackedSplitAssumptions] :
+    MainK345ResolvedSplitGap := by
+  let hK3 := k3SourceBackedSplitGap_of_literatureK3OneTwelfthSourceAssumptions (h := h3)
+  let hK4 := k4SourceBackedSplitGap_of_literatureLowerImportAssumptions (h := hLower)
+  let hK5 := k5SourceBackedSplitGap_of_literatureK5SourceBackedSplitAssumptions (h := h5)
+  letI : Kge5UpperProfileWitnessImported :=
+    kge5UpperProfileWitnessImported_of_literatureRateAssumptions
+      (h := hLower.toLiteratureRateAssumptions)
+  letI : Kge5LowerProfileWitnessImported :=
+    kge5LowerProfileWitnessImported_of_literatureLowerImportAssumptions
+      (h := hLower)
+  exact mainK345ResolvedSplitGap_of_instances hK3 hK4 hK5
+
+/-- Upper variants on the active `k = 3,4,5`-resolved split route: the special `k = 5`
+stretched-exponential source-backed upper witness is used at `k = 5`, and only the tail
+`k ≥ 6` still uses the legacy iterated-log upper family. -/
+theorem upper_variant_of_mainK345ResolvedSplitGap
+    (hGap : MainK345ResolvedSplitGap) :
+    ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142.variants.upper k := by
+  intro k hk
+  have hk_cases : k = 3 ∨ k = 4 ∨ k = 5 ∨ 6 ≤ k := by omega
+  rcases hk_cases with rfl | rfl | rfl | hk6
+  · letI : K3UpperProfileWitnessImported := ⟨hGap.k3.upper⟩
+    exact upper_variant_three_of_upper_profile_witness
+  · letI : K4UpperProfileWitnessImported := ⟨hGap.k4.upper⟩
+    exact upper_variant_four_of_upper_profile_witness
+  · letI : K5UpperStretchedexpProfileWitnessImported := ⟨hGap.k5.upper⟩
+    exact upper_variant_five_of_stretchedexp_upper_profile_witness
+  · let wU : Kge5UpperProfileWitness k (five_le_of_six_le hk6) := hGap.kge6Upper hk6
+    refine ⟨fun N : ℕ => wU.C * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ wU.c, ?_⟩
+    simpa [wU] using wU.hUpper
+
+/-- The active `k = 3,4,5`-resolved split route carries the first-class source-backed `k = 5`
+mixed split data without re-routing through the obsolete iterated-log `k ≥ 5` placeholder. -/
+theorem k5_split_data_of_mainK345ResolvedSplitGap
+    (hGap : MainK345ResolvedSplitGap) :
+    ∃ α A B CL cU CU : ℝ,
+      0 < α ∧ 0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop] (fun N => (r 5 N : ℝ)) ∧
+        (fun N => (r 5 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) := by
+  exact k5_mixed_two_sided_profile_of_sourceBackedSplitWitness hGap.k5
+
+/-- The remaining tail `k ≥ 6` still carries the inherited iterated-log split data from the
+legacy `Kge5...` family, now explicitly restricted away from the special `k = 5` branch. -/
+theorem kge6_split_data_of_mainK345ResolvedSplitGap
+    (hGap : MainK345ResolvedSplitGap) :
+    ∀ ⦃k : ℕ⦄, 6 ≤ k → ∃ cL CL cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ cL) =O[Filter.atTop]
+          (fun N => (r k N : ℝ)) ∧
+        (fun N => (r k N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ cU) := by
+  intro k hk
+  let wL : Kge5LowerProfileWitness k (five_le_of_six_le hk) := hGap.kge6Lower hk
+  let wU : Kge5UpperProfileWitness k (five_le_of_six_le hk) := hGap.kge6Upper hk
+  exact ⟨wL.c, wL.C, wU.c, wU.C, wL.hc, wL.hC, wU.hc, wU.hC, wL.hLower, wU.hUpper⟩
+
+/-- Further asymmetric downstream gap packaging after the honest `k = 5` pivot:
+`k = 3`, `k = 4`, and `k = 5` stay at source-backed split strength, while only `k ≥ 6`
+is promoted to matched-profile strength. -/
+structure Problem142K345ResolvedImportedWitnessBundle where
+  k3 : K3SourceBackedSplitGap
+  k4 : K4SourceBackedSplitGap
+  k5 : K5SourceBackedSplitGap
+  kge6 : Kge6ProfileWitnessFamily
+
+/-- Active asymmetric downstream gap surface after resolving `k = 3`, `k = 4`, and `k = 5`
+only to split strength. -/
+abbrev MainK345ResolvedGap : Type := Problem142K345ResolvedImportedWitnessBundle
+
+/-- Any `k = 3,4,5`-resolved downstream gap bundle still provides all `k ≥ 3` upper variants. -/
+theorem upper_variant_of_mainK345ResolvedGap
+    (hGap : MainK345ResolvedGap) :
+    ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142.variants.upper k := by
+  intro k hk
+  have hk_cases : k = 3 ∨ k = 4 ∨ k = 5 ∨ 6 ≤ k := by omega
+  rcases hk_cases with rfl | rfl | rfl | hk6
+  · letI : K3UpperProfileWitnessImported := ⟨hGap.k3.upper⟩
+    exact upper_variant_three_of_upper_profile_witness
+  · letI : K4UpperProfileWitnessImported := ⟨hGap.k4.upper⟩
+    exact upper_variant_four_of_upper_profile_witness
+  · letI : K5UpperStretchedexpProfileWitnessImported := ⟨hGap.k5.upper⟩
+    exact upper_variant_five_of_stretchedexp_upper_profile_witness
+  · let w : Kge5ProfileWitness k (five_le_of_six_le hk6) := hGap.kge6 hk6
+    refine ⟨fun N : ℕ => w.C * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ w.c, ?_⟩
+    simpa [w] using w.hUpper
+
 /-- Bundle of imported witness interfaces that currently carry the unresolved
 mathematical content behind the #142 solution outline. -/
 structure Problem142ImportedWitnessBundle where
@@ -648,6 +809,14 @@ abbrev CouplingTargetKge5 : Type :=
   ∀ [Kge5UpperProfileWitnessImported] [Kge5LowerProfileWitnessImported] ⦃k : ℕ⦄
     (hk : 5 ≤ k), Kge5ProfileWitness k hk
 
+/-- Tail-only coupling target family after isolating the special source-backed `k = 5` toy model:
+recover matched `Kge5ProfileWitness` only for the remaining `k ≥ 6` branch. -/
+abbrev CouplingTargetKge6 : Type :=
+  ∀ ⦃k : ℕ⦄ (hk : 6 ≤ k),
+    Kge5UpperProfileWitness k (five_le_of_six_le hk) →
+      Kge5LowerProfileWitness k (five_le_of_six_le hk) →
+        Kge5ProfileWitness k (five_le_of_six_le hk)
+
 /-- Remaining coupling-assumption layer after fixing `k = 3` honestly:
 only the `k = 4` and `k ≥ 5` branches remain unresolved. -/
 structure K3ResolvedSplitGapToMainK3ResolvedGapAssumptions where
@@ -714,6 +883,24 @@ noncomputable def mainK34ResolvedGap_of_mainSplitGap_and_sourceBackedSplitGaps_a
   mainK34ResolvedGap_of_mainK34ResolvedSplitGap_and_assumptions
     (mainK34ResolvedSplitGap_of_mainSplitGap_and_sourceBackedSplitGaps hSplit hK3 hK4)
     hCoupling
+
+/-- Remaining coupling-assumption layer after fixing `k = 3`, `k = 4`, and `k = 5` honestly:
+only the tail `k ≥ 6` remains unresolved. -/
+structure K345ResolvedSplitGapToMainK345ResolvedGapAssumptions where
+  kge6_profile_witness_of_split : CouplingTargetKge6
+
+/-- Under the further asymmetric post-pivot assumptions, the `k = 3,4,5`-resolved split gap can
+be promoted to the corresponding downstream gap surface. -/
+noncomputable def mainK345ResolvedGap_of_mainK345ResolvedSplitGap_and_assumptions
+    (hSplit : MainK345ResolvedSplitGap)
+    (hCoupling : K345ResolvedSplitGapToMainK345ResolvedGapAssumptions) :
+    MainK345ResolvedGap :=
+  { k3 := hSplit.k3
+    k4 := hSplit.k4
+    k5 := hSplit.k5
+    kge6 := by
+      intro k hk
+      exact hCoupling.kge6_profile_witness_of_split hk (hSplit.kge6Upper hk) (hSplit.kge6Lower hk) }
 
 /-- Minimal coupling-assumption layer needed to reconstruct the strong full-gap witnesses from
 the split upper/lower interface layers. -/

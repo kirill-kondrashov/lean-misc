@@ -172,27 +172,28 @@ containing
 - one explicit Leng-Sah-Sawhney upper witness,
 - the proved compatibility direction `lower =O upper`.
 
-### Stage 3: Family generalization
+### Stage 3: Structural follow-up after the `k = 5` toy model
 
-If Stage 1 is clean, generalize to
+Do not generalize immediately to all fixed `k >= 5`.
+Instead:
 
-- `Kge5SourceBackedSplitWitness`
-- `Kge5SourceBackedSplitGap`
-
-with branch data for every fixed `k >= 5`.
+- keep `k = 5` as the live source-backed toy-model branch,
+- redesign the downstream surface so that `k = 3,4,5` are split-resolved,
+- leave only the tail `k >= 6` as the remaining coupling frontier.
 
 ### Stage 4: New practical downstream target
 
-Replace the current practical target `MainK34ResolvedGap` by an all-branches source-backed split
-surface, e.g.
+Replace the current practical target `MainK34ResolvedGap` by the more honest tail-only frontier
+surface
 
-- `MainAllSourceBackedSplitGap`
+- `MainK345ResolvedGap`
 
 with
 
 - `k = 3`: source-backed split,
 - `k = 4`: source-backed split,
-- `k >= 5`: source-backed split on the new stretched-exponential / Rankin scales.
+- `k = 5`: source-backed split on the stretched-exponential / Rankin scales,
+- `k >= 6`: remaining coupling frontier.
 
 ## Milestones
 
@@ -223,7 +224,8 @@ with
      `K5SourceBackedSplitGap` in `Problem142Gap.lean`.
 6. `[x]` Decide whether to generalize immediately to all fixed `k >= 5` or keep `k = 5` as the
    live toy-model branch.
-   - Decision: keep `k = 5` as the live toy-model branch for now.
+   - Decision: keep `k = 5` as the live toy-model branch for now and cut the practical route over
+     to the new `k = 3,4,5` split-resolved surface.
 
 ## Practical Verdict
 
@@ -248,3 +250,7 @@ Current active endpoint after this cycle:
 source-backed split control for k = 5,
 with future family generalization postponed until the lower side is imported honestly.
 ```
+
+Follow-up plan:
+
+- `PLAN_erdos_problem_142_k345_split_resolved_redesign_2026-03-07.md`
