@@ -223,6 +223,36 @@ theorem k5_split_data_of_literatureK5SourceBackedSplitAssumptions
   exact k5_mixed_two_sided_profile_of_sourceBackedSplitWitness
     (k5SourceBackedSplitGap_of_literatureK5SourceBackedSplitAssumptions (h := h))
 
+/-- Gap-layer alias for the source-backed tail-family split surface for fixed `k ≥ 6`. -/
+abbrev Kge6SourceBackedSplitGap : Type :=
+  ∀ ⦃k : ℕ⦄ (hk : 6 ≤ k), Kge6SourceBackedSplitWitness k hk
+
+/-- The combined source-facing `k ≥ 6` tail-family literature layer already instantiates the
+source-backed split surface for every fixed `k ≥ 6`. -/
+noncomputable def kge6SourceBackedSplitGap_of_literatureKge6SourceBackedSplitAssumptions
+    [h : LiteratureKge6SourceBackedSplitAssumptions] :
+    Kge6SourceBackedSplitGap :=
+  fun _ hk => kge6SourceBackedSplitWitness_of_literatureKge6SourceBackedSplitAssumptions hk
+
+/-- Tail-family `k ≥ 6` split data follow directly from the dedicated source-backed split
+package extracted from the combined tail-family literature assumptions. -/
+theorem kge6_split_data_of_literatureKge6SourceBackedSplitAssumptions
+    [h : LiteratureKge6SourceBackedSplitAssumptions] :
+    ∀ ⦃k : ℕ⦄, 6 ≤ k → ∃ α A B CL cU CU : ℝ,
+      0 < α ∧ 0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop] (fun N => (r k N : ℝ)) ∧
+        (fun N => (r k N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) := by
+  intro k hk
+  exact kge6_mixed_two_sided_profile_of_sourceBackedSplitWitness
+    (kge6SourceBackedSplitGap_of_literatureKge6SourceBackedSplitAssumptions (h := h) hk)
+
 /-- Gap-layer alias for the strongest currently source-backed `k = 3` split surface. -/
 abbrev K3SourceBackedSplitGap : Type := K3SourceBackedSplitWitness
 
@@ -711,6 +741,82 @@ theorem upper_variant_of_mainK345ResolvedGap
   · let w : Kge5ProfileWitness k (five_le_of_six_le hk6) := hGap.kge6 hk6
     refine ⟨fun N : ℕ => w.C * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ w.c, ?_⟩
     simpa [w] using w.hUpper
+
+/-- All-branches source-backed split packaging after the tail-family pivot:
+`k = 3`, `k = 4`, `k = 5`, and every fixed `k ≥ 6` are all represented by explicit
+source-backed split witnesses, with no remaining coupling debt on this practical route. -/
+structure Problem142AllSourceBackedSplitImportedWitnessBundle where
+  k3 : K3SourceBackedSplitGap
+  k4 : K4SourceBackedSplitGap
+  k5 : K5SourceBackedSplitGap
+  kge6 : Kge6SourceBackedSplitGap
+
+/-- Practical all-branches source-backed split target after the tail-family pivot. -/
+abbrev MainAllSourceBackedSplitGap : Type := Problem142AllSourceBackedSplitImportedWitnessBundle
+
+/-- The current source-backed literature-side assumption layers already instantiate the practical
+all-branches split target once the tail-family `k ≥ 6` source-backed assumptions are supplied. -/
+noncomputable def
+    mainAllSourceBackedSplitGap_of_literatureK3OneTwelfth_and_lowerImportAssumptions_and_sourceBackedTail
+    [h3 : LiteratureK3OneTwelfthSourceAssumptions] [hLower : LiteratureLowerImportAssumptions]
+    [h5 : LiteratureK5SourceBackedSplitAssumptions] [h6 : LiteratureKge6SourceBackedSplitAssumptions] :
+    MainAllSourceBackedSplitGap :=
+  { k3 := k3SourceBackedSplitGap_of_literatureK3OneTwelfthSourceAssumptions (h := h3)
+    k4 := k4SourceBackedSplitGap_of_literatureLowerImportAssumptions (h := hLower)
+    k5 := k5SourceBackedSplitGap_of_literatureK5SourceBackedSplitAssumptions (h := h5)
+    kge6 := kge6SourceBackedSplitGap_of_literatureKge6SourceBackedSplitAssumptions (h := h6) }
+
+/-- The practical all-branches source-backed split target still yields all upper variants. -/
+theorem upper_variant_of_mainAllSourceBackedSplitGap
+    (hGap : MainAllSourceBackedSplitGap) :
+    ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142.variants.upper k := by
+  intro k hk
+  have hk_cases : k = 3 ∨ k = 4 ∨ k = 5 ∨ 6 ≤ k := by omega
+  rcases hk_cases with rfl | rfl | rfl | hk6
+  · letI : K3UpperProfileWitnessImported := ⟨hGap.k3.upper⟩
+    exact upper_variant_three_of_upper_profile_witness
+  · letI : K4UpperProfileWitnessImported := ⟨hGap.k4.upper⟩
+    exact upper_variant_four_of_upper_profile_witness
+  · letI : K5UpperStretchedexpProfileWitnessImported := ⟨hGap.k5.upper⟩
+    exact upper_variant_five_of_stretchedexp_upper_profile_witness
+  · letI : Kge6UpperStretchedexpProfileWitnessImported :=
+        { kge6_upper_stretchedexp_profile_witness := fun _ hk => (hGap.kge6 hk).upper }
+    exact upper_variant_ge_six_of_stretchedexp_upper_profile_witness hk6
+
+/-- The practical all-branches split target carries the explicit source-backed `k = 5` split
+data. -/
+theorem k5_split_data_of_mainAllSourceBackedSplitGap
+    (hGap : MainAllSourceBackedSplitGap) :
+    ∃ α A B CL cU CU : ℝ,
+      0 < α ∧ 0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop] (fun N => (r 5 N : ℝ)) ∧
+        (fun N => (r 5 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) := by
+  exact k5_mixed_two_sided_profile_of_sourceBackedSplitWitness hGap.k5
+
+/-- The practical all-branches split target carries the explicit source-backed tail-family split
+data for every fixed `k ≥ 6`. -/
+theorem kge6_split_data_of_mainAllSourceBackedSplitGap
+    (hGap : MainAllSourceBackedSplitGap) :
+    ∀ ⦃k : ℕ⦄, 6 ≤ k → ∃ α A B CL cU CU : ℝ,
+      0 < α ∧ 0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop] (fun N => (r k N : ℝ)) ∧
+        (fun N => (r k N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) := by
+  intro k hk
+  exact kge6_mixed_two_sided_profile_of_sourceBackedSplitWitness (hGap.kge6 hk)
 
 /-- Bundle of imported witness interfaces that currently carry the unresolved
 mathematical content behind the #142 solution outline. -/

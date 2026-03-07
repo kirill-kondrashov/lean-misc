@@ -394,6 +394,23 @@ def k5_rankin_obryant_lower_profile : Prop :=
       C * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
       =O[atTop] (fun N => (r 5 N : ℝ))
 
+/-- Tail-family source-backed upper-profile target for fixed `k ≥ 6`:
+stretched-exponential decay in `log log N`, matching the Leng-Sah-Sawhney scale. -/
+def kge6_stretchedexp_loglog_upper_profile : Prop :=
+  ∀ ⦃k : ℕ⦄, 6 ≤ k →
+    ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+      (fun N => (r k N : ℝ)) =O[atTop]
+        (fun N : ℕ => C * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ c))
+
+/-- Tail-family source-backed lower-profile target for fixed `k ≥ 6`:
+Rankin/O'Bryant-type decay with an explicit positive `(\log N)^\alpha` term in the exponent. -/
+def kge6_rankin_obryant_lower_profile : Prop :=
+  ∀ ⦃k : ℕ⦄, 6 ≤ k →
+    ∃ α A B C : ℝ, 0 < α ∧ 0 < A ∧ 0 < C ∧
+      (fun N : ℕ =>
+        C * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+        =O[atTop] (fun N => (r k N : ℝ))
+
 /-- Two-sided benchmark sandwich for `k = 3`: one lower profile and one upper profile. -/
 def k3_two_sided_sandwich_profile : Prop :=
   k3_behrend_lower_profile ∧ k3_superpolylog_upper_profile

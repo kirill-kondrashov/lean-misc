@@ -422,6 +422,56 @@ noncomputable abbrev erdos_problem_142_explicit_k5_lower_rankin_profile_witness_
     K5LowerRankinProfileWitness :=
   h.k5_lower_rankin_profile_witness
 
+/-- Tail-family source-backed upper-profile witness for fixed `k ≥ 6` on the
+stretched-exponential `log log` scale. -/
+structure Kge6UpperStretchedexpProfileWitness (k : ℕ) (hk : 6 ≤ k) where
+  c : ℝ
+  C : ℝ
+  hc : 0 < c
+  hC : 0 < C
+  hUpper :
+    (fun N => (r k N : ℝ)) =O[atTop]
+      (fun N : ℕ => C * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ c))
+
+/-- Imported tail-family stretched-exponential upper witnesses for fixed `k ≥ 6`. -/
+class Kge6UpperStretchedexpProfileWitnessImported where
+  kge6_upper_stretchedexp_profile_witness :
+    ∀ ⦃k : ℕ⦄ (hk : 6 ≤ k), Kge6UpperStretchedexpProfileWitness k hk
+
+/-- Imported tail-family stretched-exponential upper witness for fixed `k ≥ 6`
+(from a registered assumption instance). -/
+noncomputable abbrev erdos_problem_142_explicit_kge6_upper_stretchedexp_profile_witness_imported
+    [h : Kge6UpperStretchedexpProfileWitnessImported] {k : ℕ} (hk : 6 ≤ k) :
+    Kge6UpperStretchedexpProfileWitness k hk :=
+  h.kge6_upper_stretchedexp_profile_witness hk
+
+/-- Tail-family source-backed lower-profile witness for fixed `k ≥ 6` on a Rankin/O'Bryant
+scale. -/
+structure Kge6LowerRankinProfileWitness (k : ℕ) (hk : 6 ≤ k) where
+  α : ℝ
+  A : ℝ
+  B : ℝ
+  C : ℝ
+  hα : 0 < α
+  hA : 0 < A
+  hC : 0 < C
+  hLower :
+    (fun N : ℕ =>
+      C * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+      =O[atTop] (fun N => (r k N : ℝ))
+
+/-- Imported tail-family Rankin/O'Bryant lower witnesses for fixed `k ≥ 6`. -/
+class Kge6LowerRankinProfileWitnessImported where
+  kge6_lower_rankin_profile_witness :
+    ∀ ⦃k : ℕ⦄ (hk : 6 ≤ k), Kge6LowerRankinProfileWitness k hk
+
+/-- Imported tail-family Rankin/O'Bryant lower witness for fixed `k ≥ 6`
+(from a registered assumption instance). -/
+noncomputable abbrev erdos_problem_142_explicit_kge6_lower_rankin_profile_witness_imported
+    [h : Kge6LowerRankinProfileWitnessImported] {k : ℕ} (hk : 6 ≤ k) :
+    Kge6LowerRankinProfileWitness k hk :=
+  h.kge6_lower_rankin_profile_witness hk
+
 /-- Any two-sided `k = 3` witness provides an upper-only witness. -/
 noncomputable instance k3UpperProfileWitnessImported_of_k3ProfileWitnessImported
     [K3ProfileWitnessImported] : K3UpperProfileWitnessImported where
@@ -522,6 +572,21 @@ structure K5SourceBackedSplitWitness where
       (fun N : ℕ =>
         upper.C * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ upper.c))
 
+/-- First-class source-backed split surface for fixed `k ≥ 6`:
+one Rankin/O'Bryant lower witness, one stretched-exponential `log log` upper witness, and the true
+compatibility direction between them. This is the tail-family replacement target on the active
+post-`k = 5` route. -/
+structure Kge6SourceBackedSplitWitness (k : ℕ) (hk : 6 ≤ k) where
+  lower : Kge6LowerRankinProfileWitness k hk
+  upper : Kge6UpperStretchedexpProfileWitness k hk
+  hCompatibility :
+    (fun N : ℕ =>
+      lower.C * (N : ℝ) *
+        Real.exp (-lower.A * (Real.log (N + 3)) ^ lower.α + lower.B * Real.log (Real.log (N + 3))))
+      =O[atTop]
+      (fun N : ℕ =>
+        upper.C * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ upper.c))
+
 /-- Mixed two-sided `k = 4` profile data extracted from a source-backed split witness. -/
 theorem k4_mixed_two_sided_profile_of_sourceBackedSplitWitness
     (h : K4SourceBackedSplitWitness) :
@@ -553,6 +618,23 @@ theorem k5_mixed_two_sided_profile_of_sourceBackedSplitWitness
   exact ⟨h.lower.α, h.lower.A, h.lower.B, h.lower.C, h.upper.c, h.upper.C, h.lower.hα, h.lower.hA,
     h.lower.hC, h.upper.hc, h.upper.hC, h.lower.hLower, h.upper.hUpper, h.hCompatibility⟩
 
+/-- Mixed two-sided profile data extracted from a source-backed split witness for fixed `k ≥ 6`. -/
+theorem kge6_mixed_two_sided_profile_of_sourceBackedSplitWitness
+    {k : ℕ} {hk : 6 ≤ k} (h : Kge6SourceBackedSplitWitness k hk) :
+    ∃ α A B CL cU CU : ℝ,
+      0 < α ∧ 0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[atTop] (fun N => (r k N : ℝ)) ∧
+        (fun N => (r k N : ℝ)) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) := by
+  exact ⟨h.lower.α, h.lower.A, h.lower.B, h.lower.C, h.upper.c, h.upper.C, h.lower.hα, h.lower.hA,
+    h.lower.hC, h.upper.hc, h.upper.hC, h.lower.hLower, h.upper.hUpper, h.hCompatibility⟩
+
 /-- Fixed upper-profile candidate for the `k = 4` branch. -/
 noncomputable def k4_upper_profile [K4UpperProfileWitnessImported] : ℕ → ℝ :=
   fun N =>
@@ -581,6 +663,26 @@ noncomputable def k5_rankin_lower_profile [K5LowerRankinProfileWitnessImported] 
         (-erdos_problem_142_explicit_k5_lower_rankin_profile_witness_imported.A *
             (Real.log (N + 3)) ^ erdos_problem_142_explicit_k5_lower_rankin_profile_witness_imported.α +
           erdos_problem_142_explicit_k5_lower_rankin_profile_witness_imported.B *
+            Real.log (Real.log (N + 3)))
+
+/-- Fixed source-backed stretched-exponential upper-profile candidate for any fixed `k ≥ 6`. -/
+noncomputable def kge6_stretchedexp_upper_profile {k : ℕ} (hk : 6 ≤ k)
+    [Kge6UpperStretchedexpProfileWitnessImported] : ℕ → ℝ :=
+  fun N =>
+    (erdos_problem_142_explicit_kge6_upper_stretchedexp_profile_witness_imported hk).C * (N : ℝ) *
+      Real.exp (-(Real.log (Real.log (N + 3))) ^
+        (erdos_problem_142_explicit_kge6_upper_stretchedexp_profile_witness_imported hk).c)
+
+/-- Fixed source-backed Rankin/O'Bryant lower-profile candidate for any fixed `k ≥ 6`. -/
+noncomputable def kge6_rankin_lower_profile {k : ℕ} (hk : 6 ≤ k)
+    [Kge6LowerRankinProfileWitnessImported] : ℕ → ℝ :=
+  fun N =>
+    (erdos_problem_142_explicit_kge6_lower_rankin_profile_witness_imported hk).C * (N : ℝ) *
+      Real.exp
+        (-(erdos_problem_142_explicit_kge6_lower_rankin_profile_witness_imported hk).A *
+            (Real.log (N + 3)) ^
+              (erdos_problem_142_explicit_kge6_lower_rankin_profile_witness_imported hk).α +
+          (erdos_problem_142_explicit_kge6_lower_rankin_profile_witness_imported hk).B *
             Real.log (Real.log (N + 3)))
 
 /-- Upper variant for `k = 3` from an imported upper-profile witness. -/
@@ -632,6 +734,22 @@ theorem upper_variant_five_of_stretchedexp_upper_profile_witness
           Real.exp (-(Real.log (Real.log (N + 3))) ^
             erdos_problem_142_explicit_k5_upper_stretchedexp_profile_witness_imported.c))
   exact erdos_problem_142_explicit_k5_upper_stretchedexp_profile_witness_imported.hUpper
+
+/-- Tail-family stretched-exponential upper witnesses yield the corresponding upper variants
+for every fixed `k ≥ 6`. -/
+theorem upper_variant_ge_six_of_stretchedexp_upper_profile_witness
+    [Kge6UpperStretchedexpProfileWitnessImported] :
+    ∀ ⦃k : ℕ⦄, 6 ≤ k → erdos_142.variants.upper k := by
+  intro k hk
+  refine ⟨kge6_stretchedexp_upper_profile hk, ?_⟩
+  change
+    (fun N => (r k N : ℝ)) =O[atTop]
+      (fun N : ℕ =>
+        (erdos_problem_142_explicit_kge6_upper_stretchedexp_profile_witness_imported hk).C *
+          (N : ℝ) *
+          Real.exp (-(Real.log (Real.log (N + 3))) ^
+            (erdos_problem_142_explicit_kge6_upper_stretchedexp_profile_witness_imported hk).c))
+  exact (erdos_problem_142_explicit_kge6_upper_stretchedexp_profile_witness_imported hk).hUpper
 
 /-- Rankin/O'Bryant-type `k = 5` decay is asymptotically smaller than the source-backed
 stretched-exponential `\log\log` upper decay. This is the toy-model comparison theorem on the
@@ -712,6 +830,56 @@ theorem k5_rankin_lower_profile_isBigO_k5_stretchedexp_upper_profile
   exact hScaled.isBigO.congr'
     (Eventually.of_forall fun N => by simp [k5_rankin_lower_profile, wL, mul_assoc])
     (Eventually.of_forall fun N => by simp [k5_stretchedexp_upper_profile, wU, mul_assoc])
+
+/-- Explicit-witness tail-family comparison theorem: a Rankin/O'Bryant lower witness is
+asymptotically dominated by a stretched-exponential `log log` upper witness for the same fixed
+`k ≥ 6`. -/
+theorem kge6_rankin_lower_profile_isBigO_kge6_stretchedexp_upper_profile_of_witnesses
+    {k : ℕ} {hk : 6 ≤ k}
+    (wU : Kge6UpperStretchedexpProfileWitness k hk)
+    (wL : Kge6LowerRankinProfileWitness k hk) :
+    (fun N : ℕ =>
+      wL.C * (N : ℝ) * Real.exp (-wL.A * (Real.log (N + 3)) ^ wL.α + wL.B * Real.log (Real.log (N + 3))))
+      =O[atTop]
+    (fun N : ℕ =>
+      wU.C * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ wU.c)) := by
+  have hDecay :
+      (fun N : ℕ =>
+        Real.exp (-wL.A * (Real.log (N + 3)) ^ wL.α + wL.B * Real.log (Real.log (N + 3))))
+        =o[atTop]
+      (fun N : ℕ => Real.exp (-(Real.log (Real.log (N + 3))) ^ wU.c)) :=
+    k5_rankin_decay_isLittleO_stretchedexp_loglog_decay wL.hα wL.hA
+  have hMul :
+      (fun N : ℕ =>
+        (N : ℝ) * Real.exp (-wL.A * (Real.log (N + 3)) ^ wL.α +
+          wL.B * Real.log (Real.log (N + 3)))) =o[atTop]
+      (fun N : ℕ => (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ wU.c)) :=
+    (Asymptotics.isBigO_refl (fun N : ℕ => (N : ℝ)) atTop).mul_isLittleO hDecay
+  have hScaled :
+      (fun N : ℕ =>
+        wL.C * ((N : ℝ) * Real.exp (-wL.A * (Real.log (N + 3)) ^ wL.α +
+          wL.B * Real.log (Real.log (N + 3))))) =o[atTop]
+      (fun N : ℕ =>
+        wU.C * ((N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ wU.c))) :=
+    (hMul.const_mul_left wL.C).const_mul_right wU.hC.ne'
+  exact hScaled.isBigO.congr'
+    (Eventually.of_forall fun N => by simp [mul_assoc])
+    (Eventually.of_forall fun N => by simp [mul_assoc])
+
+/-- For any fixed `k ≥ 6`, the source-backed Rankin/O'Bryant lower profile is asymptotically
+dominated by the stretched-exponential `log log` upper profile. This is the tail-family analogue
+of the proved `k = 5` toy-model comparison theorem. -/
+theorem kge6_rankin_lower_profile_isBigO_kge6_stretchedexp_upper_profile
+    [Kge6UpperStretchedexpProfileWitnessImported] [Kge6LowerRankinProfileWitnessImported]
+    {k : ℕ} (hk : 6 ≤ k) :
+    kge6_rankin_lower_profile hk =O[atTop] kge6_stretchedexp_upper_profile hk := by
+  let wU : Kge6UpperStretchedexpProfileWitness k hk :=
+    erdos_problem_142_explicit_kge6_upper_stretchedexp_profile_witness_imported hk
+  let wL : Kge6LowerRankinProfileWitness k hk :=
+    erdos_problem_142_explicit_kge6_lower_rankin_profile_witness_imported hk
+  exact (kge6_rankin_lower_profile_isBigO_kge6_stretchedexp_upper_profile_of_witnesses wU wL).congr'
+    (Eventually.of_forall fun N => by simp [kge6_rankin_lower_profile, wL, mul_assoc])
+    (Eventually.of_forall fun N => by simp [kge6_stretchedexp_upper_profile, wU, mul_assoc])
 
 /-- Aggregated upper-variant consequence for all `k ≥ 3` from branch-local upper witnesses. -/
 theorem upper_variant_of_upper_profile_witnesses_for_all_k_ge_three
@@ -1445,6 +1613,24 @@ class LiteratureK5SourceBackedSplitAssumptions : Prop
     extends LiteratureK5UpperStretchedexpSourceAssumptions,
       LiteratureK5LowerRankinSourceAssumptions
 
+/-- Tail-family source-facing literature layer for the post-`k = 5` upper route:
+it records stretched-exponential `log log` upper profiles for every fixed `k ≥ 6`. -/
+class LiteratureKge6UpperStretchedexpSourceAssumptions : Prop where
+  kge6_stretchedexp_loglog_upper_profile :
+    bound_targets.kge6_stretchedexp_loglog_upper_profile
+
+/-- Tail-family source-facing literature layer for the post-`k = 5` lower route:
+it records Rankin/O'Bryant lower profiles for every fixed `k ≥ 6`. -/
+class LiteratureKge6LowerRankinSourceAssumptions : Prop where
+  kge6_rankin_obryant_lower_profile :
+    bound_targets.kge6_rankin_obryant_lower_profile
+
+/-- Combined source-facing literature layer for the current `k ≥ 6` tail-family route:
+one stretched-exponential upper family and one Rankin/O'Bryant lower family. -/
+class LiteratureKge6SourceBackedSplitAssumptions : Prop
+    extends LiteratureKge6UpperStretchedexpSourceAssumptions,
+      LiteratureKge6LowerRankinSourceAssumptions
+
 /-- Expose the sharpened `k = 3` exponent-threshold target from the dedicated literature layer. -/
 theorem k3_upper_exponent_gt_half_target_of_literatureK3ExponentGtHalfAssumptions
     [h : LiteratureK3ExponentGtHalfAssumptions] :
@@ -1480,6 +1666,20 @@ theorem k5_rankin_obryant_lower_profile_of_literatureK5LowerRankinSourceAssumpti
     [h : LiteratureK5LowerRankinSourceAssumptions] :
     bound_targets.k5_rankin_obryant_lower_profile := by
   exact h.k5_rankin_obryant_lower_profile
+
+/-- Expose the tail-family stretched-exponential `k ≥ 6` upper target from its source-facing
+literature layer. -/
+theorem kge6_stretchedexp_loglog_upper_profile_of_literatureKge6UpperStretchedexpSourceAssumptions
+    [h : LiteratureKge6UpperStretchedexpSourceAssumptions] :
+    bound_targets.kge6_stretchedexp_loglog_upper_profile := by
+  exact h.kge6_stretchedexp_loglog_upper_profile
+
+/-- Expose the tail-family Rankin/O'Bryant `k ≥ 6` lower target from its source-facing
+literature layer. -/
+theorem kge6_rankin_obryant_lower_profile_of_literatureKge6LowerRankinSourceAssumptions
+    [h : LiteratureKge6LowerRankinSourceAssumptions] :
+    bound_targets.kge6_rankin_obryant_lower_profile := by
+  exact h.kge6_rankin_obryant_lower_profile
 
 /-- Expose the `k = 4` exponent-order target from the strengthened literature layer. -/
 theorem k4_exponent_order_target_of_literatureK4ExponentOrderAssumptions
@@ -1766,6 +1966,43 @@ noncomputable def k5LowerRankinProfileWitness_of_literatureK5LowerRankinSourceAs
     exact ⟨w, trivial⟩
   exact Classical.choose hw
 
+/-- Noncomputable extraction of a tail-family stretched-exponential upper witness for any fixed
+`k ≥ 6` from the dedicated source-facing literature layer. -/
+noncomputable def kge6UpperStretchedexpProfileWitness_of_literatureKge6UpperStretchedexpSourceAssumptions
+    [h : LiteratureKge6UpperStretchedexpSourceAssumptions] {k : ℕ} (hk : 6 ≤ k) :
+    Kge6UpperStretchedexpProfileWitness k hk := by
+  classical
+  let hw : ∃ w : Kge6UpperStretchedexpProfileWitness k hk, True := by
+    rcases h.kge6_stretchedexp_loglog_upper_profile hk with ⟨c, C, hc, hC, hUpper⟩
+    let w : Kge6UpperStretchedexpProfileWitness k hk :=
+      { c := c
+        C := C
+        hc := hc
+        hC := hC
+        hUpper := hUpper }
+    exact ⟨w, trivial⟩
+  exact Classical.choose hw
+
+/-- Noncomputable extraction of a tail-family Rankin/O'Bryant lower witness for any fixed
+`k ≥ 6` from the dedicated source-facing literature layer. -/
+noncomputable def kge6LowerRankinProfileWitness_of_literatureKge6LowerRankinSourceAssumptions
+    [h : LiteratureKge6LowerRankinSourceAssumptions] {k : ℕ} (hk : 6 ≤ k) :
+    Kge6LowerRankinProfileWitness k hk := by
+  classical
+  let hw : ∃ w : Kge6LowerRankinProfileWitness k hk, True := by
+    rcases h.kge6_rankin_obryant_lower_profile hk with ⟨α, A, B, C, hα, hA, hC, hLower⟩
+    let w : Kge6LowerRankinProfileWitness k hk :=
+      { α := α
+        A := A
+        B := B
+        C := C
+        hα := hα
+        hA := hA
+        hC := hC
+        hLower := hLower }
+    exact ⟨w, trivial⟩
+  exact Classical.choose hw
+
 /-- `LiteratureRateAssumptions` provide the `k = 3` upper-profile witness interface. -/
 noncomputable instance k3UpperProfileWitnessImported_of_literatureRateAssumptions
     [h : LiteratureRateAssumptions] : K3UpperProfileWitnessImported where
@@ -1797,6 +2034,24 @@ noncomputable instance k5LowerRankinProfileWitnessImported_of_literatureK5LowerR
   k5_lower_rankin_profile_witness :=
     k5LowerRankinProfileWitness_of_literatureK5LowerRankinSourceAssumptions
 
+/-- `LiteratureKge6UpperStretchedexpSourceAssumptions` provide the tail-family
+stretched-exponential upper witness interface for fixed `k ≥ 6`. -/
+noncomputable instance
+    kge6UpperStretchedexpProfileWitnessImported_of_literatureKge6UpperStretchedexpSourceAssumptions
+    [h : LiteratureKge6UpperStretchedexpSourceAssumptions] :
+    Kge6UpperStretchedexpProfileWitnessImported where
+  kge6_upper_stretchedexp_profile_witness {_} hk :=
+    kge6UpperStretchedexpProfileWitness_of_literatureKge6UpperStretchedexpSourceAssumptions hk
+
+/-- `LiteratureKge6LowerRankinSourceAssumptions` provide the tail-family Rankin/O'Bryant lower
+witness interface for fixed `k ≥ 6`. -/
+noncomputable instance
+    kge6LowerRankinProfileWitnessImported_of_literatureKge6LowerRankinSourceAssumptions
+    [h : LiteratureKge6LowerRankinSourceAssumptions] :
+    Kge6LowerRankinProfileWitnessImported where
+  kge6_lower_rankin_profile_witness {_} hk :=
+    kge6LowerRankinProfileWitness_of_literatureKge6LowerRankinSourceAssumptions hk
+
 /-- The branch-local stretched-exponential source-facing `k = 5` literature layer already yields
 the corresponding `upper` variant. -/
 theorem upper_variant_five_of_literatureK5UpperStretchedexpSourceAssumptions
@@ -1821,6 +2076,21 @@ noncomputable def k5SourceBackedSplitWitness_of_literatureK5SourceBackedSplitAss
     { lower := wL
       upper := wU
       hCompatibility := k5_rankin_lower_profile_isBigO_k5_stretchedexp_upper_profile }
+
+/-- The combined source-facing `k ≥ 6` tail-family literature layer produces the first-class
+source-backed split witness for each fixed `k ≥ 6` on the active post-`k = 5` route. -/
+noncomputable def kge6SourceBackedSplitWitness_of_literatureKge6SourceBackedSplitAssumptions
+    [h : LiteratureKge6SourceBackedSplitAssumptions] {k : ℕ} (hk : 6 ≤ k) :
+    Kge6SourceBackedSplitWitness k hk := by
+  let wL : Kge6LowerRankinProfileWitness k hk :=
+    kge6LowerRankinProfileWitness_of_literatureKge6LowerRankinSourceAssumptions hk
+  let wU : Kge6UpperStretchedexpProfileWitness k hk :=
+    kge6UpperStretchedexpProfileWitness_of_literatureKge6UpperStretchedexpSourceAssumptions hk
+  exact
+    { lower := wL
+      upper := wU
+      hCompatibility :=
+        kge6_rankin_lower_profile_isBigO_kge6_stretchedexp_upper_profile_of_witnesses wU wL }
 
 /-- Upper-variant consequences for all `k ≥ 3`, routed through upper-profile witness interfaces
 extracted from `LiteratureRateAssumptions`. -/

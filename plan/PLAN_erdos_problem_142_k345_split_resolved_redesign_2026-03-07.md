@@ -74,4 +74,4 @@ The remaining active frontier is only the tail `k >= 6` family.
 
 Active follow-up:
 
-- family-generalization or source-backed pivot work for the remaining `k >= 6` tail
+- [PLAN_erdos_problem_142_kge6_source_backed_family_2026-03-07.md](PLAN_erdos_problem_142_kge6_source_backed_family_2026-03-07.md)
