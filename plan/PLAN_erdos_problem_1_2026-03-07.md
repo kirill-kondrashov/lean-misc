@@ -209,8 +209,9 @@ Closing that gap requires new mathematics, not just Lean engineering.
    `Erdos1.erdos_1.variants.proved.lb_strong`.
 2. Add a notes file auditing exact-value sources and certificate strategy for `a(9)` and
    `a(10) = 309`.
-3. Decide whether to keep the real-valued lower results in `Problem1Literature.lean` or split them
-   into a dedicated `Problem1Real.lean`.
+3. Refine the new `Problem1Real.lean` surface if we want a stronger downstream API than the current
+   separation into `RealSpacingLowerBound`, `RealSpacingLowerBoundStrong`, and the open conjecture
+   alias.
 4. Add README coverage for the new exact/literature surfaces if the documentation should track the
    latest code state more closely.
 

@@ -155,6 +155,12 @@ Current proof status:
   `Erdos1.erdos_1.variants.proved.real_lb`,
   `Erdos1.erdos_1.variants.proved.real_lb_strong`, and
   `Erdos1.erdos_1.known.best_known_integer_gap`.
+- [ErdosProblems/Problem1Real.lean](./ErdosProblems/Problem1Real.lean) now separates the
+  real-valued branch into:
+  `RealSpacingLowerBound`,
+  `RealSpacingLowerBoundStrong`,
+  `real_spacing_lower_bound_avg`, and the explicit open-conjecture alias
+  `OpenRealExponentialVariant`.
 - The sharp middle-binomial asymptotic is now proved locally; the remaining Problem #1 bottlenecks
   are the imported literature axioms for the exact Dubroff-Fox-Xu/Bohman results together with the
   still-public placeholder surfaces in [ErdosProblems/Problem1.lean](./ErdosProblems/Problem1.lean).
