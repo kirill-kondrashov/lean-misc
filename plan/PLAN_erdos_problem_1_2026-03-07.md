@@ -199,7 +199,7 @@ Closing that gap requires new mathematics, not just Lean engineering.
       and explicit witnesses for `HasSumDistinctSetCard 161 9` and `HasSumDistinctSetCard 309 10`
       are now checked locally; the nonexistence/optimality side for `least_N_9` and `a(10)=309`
       remains open.
-- [ ] Repo surface made explicit about the remaining open `sqrt(n)` gap.
+- [x] Repo surface made explicit about the remaining open `sqrt(n)` gap.
 
 ## Immediate next actions
 
@@ -214,7 +214,7 @@ Closing that gap requires new mathematics, not just Lean engineering.
    current bundled `KnownIntegerLowerTheory` / `KnownRealSpacingTheory` APIs, for example by
    adding future certificate-backed exact witnesses or more comparison lemmas between exact and
    asymptotic statements.
-4. Add README coverage for the new exact/literature surfaces if the documentation should track the
+4. Add README coverage for the new exact/literature/gap surfaces if the documentation should track the
    latest code state more closely.
 
 ## External references anchoring this plan

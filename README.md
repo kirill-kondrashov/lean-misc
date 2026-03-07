@@ -189,6 +189,11 @@ Current proof status:
   `KnownIntegerLowerTheory`,
   `integer_lower_bound_exact_imported`, and
   `integer_lower_bound_avg`.
+- [ErdosProblems/Problem1Gap.lean](./ErdosProblems/Problem1Gap.lean) now makes the current integer
+  gap explicit as API:
+  `OpenIntegerExponentialVariant`,
+  `KnownIntegerGapTheory`, and
+  `knownIntegerGapTheory_from_imports`.
 - [ErdosProblems/Problem1Real.lean](./ErdosProblems/Problem1Real.lean) now separates the
   real-valued branch into:
   `RealSpacingLowerBound`,

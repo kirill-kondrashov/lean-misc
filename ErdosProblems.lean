@@ -3,6 +3,7 @@ import ErdosProblems.Problem1Literature
 import ErdosProblems.Problem1Derived
 import ErdosProblems.Problem1ExactValues
 import ErdosProblems.Problem1Integer
+import ErdosProblems.Problem1Gap
 import ErdosProblems.Problem1Real
 import ErdosProblems.Problem142
 import ErdosProblems.Problem142Literature
