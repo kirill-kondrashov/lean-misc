@@ -97,7 +97,8 @@ Re-score the current Erdos-142 formalization pipeline against concrete, availabl
   - Post-pivot redesign status:
     `Problem142Gap.lean` now contains the further asymmetric downstream interfaces
     `MainK34ResolvedGap` and `MainK345ResolvedGap`, and now also the practical all-branches
-    source-backed split target `MainAllSourceBackedSplitGap`.
+    source-backed split target `MainAllSourceBackedSplitGap` together with the named endpoint
+    `Problem142AllSourceBackedSplitData`.
     On the active practical path, `k=3`, `k=4`, `k=5`, and all fixed `k≥6`
     are treated by explicit source-backed split witnesses, so there is no remaining
     active coupling frontier on that practical route.

@@ -818,6 +818,63 @@ theorem kge6_split_data_of_mainAllSourceBackedSplitGap
   intro k hk
   exact kge6_mixed_two_sided_profile_of_sourceBackedSplitWitness (hGap.kge6 hk)
 
+/-- Named mathematical endpoint for the practical all-branches source-backed route:
+all upper variants together with the branchwise source-backed split data on the correct scale for
+each branch. This packages the current honest route as one reusable object rather than a large
+conjunction. -/
+structure Problem142AllSourceBackedSplitData where
+  upper : ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142.variants.upper k
+  k3 :
+    ∃ cL CL β cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < β ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[Filter.atTop]
+          (fun N => (r 3 N : ℝ)) ∧
+        (fun N => (r 3 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ β)) ∧
+        (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ β))
+  k4 :
+    ∃ cL CL cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) / (Real.log (N + 2)) ^ cL) =O[Filter.atTop]
+          (fun N => (r 4 N : ℝ)) ∧
+        (fun N => (r 4 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) / (Real.log (N + 2)) ^ cU)
+  k5 :
+    ∃ α A B CL cU CU : ℝ,
+      0 < α ∧ 0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop] (fun N => (r 5 N : ℝ)) ∧
+        (fun N => (r 5 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU))
+  kge6 :
+    ∀ ⦃k : ℕ⦄, 6 ≤ k → ∃ α A B CL cU CU : ℝ,
+      0 < α ∧ 0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop] (fun N => (r k N : ℝ)) ∧
+        (fun N => (r k N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU))
+
+/-- Build the named all-branches source-backed split endpoint from the practical gap witness. -/
+noncomputable def mainAllSourceBackedSplitData_of_mainAllSourceBackedSplitGap
+    (hGap : MainAllSourceBackedSplitGap) :
+    Problem142AllSourceBackedSplitData :=
+  { upper := upper_variant_of_mainAllSourceBackedSplitGap hGap
+    k3 := k3_mixed_two_sided_profile_of_sourceBackedSplitWitness hGap.k3
+    k4 := k4_mixed_two_sided_profile_of_sourceBackedSplitWitness hGap.k4
+    k5 := k5_mixed_two_sided_profile_of_sourceBackedSplitWitness hGap.k5
+    kge6 := kge6_split_data_of_mainAllSourceBackedSplitGap hGap }
+
 /-- Aggregate mathematical consequence of the practical all-branches source-backed split route:
 all upper variants are available, and each branch carries explicit source-backed split data on the
 correct scale for that branch. -/
@@ -860,11 +917,18 @@ theorem all_source_backed_split_data_of_mainAllSourceBackedSplitGap
           CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
           =O[Filter.atTop]
           (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU))) := by
-  refine ⟨upper_variant_of_mainAllSourceBackedSplitGap hGap, ?_, ?_, ?_, ?_⟩
-  · exact k3_mixed_two_sided_profile_of_sourceBackedSplitWitness hGap.k3
-  · exact k4_mixed_two_sided_profile_of_sourceBackedSplitWitness hGap.k4
-  · exact k5_mixed_two_sided_profile_of_sourceBackedSplitWitness hGap.k5
-  · exact kge6_split_data_of_mainAllSourceBackedSplitGap hGap
+  let hData := mainAllSourceBackedSplitData_of_mainAllSourceBackedSplitGap hGap
+  exact ⟨hData.upper, hData.k3, hData.k4, hData.k5, hData.kge6⟩
+
+/-- The current source-backed literature-side assumption layers already instantiate the named
+all-branches source-backed split endpoint on the practical route. -/
+noncomputable def mainAllSourceBackedSplitData_of_literature_sourceBacked_route
+    [h3 : LiteratureK3OneTwelfthSourceAssumptions] [hLower : LiteratureLowerImportAssumptions]
+    [h5 : LiteratureK5SourceBackedSplitAssumptions] [h6 : LiteratureKge6SourceBackedSplitAssumptions] :
+    Problem142AllSourceBackedSplitData :=
+  mainAllSourceBackedSplitData_of_mainAllSourceBackedSplitGap
+    (mainAllSourceBackedSplitGap_of_literatureK3OneTwelfth_and_lowerImportAssumptions_and_sourceBackedTail
+      (h3 := h3) (hLower := hLower) (h5 := h5) (h6 := h6))
 
 /-- The current source-backed literature-side assumption layers already instantiate the full
 aggregate split-data theorem on the practical route. -/
