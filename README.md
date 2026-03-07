@@ -44,15 +44,24 @@ All solved exercises are checked to ensure they:
 
 - do not use `sorry`
 - depend only on the base axioms `propext`, `Quot.sound`, and `Classical.choice`
+- build the top-level `ErdosProblems` library, including the `Erdos1` modules
+- include the checked `Erdos1` theorems
+  (`Erdos1.erdos_1.variants.weaker`, `Erdos1.choose_middle_isEquivalent`,
+  and the temporary-axiom wrapper `Erdos1.erdos_1_solution_axiom`)
 - include the Problem #142 DeepMind-equivalence theorem
   (`Erdos142.erdos_problem_142_iff_deepmind`)
 - include the strengthened explicit-profile DeepMind-equivalence theorem
   (`Erdos142.erdos_problem_142_explicit_iff_deepmind`)
 - keep checker output explicit about temporary axiom frontier debt where present
 
-The `Erdos1` module is not part of this checker yet: it currently contains a statement-level
-formalization of Problem #1 with local axioms for the open and literature-backed claims, plus the
-proved exact small-case theorem `Erdos1.erdos_1.variants.least_N_3`.
+The checker now imports the top-level `ErdosProblems` library, so `Erdos1` is built as part of
+`make check`. It currently reports two `Erdos1` theorems that are fully local and base-axiom
+clean: `Erdos1.erdos_1.variants.weaker` and `Erdos1.choose_middle_isEquivalent`.
+It also reports the open-problem wrapper `Erdos1.erdos_1_solution_axiom`, with the placeholder
+axiom `Erdos1.erdos_1` treated as temporary allowed axiom debt in the same style as the current
+`Erdos142` frontier checks.
+The exact-value theorems proved by `native_decide` are still excluded from this checker because the
+current policy treats `Lean.ofReduceBool` / `Lean.trustCompiler` as non-base axioms.
 
 Run:
 
@@ -74,6 +83,24 @@ Axioms used:
 - propext
 - Quot.sound
 - Classical.choice
+✅ The proof of 'Erdos1.erdos_1.variants.weaker' is free of 'sorry' and uses only base axioms.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+✅ The proof of 'Erdos1.choose_middle_isEquivalent' is free of 'sorry' and uses only base axioms.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+🟡 The proof of 'Erdos1.erdos_1_solution_axiom' is free of 'sorry' but relies on temporary allowed axiom debt.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+- Erdos1.erdos_1
+Temporarily allowed non-base axioms (must be proved later):
+- Erdos1.erdos_1
 ✅ The proof of 'Erdos142.erdos_problem_142_iff_deepmind' is free of 'sorry' and uses only base axioms.
 Axioms used:
 - propext
@@ -101,7 +128,7 @@ Temporarily allowed non-base axioms (must be proved later):
 - Erdos142.splitGap_k3_upper_exponent_gt_half_frontier
 - Erdos142.splitGap_k4_profile_dominance_frontier
 - Erdos142.splitGap_kge5_profile_dominance_frontier
-✅ All checked items are free of 'sorry'. Temporary Erdős #142 axiom debt is explicitly allowed.
+✅ All checked items are free of 'sorry'. Temporary Erdős #1/#142 axiom debt is explicitly allowed.
 ```
 
 ## Useful Make targets
