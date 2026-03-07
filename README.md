@@ -161,11 +161,19 @@ Definition of Landau asymptotic domination:
 
    **Given**
 
-   $$
-   r_4(N)=O\!\left(\frac{C_u N}{(\log(N+2))^{c_u}}\right),
-   \qquad
-   \frac{C_\ell N}{(\log(N+2))^{c_\ell}}=O(r_4(N)).
-   $$
+   Assume the following two hypotheses:
+
+   1. Upper-side input:
+
+      $$
+      r_4(N)=O\!\left(\frac{C_u N}{(\log(N+2))^{c_u}}\right).
+      $$
+
+   2. Lower-side input:
+
+      $$
+      \frac{C_\ell N}{(\log(N+2))^{c_\ell}}=O(r_4(N)).
+      $$
 
    **Where**
    - $r_4(N)$ is the maximal size of a $4$-term arithmetic-progression-free subset of $\{1,\dots,N\}$.
@@ -177,6 +185,8 @@ Definition of Landau asymptotic domination:
    - $N+2$ is a harmless positive shift used so the logarithm is always defined in the formal model.
 
    **What to prove**
+
+   Prove the comparison theorem:
 
    $$
    \frac{C_u N}{(\log(N+2))^{c_u}}
@@ -193,12 +203,19 @@ Definition of Landau asymptotic domination:
 
    **Given**
 
-   $$
-   r_k(N)=O\!\left(\frac{C_u(k)\,N}{(\log\log(N+3))^{c_u(k)}}\right),
-   \qquad
-   \frac{C_\ell(k)\,N}{(\log\log(N+3))^{c_\ell(k)}}=O(r_k(N)),
-   \qquad (k \ge 5).
-   $$
+   For each fixed $k \ge 5$, assume the following two hypotheses:
+
+   1. Upper-side input:
+
+      $$
+      r_k(N)=O\!\left(\frac{C_u(k)\,N}{(\log\log(N+3))^{c_u(k)}}\right).
+      $$
+
+   2. Lower-side input:
+
+      $$
+      \frac{C_\ell(k)\,N}{(\log\log(N+3))^{c_\ell(k)}}=O(r_k(N)).
+      $$
 
    **Where**
    - $r_k(N)$ is the maximal size of a $k$-term arithmetic-progression-free subset of $\{1,\dots,N\}$.
@@ -211,6 +228,8 @@ Definition of Landau asymptotic domination:
    - $N+3$ is a harmless positive shift used so both logarithms are defined in the formal model.
 
    **What to prove**
+
+   Prove the comparison theorem for each fixed $k \ge 5$:
 
    $$
    \frac{C_u(k)\,N}{(\log\log(N+3))^{c_u(k)}}
