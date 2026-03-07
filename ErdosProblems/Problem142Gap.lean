@@ -195,6 +195,34 @@ theorem k4_split_data_of_literatureLowerImportAssumptions
   exact k4_mixed_two_sided_profile_of_sourceBackedSplitWitness
     (k4SourceBackedSplitGap_of_literatureLowerImportAssumptions (h := h))
 
+/-- Gap-layer alias for the current source-backed `k = 5` toy-model split surface. -/
+abbrev K5SourceBackedSplitGap : Type := K5SourceBackedSplitWitness
+
+/-- The combined source-facing `k = 5` toy-model literature layer already instantiates the current
+honest local `k = 5` split surface. -/
+noncomputable def k5SourceBackedSplitGap_of_literatureK5SourceBackedSplitAssumptions
+    [h : LiteratureK5SourceBackedSplitAssumptions] :
+    K5SourceBackedSplitGap :=
+  k5SourceBackedSplitWitness_of_literatureK5SourceBackedSplitAssumptions
+
+/-- Branch-local `k = 5` split data follow directly from the dedicated source-backed split
+package extracted from the combined toy-model literature assumptions. -/
+theorem k5_split_data_of_literatureK5SourceBackedSplitAssumptions
+    [h : LiteratureK5SourceBackedSplitAssumptions] :
+    ∃ α A B CL cU CU : ℝ,
+      0 < α ∧ 0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop] (fun N => (r 5 N : ℝ)) ∧
+        (fun N => (r 5 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) := by
+  exact k5_mixed_two_sided_profile_of_sourceBackedSplitWitness
+    (k5SourceBackedSplitGap_of_literatureK5SourceBackedSplitAssumptions (h := h))
+
 /-- Gap-layer alias for the strongest currently source-backed `k = 3` split surface. -/
 abbrev K3SourceBackedSplitGap : Type := K3SourceBackedSplitWitness
 

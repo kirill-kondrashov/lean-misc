@@ -507,6 +507,21 @@ structure K4SourceBackedSplitWitness where
   lower : K4LowerProfileWitness
   upper : K4UpperProfileWitness
 
+/-- First-class source-backed `k = 5` split surface:
+one Rankin/O'Bryant lower witness, one stretched-exponential `log log` upper witness, and the true
+compatibility direction between them. This is the current honest toy-model endpoint on the active
+`k ≥ 5` pivot route. -/
+structure K5SourceBackedSplitWitness where
+  lower : K5LowerRankinProfileWitness
+  upper : K5UpperStretchedexpProfileWitness
+  hCompatibility :
+    (fun N : ℕ =>
+      lower.C * (N : ℝ) *
+        Real.exp (-lower.A * (Real.log (N + 3)) ^ lower.α + lower.B * Real.log (Real.log (N + 3))))
+      =O[atTop]
+      (fun N : ℕ =>
+        upper.C * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ upper.c))
+
 /-- Mixed two-sided `k = 4` profile data extracted from a source-backed split witness. -/
 theorem k4_mixed_two_sided_profile_of_sourceBackedSplitWitness
     (h : K4SourceBackedSplitWitness) :
@@ -518,6 +533,25 @@ theorem k4_mixed_two_sided_profile_of_sourceBackedSplitWitness
           (fun N : ℕ => CU * (N : ℝ) / (Real.log (N + 2)) ^ cU) := by
   exact ⟨h.lower.c, h.lower.C, h.upper.c, h.upper.C, h.lower.hc, h.lower.hC, h.upper.hc,
     h.upper.hC, h.lower.hLower, h.upper.hUpper⟩
+
+/-- Mixed two-sided `k = 5` profile data extracted from a source-backed split witness. -/
+theorem k5_mixed_two_sided_profile_of_sourceBackedSplitWitness
+    (h : K5SourceBackedSplitWitness) :
+    ∃ α A B CL cU CU : ℝ,
+      0 < α ∧ 0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[atTop] (fun N => (r 5 N : ℝ)) ∧
+        (fun N => (r 5 N : ℝ)) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) := by
+  letI : K5LowerRankinProfileWitnessImported := ⟨h.lower⟩
+  letI : K5UpperStretchedexpProfileWitnessImported := ⟨h.upper⟩
+  exact ⟨h.lower.α, h.lower.A, h.lower.B, h.lower.C, h.upper.c, h.upper.C, h.lower.hα, h.lower.hA,
+    h.lower.hC, h.upper.hc, h.upper.hC, h.lower.hLower, h.upper.hUpper, h.hCompatibility⟩
 
 /-- Fixed upper-profile candidate for the `k = 4` branch. -/
 noncomputable def k4_upper_profile [K4UpperProfileWitnessImported] : ℕ → ℝ :=
@@ -1405,6 +1439,12 @@ class LiteratureK5LowerRankinSourceAssumptions : Prop where
   k5_rankin_obryant_lower_profile :
     bound_targets.k5_rankin_obryant_lower_profile
 
+/-- Combined source-facing literature layer for the current `k = 5` toy-model pivot:
+one stretched-exponential upper witness and one Rankin/O'Bryant lower witness. -/
+class LiteratureK5SourceBackedSplitAssumptions : Prop
+    extends LiteratureK5UpperStretchedexpSourceAssumptions,
+      LiteratureK5LowerRankinSourceAssumptions
+
 /-- Expose the sharpened `k = 3` exponent-threshold target from the dedicated literature layer. -/
 theorem k3_upper_exponent_gt_half_target_of_literatureK3ExponentGtHalfAssumptions
     [h : LiteratureK3ExponentGtHalfAssumptions] :
@@ -1765,6 +1805,22 @@ theorem upper_variant_five_of_literatureK5UpperStretchedexpSourceAssumptions
   letI : K5UpperStretchedexpProfileWitnessImported :=
     k5UpperStretchedexpProfileWitnessImported_of_literatureK5UpperStretchedexpSourceAssumptions
   exact upper_variant_five_of_stretchedexp_upper_profile_witness
+
+/-- The combined source-facing `k = 5` toy-model literature layer produces the first-class
+source-backed split witness on the active pivot route. -/
+noncomputable def k5SourceBackedSplitWitness_of_literatureK5SourceBackedSplitAssumptions
+    [h : LiteratureK5SourceBackedSplitAssumptions] :
+    K5SourceBackedSplitWitness := by
+  let wL : K5LowerRankinProfileWitness :=
+    k5LowerRankinProfileWitness_of_literatureK5LowerRankinSourceAssumptions
+  let wU : K5UpperStretchedexpProfileWitness :=
+    k5UpperStretchedexpProfileWitness_of_literatureK5UpperStretchedexpSourceAssumptions
+  letI : K5LowerRankinProfileWitnessImported := ⟨wL⟩
+  letI : K5UpperStretchedexpProfileWitnessImported := ⟨wU⟩
+  exact
+    { lower := wL
+      upper := wU
+      hCompatibility := k5_rankin_lower_profile_isBigO_k5_stretchedexp_upper_profile }
 
 /-- Upper-variant consequences for all `k ≥ 3`, routed through upper-profile witness interfaces
 extracted from `LiteratureRateAssumptions`. -/

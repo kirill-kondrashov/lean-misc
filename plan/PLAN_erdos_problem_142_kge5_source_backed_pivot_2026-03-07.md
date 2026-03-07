@@ -9,7 +9,7 @@ upper and lower templates match the actual scales appearing in the literature.
 
 ## Status
 
-Progress: `████--` `4 / 6` milestones
+Progress: `██████` `6 / 6` milestones
 
 Implemented so far:
 - `ErdosProblems/Problem142Literature.lean` now contains the analytic incompatibility theorem
@@ -29,6 +29,13 @@ Implemented so far:
   `LiteratureK5LowerRankinSourceAssumptions`, and the toy-model comparison theorems
   `k5_rankin_decay_isLittleO_stretchedexp_loglog_decay` and
   `k5_rankin_lower_profile_isBigO_k5_stretchedexp_upper_profile`.
+- `ErdosProblems/Problem142Literature.lean` now packages the toy model as
+  `K5SourceBackedSplitWitness`.
+- `ErdosProblems/Problem142Gap.lean` now exposes the corresponding gap-layer alias
+  `K5SourceBackedSplitGap` and branch-local split-data theorem.
+- Decision taken: keep `k = 5` as the live toy-model branch for the active route; do not
+  generalize immediately to all fixed `k >= 5` until a source-backed family lower surface is
+  available.
 
 ## Publication-Backed Evidence
 
@@ -211,9 +218,12 @@ with
      `k5_rankin_decay_isLittleO_stretchedexp_loglog_decay`
      and
      `k5_rankin_lower_profile_isBigO_k5_stretchedexp_upper_profile`.
-5. `[ ]` Package the result as `K5SourceBackedSplitWitness`.
-6. `[ ]` Decide whether to generalize immediately to all fixed `k >= 5` or keep `k = 5` as the
+5. `[x]` Package the result as `K5SourceBackedSplitWitness`.
+   - Implemented in `Problem142Literature.lean`, with gap-layer alias
+     `K5SourceBackedSplitGap` in `Problem142Gap.lean`.
+6. `[x]` Decide whether to generalize immediately to all fixed `k >= 5` or keep `k = 5` as the
    live toy-model branch.
+   - Decision: keep `k = 5` as the live toy-model branch for now.
 
 ## Practical Verdict
 
@@ -230,4 +240,11 @@ but rather
 
 ```math
 \text{replace the `k >= 5` template family by the published stretched-exponential upper scale.}
+```
+
+Current active endpoint after this cycle:
+
+```text
+source-backed split control for k = 5,
+with future family generalization postponed until the lower side is imported honestly.
 ```
