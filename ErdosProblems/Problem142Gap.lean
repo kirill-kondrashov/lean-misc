@@ -123,6 +123,78 @@ def mainSplitGap_of_instances [K3UpperProfileWitnessImported] [K4UpperProfileWit
     [Kge5LowerProfileWitnessImported] : MainSplitGap :=
   { upper := mainUpperGap_of_instances, lower := mainLowerGap_of_instances }
 
+/-- The strengthened lower-import literature layer already packages an ordinary split gap:
+upper witnesses come from its inherited rate assumptions, while the `k = 4` and `k ≥ 5` lower
+interfaces come from the dedicated lower-import assumptions. -/
+noncomputable def mainSplitGap_of_literatureLowerImportAssumptions
+    [h : LiteratureLowerImportAssumptions] : MainSplitGap := by
+  letI : K3UpperProfileWitnessImported := k3UpperProfileWitnessImported_of_literatureRateAssumptions
+  letI : K4UpperProfileWitnessImported := k4UpperProfileWitnessImported_of_literatureRateAssumptions
+  letI : Kge5UpperProfileWitnessImported := kge5UpperProfileWitnessImported_of_literatureRateAssumptions
+  letI : K3BehrendLowerProfileWitnessImported := k3BehrendLowerProfileWitnessImported_of_literatureRateAssumptions
+  letI : K4LowerProfileWitnessImported := k4LowerProfileWitnessImported_of_literatureLowerImportAssumptions
+  letI : Kge5LowerProfileWitnessImported :=
+    kge5LowerProfileWitnessImported_of_literatureLowerImportAssumptions
+  exact mainSplitGap_of_instances
+
+/-- All split-gap consequences follow from `LiteratureLowerImportAssumptions`.
+This is the honest currently available endpoint before any matched-profile coupling theorem for
+`k = 4` or `k ≥ 5`. -/
+theorem split_gap_data_of_literatureLowerImportAssumptions
+    [h : LiteratureLowerImportAssumptions] :
+    (∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142.variants.upper k) ∧
+    (∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+      (fun N : ℕ => C * (N : ℝ) * Real.exp (-c * Real.sqrt (Real.log (N + 2)))) =O[Filter.atTop]
+        (fun N => (r 3 N : ℝ))) ∧
+    (∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+      (fun N : ℕ => C * (N : ℝ) / (Real.log (N + 2)) ^ c) =O[Filter.atTop]
+        (fun N => (r 4 N : ℝ))) ∧
+    (∀ ⦃k : ℕ⦄, 5 ≤ k → ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+      (fun N : ℕ => C * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ c) =O[Filter.atTop]
+        (fun N => (r k N : ℝ))) ∧
+    (∃ cL CL β cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < β ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[Filter.atTop]
+          (fun N => (r 3 N : ℝ)) ∧
+        (fun N => (r 3 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ β))) ∧
+    (∃ cL CL cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) / (Real.log (N + 2)) ^ cL) =O[Filter.atTop]
+          (fun N => (r 4 N : ℝ)) ∧
+        (fun N => (r 4 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) / (Real.log (N + 2)) ^ cU)) ∧
+    (∀ ⦃k : ℕ⦄, 5 ≤ k → ∃ cL CL cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ cL) =O[Filter.atTop]
+          (fun N => (r k N : ℝ)) ∧
+        (fun N => (r k N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ cU)) := by
+  exact split_gap_data_of_main_split_gap (mainSplitGap_of_literatureLowerImportAssumptions (h := h))
+
+/-- Gap-layer alias for the strongest currently source-backed `k = 4` split surface. -/
+abbrev K4SourceBackedSplitGap : Type := K4SourceBackedSplitWitness
+
+/-- The strengthened lower-import literature layer already instantiates the honest local
+`k = 4` split surface. -/
+noncomputable def k4SourceBackedSplitGap_of_literatureLowerImportAssumptions
+    [h : LiteratureLowerImportAssumptions] :
+    K4SourceBackedSplitGap :=
+  k4SourceBackedSplitWitness_of_literatureLowerImportAssumptions
+
+/-- Branch-local `k = 4` split data follow directly from the dedicated source-backed split
+package extracted from `LiteratureLowerImportAssumptions`. -/
+theorem k4_split_data_of_literatureLowerImportAssumptions
+    [h : LiteratureLowerImportAssumptions] :
+    ∃ cL CL cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) / (Real.log (N + 2)) ^ cL) =O[Filter.atTop]
+          (fun N => (r 4 N : ℝ)) ∧
+        (fun N => (r 4 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) / (Real.log (N + 2)) ^ cU) := by
+  exact k4_mixed_two_sided_profile_of_sourceBackedSplitWitness
+    (k4SourceBackedSplitGap_of_literatureLowerImportAssumptions (h := h))
+
 /-- Gap-layer alias for the strongest currently source-backed `k = 3` split surface. -/
 abbrev K3SourceBackedSplitGap : Type := K3SourceBackedSplitWitness
 
@@ -263,6 +335,194 @@ noncomputable def mainK3ResolvedSplitGap_of_mainK3ResolvedGap
   letI : Kge5ProfileWitnessImported := hGap.kge5
   exact mainK3ResolvedSplitGap_of_instances hGap.k3
 
+/-- Further asymmetric split-gap packaging after the honest `k = 4` pivot:
+`k = 3` and `k = 4` are fixed by source-backed split packages, while `k ≥ 5`
+still uses the ordinary split upper/lower interfaces. -/
+structure Problem142K34ResolvedSplitImportedWitnessBundle where
+  k3 : K3SourceBackedSplitGap
+  k4 : K4SourceBackedSplitGap
+  kge5Upper : Kge5UpperProfileWitnessImported
+  kge5Lower : Kge5LowerProfileWitnessImported
+
+/-- Active asymmetric split-gap surface: `k = 3` and `k = 4` fixed honestly, `k ≥ 5` still split. -/
+abbrev MainK34ResolvedSplitGap : Type := Problem142K34ResolvedSplitImportedWitnessBundle
+
+/-- Package the further asymmetric split-gap directly from existing interfaces. -/
+def mainK34ResolvedSplitGap_of_instances (hK3 : K3SourceBackedSplitGap) (hK4 : K4SourceBackedSplitGap)
+    [Kge5UpperProfileWitnessImported] [Kge5LowerProfileWitnessImported] :
+    MainK34ResolvedSplitGap :=
+  { k3 := hK3
+    k4 := hK4
+    kge5Upper := inferInstance
+    kge5Lower := inferInstance }
+
+/-- Upgrade the `k = 3`-resolved split surface to the `k = 3,4`-resolved split surface once
+an explicit source-backed `k = 4` split witness is supplied. -/
+def mainK34ResolvedSplitGap_of_mainK3ResolvedSplitGap_and_k4SourceBackedSplitGap
+    (hSplit : MainK3ResolvedSplitGap) (hK4 : K4SourceBackedSplitGap) :
+    MainK34ResolvedSplitGap :=
+  { k3 := hSplit.k3
+    k4 := hK4
+    kge5Upper := hSplit.kge5Upper
+    kge5Lower := hSplit.kge5Lower }
+
+/-- Upgrade an ordinary split-gap bundle directly to the `k = 3,4`-resolved split surface once
+explicit source-backed `k = 3` and `k = 4` split witnesses are supplied. -/
+def mainK34ResolvedSplitGap_of_mainSplitGap_and_sourceBackedSplitGaps
+    (hSplit : MainSplitGap) (hK3 : K3SourceBackedSplitGap) (hK4 : K4SourceBackedSplitGap) :
+    MainK34ResolvedSplitGap :=
+  { k3 := hK3
+    k4 := hK4
+    kge5Upper := hSplit.upper.kge5
+    kge5Lower := hSplit.lower.kge5 }
+
+/-- The current literature-side source-backed assumptions already instantiate the active
+`k = 3,4`-resolved split surface: `k = 3` via the explicit Kelley-Meka `β = 1/12` route,
+`k = 4` via the lower-import split route, and `k ≥ 5` via the inherited split interfaces from
+`LiteratureLowerImportAssumptions`. -/
+noncomputable def mainK34ResolvedSplitGap_of_literatureK3OneTwelfth_and_lowerImportAssumptions
+    [h3 : LiteratureK3OneTwelfthSourceAssumptions] [hLower : LiteratureLowerImportAssumptions] :
+    MainK34ResolvedSplitGap := by
+  let hK3 := k3SourceBackedSplitGap_of_literatureK3OneTwelfthSourceAssumptions (h := h3)
+  let hK4 := k4SourceBackedSplitGap_of_literatureLowerImportAssumptions (h := hLower)
+  letI : Kge5UpperProfileWitnessImported :=
+    kge5UpperProfileWitnessImported_of_literatureRateAssumptions
+      (h := hLower.toLiteratureRateAssumptions)
+  letI : Kge5LowerProfileWitnessImported :=
+    kge5LowerProfileWitnessImported_of_literatureLowerImportAssumptions
+      (h := hLower)
+  exact mainK34ResolvedSplitGap_of_instances hK3 hK4
+
+/-- Forget the distinguished source-backed `k = 3,4` packaging and recover the ordinary split-gap
+surface. This keeps all split-gap consequences reusable after the `k = 4` pivot. -/
+noncomputable def mainSplitGap_of_mainK34ResolvedSplitGap
+    (hGap : MainK34ResolvedSplitGap) :
+    MainSplitGap := by
+  letI : K3UpperProfileWitnessImported := ⟨hGap.k3.upper⟩
+  letI : K3BehrendLowerProfileWitnessImported := ⟨hGap.k3.lower⟩
+  letI : K4UpperProfileWitnessImported := ⟨hGap.k4.upper⟩
+  letI : K4LowerProfileWitnessImported := ⟨hGap.k4.lower⟩
+  letI : Kge5UpperProfileWitnessImported := hGap.kge5Upper
+  letI : Kge5LowerProfileWitnessImported := hGap.kge5Lower
+  exact mainSplitGap_of_instances
+
+/-- All ordinary split-gap consequences remain available from the asymmetric `k = 3,4`-resolved
+split surface. -/
+theorem split_gap_data_of_mainK34ResolvedSplitGap
+    (hGap : MainK34ResolvedSplitGap) :
+    (∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142.variants.upper k) ∧
+    (∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+      (fun N : ℕ => C * (N : ℝ) * Real.exp (-c * Real.sqrt (Real.log (N + 2)))) =O[Filter.atTop]
+        (fun N => (r 3 N : ℝ))) ∧
+    (∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+      (fun N : ℕ => C * (N : ℝ) / (Real.log (N + 2)) ^ c) =O[Filter.atTop]
+        (fun N => (r 4 N : ℝ))) ∧
+    (∀ ⦃k : ℕ⦄, 5 ≤ k → ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+      (fun N : ℕ => C * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ c) =O[Filter.atTop]
+        (fun N => (r k N : ℝ))) ∧
+    (∃ cL CL β cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < β ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[Filter.atTop]
+          (fun N => (r 3 N : ℝ)) ∧
+        (fun N => (r 3 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ β))) ∧
+    (∃ cL CL cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) / (Real.log (N + 2)) ^ cL) =O[Filter.atTop]
+          (fun N => (r 4 N : ℝ)) ∧
+        (fun N => (r 4 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) / (Real.log (N + 2)) ^ cU)) ∧
+    (∀ ⦃k : ℕ⦄, 5 ≤ k → ∃ cL CL cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ cL) =O[Filter.atTop]
+          (fun N => (r k N : ℝ)) ∧
+        (fun N => (r k N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ cU)) := by
+  exact split_gap_data_of_main_split_gap (mainSplitGap_of_mainK34ResolvedSplitGap hGap)
+
+/-- All split-gap consequences on the active `k = 3,4`-resolved route follow directly from the
+current source-backed literature-side assumption layers. -/
+theorem split_gap_data_of_literatureK3OneTwelfth_and_lowerImportAssumptions
+    [h3 : LiteratureK3OneTwelfthSourceAssumptions] [hLower : LiteratureLowerImportAssumptions] :
+    (∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142.variants.upper k) ∧
+    (∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+      (fun N : ℕ => C * (N : ℝ) * Real.exp (-c * Real.sqrt (Real.log (N + 2)))) =O[Filter.atTop]
+        (fun N => (r 3 N : ℝ))) ∧
+    (∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+      (fun N : ℕ => C * (N : ℝ) / (Real.log (N + 2)) ^ c) =O[Filter.atTop]
+        (fun N => (r 4 N : ℝ))) ∧
+    (∀ ⦃k : ℕ⦄, 5 ≤ k → ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+      (fun N : ℕ => C * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ c) =O[Filter.atTop]
+        (fun N => (r k N : ℝ))) ∧
+    (∃ cL CL β cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < β ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[Filter.atTop]
+          (fun N => (r 3 N : ℝ)) ∧
+        (fun N => (r 3 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ β))) ∧
+    (∃ cL CL cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) / (Real.log (N + 2)) ^ cL) =O[Filter.atTop]
+          (fun N => (r 4 N : ℝ)) ∧
+        (fun N => (r 4 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) / (Real.log (N + 2)) ^ cU)) ∧
+    (∀ ⦃k : ℕ⦄, 5 ≤ k → ∃ cL CL cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ cL) =O[Filter.atTop]
+          (fun N => (r k N : ℝ)) ∧
+        (fun N => (r k N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ cU)) := by
+  exact split_gap_data_of_mainK34ResolvedSplitGap
+    (mainK34ResolvedSplitGap_of_literatureK3OneTwelfth_and_lowerImportAssumptions
+      (h3 := h3) (hLower := hLower))
+
+/-- The `k = 3,4`-resolved split surface still yields the earlier `k = 3`-resolved split surface
+once the `k = 4` split package is forgotten back to ordinary split witnesses. -/
+noncomputable def mainK3ResolvedSplitGap_of_mainK34ResolvedSplitGap
+    (hGap : MainK34ResolvedSplitGap) :
+    MainK3ResolvedSplitGap := by
+  letI : K4UpperProfileWitnessImported := ⟨hGap.k4.upper⟩
+  letI : K4LowerProfileWitnessImported := ⟨hGap.k4.lower⟩
+  letI : Kge5UpperProfileWitnessImported := hGap.kge5Upper
+  letI : Kge5LowerProfileWitnessImported := hGap.kge5Lower
+  exact mainK3ResolvedSplitGap_of_instances hGap.k3
+
+/-- Further asymmetric downstream gap packaging after the honest `k = 4` pivot:
+`k = 3` and `k = 4` stay at source-backed split strength, while only `k ≥ 5`
+is promoted to matched-profile strength. -/
+structure Problem142K34ResolvedImportedWitnessBundle where
+  k3 : K3SourceBackedSplitGap
+  k4 : K4SourceBackedSplitGap
+  kge5 : Kge5ProfileWitnessImported
+
+/-- Active asymmetric downstream gap surface after resolving `k = 3` and `k = 4`
+only to split strength. -/
+abbrev MainK34ResolvedGap : Type := Problem142K34ResolvedImportedWitnessBundle
+
+/-- Any `k = 3,4`-resolved downstream gap bundle still provides all `k ≥ 3` upper variants. -/
+noncomputable def mainUpperGap_of_mainK34ResolvedGap
+    (hGap : MainK34ResolvedGap) :
+    MainUpperGap := by
+  letI : K3UpperProfileWitnessImported := ⟨hGap.k3.upper⟩
+  letI : K4UpperProfileWitnessImported := ⟨hGap.k4.upper⟩
+  letI : Kge5ProfileWitnessImported := hGap.kge5
+  exact mainUpperGap_of_instances
+
+/-- Consequently, the `k = 3,4`-resolved downstream gap surface still yields all upper
+best-known consequences. -/
+theorem upper_variant_of_mainK34ResolvedGap
+    (hGap : MainK34ResolvedGap) :
+    ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142.variants.upper k :=
+  upper_variant_of_main_upper_gap (mainUpperGap_of_mainK34ResolvedGap hGap)
+
+/-- Any `k = 3,4`-resolved downstream gap bundle can be forgotten back to the corresponding
+split surface. This keeps the new interface compatible with ordinary split-gap consequences. -/
+noncomputable def mainK34ResolvedSplitGap_of_mainK34ResolvedGap
+    (hGap : MainK34ResolvedGap) :
+    MainK34ResolvedSplitGap := by
+  letI : Kge5ProfileWitnessImported := hGap.kge5
+  exact mainK34ResolvedSplitGap_of_instances hGap.k3 hGap.k4
+
 /-- Bundle of imported witness interfaces that currently carry the unresolved
 mathematical content behind the #142 solution outline. -/
 structure Problem142ImportedWitnessBundle where
@@ -393,6 +653,38 @@ noncomputable def mainK3ResolvedGap_of_mainSplitGap_and_k3SourceBackedSplitGap_a
     MainK3ResolvedGap :=
   mainK3ResolvedGap_of_mainK3ResolvedSplitGap_and_assumptions
     (mainK3ResolvedSplitGap_of_mainSplitGap_and_k3SourceBackedSplitGap hSplit hK3)
+    hCoupling
+
+/-- Remaining coupling-assumption layer after fixing `k = 3` and `k = 4` honestly:
+only the `k ≥ 5` branch remains unresolved. -/
+structure K34ResolvedSplitGapToMainK34ResolvedGapAssumptions where
+  kge5_profile_witness_of_split : CouplingTargetKge5
+
+/-- Under the further asymmetric post-pivot assumptions, the `k = 3,4`-resolved split gap can be
+promoted to the corresponding downstream gap surface. -/
+noncomputable def mainK34ResolvedGap_of_mainK34ResolvedSplitGap_and_assumptions
+    (hSplit : MainK34ResolvedSplitGap)
+    (hCoupling : K34ResolvedSplitGapToMainK34ResolvedGapAssumptions) :
+    MainK34ResolvedGap := by
+  letI : Kge5UpperProfileWitnessImported := hSplit.kge5Upper
+  letI : Kge5LowerProfileWitnessImported := hSplit.kge5Lower
+  refine
+    { k3 := hSplit.k3
+      k4 := hSplit.k4
+      kge5 := by
+        refine { kge5_profile_witness := ?_ }
+        intro k hk
+        exact hCoupling.kge5_profile_witness_of_split hk }
+
+/-- Minimal consumer-side replacement after the `k = 4` pivot:
+take an ordinary split-gap bundle, replace the `k = 3` and `k = 4` branches by the honest
+source-backed split packages, and promote only the `k ≥ 5` branch under its coupling assumption. -/
+noncomputable def mainK34ResolvedGap_of_mainSplitGap_and_sourceBackedSplitGaps_and_assumptions
+    (hSplit : MainSplitGap) (hK3 : K3SourceBackedSplitGap) (hK4 : K4SourceBackedSplitGap)
+    (hCoupling : K34ResolvedSplitGapToMainK34ResolvedGapAssumptions) :
+    MainK34ResolvedGap :=
+  mainK34ResolvedGap_of_mainK34ResolvedSplitGap_and_assumptions
+    (mainK34ResolvedSplitGap_of_mainSplitGap_and_sourceBackedSplitGaps hSplit hK3 hK4)
     hCoupling
 
 /-- Minimal coupling-assumption layer needed to reconstruct the strong full-gap witnesses from

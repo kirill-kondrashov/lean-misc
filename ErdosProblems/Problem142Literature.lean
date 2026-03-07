@@ -375,6 +375,28 @@ noncomputable abbrev erdos_problem_142_explicit_kge5_upper_profile_witness_impor
     Kge5UpperProfileWitness k hk :=
   h.kge5_upper_profile_witness hk
 
+/-- Branch-local source-backed upper-profile witness for `k = 5` on the stretched-exponential
+`log log` scale. This is the upper-side replacement surface on the new `k ≥ 5` pivot route. -/
+structure K5UpperStretchedexpProfileWitness where
+  c : ℝ
+  C : ℝ
+  hc : 0 < c
+  hC : 0 < C
+  hUpper :
+    (fun N => (r 5 N : ℝ)) =O[atTop]
+      (fun N : ℕ => C * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ c))
+
+/-- Imported branch-local stretched-exponential upper witness for `k = 5`. -/
+class K5UpperStretchedexpProfileWitnessImported where
+  k5_upper_stretchedexp_profile_witness : K5UpperStretchedexpProfileWitness
+
+/-- Imported branch-local stretched-exponential upper witness for `k = 5`
+(from a registered assumption instance). -/
+noncomputable abbrev erdos_problem_142_explicit_k5_upper_stretchedexp_profile_witness_imported
+    [h : K5UpperStretchedexpProfileWitnessImported] :
+    K5UpperStretchedexpProfileWitness :=
+  h.k5_upper_stretchedexp_profile_witness
+
 /-- Any two-sided `k = 3` witness provides an upper-only witness. -/
 noncomputable instance k3UpperProfileWitnessImported_of_k3ProfileWitnessImported
     [K3ProfileWitnessImported] : K3UpperProfileWitnessImported where
@@ -452,6 +474,26 @@ structure K3SourceBackedSplitWitness where
     letI : K3BehrendLowerProfileWitnessImported := ⟨lower⟩
     k3_behrend_lower_template =O[atTop] k3_upper_profile
 
+/-- First-class source-backed `k = 4` split surface:
+one lower polylog witness and one upper polylog witness, without any claim that their exponents
+match. This is the strongest honest local `k = 4` packaging available before a profile-coupling
+theorem is proved. -/
+structure K4SourceBackedSplitWitness where
+  lower : K4LowerProfileWitness
+  upper : K4UpperProfileWitness
+
+/-- Mixed two-sided `k = 4` profile data extracted from a source-backed split witness. -/
+theorem k4_mixed_two_sided_profile_of_sourceBackedSplitWitness
+    (h : K4SourceBackedSplitWitness) :
+    ∃ cL CL cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) / (Real.log (N + 2)) ^ cL) =O[atTop]
+          (fun N => (r 4 N : ℝ)) ∧
+        (fun N => (r 4 N : ℝ)) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) / (Real.log (N + 2)) ^ cU) := by
+  exact ⟨h.lower.c, h.lower.C, h.upper.c, h.upper.C, h.lower.hc, h.lower.hC, h.upper.hc,
+    h.upper.hC, h.lower.hLower, h.upper.hUpper⟩
+
 /-- Fixed upper-profile candidate for the `k = 4` branch. -/
 noncomputable def k4_upper_profile [K4UpperProfileWitnessImported] : ℕ → ℝ :=
   fun N =>
@@ -464,6 +506,13 @@ noncomputable def kge5_upper_profile [Kge5UpperProfileWitnessImported]
   fun N =>
     (erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk).C * (N : ℝ) /
       (Real.log (Real.log (N + 3))) ^ (erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk).c
+
+/-- Fixed source-backed stretched-exponential upper-profile candidate for the `k = 5` branch. -/
+noncomputable def k5_stretchedexp_upper_profile [K5UpperStretchedexpProfileWitnessImported] : ℕ → ℝ :=
+  fun N =>
+    erdos_problem_142_explicit_k5_upper_stretchedexp_profile_witness_imported.C * (N : ℝ) *
+      Real.exp (-(Real.log (Real.log (N + 3))) ^
+        erdos_problem_142_explicit_k5_upper_stretchedexp_profile_witness_imported.c)
 
 /-- Upper variant for `k = 3` from an imported upper-profile witness. -/
 theorem upper_variant_three_of_upper_profile_witness [K3UpperProfileWitnessImported] :
@@ -499,8 +548,21 @@ theorem upper_variant_ge_five_of_upper_profile_witness [Kge5UpperProfileWitnessI
       (fun N : ℕ =>
         (erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk).C * (N : ℝ) /
           (Real.log (Real.log (N + 3))) ^
-            (erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk).c)
+          (erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk).c)
   exact (erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk).hUpper
+
+/-- The branch-local stretched-exponential `k = 5` witness yields the corresponding upper variant. -/
+theorem upper_variant_five_of_stretchedexp_upper_profile_witness
+    [K5UpperStretchedexpProfileWitnessImported] :
+    erdos_142.variants.upper 5 := by
+  refine ⟨k5_stretchedexp_upper_profile, ?_⟩
+  change
+    (fun N => (r 5 N : ℝ)) =O[atTop]
+      (fun N : ℕ =>
+        erdos_problem_142_explicit_k5_upper_stretchedexp_profile_witness_imported.C * (N : ℝ) *
+          Real.exp (-(Real.log (Real.log (N + 3))) ^
+            erdos_problem_142_explicit_k5_upper_stretchedexp_profile_witness_imported.c))
+  exact erdos_problem_142_explicit_k5_upper_stretchedexp_profile_witness_imported.hUpper
 
 /-- Aggregated upper-variant consequence for all `k ≥ 3` from branch-local upper witnesses. -/
 theorem upper_variant_of_upper_profile_witnesses_for_all_k_ge_three
@@ -1041,6 +1103,104 @@ theorem split_gap_k4_profile_dominance_target_of_exponent_order
 
 /-- Explicit dominance bridge needed to turn split upper/lower data for `k ≥ 5` into the same profile
 template used by `Kge5ProfileWitness`. -/
+theorem kge5_iteratedlog_template_dominance_of_exponent_le
+    {cL CL cU CU : ℝ} (hCL : 0 < CL) (hCU : 0 < CU) (hExp : cL ≤ cU) :
+    (fun N : ℕ => CU * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ cU) =O[atTop]
+      (fun N : ℕ => CL * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ cL) := by
+  refine Asymptotics.IsBigO.of_bound (CU / CL) ?_
+  have hShift : Tendsto (fun N : ℕ => (N : ℝ) + 3) atTop atTop := by
+    simpa using tendsto_natCast_atTop_atTop.atTop_add tendsto_const_nhds
+  have hLog : Tendsto (fun N : ℕ => Real.log ((N : ℝ) + 3)) atTop atTop := by
+    exact Real.tendsto_log_atTop.comp hShift
+  have hLogLog : Tendsto (fun N : ℕ => Real.log (Real.log ((N : ℝ) + 3))) atTop atTop := by
+    exact Real.tendsto_log_atTop.comp hLog
+  have hEventually_ge_one :
+      ∀ᶠ N : ℕ in atTop, 1 ≤ Real.log (Real.log ((N : ℝ) + 3)) := by
+    exact tendsto_atTop.mp hLogLog 1
+  filter_upwards [hEventually_ge_one] with N hN
+  let L : ℝ := Real.log (Real.log ((N : ℝ) + 3))
+  have hL_ge_one : 1 ≤ L := hN
+  have hL_pos : 0 < L := lt_of_lt_of_le zero_lt_one hL_ge_one
+  have hPow : L ^ cL ≤ L ^ cU := Real.rpow_le_rpow_of_exponent_le hL_ge_one hExp
+  have hNum_nonneg : 0 ≤ CU * (N : ℝ) := by
+    positivity
+  have hDenL_pos : 0 < L ^ cL := Real.rpow_pos_of_pos hL_pos _
+  have hUpper_nonneg : 0 ≤ CU * (N : ℝ) / L ^ cU := by
+    positivity
+  have hLower_nonneg : 0 ≤ CL * (N : ℝ) / L ^ cL := by
+    positivity
+  rw [Real.norm_of_nonneg hUpper_nonneg]
+  calc
+    CU * (N : ℝ) / L ^ cU ≤ CU * (N : ℝ) / L ^ cL := by
+      exact div_le_div_of_nonneg_left hNum_nonneg hDenL_pos hPow
+    _ = (CU / CL) * (CL * (N : ℝ) / L ^ cL) := by
+      field_simp [hCL.ne', hDenL_pos.ne']
+    _ ≤ (CU / CL) * ‖CL * (N : ℝ) / L ^ cL‖ := by
+      simp [Real.norm_of_nonneg hLower_nonneg]
+
+/-- Publication-backed incompatibility lemma for the old `k ≥ 5` placeholder route:
+stretched-exponential `log log` decay is asymptotically smaller than any reciprocal iterated-log
+power. This is the analytic reason the old iterated-log lower template cannot stay on the active
+route once the stronger Leng-Sah-Sawhney upper scale is imported. -/
+theorem kge5_stretchedexp_loglog_decay_isLittleO_iteratedlog_neg_rpow
+    {c C : ℝ} (hc : 0 < c) :
+    (fun N : ℕ => Real.exp (-(Real.log (Real.log (N + 3))) ^ c)) =o[atTop]
+      (fun N : ℕ => (Real.log (Real.log (N + 3))) ^ (-C)) := by
+  have hShift : Tendsto (fun N : ℕ => (N : ℝ) + 3) atTop atTop := by
+    simpa using tendsto_natCast_atTop_atTop.atTop_add tendsto_const_nhds
+  have hLog : Tendsto (fun N : ℕ => Real.log ((N : ℝ) + 3)) atTop atTop := by
+    exact Real.tendsto_log_atTop.comp hShift
+  have hLogLog : Tendsto (fun N : ℕ => Real.log (Real.log ((N : ℝ) + 3))) atTop atTop := by
+    exact Real.tendsto_log_atTop.comp hLog
+  have hScaled :
+      Tendsto (fun N : ℕ => (Real.log (Real.log ((N : ℝ) + 3))) ^ c) atTop atTop := by
+    exact (tendsto_rpow_atTop hc).comp hLogLog
+  have hLittleBase0 :
+      ((fun x : ℝ => Real.exp (-1 * x)) ∘
+          fun N : ℕ => (Real.log (Real.log ((N : ℝ) + 3))) ^ c) =o[atTop]
+      ((fun x : ℝ => x ^ (-C / c)) ∘
+          fun N : ℕ => (Real.log (Real.log ((N : ℝ) + 3))) ^ c) :=
+    (isLittleO_exp_neg_mul_rpow_atTop one_pos (-C / c)).comp_tendsto hScaled
+  have hLittleBase :
+      ((fun x : ℝ => Real.exp (-x)) ∘
+          fun N : ℕ => (Real.log (Real.log ((N : ℝ) + 3))) ^ c) =o[atTop]
+      ((fun x : ℝ => x ^ (-C / c)) ∘
+          fun N : ℕ => (Real.log (Real.log ((N : ℝ) + 3))) ^ c) :=
+    by simpa [one_mul] using hLittleBase0
+  have hNum :
+      ((fun x : ℝ => Real.exp (-x)) ∘
+          fun N : ℕ => (Real.log (Real.log ((N : ℝ) + 3))) ^ c) =ᶠ[atTop]
+      (fun N : ℕ => Real.exp (-(Real.log (Real.log ((N : ℝ) + 3))) ^ c)) := by
+    exact Eventually.of_forall fun _ => by simp
+  have hDen :
+      ((fun x : ℝ => x ^ (-C / c)) ∘
+          fun N : ℕ => (Real.log (Real.log ((N : ℝ) + 3))) ^ c) =ᶠ[atTop]
+      (fun N : ℕ => (Real.log (Real.log ((N : ℝ) + 3))) ^ (-C)) := by
+    have hEventually_ge_one :
+        ∀ᶠ N : ℕ in atTop, 1 ≤ Real.log (Real.log ((N : ℝ) + 3)) := by
+      exact tendsto_atTop.mp hLogLog 1
+    filter_upwards [hEventually_ge_one] with N hN
+    have hL_nonneg : 0 ≤ Real.log (Real.log ((N : ℝ) + 3)) := by
+      linarith
+    change (Real.log (Real.log ((N : ℝ) + 3)) ^ c) ^ (-C / c) =
+      (Real.log (Real.log ((N : ℝ) + 3))) ^ (-C)
+    rw [← Real.rpow_mul hL_nonneg]
+    have hMul : c * (-C / c) = -C := by
+      field_simp [hc.ne']
+    simpa [hMul]
+  have hDenBig :
+      ((fun x : ℝ => x ^ (-C / c)) ∘
+          fun N : ℕ => (Real.log (Real.log ((N : ℝ) + 3))) ^ c) =O[atTop]
+      (fun N : ℕ => (Real.log (Real.log ((N : ℝ) + 3))) ^ (-C)) := by
+    exact hDen.trans_isBigO (Asymptotics.isBigO_refl _ _)
+  exact (hNum.symm.trans_isLittleO hLittleBase).trans_isBigO hDenBig
+
+def kge5_exponent_order_target : Prop :=
+  ∀ [Kge5UpperProfileWitnessImported] [Kge5LowerProfileWitnessImported] ⦃k : ℕ⦄
+    (hk : 5 ≤ k),
+    (erdos_problem_142_kge5_lower_profile_witness_imported hk).c ≤
+      (erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk).c
+
 def split_gap_kge5_profile_dominance_target : Prop :=
   ∀ [Kge5UpperProfileWitnessImported] [Kge5LowerProfileWitnessImported] ⦃k : ℕ⦄
     (hk : 5 ≤ k),
@@ -1052,6 +1212,20 @@ def split_gap_kge5_profile_dominance_target : Prop :=
       (erdos_problem_142_kge5_lower_profile_witness_imported hk).C * (N : ℝ) /
         (Real.log (Real.log (N + 3))) ^
           (erdos_problem_142_kge5_lower_profile_witness_imported hk).c)
+
+/-- The `k ≥ 5` split-gap dominance target follows from the generic iterated-log comparison lemma
+once the literature/import layer supplies the exponent order relation. -/
+theorem split_gap_kge5_profile_dominance_target_of_exponent_order
+    (hExp : kge5_exponent_order_target) :
+    split_gap_kge5_profile_dominance_target := by
+  intro _ _ k hk
+  let wU : Kge5UpperProfileWitness k hk := erdos_problem_142_explicit_kge5_upper_profile_witness_imported hk
+  let wL : Kge5LowerProfileWitness k hk := erdos_problem_142_kge5_lower_profile_witness_imported hk
+  have hDom :
+      (fun N : ℕ => wU.C * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ wU.c) =O[atTop]
+        (fun N : ℕ => wL.C * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ wL.c) :=
+    kge5_iteratedlog_template_dominance_of_exponent_le wL.hC wU.hC (hExp hk)
+  simpa [wU, wL] using hDom
 
 /-- Import-ready branch coupling target for `k = 4`:
 from split upper/lower branch data to a full two-sided `K4ProfileWitness`. -/
@@ -1072,6 +1246,18 @@ class LiteratureLowerImportAssumptions : Prop extends LiteratureRateAssumptions 
   k4_polylog_lower_profile : import_targets.k4_polylog_lower_profile
   kge5_iteratedlog_lower_profile : import_targets.kge5_iteratedlog_lower_profile
 
+/-- Source-facing strengthened literature layer for the `k = 4` elimination route:
+it records not only split upper/lower polylog profile inputs, but also the exponent-order relation
+needed to compare them into one matched profile. -/
+class LiteratureK4ExponentOrderAssumptions : Prop extends LiteratureLowerImportAssumptions where
+  k4_exponent_order : import_targets.k4_exponent_order_target
+
+/-- Source-facing strengthened literature layer for the `k ≥ 5` elimination route:
+it records the family-wise exponent-order relation needed to compare the split iterated-log
+profiles into matched profiles. -/
+class LiteratureKge5ExponentOrderAssumptions : Prop extends LiteratureLowerImportAssumptions where
+  kge5_exponent_order : import_targets.kge5_exponent_order_target
+
 /-- Optional strengthened literature layer for the sharpened `k = 3` route:
 it records that the imported upper witness can be taken with exponent `β > 1/2`. -/
 class LiteratureK3ExponentGtHalfAssumptions : Prop extends LiteratureRateAssumptions where
@@ -1091,6 +1277,12 @@ exponent `β = 1/12`. -/
 class LiteratureK3OneTwelfthSourceAssumptions : Prop extends LiteratureRateAssumptions where
   k3_superpolylog_upper_profile_one_twelfth :
     bound_targets.k3_superpolylog_upper_profile_one_twelfth
+
+/-- Branch-local source-facing literature layer for the pivoted `k = 5` upper route:
+it records the stretched-exponential `\log\log` upper profile at `k = 5`. -/
+class LiteratureK5UpperStretchedexpSourceAssumptions : Prop where
+  k5_stretchedexp_loglog_upper_profile :
+    bound_targets.k5_stretchedexp_loglog_upper_profile
 
 /-- Expose the sharpened `k = 3` exponent-threshold target from the dedicated literature layer. -/
 theorem k3_upper_exponent_gt_half_target_of_literatureK3ExponentGtHalfAssumptions
@@ -1113,6 +1305,43 @@ theorem k3_superpolylog_upper_profile_of_literatureK3OneTwelfthSourceAssumptions
     bound_targets.k3_superpolylog_upper_profile := by
   exact bound_targets.k3_superpolylog_upper_profile_of_one_twelfth
     h.k3_superpolylog_upper_profile_one_twelfth
+
+/-- Expose the branch-local stretched-exponential `k = 5` upper target from its source-facing
+literature layer. -/
+theorem k5_stretchedexp_loglog_upper_profile_of_literatureK5UpperStretchedexpSourceAssumptions
+    [h : LiteratureK5UpperStretchedexpSourceAssumptions] :
+    bound_targets.k5_stretchedexp_loglog_upper_profile := by
+  exact h.k5_stretchedexp_loglog_upper_profile
+
+/-- Expose the `k = 4` exponent-order target from the strengthened literature layer. -/
+theorem k4_exponent_order_target_of_literatureK4ExponentOrderAssumptions
+    [h : LiteratureK4ExponentOrderAssumptions] :
+    import_targets.k4_exponent_order_target := by
+  exact h.k4_exponent_order
+
+/-- Under the strengthened `k = 4` literature-side exponent-order assumption, the split-gap
+dominance target for `k = 4` is no longer frontier debt. -/
+theorem split_gap_k4_profile_dominance_target_of_literatureK4ExponentOrderAssumptions
+    [h : LiteratureK4ExponentOrderAssumptions] :
+    import_targets.split_gap_k4_profile_dominance_target := by
+  exact import_targets.split_gap_k4_profile_dominance_target_of_exponent_order
+    h.k4_exponent_order
+
+/-- Expose the `k ≥ 5` exponent-order target from the strengthened literature layer. -/
+theorem kge5_exponent_order_target_of_literatureKge5ExponentOrderAssumptions
+    [h : LiteratureKge5ExponentOrderAssumptions] :
+    import_targets.kge5_exponent_order_target := by
+  exact @h.kge5_exponent_order
+
+/-- Under the strengthened `k ≥ 5` literature-side exponent-order assumption, the split-gap
+dominance target family for `k ≥ 5` is no longer frontier debt. -/
+theorem split_gap_kge5_profile_dominance_target_of_literatureKge5ExponentOrderAssumptions
+    [h : LiteratureKge5ExponentOrderAssumptions] :
+    import_targets.split_gap_kge5_profile_dominance_target := by
+  intro _ _ k hk
+  exact
+    import_targets.split_gap_kge5_profile_dominance_target_of_exponent_order
+      (@h.kge5_exponent_order) hk
 
 /-- Direct local `k = 3` coupling from imported split witnesses plus the sharp exponent threshold.
 This avoids the stronger universal-target packaging when a specific upper witness is already fixed. -/
@@ -1276,6 +1505,38 @@ theorem kge5_lower_import_target_of_imported_witness [Kge5LowerProfileWitnessImp
     import_targets.kge5_iteratedlog_lower_profile := by
   exact kge5_lower_profile_of_imported_witness
 
+/-- Noncomputable extraction of a `k = 4` lower-profile witness from
+`LiteratureLowerImportAssumptions`, via classical choice. -/
+noncomputable def k4LowerProfileWitness_of_literatureLowerImportAssumptions
+    [h : LiteratureLowerImportAssumptions] : K4LowerProfileWitness := by
+  classical
+  let hw : ∃ w : K4LowerProfileWitness, True := by
+    rcases h.k4_polylog_lower_profile with ⟨c, C, hc, hC, hLower⟩
+    refine ⟨{ c := c, C := C, hc := hc, hC := hC, hLower := hLower }, trivial⟩
+  exact Classical.choose hw
+
+/-- Noncomputable extraction of any fixed `k ≥ 5` lower-profile witness from
+`LiteratureLowerImportAssumptions`, via classical choice. -/
+noncomputable def kge5LowerProfileWitness_of_literatureLowerImportAssumptions
+    [h : LiteratureLowerImportAssumptions] {k : ℕ} (hk : 5 ≤ k) :
+    Kge5LowerProfileWitness k hk := by
+  classical
+  let hw : ∃ w : Kge5LowerProfileWitness k hk, True := by
+    rcases h.kge5_iteratedlog_lower_profile hk with ⟨c, C, hc, hC, hLower⟩
+    refine ⟨{ c := c, C := C, hc := hc, hC := hC, hLower := hLower }, trivial⟩
+  exact Classical.choose hw
+
+/-- `LiteratureLowerImportAssumptions` provide the `k = 4` lower-profile witness interface. -/
+noncomputable instance k4LowerProfileWitnessImported_of_literatureLowerImportAssumptions
+    [h : LiteratureLowerImportAssumptions] : K4LowerProfileWitnessImported where
+  k4_lower_profile_witness := k4LowerProfileWitness_of_literatureLowerImportAssumptions
+
+/-- `LiteratureLowerImportAssumptions` provide the `k ≥ 5` lower-profile witness family
+interface. -/
+noncomputable instance kge5LowerProfileWitnessImported_of_literatureLowerImportAssumptions
+    [h : LiteratureLowerImportAssumptions] : Kge5LowerProfileWitnessImported where
+  kge5_lower_profile_witness {_} hk := kge5LowerProfileWitness_of_literatureLowerImportAssumptions hk
+
 /-- Noncomputable extraction of a `k = 3` upper-profile witness from
 `LiteratureRateAssumptions`, via classical choice. -/
 noncomputable def k3UpperProfileWitness_of_literatureRateAssumptions
@@ -1306,6 +1567,17 @@ noncomputable def kge5UpperProfileWitness_of_literatureRateAssumptions
     refine ⟨{ c := c, C := C, hc := hc, hC := hC, hUpper := hUpper }, trivial⟩
   exact Classical.choose hw
 
+/-- Noncomputable extraction of the branch-local stretched-exponential `k = 5` upper witness from
+the dedicated source-facing literature layer. -/
+noncomputable def k5UpperStretchedexpProfileWitness_of_literatureK5UpperStretchedexpSourceAssumptions
+    [h : LiteratureK5UpperStretchedexpSourceAssumptions] :
+    K5UpperStretchedexpProfileWitness := by
+  classical
+  let hw : ∃ w : K5UpperStretchedexpProfileWitness, True := by
+    rcases h.k5_stretchedexp_loglog_upper_profile with ⟨c, C, hc, hC, hUpper⟩
+    refine ⟨{ c := c, C := C, hc := hc, hC := hC, hUpper := hUpper }, trivial⟩
+  exact Classical.choose hw
+
 /-- `LiteratureRateAssumptions` provide the `k = 3` upper-profile witness interface. -/
 noncomputable instance k3UpperProfileWitnessImported_of_literatureRateAssumptions
     [h : LiteratureRateAssumptions] : K3UpperProfileWitnessImported where
@@ -1320,6 +1592,23 @@ noncomputable instance k4UpperProfileWitnessImported_of_literatureRateAssumption
 noncomputable instance kge5UpperProfileWitnessImported_of_literatureRateAssumptions
     [h : LiteratureRateAssumptions] : Kge5UpperProfileWitnessImported where
   kge5_upper_profile_witness {_} hk := kge5UpperProfileWitness_of_literatureRateAssumptions hk
+
+/-- `LiteratureK5UpperStretchedexpSourceAssumptions` provide the branch-local stretched-exponential
+upper witness interface for `k = 5`. -/
+noncomputable instance k5UpperStretchedexpProfileWitnessImported_of_literatureK5UpperStretchedexpSourceAssumptions
+    [h : LiteratureK5UpperStretchedexpSourceAssumptions] :
+    K5UpperStretchedexpProfileWitnessImported where
+  k5_upper_stretchedexp_profile_witness :=
+    k5UpperStretchedexpProfileWitness_of_literatureK5UpperStretchedexpSourceAssumptions
+
+/-- The branch-local stretched-exponential source-facing `k = 5` literature layer already yields
+the corresponding `upper` variant. -/
+theorem upper_variant_five_of_literatureK5UpperStretchedexpSourceAssumptions
+    [h : LiteratureK5UpperStretchedexpSourceAssumptions] :
+    erdos_142.variants.upper 5 := by
+  letI : K5UpperStretchedexpProfileWitnessImported :=
+    k5UpperStretchedexpProfileWitnessImported_of_literatureK5UpperStretchedexpSourceAssumptions
+  exact upper_variant_five_of_stretchedexp_upper_profile_witness
 
 /-- Upper-variant consequences for all `k ≥ 3`, routed through upper-profile witness interfaces
 extracted from `LiteratureRateAssumptions`. -/
@@ -1473,6 +1762,15 @@ noncomputable def k3SourceBackedSplitWitness_of_literatureK3OneTwelfthSourceAssu
     change wU.β < (1 : ℝ) / 2
     exact hβw
   exact k3_behrend_lower_template_dominance_of_beta_lt_half hβ
+
+/-- The strengthened lower-import literature layer produces a first-class source-backed
+`k = 4` split witness: one lower polylog witness and one upper polylog witness, without any
+claimed coupling relation between their exponents. -/
+noncomputable def k4SourceBackedSplitWitness_of_literatureLowerImportAssumptions
+    [h : LiteratureLowerImportAssumptions] :
+    K4SourceBackedSplitWitness :=
+  { lower := k4LowerProfileWitness_of_literatureLowerImportAssumptions
+    upper := k4UpperProfileWitness_of_literatureRateAssumptions }
 
 /-- Under the stronger source-facing `β > 1/2` benchmark target, the repository can already build
 the full two-sided `k = 3` witness without any additional `k = 3` frontier axiom. -/

@@ -379,6 +379,13 @@ def kge5_iteratedlog_upper_profile : Prop :=
       (fun N => (r k N : ℝ)) =O[atTop]
         (fun N : ℕ => C * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ c)
 
+/-- Branch-local source-backed upper-profile target for `k = 5`:
+stretched-exponential decay in `log log N`, matching the Leng-Sah-Sawhney scale. -/
+def k5_stretchedexp_loglog_upper_profile : Prop :=
+  ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+    (fun N => (r 5 N : ℝ)) =O[atTop]
+      (fun N : ℕ => C * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ c))
+
 /-- Two-sided benchmark sandwich for `k = 3`: one lower profile and one upper profile. -/
 def k3_two_sided_sandwich_profile : Prop :=
   k3_behrend_lower_profile ∧ k3_superpolylog_upper_profile

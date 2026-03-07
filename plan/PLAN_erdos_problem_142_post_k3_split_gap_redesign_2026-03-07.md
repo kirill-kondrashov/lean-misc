@@ -8,8 +8,8 @@ matched-profile `β > 1 / 2` route.
 
 ## Progress Bar
 
-- Post-`k=3` split-gap redesign: `5 / 6` completed
-- Progress: `[#################---]` `83%`
+- Post-`k=3` split-gap redesign: `6 / 6` completed
+- Progress: `[####################]` `100%`
 
 ## Fixed Premises
 
@@ -107,11 +107,17 @@ matched-profile `β > 1 / 2` route.
      - the new asymmetric interface is now compatible with existing split-gap and upper-gap
        consequence surfaces.
 
-6. **Reassess theorem targets after the redesign** — `pending`
+6. **Reassess theorem targets after the redesign** — `completed`
    - Decide whether the new practical target should be:
      - a refined split theorem package,
      - a partially coupled theorem (`k=3` resolved, `k=4`/`k≥5` frontier),
      - or a renamed stronger conjectural surface replacing the current full-gap presentation.
+   - Outcome:
+     - the next practical target has now been upgraded further to the
+       `k=3,4`-split-resolved surface `MainK34ResolvedGap`,
+       leaving only `k≥5` as the active coupling frontier on the redesigned route.
+   - Follow-up file:
+     - `PLAN_erdos_problem_142_k34_split_resolved_redesign_2026-03-07.md`
 
 ## Blocked Planes To Eliminate
 
@@ -140,12 +146,9 @@ This redesign cycle succeeds if the next implementation patch can point to a dow
 where `k=3` is represented by `K3SourceBackedSplitGap` rather than by the failed matched-profile
 elimination route.
 
-## Immediate Implementation Target
+## Immediate Follow-Up
 
-Reassess the theorem targets after the redesign:
-
-- decide whether `MainK3ResolvedGap` should become the practical downstream target,
-- identify whether any legacy names around `MainTheoreticalGap` should now be marked more clearly as
-  stronger conjectural surfaces,
-- and decide whether the remaining active research frontier should be stated purely as the
-  `k=4` / `k≥5` coupling problem.
+- active downstream redesign file:
+  - `PLAN_erdos_problem_142_k34_split_resolved_redesign_2026-03-07.md`
+- active mathematical frontier on that route:
+  - matched-profile coupling for `k≥5`

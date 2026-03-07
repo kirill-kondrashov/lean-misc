@@ -114,7 +114,7 @@ make docs       # build API docs
 
 ## Erdős #142: current status and references
 
-- As of March 7, 2026, Problem #142 remains open; this repository keeps the full matched-profile route behind the temporary frontier axioms `Erdos142.splitGap_k3_upper_exponent_gt_half_frontier`, `Erdos142.splitGap_k4_profile_dominance_frontier`, and `Erdos142.splitGap_kge5_profile_dominance_frontier`, while the strongest honest local $k=3$ endpoint is now the source-backed split package `Erdos142.K3SourceBackedSplitGap`, built from Kelley-Meka's explicit $\beta = 1 / 12$ upper witness together with Behrend lower data and the true compatibility direction `k3_behrend_lower_template =O k3_upper_profile`.
+- As of March 7, 2026, Problem #142 remains open; this repository keeps the full matched-profile route behind the temporary frontier axioms `Erdos142.splitGap_k3_upper_exponent_gt_half_frontier`, `Erdos142.splitGap_k4_profile_dominance_frontier`, and `Erdos142.splitGap_kge5_profile_dominance_frontier`, while the active honest route now uses the source-backed split packages `Erdos142.K3SourceBackedSplitGap` and `Erdos142.K4SourceBackedSplitGap`, with practical downstream target `Erdos142.MainK34ResolvedGap`; on that active route, only the `k \ge 5` coupling branch remains unresolved.
 
 Exact formulation of Erdős Problem #142 in this repository:
 
@@ -144,7 +144,9 @@ What is already proven in this repository:
 - The formalization also proves the true $k = 3$ comparison in the source-backed direction,
   $L_3(N)=O(U_3(N))$, packaged as `lower_isBigO_upper`; see [ErdosProblems/Problem142Literature.lean#L453](./ErdosProblems/Problem142Literature.lean#L453).
 - This is exposed at the gap layer as `K3SourceBackedSplitGap`; see [ErdosProblems/Problem142Gap.lean#L127](./ErdosProblems/Problem142Gap.lean#L127).
-- Therefore, in the active post-pivot formalization, the remaining unresolved mathematical frontier is no longer the $k = 3$ branch. It is the higher-branch profile-matching content for $k = 4$ and for each fixed $k \ge 5$.
+- The $k = 4$ branch now also has a source-backed split package `K4SourceBackedSplitWitness`; see [ErdosProblems/Problem142Literature.lean](./ErdosProblems/Problem142Literature.lean).
+- This is exposed at the gap layer as `K4SourceBackedSplitGap`, and the active downstream target is now `MainK34ResolvedGap`; see [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean).
+- Therefore, on the active post-pivot route, the remaining unresolved mathematical frontier is no longer the $k = 3$ or $k = 4$ branch. It is only the profile-matching content for each fixed $k \ge 5$. The stronger off-path theorem $U_4(N)=O(L_4(N))$ is still blocked locally, but it is no longer the next required step on the active route.
 
 Progress toward a proof in this repository:
 
@@ -156,10 +158,10 @@ Progress toward a proof in this repository:
    ```
    under the imported exponent regime $\beta < 1/2$; the transport and comparison theorems are in [ErdosProblems/Problem142Literature.lean#L1078](./ErdosProblems/Problem142Literature.lean#L1078), [ErdosProblems/Problem142Literature.lean#L1151](./ErdosProblems/Problem142Literature.lean#L1151), and [ErdosProblems/Problem142Literature.lean#L1196](./ErdosProblems/Problem142Literature.lean#L1196).
 4. It packages that result into a first-class source-backed $k = 3$ split witness with explicit exponent $\beta = 1/12$; see [ErdosProblems/Problem142Literature.lean#L1391](./ErdosProblems/Problem142Literature.lean#L1391).
-5. It reorganizes the downstream gap so that $k = 3$ is no longer part of the active unresolved matched-profile frontier; the active post-pivot target is [ErdosProblems/Problem142Gap.lean#L239](./ErdosProblems/Problem142Gap.lean#L239), and the remaining coupling debt is isolated in [ErdosProblems/Problem142Gap.lean#L363](./ErdosProblems/Problem142Gap.lean#L363).
+5. It first reorganizes the downstream gap so that $k = 3$ is no longer part of the active unresolved matched-profile frontier, and then refines the route further so that both $k = 3$ and $k = 4$ remain only at split strength on the practical target `MainK34ResolvedGap`; in the current active route, only the `k \ge 5` coupling debt remains.
 6. It also proves that the old stronger $k = 3$ route would need an exponent threshold $\beta > 1/2$; see [ErdosProblems/Problem142Literature.lean#L1060](./ErdosProblems/Problem142Literature.lean#L1060). The current source-backed import does not provide that, so this route has been closed rather than left vague.
 
-The active missing mathematical theorems are now the higher-branch profile-matching statements.
+The active missing mathematical theorems are now the `k \ge 5` profile-matching statements on the practical route. The stronger `k = 4` matched-profile theorem remains blocked, but it is now an off-path strengthening target rather than the next required theorem.
 
 Definition of Landau asymptotic domination:
 
