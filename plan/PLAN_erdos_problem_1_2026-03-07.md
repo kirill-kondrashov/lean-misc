@@ -193,6 +193,7 @@ Closing that gap requires new mathematics, not just Lean engineering.
 - [x] `lb` and `lb_strong` reduced to the exact imported lower theorem plus local middle-binomial
       asymptotic machinery; the sharp central-binomial asymptotic is now proved.
 - [x] Honest real-valued `2^n / sqrt(n)` theorem surface added.
+- [x] Honest integer `2^n / sqrt(n)` lower-theory bundle added.
 - [x] Bohman upper-construction theorem surface added.
 - [~] Exact-value strategy partly executed: `least_N_5` is now proved by finite verification,
       and explicit witnesses for `HasSumDistinctSetCard 161 9` and `HasSumDistinctSetCard 309 10`
@@ -209,9 +210,10 @@ Closing that gap requires new mathematics, not just Lean engineering.
    `Erdos1.erdos_1.variants.proved.lb_strong`.
 2. Add a notes file auditing exact-value sources and certificate strategy for `a(9)` and
    `a(10) = 309`.
-3. If needed, extend the new `Problem1Real.lean` surface beyond the current bundled
-   `KnownRealSpacingTheory` API, for example by adding future certificate-backed exact witnesses or
-   more comparison lemmas between exact and asymptotic real statements.
+3. If needed, extend the new `Problem1Integer.lean` / `Problem1Real.lean` surfaces beyond the
+   current bundled `KnownIntegerLowerTheory` / `KnownRealSpacingTheory` APIs, for example by
+   adding future certificate-backed exact witnesses or more comparison lemmas between exact and
+   asymptotic statements.
 4. Add README coverage for the new exact/literature surfaces if the documentation should track the
    latest code state more closely.
 

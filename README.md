@@ -182,6 +182,13 @@ Current proof status:
   `Erdos1.erdos_1.variants.proved.real_lb`,
   `Erdos1.erdos_1.variants.proved.real_lb_strong`, and
   `Erdos1.erdos_1.known.best_known_integer_gap`.
+- [ErdosProblems/Problem1Integer.lean](./ErdosProblems/Problem1Integer.lean) now bundles the
+  currently known integer lower theory into
+  `IntegerLowerBound`,
+  `IntegerLowerBoundStrong`,
+  `KnownIntegerLowerTheory`,
+  `integer_lower_bound_exact_imported`, and
+  `integer_lower_bound_avg`.
 - [ErdosProblems/Problem1Real.lean](./ErdosProblems/Problem1Real.lean) now separates the
   real-valued branch into:
   `RealSpacingLowerBound`,
