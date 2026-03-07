@@ -386,6 +386,14 @@ def k5_stretchedexp_loglog_upper_profile : Prop :=
     (fun N => (r 5 N : ℝ)) =O[atTop]
       (fun N : ℕ => C * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ c))
 
+/-- Branch-local source-backed lower-profile target for `k = 5`:
+Rankin/O'Bryant-type decay with an explicit positive `(\log N)^\alpha` term in the exponent. -/
+def k5_rankin_obryant_lower_profile : Prop :=
+  ∃ α A B C : ℝ, 0 < α ∧ 0 < A ∧ 0 < C ∧
+    (fun N : ℕ =>
+      C * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+      =O[atTop] (fun N => (r 5 N : ℝ))
+
 /-- Two-sided benchmark sandwich for `k = 3`: one lower profile and one upper profile. -/
 def k3_two_sided_sandwich_profile : Prop :=
   k3_behrend_lower_profile ∧ k3_superpolylog_upper_profile

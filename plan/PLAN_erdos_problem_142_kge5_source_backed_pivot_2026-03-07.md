@@ -9,7 +9,7 @@ upper and lower templates match the actual scales appearing in the literature.
 
 ## Status
 
-Progress: `██----` `2 / 6` milestones
+Progress: `████--` `4 / 6` milestones
 
 Implemented so far:
 - `ErdosProblems/Problem142Literature.lean` now contains the analytic incompatibility theorem
@@ -22,6 +22,13 @@ Implemented so far:
   `K5UpperStretchedexpProfileWitness`, the source-facing assumption layer
   `LiteratureK5UpperStretchedexpSourceAssumptions`, and the theorem
   `upper_variant_five_of_literatureK5UpperStretchedexpSourceAssumptions`.
+- `ErdosProblems/Problem142.lean` now contains the branch-local source-backed benchmark target
+  `bound_targets.k5_rankin_obryant_lower_profile`.
+- `ErdosProblems/Problem142Literature.lean` now contains the matching lower witness surface
+  `K5LowerRankinProfileWitness`, the source-facing assumption layer
+  `LiteratureK5LowerRankinSourceAssumptions`, and the toy-model comparison theorems
+  `k5_rankin_decay_isLittleO_stretchedexp_loglog_decay` and
+  `k5_rankin_lower_profile_isBigO_k5_stretchedexp_upper_profile`.
 
 ## Publication-Backed Evidence
 
@@ -193,8 +200,17 @@ with
      `LiteratureK5UpperStretchedexpSourceAssumptions`,
      and
      `upper_variant_five_of_literatureK5UpperStretchedexpSourceAssumptions`.
-3. `[ ]` Implement a dedicated `k = 5` O'Bryant-type lower target.
-4. `[ ]` Prove `L_5^{src} = O(U_5^{src})`.
+3. `[x]` Implement a dedicated `k = 5` O'Bryant-type lower target.
+   - Implemented as
+     `bound_targets.k5_rankin_obryant_lower_profile`,
+     `K5LowerRankinProfileWitness`,
+     and
+     `LiteratureK5LowerRankinSourceAssumptions`.
+4. `[x]` Prove `L_5^{src} = O(U_5^{src})`.
+   - Implemented as
+     `k5_rankin_decay_isLittleO_stretchedexp_loglog_decay`
+     and
+     `k5_rankin_lower_profile_isBigO_k5_stretchedexp_upper_profile`.
 5. `[ ]` Package the result as `K5SourceBackedSplitWitness`.
 6. `[ ]` Decide whether to generalize immediately to all fixed `k >= 5` or keep `k = 5` as the
    live toy-model branch.

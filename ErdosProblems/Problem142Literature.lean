@@ -397,6 +397,31 @@ noncomputable abbrev erdos_problem_142_explicit_k5_upper_stretchedexp_profile_wi
     K5UpperStretchedexpProfileWitness :=
   h.k5_upper_stretchedexp_profile_witness
 
+/-- Branch-local source-backed lower-profile witness for `k = 5` on a Rankin/O'Bryant scale. -/
+structure K5LowerRankinProfileWitness where
+  α : ℝ
+  A : ℝ
+  B : ℝ
+  C : ℝ
+  hα : 0 < α
+  hA : 0 < A
+  hC : 0 < C
+  hLower :
+    (fun N : ℕ =>
+      C * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+      =O[atTop] (fun N => (r 5 N : ℝ))
+
+/-- Imported branch-local Rankin/O'Bryant lower witness for `k = 5`. -/
+class K5LowerRankinProfileWitnessImported where
+  k5_lower_rankin_profile_witness : K5LowerRankinProfileWitness
+
+/-- Imported branch-local Rankin/O'Bryant lower witness for `k = 5`
+(from a registered assumption instance). -/
+noncomputable abbrev erdos_problem_142_explicit_k5_lower_rankin_profile_witness_imported
+    [h : K5LowerRankinProfileWitnessImported] :
+    K5LowerRankinProfileWitness :=
+  h.k5_lower_rankin_profile_witness
+
 /-- Any two-sided `k = 3` witness provides an upper-only witness. -/
 noncomputable instance k3UpperProfileWitnessImported_of_k3ProfileWitnessImported
     [K3ProfileWitnessImported] : K3UpperProfileWitnessImported where
@@ -514,6 +539,16 @@ noncomputable def k5_stretchedexp_upper_profile [K5UpperStretchedexpProfileWitne
       Real.exp (-(Real.log (Real.log (N + 3))) ^
         erdos_problem_142_explicit_k5_upper_stretchedexp_profile_witness_imported.c)
 
+/-- Fixed source-backed Rankin/O'Bryant lower-profile candidate for the `k = 5` branch. -/
+noncomputable def k5_rankin_lower_profile [K5LowerRankinProfileWitnessImported] : ℕ → ℝ :=
+  fun N =>
+    erdos_problem_142_explicit_k5_lower_rankin_profile_witness_imported.C * (N : ℝ) *
+      Real.exp
+        (-erdos_problem_142_explicit_k5_lower_rankin_profile_witness_imported.A *
+            (Real.log (N + 3)) ^ erdos_problem_142_explicit_k5_lower_rankin_profile_witness_imported.α +
+          erdos_problem_142_explicit_k5_lower_rankin_profile_witness_imported.B *
+            Real.log (Real.log (N + 3)))
+
 /-- Upper variant for `k = 3` from an imported upper-profile witness. -/
 theorem upper_variant_three_of_upper_profile_witness [K3UpperProfileWitnessImported] :
     erdos_142.variants.upper 3 := by
@@ -563,6 +598,86 @@ theorem upper_variant_five_of_stretchedexp_upper_profile_witness
           Real.exp (-(Real.log (Real.log (N + 3))) ^
             erdos_problem_142_explicit_k5_upper_stretchedexp_profile_witness_imported.c))
   exact erdos_problem_142_explicit_k5_upper_stretchedexp_profile_witness_imported.hUpper
+
+/-- Rankin/O'Bryant-type `k = 5` decay is asymptotically smaller than the source-backed
+stretched-exponential `\log\log` upper decay. This is the toy-model comparison theorem on the
+active pivot route. -/
+theorem k5_rankin_decay_isLittleO_stretchedexp_loglog_decay
+    {α A B c : ℝ} (hα : 0 < α) (hA : 0 < A) :
+    (fun N : ℕ =>
+      Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3)))) =o[atTop]
+      (fun N : ℕ => Real.exp (-(Real.log (Real.log (N + 3))) ^ c)) := by
+  have hShift : Tendsto (fun N : ℕ => (N : ℝ) + 3) atTop atTop := by
+    simpa using tendsto_natCast_atTop_atTop.atTop_add tendsto_const_nhds
+  have hLog : Tendsto (fun N : ℕ => Real.log ((N : ℝ) + 3)) atTop atTop := by
+    exact Real.tendsto_log_atTop.comp hShift
+  have hMainPow :
+      Tendsto (fun N : ℕ => (Real.log ((N : ℝ) + 3)) ^ α) atTop atTop := by
+    exact (tendsto_rpow_atTop hα).comp hLog
+  have hMain :
+      Tendsto (fun N : ℕ => A * (Real.log ((N : ℝ) + 3)) ^ α) atTop atTop := by
+    exact Tendsto.const_mul_atTop hA hMainPow
+  have hLogLittle :
+      (fun N : ℕ => Real.log (Real.log ((N : ℝ) + 3))) =o[atTop]
+        (fun N : ℕ => (Real.log ((N : ℝ) + 3)) ^ α) :=
+    (isLittleO_log_rpow_atTop hα).comp_tendsto hLog
+  have hBLogLittle :
+      (fun N : ℕ => B * Real.log (Real.log ((N : ℝ) + 3))) =o[atTop]
+        (fun N : ℕ => A * (Real.log ((N : ℝ) + 3)) ^ α) := by
+    exact (hLogLittle.const_mul_left B).const_mul_right hA.ne'
+  have hPowLittle :
+      (fun N : ℕ => (Real.log (Real.log ((N : ℝ) + 3))) ^ c) =o[atTop]
+        (fun N : ℕ => A * (Real.log ((N : ℝ) + 3)) ^ α) := by
+    exact (((isLittleO_log_rpow_rpow_atTop (s := α) c hα)).comp_tendsto hLog).const_mul_right
+      hA.ne'
+  have hErr :
+      (fun N : ℕ =>
+        B * Real.log (Real.log ((N : ℝ) + 3)) +
+          (Real.log (Real.log ((N : ℝ) + 3))) ^ c) =o[atTop]
+        (fun N : ℕ => A * (Real.log ((N : ℝ) + 3)) ^ α) :=
+    hBLogLittle.add hPowLittle
+  have hDiff :
+      Tendsto (fun N : ℕ =>
+        A * (Real.log ((N : ℝ) + 3)) ^ α -
+          (B * Real.log (Real.log ((N : ℝ) + 3)) +
+            (Real.log (Real.log ((N : ℝ) + 3))) ^ c)) atTop atTop := by
+    exact (Asymptotics.IsEquivalent.refl.sub_isLittleO hErr).symm.tendsto_atTop hMain
+  rw [Real.isLittleO_exp_comp_exp_comp]
+  convert hDiff using 1
+  funext N
+  ring
+
+/-- Transport the `k = 5` toy-model decay comparison back to the full source-backed profile
+templates by restoring the common factor `N` and positive multiplicative constants. -/
+theorem k5_rankin_lower_profile_isBigO_k5_stretchedexp_upper_profile
+    [K5UpperStretchedexpProfileWitnessImported] [K5LowerRankinProfileWitnessImported] :
+    k5_rankin_lower_profile =O[atTop] k5_stretchedexp_upper_profile := by
+  let wU : K5UpperStretchedexpProfileWitness :=
+    erdos_problem_142_explicit_k5_upper_stretchedexp_profile_witness_imported
+  let wL : K5LowerRankinProfileWitness :=
+    erdos_problem_142_explicit_k5_lower_rankin_profile_witness_imported
+  have hDecay :
+      (fun N : ℕ =>
+        Real.exp (-wL.A * (Real.log (N + 3)) ^ wL.α + wL.B * Real.log (Real.log (N + 3))))
+        =o[atTop]
+      (fun N : ℕ => Real.exp (-(Real.log (Real.log (N + 3))) ^ wU.c)) :=
+    k5_rankin_decay_isLittleO_stretchedexp_loglog_decay wL.hα wL.hA
+  have hMul :
+      (fun N : ℕ =>
+        (N : ℝ) * Real.exp (-wL.A * (Real.log (N + 3)) ^ wL.α +
+          wL.B * Real.log (Real.log (N + 3)))) =o[atTop]
+      (fun N : ℕ => (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ wU.c)) :=
+    (Asymptotics.isBigO_refl (fun N : ℕ => (N : ℝ)) atTop).mul_isLittleO hDecay
+  have hScaled :
+      (fun N : ℕ =>
+        wL.C * ((N : ℝ) * Real.exp (-wL.A * (Real.log (N + 3)) ^ wL.α +
+          wL.B * Real.log (Real.log (N + 3))))) =o[atTop]
+      (fun N : ℕ =>
+        wU.C * ((N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ wU.c))) :=
+    (hMul.const_mul_left wL.C).const_mul_right wU.hC.ne'
+  exact hScaled.isBigO.congr'
+    (Eventually.of_forall fun N => by simp [k5_rankin_lower_profile, wL, mul_assoc])
+    (Eventually.of_forall fun N => by simp [k5_stretchedexp_upper_profile, wU, mul_assoc])
 
 /-- Aggregated upper-variant consequence for all `k ≥ 3` from branch-local upper witnesses. -/
 theorem upper_variant_of_upper_profile_witnesses_for_all_k_ge_three
@@ -1284,6 +1399,12 @@ class LiteratureK5UpperStretchedexpSourceAssumptions : Prop where
   k5_stretchedexp_loglog_upper_profile :
     bound_targets.k5_stretchedexp_loglog_upper_profile
 
+/-- Branch-local source-facing literature layer for the pivoted `k = 5` lower route:
+it records the Rankin/O'Bryant lower profile at `k = 5`. -/
+class LiteratureK5LowerRankinSourceAssumptions : Prop where
+  k5_rankin_obryant_lower_profile :
+    bound_targets.k5_rankin_obryant_lower_profile
+
 /-- Expose the sharpened `k = 3` exponent-threshold target from the dedicated literature layer. -/
 theorem k3_upper_exponent_gt_half_target_of_literatureK3ExponentGtHalfAssumptions
     [h : LiteratureK3ExponentGtHalfAssumptions] :
@@ -1312,6 +1433,13 @@ theorem k5_stretchedexp_loglog_upper_profile_of_literatureK5UpperStretchedexpSou
     [h : LiteratureK5UpperStretchedexpSourceAssumptions] :
     bound_targets.k5_stretchedexp_loglog_upper_profile := by
   exact h.k5_stretchedexp_loglog_upper_profile
+
+/-- Expose the branch-local Rankin/O'Bryant `k = 5` lower target from its source-facing
+literature layer. -/
+theorem k5_rankin_obryant_lower_profile_of_literatureK5LowerRankinSourceAssumptions
+    [h : LiteratureK5LowerRankinSourceAssumptions] :
+    bound_targets.k5_rankin_obryant_lower_profile := by
+  exact h.k5_rankin_obryant_lower_profile
 
 /-- Expose the `k = 4` exponent-order target from the strengthened literature layer. -/
 theorem k4_exponent_order_target_of_literatureK4ExponentOrderAssumptions
@@ -1578,6 +1706,26 @@ noncomputable def k5UpperStretchedexpProfileWitness_of_literatureK5UpperStretche
     refine ⟨{ c := c, C := C, hc := hc, hC := hC, hUpper := hUpper }, trivial⟩
   exact Classical.choose hw
 
+/-- Noncomputable extraction of the branch-local Rankin/O'Bryant `k = 5` lower witness from
+the dedicated source-facing literature layer. -/
+noncomputable def k5LowerRankinProfileWitness_of_literatureK5LowerRankinSourceAssumptions
+    [h : LiteratureK5LowerRankinSourceAssumptions] :
+    K5LowerRankinProfileWitness := by
+  classical
+  let hw : ∃ w : K5LowerRankinProfileWitness, True := by
+    rcases h.k5_rankin_obryant_lower_profile with ⟨α, A, B, C, hα, hA, hC, hLower⟩
+    let w : K5LowerRankinProfileWitness :=
+      { α := α
+        A := A
+        B := B
+        C := C
+        hα := hα
+        hA := hA
+        hC := hC
+        hLower := hLower }
+    exact ⟨w, trivial⟩
+  exact Classical.choose hw
+
 /-- `LiteratureRateAssumptions` provide the `k = 3` upper-profile witness interface. -/
 noncomputable instance k3UpperProfileWitnessImported_of_literatureRateAssumptions
     [h : LiteratureRateAssumptions] : K3UpperProfileWitnessImported where
@@ -1600,6 +1748,14 @@ noncomputable instance k5UpperStretchedexpProfileWitnessImported_of_literatureK5
     K5UpperStretchedexpProfileWitnessImported where
   k5_upper_stretchedexp_profile_witness :=
     k5UpperStretchedexpProfileWitness_of_literatureK5UpperStretchedexpSourceAssumptions
+
+/-- `LiteratureK5LowerRankinSourceAssumptions` provide the branch-local Rankin/O'Bryant lower
+witness interface for `k = 5`. -/
+noncomputable instance k5LowerRankinProfileWitnessImported_of_literatureK5LowerRankinSourceAssumptions
+    [h : LiteratureK5LowerRankinSourceAssumptions] :
+    K5LowerRankinProfileWitnessImported where
+  k5_lower_rankin_profile_witness :=
+    k5LowerRankinProfileWitness_of_literatureK5LowerRankinSourceAssumptions
 
 /-- The branch-local stretched-exponential source-facing `k = 5` literature layer already yields
 the corresponding `upper` variant. -/
