@@ -969,6 +969,51 @@ theorem split_gap_k3_profile_dominance_target_of_beta_gt_half
     k3_decay_template_dominance_of_beta_gt_half
     k3_decay_to_profile_transport
 
+/-- Generic analytic comparison lemma for the `k = 4` branch:
+if the lower witness exponent is at most the upper witness exponent, then the upper template is
+asymptotically dominated by the lower template. -/
+theorem k4_polylog_template_dominance_of_exponent_le
+    {cL CL cU CU : ℝ} (hCL : 0 < CL) (hCU : 0 < CU) (hExp : cL ≤ cU) :
+    (fun N : ℕ => CU * (N : ℝ) / (Real.log (N + 2)) ^ cU) =O[atTop]
+      (fun N : ℕ => CL * (N : ℝ) / (Real.log (N + 2)) ^ cL) := by
+  refine Asymptotics.IsBigO.of_bound (CU / CL) ?_
+  filter_upwards [eventually_ge_atTop 1] with N hN
+  let L : ℝ := Real.log (N + 2)
+  have hArg_pos : 0 < (N : ℝ) + 2 := by
+    positivity
+  have hN3 : (3 : ℝ) ≤ (N : ℝ) + 2 := by
+    have hN' : (1 : ℝ) ≤ (N : ℝ) := by
+      exact_mod_cast hN
+    nlinarith
+  have hL_ge_one : 1 ≤ L := by
+    dsimp [L]
+    rw [Real.le_log_iff_exp_le hArg_pos]
+    exact le_trans Real.exp_one_lt_three.le hN3
+  have hL_pos : 0 < L := lt_of_lt_of_le zero_lt_one hL_ge_one
+  have hPow : L ^ cL ≤ L ^ cU := Real.rpow_le_rpow_of_exponent_le hL_ge_one hExp
+  have hNum_nonneg : 0 ≤ CU * (N : ℝ) := by
+    positivity
+  have hDenL_pos : 0 < L ^ cL := Real.rpow_pos_of_pos hL_pos _
+  have hUpper_nonneg : 0 ≤ CU * (N : ℝ) / L ^ cU := by
+    positivity
+  have hLower_nonneg : 0 ≤ CL * (N : ℝ) / L ^ cL := by
+    positivity
+  rw [Real.norm_of_nonneg hUpper_nonneg]
+  calc
+    CU * (N : ℝ) / L ^ cU ≤ CU * (N : ℝ) / L ^ cL := by
+      exact div_le_div_of_nonneg_left hNum_nonneg hDenL_pos hPow
+    _ = (CU / CL) * (CL * (N : ℝ) / L ^ cL) := by
+      field_simp [hCL.ne', hDenL_pos.ne']
+    _ ≤ (CU / CL) * ‖CL * (N : ℝ) / L ^ cL‖ := by
+      simp [Real.norm_of_nonneg hLower_nonneg]
+
+/-- Minimal source-side target for the `k = 4` elimination route:
+the imported upper exponent is at least the imported lower exponent. -/
+def k4_exponent_order_target : Prop :=
+  ∀ [K4UpperProfileWitnessImported] [K4LowerProfileWitnessImported],
+    erdos_problem_142_k4_lower_profile_witness_imported.c ≤
+      erdos_problem_142_explicit_k4_upper_profile_witness_imported.c
+
 /-- Explicit dominance bridge needed to turn split upper/lower data for `k = 4` into the same profile
 template used by `K4ProfileWitness`. -/
 def split_gap_k4_profile_dominance_target : Prop :=
@@ -979,6 +1024,20 @@ def split_gap_k4_profile_dominance_target : Prop :=
       =O[Filter.atTop] (fun N : ℕ =>
       erdos_problem_142_k4_lower_profile_witness_imported.C * (N : ℝ) /
         (Real.log (N + 2)) ^ erdos_problem_142_k4_lower_profile_witness_imported.c)
+
+/-- The `k = 4` split-gap dominance target follows from the generic comparison lemma once the
+literature/import layer supplies the exponent order relation. -/
+theorem split_gap_k4_profile_dominance_target_of_exponent_order
+    (hExp : k4_exponent_order_target) :
+    split_gap_k4_profile_dominance_target := by
+  intro _ _
+  let wU : K4UpperProfileWitness := erdos_problem_142_explicit_k4_upper_profile_witness_imported
+  let wL : K4LowerProfileWitness := erdos_problem_142_k4_lower_profile_witness_imported
+  have hDom :
+      (fun N : ℕ => wU.C * (N : ℝ) / (Real.log (N + 2)) ^ wU.c) =O[atTop]
+        (fun N : ℕ => wL.C * (N : ℝ) / (Real.log (N + 2)) ^ wL.c) :=
+    k4_polylog_template_dominance_of_exponent_le wL.hC wU.hC (hExp)
+  simpa [wU, wL] using hDom
 
 /-- Explicit dominance bridge needed to turn split upper/lower data for `k ≥ 5` into the same profile
 template used by `Kge5ProfileWitness`. -/
