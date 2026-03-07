@@ -5,6 +5,12 @@ Lean formalization experiments and problem-focused developments, using a project
 
 ## Current contents
 
+- `Erdos1.erdos_1`:
+  Erdős Problem 1 and several sum-distinct variants, following the statement layer from
+  DeepMind's `formal-conjectures`; the main open and literature statements are currently
+  imported as local axioms, while the exact finite benchmark `least_N_3` is proved in
+  [ErdosProblems/Problem1.lean](./ErdosProblems/Problem1.lean).
+
 - `TaoExercises.TaoBook.Chapter2.exercise_2_3`:
   Terence Tao, *Solving mathematical problems: a personal perspective*, Exercise 2.3
   (`x^4 + 131 = 3y^4` has no integer solutions in integers).
@@ -43,6 +49,10 @@ All solved exercises are checked to ensure they:
 - include the strengthened explicit-profile DeepMind-equivalence theorem
   (`Erdos142.erdos_problem_142_explicit_iff_deepmind`)
 - keep checker output explicit about temporary axiom frontier debt where present
+
+The `Erdos1` module is not part of this checker yet: it currently contains a statement-level
+formalization of Problem #1 with local axioms for the open and literature-backed claims, plus the
+proved exact small-case theorem `Erdos1.erdos_1.variants.least_N_3`.
 
 Run:
 
@@ -111,6 +121,33 @@ make docs       # build API docs
 - Pull requests, pushes, and manual runs all execute a single `leanprover/lean-action` build job.
 - Docs are not generated/deployed in CI.
 - Workflow concurrency is enabled with `cancel-in-progress: true`.
+
+## Erdős #1: current status
+
+The local formalization of Erdős Problem #1 is in
+[ErdosProblems/Problem1.lean](./ErdosProblems/Problem1.lean). It introduces:
+
+- `Erdos1.IsSumDistinctSet` for sum-distinct subsets of `{1, ..., N}`.
+- `Erdos1.IsSumDistinctRealSet` for the real-valued spacing variant on `(0, N]`.
+- `Erdos1.erdos_1` and the upstream variant family under `Erdos1.erdos_1.variants`.
+
+Current proof status:
+
+- `Erdos1.erdos_1` remains a local axiom-level placeholder for the open exponential conjecture.
+- `Erdos1.erdos_1.variants.weaker` is now proved from elementary counting on `Finset.subsetSum`.
+- `Erdos1.erdos_1.variants.least_N_3` and `Erdos1.erdos_1.variants.least_N_5` are proved exactly
+  by finite verification.
+- `Erdos1.erdos_1.variants.least_N_9` remains axiomatized.
+- [ErdosProblems/Problem1Literature.lean](./ErdosProblems/Problem1Literature.lean) now contains:
+  the exact imported Dubroff-Fox-Xu lower bound, its real-valued analogue, a Bohman
+  upper-construction surface, and derived lower-bound packages
+  `erdos_1_variants_lb_strong_from_choose_middle_asymptotic`,
+  `erdos_1_variants_lb_from_choose_middle_asymptotic`,
+  `dubroffFoxXuSharpLowerBoundReal_from_imports`, and
+  `bestKnownIntegerGap_from_imports`.
+- The current main imported bottleneck for the sharp lower asymptotic route is
+  `choose_middle_lb_strong_asymptotic_axiom`, i.e. the asymptotic lower estimate for the middle
+  binomial coefficient at the `sqrt (2 / pi)` scale.
 
 ## Erdős #142: current status and references
 
