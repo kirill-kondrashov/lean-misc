@@ -588,6 +588,20 @@ structure Kge6SourceBackedSplitWitness (k : ℕ) (hk : 6 ≤ k) where
         upper.C * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ upper.c))
 
 /-- Mixed two-sided `k = 4` profile data extracted from a source-backed split witness. -/
+theorem k3_mixed_two_sided_profile_of_sourceBackedSplitWitness
+    (h : K3SourceBackedSplitWitness) :
+    ∃ cL CL β cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < β ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+          (fun N => (r 3 N : ℝ)) ∧
+        (fun N => (r 3 N : ℝ)) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ β)) ∧
+        (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ β)) := by
+  exact ⟨h.lower.c, h.lower.C, h.upper.β, h.upper.c, h.upper.C, h.lower.hc, h.lower.hC, h.upper.hβ,
+    h.upper.hc, h.upper.hC, h.lower.hLower, h.upper.hUpper, h.hCompatibility⟩
+
+/-- Mixed two-sided `k = 4` profile data extracted from a source-backed split witness. -/
 theorem k4_mixed_two_sided_profile_of_sourceBackedSplitWitness
     (h : K4SourceBackedSplitWitness) :
     ∃ cL CL cU CU : ℝ,

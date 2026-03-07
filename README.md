@@ -114,7 +114,7 @@ make docs       # build API docs
 
 ## Erdős #142: current status and references
 
-- As of March 7, 2026, Problem #142 remains open; this repository keeps the full matched-profile route behind the temporary frontier axioms `Erdos142.splitGap_k3_upper_exponent_gt_half_frontier`, `Erdos142.splitGap_k4_profile_dominance_frontier`, and `Erdos142.splitGap_kge5_profile_dominance_frontier`, while the active honest route now uses the source-backed split packages `Erdos142.K3SourceBackedSplitGap` and `Erdos142.K4SourceBackedSplitGap`, with practical downstream target `Erdos142.MainK34ResolvedGap`; on that active route, only the `k \ge 5` coupling branch remains unresolved.
+- As of March 7, 2026, Problem #142 remains open; this repository keeps the full matched-profile route behind the temporary frontier axioms `Erdos142.splitGap_k3_upper_exponent_gt_half_frontier`, `Erdos142.splitGap_k4_profile_dominance_frontier`, and `Erdos142.splitGap_kge5_profile_dominance_frontier`, while the active honest route now uses source-backed split packages for every branch, with practical target `Erdos142.MainAllSourceBackedSplitGap`. On that active practical route, there is no remaining coupling debt; the unresolved content survives only on the stronger off-path matched-profile route.
 
 Exact formulation of Erdős Problem #142 in this repository:
 
@@ -145,8 +145,9 @@ What is already proven in this repository:
   $L_3(N)=O(U_3(N))$, packaged as `lower_isBigO_upper`; see [ErdosProblems/Problem142Literature.lean#L453](./ErdosProblems/Problem142Literature.lean#L453).
 - This is exposed at the gap layer as `K3SourceBackedSplitGap`; see [ErdosProblems/Problem142Gap.lean#L127](./ErdosProblems/Problem142Gap.lean#L127).
 - The $k = 4$ branch now also has a source-backed split package `K4SourceBackedSplitWitness`; see [ErdosProblems/Problem142Literature.lean](./ErdosProblems/Problem142Literature.lean).
-- This is exposed at the gap layer as `K4SourceBackedSplitGap`, and the active downstream target is now `MainK34ResolvedGap`; see [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean).
-- Therefore, on the active post-pivot route, the remaining unresolved mathematical frontier is no longer the $k = 3$ or $k = 4$ branch. It is only the profile-matching content for each fixed $k \ge 5$. The stronger off-path theorem $U_4(N)=O(L_4(N))$ is still blocked locally, but it is no longer the next required step on the active route.
+- The $k = 5$ branch now also has a source-backed split package `K5SourceBackedSplitWitness`, and every fixed $k \ge 6$ has the tail-family source-backed split package `Kge6SourceBackedSplitWitness`; see [ErdosProblems/Problem142Literature.lean](./ErdosProblems/Problem142Literature.lean).
+- These are exposed at the gap layer as `K3SourceBackedSplitGap`, `K4SourceBackedSplitGap`, `K5SourceBackedSplitGap`, and the tail family `Kge6SourceBackedSplitGap`, with practical target `MainAllSourceBackedSplitGap`; see [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean).
+- Therefore, on the active post-pivot route, the repository now has explicit source-backed split control for every branch. The stronger unresolved content is no longer on the practical route; it survives only in the off-path matched-profile theorem family, including the stronger local target $U_4(N)=O(L_4(N))$.
 
 Progress toward a proof in this repository:
 
@@ -158,10 +159,11 @@ Progress toward a proof in this repository:
    ```
    under the imported exponent regime $\beta < 1/2$; the transport and comparison theorems are in [ErdosProblems/Problem142Literature.lean#L1078](./ErdosProblems/Problem142Literature.lean#L1078), [ErdosProblems/Problem142Literature.lean#L1151](./ErdosProblems/Problem142Literature.lean#L1151), and [ErdosProblems/Problem142Literature.lean#L1196](./ErdosProblems/Problem142Literature.lean#L1196).
 4. It packages that result into a first-class source-backed $k = 3$ split witness with explicit exponent $\beta = 1/12$; see [ErdosProblems/Problem142Literature.lean#L1391](./ErdosProblems/Problem142Literature.lean#L1391).
-5. It first reorganizes the downstream gap so that $k = 3$ is no longer part of the active unresolved matched-profile frontier, and then refines the route further so that both $k = 3$ and $k = 4$ remain only at split strength on the practical target `MainK34ResolvedGap`; in the current active route, only the `k \ge 5` coupling debt remains.
-6. It also proves that the old stronger $k = 3$ route would need an exponent threshold $\beta > 1/2$; see [ErdosProblems/Problem142Literature.lean#L1060](./ErdosProblems/Problem142Literature.lean#L1060). The current source-backed import does not provide that, so this route has been closed rather than left vague.
+5. It first reorganizes the downstream gap so that $k = 3$ and then $k = 4$ are no longer part of the active unresolved matched-profile frontier, and then refines the route further so that $k = 5$ and finally every fixed $k \ge 6$ are also handled by explicit source-backed split packages on the practical target `MainAllSourceBackedSplitGap`.
+6. It packages the resulting practical route into one aggregate theorem `all_source_backed_split_data_of_mainAllSourceBackedSplitGap`, which gives all upper variants together with correct branchwise split data for $k = 3$, $k = 4$, $k = 5$, and every fixed $k \ge 6$; see [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean).
+7. It also proves that the old stronger $k = 3$ route would need an exponent threshold $\beta > 1/2$; see [ErdosProblems/Problem142Literature.lean#L1060](./ErdosProblems/Problem142Literature.lean#L1060). The current source-backed import does not provide that, so this route has been closed rather than left vague.
 
-The active missing mathematical theorems are now the `k \ge 5` profile-matching statements on the practical route. The stronger `k = 4` matched-profile theorem remains blocked, but it is now an off-path strengthening target rather than the next required theorem.
+The active missing mathematical theorems now live only on the stronger off-path matched-profile route. The practical route has been stabilized at source-backed split strength for every branch.
 
 Definition of Landau asymptotic domination:
 

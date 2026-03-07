@@ -126,9 +126,10 @@ Re-score the current Erdos-142 formalization pipeline against concrete, availabl
 ## Progress Summary
 
 - **Real-solution feasibility today**: `~33%` (honest partial formalization frontiers are in place; full gap still blocked).
-- **Next concrete measurable milestone**: document and stabilize the new practical target
-  `MainAllSourceBackedSplitGap`, while keeping the stronger full matched-profile route explicitly
-  marked as conjectural/off-path.
+- **Next concrete measurable milestone**: keep the practical target
+  `MainAllSourceBackedSplitGap` stable as the honest split-strength endpoint, and isolate any
+  future work strictly to the stronger matched-profile route rather than reintroducing it into the
+  active practical path.
 - Latest completed `k=3` cycle:
   [PLAN_erdos_problem_142_k3_split_surface_packaging_2026-03-07.md](PLAN_erdos_problem_142_k3_split_surface_packaging_2026-03-07.md)
 - Active next-cycle files:
