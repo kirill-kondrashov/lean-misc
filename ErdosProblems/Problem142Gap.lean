@@ -1190,6 +1190,27 @@ axiom splitGap_k4_profile_dominance_frontier :
 axiom splitGap_kge5_profile_dominance_frontier :
   import_targets.split_gap_kge5_profile_dominance_target
 
+/-- Named off-path matched-profile frontier package:
+this is the stronger conjectural route that would upgrade the honest split data to full matched
+profiles. It is kept separate from the practical source-backed split endpoint. -/
+structure Problem142MatchedProfileFrontier where
+  k3_upper_exponent_gt_half :
+    import_targets.k3_upper_exponent_gt_half_target
+  k4_profile_dominance :
+    import_targets.split_gap_k4_profile_dominance_target
+  kge5_profile_dominance :
+    import_targets.split_gap_kge5_profile_dominance_target
+
+/-- The current explicit axiom debt instantiates the named off-path matched-profile frontier
+package. -/
+noncomputable def matchedProfileFrontier_axiomDebt :
+    Problem142MatchedProfileFrontier :=
+  { k3_upper_exponent_gt_half := splitGap_k3_upper_exponent_gt_half_frontier
+    k4_profile_dominance := splitGap_k4_profile_dominance_frontier
+    kge5_profile_dominance := by
+      intro _ _ k hk
+      exact @splitGap_kge5_profile_dominance_frontier _ _ k hk }
+
 /-- Branch-local `k = 3` coupling can be built from an explicit upper/lower template dominance target. -/
 noncomputable def splitGap_k3_coupling_target_of_profile_dominance_target
     [K3UpperProfileWitnessImported] [K3BehrendLowerProfileWitnessImported]
@@ -1260,6 +1281,27 @@ noncomputable def splitGapToMainTheoreticalGapAssumptions_frontier :
     kge5_profile_witness_of_split := by
       intro _ _ k hk
       exact splitGap_kge5_coupling_frontier (k := k) hk }
+
+/-- Convert the named off-path matched-profile frontier package into the corresponding coupling
+assumptions. This is the canonical bridge from the conjectural frontier route to the strong full
+matched-profile route. -/
+noncomputable def splitGapToMainTheoreticalGapAssumptions_of_matchedProfileFrontier
+    (hFrontier : Problem142MatchedProfileFrontier) :
+    SplitGapToMainTheoreticalGapAssumptions :=
+  { k3_profile_witness_of_split :=
+      splitGap_k3_coupling_target_of_profile_dominance_target
+        (import_targets.split_gap_k3_profile_dominance_target_of_beta_gt_half
+          hFrontier.k3_upper_exponent_gt_half)
+    k4_profile_witness_of_split :=
+      splitGap_k4_coupling_target_of_profile_dominance_target
+        hFrontier.k4_profile_dominance
+    kge5_profile_witness_of_split := by
+      intro _ _ k hk
+      exact
+        splitGap_kge5_coupling_target_of_profile_dominance_target
+          (by
+            intro _ _ k hk
+            exact @hFrontier.kge5_profile_dominance _ _ k hk) hk }
 
 /-- Mixed replacement package: once the literature-side `k = 3` exponent threshold is imported,
 the remaining explicit frontier debt is only in the `k = 4` and `k ≥ 5` dominance branches. -/
@@ -1336,10 +1378,26 @@ theorem erdos_problem_142_of_mainSplitGap_and_assumptions
     erdos_problem_142_of_main_theoretical_gap
       (mainTheoreticalGap_of_mainSplitGap_and_assumptions hSplit hCoupling)
 
+/-- Off-path matched-profile route: if the named matched-profile frontier package is provided,
+split-gap data can be promoted all the way to the full main gap. -/
+noncomputable def mainTheoreticalGap_of_mainSplitGap_and_matchedProfileFrontier
+    (hSplit : MainSplitGap) (hFrontier : Problem142MatchedProfileFrontier) :
+    MainTheoreticalGap :=
+  mainTheoreticalGap_of_mainSplitGap_and_assumptions hSplit
+    (splitGapToMainTheoreticalGapAssumptions_of_matchedProfileFrontier hFrontier)
+
+/-- Statement-level #142 from split-gap data plus the named off-path matched-profile frontier
+package. This is the clean theorem form of the stronger conjectural route. -/
+theorem erdos_problem_142_of_mainSplitGap_and_matchedProfileFrontier
+    (hSplit : MainSplitGap) (hFrontier : Problem142MatchedProfileFrontier) :
+    ErdosProblems.erdos_problem_142 := by
+  exact erdos_problem_142_of_main_theoretical_gap
+    (mainTheoreticalGap_of_mainSplitGap_and_matchedProfileFrontier hSplit hFrontier)
+
 /-- Frontier theorem: statement-level #142 from split-gap together with the current axiom frontier. -/
 theorem erdos_problem_142_of_mainSplitGap_and_frontier
     (hSplit : MainSplitGap) : ErdosProblems.erdos_problem_142 := by
-  exact erdos_problem_142_of_mainSplitGap_and_assumptions
-    hSplit splitGapToMainTheoreticalGapAssumptions_frontier
+  exact erdos_problem_142_of_mainSplitGap_and_matchedProfileFrontier
+    hSplit matchedProfileFrontier_axiomDebt
 
 end Erdos142

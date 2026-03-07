@@ -114,7 +114,7 @@ make docs       # build API docs
 
 ## Erdős #142: current status and references
 
-- As of March 7, 2026, Problem #142 remains open; this repository keeps the full matched-profile route behind the temporary frontier axioms `Erdos142.splitGap_k3_upper_exponent_gt_half_frontier`, `Erdos142.splitGap_k4_profile_dominance_frontier`, and `Erdos142.splitGap_kge5_profile_dominance_frontier`, while the active honest route now uses source-backed split packages for every branch, with practical target `Erdos142.MainAllSourceBackedSplitGap`. On that active practical route, there is no remaining coupling debt; the unresolved content survives only on the stronger off-path matched-profile route.
+- As of March 7, 2026, Problem #142 remains open; this repository keeps the full matched-profile route behind the temporary frontier axioms `Erdos142.splitGap_k3_upper_exponent_gt_half_frontier`, `Erdos142.splitGap_k4_profile_dominance_frontier`, and `Erdos142.splitGap_kge5_profile_dominance_frontier`, now packaged as the stronger off-path object `Erdos142.Problem142MatchedProfileFrontier`. The active honest route instead uses source-backed split packages for every branch, with practical target `Erdos142.MainAllSourceBackedSplitGap` and named endpoint `Erdos142.Problem142AllSourceBackedSplitData`. On that active practical route, there is no remaining coupling debt.
 
 Exact formulation of Erdős Problem #142 in this repository:
 
@@ -161,7 +161,8 @@ Progress toward a proof in this repository:
 4. It packages that result into a first-class source-backed $k = 3$ split witness with explicit exponent $\beta = 1/12$; see [ErdosProblems/Problem142Literature.lean#L1391](./ErdosProblems/Problem142Literature.lean#L1391).
 5. It first reorganizes the downstream gap so that $k = 3$ and then $k = 4$ are no longer part of the active unresolved matched-profile frontier, and then refines the route further so that $k = 5$ and finally every fixed $k \ge 6$ are also handled by explicit source-backed split packages on the practical target `MainAllSourceBackedSplitGap`.
 6. It packages the resulting practical route into the named endpoint `Problem142AllSourceBackedSplitData`, together with the theorem `all_source_backed_split_data_of_mainAllSourceBackedSplitGap`, which gives all upper variants together with correct branchwise split data for $k = 3$, $k = 4$, $k = 5$, and every fixed $k \ge 6$; see [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean).
-7. It also proves that the old stronger $k = 3$ route would need an exponent threshold $\beta > 1/2$; see [ErdosProblems/Problem142Literature.lean#L1060](./ErdosProblems/Problem142Literature.lean#L1060). The current source-backed import does not provide that, so this route has been closed rather than left vague.
+7. It also packages the stronger conjectural route into the named off-path object `Problem142MatchedProfileFrontier`, which cleanly isolates the full matched-profile debt from the practical split route; see [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean).
+8. It also proves that the old stronger $k = 3$ route would need an exponent threshold $\beta > 1/2$; see [ErdosProblems/Problem142Literature.lean#L1060](./ErdosProblems/Problem142Literature.lean#L1060). The current source-backed import does not provide that, so this route has been closed rather than left vague.
 
 The active missing mathematical theorems now live only on the stronger off-path matched-profile route. The practical route has been stabilized at source-backed split strength for every branch.
 
