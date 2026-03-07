@@ -1,7 +1,7 @@
 import ErdosProblems.Problem1
 
 open Filter
-open scoped Topology Real
+open scoped Topology Real Asymptotics
 
 namespace Erdos1
 
@@ -438,6 +438,39 @@ theorem tendsto_choose_middle_normalized :
     simpa using hNe m hm
   · have hm : No ≤ m := by omega
     simpa using hNo m hm
+
+/-- Asymptotic equivalent form of the sharp middle-binomial asymptotic. -/
+theorem choose_middle_isEquivalent :
+    (fun n : ℕ => (Nat.choose n (n / 2) : ℝ)) ~[atTop]
+      (fun n : ℕ => Real.sqrt (2 / Real.pi) * (2 : ℝ) ^ n / (n : ℝ).sqrt) := by
+  let g : ℕ → ℝ := fun n =>
+    (Nat.choose n (n / 2) : ℝ) * (n : ℝ).sqrt / (2 : ℝ) ^ n
+  let h : ℕ → ℝ := fun n => (2 : ℝ) ^ n / (n : ℝ).sqrt
+  have hg : g ~[atTop] (fun _ : ℕ => Real.sqrt (2 / Real.pi)) := by
+    exact (Asymptotics.isEquivalent_const_iff_tendsto
+      (show Real.sqrt (2 / Real.pi) ≠ 0 by positivity)).2 <|
+      by simpa [g] using tendsto_choose_middle_normalized
+  have hgh : (fun n => g n * h n) ~[atTop] (fun n => Real.sqrt (2 / Real.pi) * h n) :=
+    hg.mul Asymptotics.IsEquivalent.refl
+  have hprod :
+      (fun n => g n * h n) =ᶠ[atTop] fun n => (Nat.choose n (n / 2) : ℝ) := by
+    refine Filter.eventually_atTop.2 ⟨1, ?_⟩
+    intro n hn
+    have hsqrt_ne : (n : ℝ).sqrt ≠ 0 := by
+      exact Real.sqrt_ne_zero'.mpr (Nat.cast_pos.mpr hn)
+    have hpow_ne : (2 : ℝ) ^ n ≠ 0 := by positivity
+    simp [g, h]
+    field_simp [hsqrt_ne, hpow_ne]
+  have htarget :
+      (fun n => Real.sqrt (2 / Real.pi) * h n) =ᶠ[atTop]
+        fun n => Real.sqrt (2 / Real.pi) * (2 : ℝ) ^ n / (n : ℝ).sqrt := by
+    refine Filter.eventually_atTop.2 ⟨1, ?_⟩
+    intro n hn
+    have hsqrt_ne : (n : ℝ).sqrt ≠ 0 := by
+      exact Real.sqrt_ne_zero'.mpr (Nat.cast_pos.mpr hn)
+    simp [h]
+    field_simp [hsqrt_ne]
+  exact (hgh.congr_left hprod).congr_right htarget
 
 /--
 Imported exact lower bound from Dubroff-Fox-Xu (2021): if `A ⊆ {1, ..., N}` is sum-distinct, then
