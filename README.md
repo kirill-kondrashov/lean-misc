@@ -145,9 +145,16 @@ Current proof status:
   `erdos_1_variants_lb_from_choose_middle_asymptotic`,
   `dubroffFoxXuSharpLowerBoundReal_from_imports`, and
   `bestKnownIntegerGap_from_imports`.
-- The current main imported bottleneck for the sharp lower asymptotic route is
-  `choose_middle_lb_strong_asymptotic_axiom`, i.e. the asymptotic lower estimate for the middle
-  binomial coefficient at the `sqrt (2 / pi)` scale.
+- [ErdosProblems/Problem1Derived.lean](./ErdosProblems/Problem1Derived.lean) now exposes
+  non-axiomatic downstream aliases
+  `Erdos1.erdos_1.variants.proved.lb`,
+  `Erdos1.erdos_1.variants.proved.lb_strong`,
+  `Erdos1.erdos_1.variants.proved.real_lb`,
+  `Erdos1.erdos_1.variants.proved.real_lb_strong`, and
+  `Erdos1.erdos_1.known.best_known_integer_gap`.
+- The sharp middle-binomial asymptotic is now proved locally; the remaining Problem #1 bottlenecks
+  are the imported literature axioms for the exact Dubroff-Fox-Xu/Bohman results together with the
+  still-public placeholder surfaces in [ErdosProblems/Problem1.lean](./ErdosProblems/Problem1.lean).
 
 ## Erdős #142: current status and references
 
