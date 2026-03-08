@@ -158,6 +158,38 @@ The local formalization of Erdős Problem #1 is in
 - `Erdos1.IsSumDistinctRealSet` for the real-valued spacing variant on `(0, N]`.
 - `Erdos1.erdos_1` and the upstream variant family under `Erdos1.erdos_1.variants`.
 
+The explicit bridge from that original surface to the current split modules is now in
+[ErdosProblems/Problem1Bridge.lean](./ErdosProblems/Problem1Bridge.lean), via:
+
+- `Erdos1.originalSurfaceBridge_from_currentCodebase`
+- `Erdos1.erdos_1.current.bridge`
+
+In particular, the bridge module makes the following map explicit:
+
+- original open integer target `Erdos1.erdos_1`
+  -> `Erdos1.erdos_1.current.open_integer_target`
+  -> `Erdos1.OpenIntegerExponentialVariant`
+  -> currently still open / axiom-backed
+- original lower placeholders
+  `Erdos1.erdos_1.variants.lb` and `Erdos1.erdos_1.variants.lb_strong`
+  -> `Erdos1.erdos_1.variants.current.lb`
+  and `Erdos1.erdos_1.variants.current.lb_strong`
+  -> proved from the imported exact lower theorem plus local middle-binomial analysis
+- original real open target `Erdos1.erdos_1.variants.real`
+  -> `Erdos1.erdos_1.variants.current.real_open_target`
+  -> `Erdos1.OpenRealExponentialVariant`
+  -> currently still open / axiom-backed
+- current real lower theory
+  -> `Erdos1.erdos_1.variants.current.real_lb`
+  and `Erdos1.erdos_1.variants.current.real_lb_strong`
+- exact lower-bound frontier route
+  -> [ErdosProblems/Problem1LowerExactCore.lean](./ErdosProblems/Problem1LowerExactCore.lean)
+  -> `Erdos1.erdos_1.variants.current.exact_integer_lower_frontier_backed`
+  from the positive-boundary theorem `Erdos1.PositiveBoundaryMiddleLower`
+- exact-value witness branch
+  -> `Erdos1.erdos_1.variants.exists_N_9`
+  and `Erdos1.erdos_1.variants.exists_N_10`
+
 Current proof status:
 
 - `Erdos1.erdos_1` remains a local axiom-level placeholder for the open exponential conjecture.
@@ -201,6 +233,9 @@ Current proof status:
   `KnownRealSpacingTheory`,
   `real_spacing_lower_bound_avg`, and the explicit open-conjecture alias
   `OpenRealExponentialVariant`.
+- [ErdosProblems/Problem1Bridge.lean](./ErdosProblems/Problem1Bridge.lean) now packages the
+  connection between the original `Problem1.lean` surface and the current split modules, so the
+  status of each original statement is visible in one place.
 - The sharp middle-binomial asymptotic is now proved locally; the remaining Problem #1 bottlenecks
   are the imported literature axioms for the exact Dubroff-Fox-Xu/Bohman results together with the
   still-public placeholder surfaces in [ErdosProblems/Problem1.lean](./ErdosProblems/Problem1.lean).
