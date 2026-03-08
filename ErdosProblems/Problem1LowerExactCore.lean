@@ -23,6 +23,13 @@ def positiveBoundaryFamilyNat (A : Finset ℕ) : Finset (Finset ℕ) :=
   (A.powerset).filter fun S =>
     A.sum id < 2 * S.sum id ∧ ∃ a ∈ S, 2 * (S.erase a).sum id < A.sum id
 
+/--
+The positive vertex boundary of a family `F ⊆ powerset(A)`: these are subsets of `A` that do not
+lie in `F`, but reach `F` after deleting one element.
+-/
+def positiveVertexBoundaryNat (A : Finset ℕ) (F : Finset (Finset ℕ)) : Finset (Finset ℕ) :=
+  (A.powerset).filter fun S => S ∉ F ∧ ∃ a ∈ S, S.erase a ∈ F
+
 @[simp]
 theorem mem_negativeHalfFamilyNat {A S : Finset ℕ} :
     S ∈ negativeHalfFamilyNat A ↔ S ⊆ A ∧ 2 * S.sum id < A.sum id := by
@@ -57,6 +64,12 @@ theorem mem_positiveBoundaryFamilyNat_iff_mem_positiveHalf_and_exists_erase_nega
     rcases mem_positiveHalfFamilyNat.mp hPos with ⟨hSA, hgt⟩
     rcases mem_negativeHalfFamilyNat.mp hNeg with ⟨-, hlt⟩
     exact mem_positiveBoundaryFamilyNat.mpr ⟨hSA, hgt, a, haS, hlt⟩
+
+@[simp]
+theorem mem_positiveVertexBoundaryNat {A S : Finset ℕ} {F : Finset (Finset ℕ)} :
+    S ∈ positiveVertexBoundaryNat A F ↔
+      S ⊆ A ∧ S ∉ F ∧ ∃ a ∈ S, S.erase a ∈ F := by
+  simp [positiveVertexBoundaryNat]
 
 /-- Every positive-boundary set lies in the strict upper half. -/
 theorem positiveBoundaryFamilyNat_subset_positiveHalfFamilyNat (A : Finset ℕ) :
@@ -111,6 +124,40 @@ theorem two_mul_sum_ne_total_of_isSumDistinct {A S : Finset ℕ} {N : ℕ}
       _ = ∅ := by simp
   have hAEmpty : A = ∅ := by simpa [hAeqS] using hSEmpty
   exact hA.ne_empty hAEmpty
+
+/--
+The arithmetic boundary family is exactly the positive vertex boundary of the strict lower half.
+-/
+theorem mem_positiveBoundaryFamilyNat_iff_boundary {A S : Finset ℕ} {N : ℕ}
+    (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    S ∈ positiveBoundaryFamilyNat A ↔
+      S ∈ positiveVertexBoundaryNat A (negativeHalfFamilyNat A) := by
+  constructor
+  · intro hS
+    rcases mem_positiveBoundaryFamilyNat_iff_mem_positiveHalf_and_exists_erase_negative.mp hS with
+      ⟨hPos, a, haS, hNeg⟩
+    rcases mem_positiveHalfFamilyNat.mp hPos with ⟨hSA, hgt⟩
+    refine mem_positiveVertexBoundaryNat.mpr ⟨hSA, ?_, a, haS, hNeg⟩
+    intro hNegSelf
+    rcases mem_negativeHalfFamilyNat.mp hNegSelf with ⟨-, hlt⟩
+    omega
+  · intro hS
+    rcases mem_positiveVertexBoundaryNat.mp hS with ⟨hSA, hNotNeg, a, haS, hNeg⟩
+    have hneq : 2 * S.sum id ≠ A.sum id :=
+      two_mul_sum_ne_total_of_isSumDistinct h hA hSA
+    have hgt : A.sum id < 2 * S.sum id := by
+      by_contra hle
+      exact hNotNeg (mem_negativeHalfFamilyNat.mpr ⟨hSA, by omega⟩)
+    exact (mem_positiveBoundaryFamilyNat_iff_mem_positiveHalf_and_exists_erase_negative).mpr
+      ⟨mem_positiveHalfFamilyNat.mpr ⟨hSA, hgt⟩, a, haS, hNeg⟩
+
+/-- The arithmetic positive-boundary family equals the positive vertex boundary of the strict lower
+half family. -/
+theorem positiveBoundaryFamilyNat_eq_positiveBoundary {A : Finset ℕ} {N : ℕ}
+    (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    positiveBoundaryFamilyNat A = positiveVertexBoundaryNat A (negativeHalfFamilyNat A) := by
+  ext S
+  exact mem_positiveBoundaryFamilyNat_iff_boundary h hA
 
 /-- Complement in `A` sends the strict lower half to the strict upper half. -/
 theorem sdiff_mem_positiveHalfFamilyNat {A S : Finset ℕ}
