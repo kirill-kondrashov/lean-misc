@@ -1230,6 +1230,14 @@ def split_gap_k3_profile_dominance_target : Prop :=
   ∀ [K3UpperProfileWitnessImported] [K3BehrendLowerProfileWitnessImported],
     k3_upper_profile =O[atTop] k3_behrend_lower_template
 
+/-- Minimal extra input needed to compare a Behrend-scale `k = 3` upper witness against the
+existing Behrend lower witness on the same `sqrt(log)` scale:
+the upper witness decay constant must be at most the lower witness decay constant. -/
+def k3_behrend_scale_constant_order_target : Prop :=
+  ∀ [K3UpperProfileWitnessImported] [K3BehrendLowerProfileWitnessImported],
+    erdos_problem_142_explicit_k3_upper_profile_witness_imported.c ≤
+      erdos_problem_142_k3_behrend_lower_profile_witness_imported.c
+
 /-- The `k = 3` split-gap dominance target is recovered from the explicit elimination-route
 subtargets: exponent regime, decay comparison, and transport back to the full profile templates. -/
 theorem split_gap_k3_profile_dominance_target_of_decay_route
@@ -1361,6 +1369,61 @@ theorem split_gap_k3_profile_dominance_target_of_beta_gt_half
     hBeta
     k3_decay_template_dominance_of_beta_gt_half
     k3_decay_to_profile_transport
+
+/-- On the Behrend scale `β = 1/2`, if the upper witness decay constant is at most the lower
+decay constant, then the Behrend lower template is asymptotically dominated by the upper profile. -/
+theorem k3_behrend_lower_template_dominance_of_beta_eq_half_and_constant_order
+    [K3UpperProfileWitnessImported] [K3BehrendLowerProfileWitnessImported]
+    (hBeta : erdos_problem_142_explicit_k3_upper_profile_witness_imported.β = (1 : ℝ) / 2)
+    (hExp :
+      erdos_problem_142_explicit_k3_upper_profile_witness_imported.c ≤
+        erdos_problem_142_k3_behrend_lower_profile_witness_imported.c) :
+    k3_behrend_lower_template =O[atTop] k3_upper_profile := by
+  let wU : K3UpperProfileWitness := erdos_problem_142_explicit_k3_upper_profile_witness_imported
+  let wL : K3BehrendLowerProfileWitness := erdos_problem_142_k3_behrend_lower_profile_witness_imported
+  let K : ℝ := wL.C / wU.C
+  refine Asymptotics.IsBigO.of_bound K ?_
+  refine Filter.Eventually.of_forall ?_
+  intro N
+  let s : ℝ := Real.sqrt (Real.log (N + 2))
+  have hLog_nonneg : 0 ≤ Real.log (N + 2) := by
+    have hArg_ge_one : (1 : ℝ) ≤ (N : ℝ) + 2 := by
+      nlinarith
+    exact Real.log_nonneg hArg_ge_one
+  have hs_nonneg : 0 ≤ s := by
+    dsimp [s]
+    exact Real.sqrt_nonneg _
+  have hDecay_le : Real.exp (-wL.c * s) ≤ Real.exp (-wU.c * s) := by
+    apply Real.exp_le_exp.mpr
+    nlinarith [hExp, hs_nonneg]
+  have hFactor_nonneg : 0 ≤ wL.C * (N : ℝ) := by
+    exact mul_nonneg (le_of_lt wL.hC) (by positivity)
+  have hLower_nonneg : 0 ≤ k3_behrend_lower_template N := by
+    change 0 ≤ wL.C * (N : ℝ) * Real.exp (-wL.c * s)
+    exact mul_nonneg hFactor_nonneg (by positivity)
+  have hUpper_nonneg : 0 ≤ k3_upper_profile N := by
+    change 0 ≤ wU.C * (N : ℝ) * Real.exp (-wU.c * (Real.log (N + 2)) ^ wU.β)
+    exact mul_nonneg (mul_nonneg (le_of_lt wU.hC) (by positivity)) (by positivity)
+  have hUpper_eq :
+      k3_upper_profile N = wU.C * (N : ℝ) * Real.exp (-wU.c * s) := by
+    change wU.C * (N : ℝ) * Real.exp (-wU.c * (Real.log (N + 2)) ^ wU.β) =
+      wU.C * (N : ℝ) * Real.exp (-wU.c * s)
+    rw [hBeta]
+    simp [wU, s, Real.sqrt_eq_rpow]
+  have hwUC_ne : wU.C ≠ 0 := ne_of_gt wU.hC
+  rw [Real.norm_of_nonneg hLower_nonneg]
+  calc
+    k3_behrend_lower_template N = wL.C * (N : ℝ) * Real.exp (-wL.c * s) := by
+      simp [k3_behrend_lower_template, wL, s]
+    _ ≤ wL.C * (N : ℝ) * Real.exp (-wU.c * s) := by
+      gcongr
+    _ = K * (wU.C * (N : ℝ) * Real.exp (-wU.c * s)) := by
+      dsimp [K]
+      field_simp [hwUC_ne]
+    _ = K * k3_upper_profile N := by
+      rw [hUpper_eq]
+    _ = K * ‖k3_upper_profile N‖ := by
+      rw [Real.norm_of_nonneg hUpper_nonneg]
 
 /-- Generic analytic comparison lemma for the `k = 4` branch:
 if the lower witness exponent is at most the upper witness exponent, then the upper template is
@@ -1609,6 +1672,28 @@ class LiteratureK3OneTwelfthSourceAssumptions : Prop extends LiteratureRateAssum
   k3_superpolylog_upper_profile_one_twelfth :
     bound_targets.k3_superpolylog_upper_profile_one_twelfth
 
+/-- Optional import wrapper for the first concrete post-Behrend `k = 3` pivot:
+it records the explicit candidate upper profile at exponent `β = 1/8`. After the March 8, 2026
+audit this is not treated as an instantiated source-backed theorem layer, only as conjectural
+scaffolding for a possible future import. -/
+class LiteratureK3OneEighthSourceAssumptions : Prop extends LiteratureRateAssumptions where
+  k3_superpolylog_upper_profile_one_eighth :
+    bound_targets.k3_superpolylog_upper_profile_one_eighth
+
+/-- Source-facing literature layer for the stronger natural `k = 3` route:
+it records a Behrend-scale upper theorem at exponent `β = 1/2`. -/
+class LiteratureK3BehrendScaleUpperSourceAssumptions : Prop extends LiteratureRateAssumptions where
+  k3_behrend_scale_upper_profile :
+    bound_targets.k3_behrend_scale_upper_profile
+
+/-- Source-facing strengthened literature layer for the Behrend-scale `k = 3` route:
+besides the stronger upper theorem, it records the minimal constant-order relation needed to
+compare the Behrend lower and upper templates on the same `sqrt(log)` scale. -/
+class LiteratureK3BehrendScaleOrderedSourceAssumptions : Prop
+    extends LiteratureK3BehrendScaleUpperSourceAssumptions where
+  k3_behrend_scale_constant_order :
+    import_targets.k3_behrend_scale_constant_order_target
+
 /-- Branch-local source-facing literature layer for the pivoted `k = 5` upper route:
 it records the stretched-exponential `\log\log` upper profile at `k = 5`. -/
 class LiteratureK5UpperStretchedexpSourceAssumptions : Prop where
@@ -1666,6 +1751,29 @@ theorem k3_superpolylog_upper_profile_of_literatureK3OneTwelfthSourceAssumptions
     bound_targets.k3_superpolylog_upper_profile := by
   exact bound_targets.k3_superpolylog_upper_profile_of_one_twelfth
     h.k3_superpolylog_upper_profile_one_twelfth
+
+/-- The conjectural post-Behrend `β = 1/8` target still implies the weaker existential
+superpolylogarithmic upper-profile benchmark. -/
+theorem k3_superpolylog_upper_profile_of_literatureK3OneEighthSourceAssumptions
+    [h : LiteratureK3OneEighthSourceAssumptions] :
+    bound_targets.k3_superpolylog_upper_profile := by
+  exact bound_targets.k3_superpolylog_upper_profile_of_one_eighth
+    h.k3_superpolylog_upper_profile_one_eighth
+
+/-- The stronger natural Behrend-scale `k = 3` upper target implies the weaker existential
+superpolylogarithmic upper-profile benchmark. -/
+theorem k3_superpolylog_upper_profile_of_literatureK3BehrendScaleUpperSourceAssumptions
+    [h : LiteratureK3BehrendScaleUpperSourceAssumptions] :
+    bound_targets.k3_superpolylog_upper_profile := by
+  exact bound_targets.k3_superpolylog_upper_profile_of_behrend_scale_upper_profile
+    h.k3_behrend_scale_upper_profile
+
+/-- Expose the minimal same-scale constant-order target from the strengthened Behrend-scale
+`k = 3` literature layer. -/
+theorem k3_behrend_scale_constant_order_target_of_literatureK3BehrendScaleOrderedSourceAssumptions
+    [h : LiteratureK3BehrendScaleOrderedSourceAssumptions] :
+    import_targets.k3_behrend_scale_constant_order_target := by
+  exact h.k3_behrend_scale_constant_order
 
 /-- Expose the branch-local stretched-exponential `k = 5` upper target from its source-facing
 literature layer. -/
@@ -2228,6 +2336,157 @@ theorem k3UpperProfileWitness_beta_eq_one_twelfth_of_literatureK3OneTwelfthSourc
     exact ⟨w, rfl⟩
   change (Classical.choose hw).β = (1 : ℝ) / 12
   exact Classical.choose_spec hw
+
+/-- Noncomputable extraction of the explicit post-Behrend `k = 3` upper witness with exponent
+`β = 1/8` from the optional conjectural import wrapper. -/
+noncomputable def k3UpperProfileWitness_of_literatureK3OneEighthSourceAssumptions
+    [h : LiteratureK3OneEighthSourceAssumptions] : K3UpperProfileWitness := by
+  classical
+  let hw : ∃ w : K3UpperProfileWitness, w.β = (1 : ℝ) / 8 := by
+    rcases h.k3_superpolylog_upper_profile_one_eighth with ⟨c, C, hc, hC, hUpper⟩
+    let w : K3UpperProfileWitness :=
+      { β := (1 : ℝ) / 8
+        c := c
+        C := C
+        hβ := by
+          norm_num
+        hc := hc
+        hC := hC
+        hUpper := hUpper }
+    exact ⟨w, rfl⟩
+  exact Classical.choose hw
+
+/-- The explicit witness extracted from `LiteratureK3OneEighthSourceAssumptions`
+really carries exponent `β = 1 / 8`. -/
+theorem k3UpperProfileWitness_beta_eq_one_eighth_of_literatureK3OneEighthSourceAssumptions
+    [h : LiteratureK3OneEighthSourceAssumptions] :
+    (k3UpperProfileWitness_of_literatureK3OneEighthSourceAssumptions (h := h)).β =
+      (1 : ℝ) / 8 := by
+  classical
+  let hw : ∃ w : K3UpperProfileWitness, w.β = (1 : ℝ) / 8 := by
+    rcases h.k3_superpolylog_upper_profile_one_eighth with ⟨c, C, hc, hC, hUpper⟩
+    let w : K3UpperProfileWitness :=
+      { β := (1 : ℝ) / 8
+        c := c
+        C := C
+        hβ := by
+          norm_num
+        hc := hc
+        hC := hC
+        hUpper := hUpper }
+    exact ⟨w, rfl⟩
+  change (Classical.choose hw).β = (1 : ℝ) / 8
+  exact Classical.choose_spec hw
+
+/-- Noncomputable extraction of the stronger natural `k = 3` upper witness with exponent
+`β = 1/2` from the corresponding source-facing literature layer. -/
+noncomputable def k3UpperProfileWitness_of_literatureK3BehrendScaleUpperSourceAssumptions
+    [h : LiteratureK3BehrendScaleUpperSourceAssumptions] : K3UpperProfileWitness := by
+  classical
+  let hw : ∃ w : K3UpperProfileWitness, w.β = (1 : ℝ) / 2 := by
+    rcases h.k3_behrend_scale_upper_profile with ⟨c, C, hc, hC, hUpper⟩
+    let w : K3UpperProfileWitness :=
+      { β := (1 : ℝ) / 2
+        c := c
+        C := C
+        hβ := by
+          norm_num
+        hc := hc
+        hC := hC
+        hUpper := by
+          simpa [Real.sqrt_eq_rpow] using hUpper }
+    exact ⟨w, rfl⟩
+  exact Classical.choose hw
+
+/-- The stronger natural witness extracted from
+`LiteratureK3BehrendScaleUpperSourceAssumptions` carries exponent `β = 1/2`. -/
+theorem k3UpperProfileWitness_beta_eq_one_half_of_literatureK3BehrendScaleUpperSourceAssumptions
+    [h : LiteratureK3BehrendScaleUpperSourceAssumptions] :
+    (k3UpperProfileWitness_of_literatureK3BehrendScaleUpperSourceAssumptions (h := h)).β =
+      (1 : ℝ) / 2 := by
+  classical
+  let hw : ∃ w : K3UpperProfileWitness, w.β = (1 : ℝ) / 2 := by
+    rcases h.k3_behrend_scale_upper_profile with ⟨c, C, hc, hC, hUpper⟩
+    let w : K3UpperProfileWitness :=
+      { β := (1 : ℝ) / 2
+        c := c
+        C := C
+        hβ := by
+          norm_num
+        hc := hc
+        hC := hC
+        hUpper := by
+          simpa [Real.sqrt_eq_rpow] using hUpper }
+    exact ⟨w, rfl⟩
+  change (Classical.choose hw).β = (1 : ℝ) / 2
+  exact Classical.choose_spec hw
+
+/-- `LiteratureK3BehrendScaleUpperSourceAssumptions` provide the imported `k = 3`
+upper-witness interface on the stronger natural Behrend scale. -/
+noncomputable instance k3UpperProfileWitnessImported_of_literatureK3BehrendScaleUpperSourceAssumptions
+    [h : LiteratureK3BehrendScaleUpperSourceAssumptions] : K3UpperProfileWitnessImported where
+  k3_upper_profile_witness :=
+    k3UpperProfileWitness_of_literatureK3BehrendScaleUpperSourceAssumptions
+
+/-- `LiteratureK3OneEighthSourceAssumptions` provide the imported `k = 3`
+upper-witness interface on the conjectural explicit post-Behrend `β = 1/8` pivot route. -/
+noncomputable instance k3UpperProfileWitnessImported_of_literatureK3OneEighthSourceAssumptions
+    [h : LiteratureK3OneEighthSourceAssumptions] : K3UpperProfileWitnessImported where
+  k3_upper_profile_witness :=
+    k3UpperProfileWitness_of_literatureK3OneEighthSourceAssumptions
+
+/-- Under the strengthened Behrend-scale `k = 3` source layer, the lower Behrend template is
+asymptotically dominated by the Behrend-scale upper profile. -/
+theorem k3_behrend_lower_template_dominance_of_literatureK3BehrendScaleOrderedSourceAssumptions
+    [h : LiteratureK3BehrendScaleOrderedSourceAssumptions] :
+    k3_behrend_lower_template =O[atTop] k3_upper_profile := by
+  letI : K3UpperProfileWitnessImported :=
+    k3UpperProfileWitnessImported_of_literatureK3BehrendScaleUpperSourceAssumptions
+  letI : K3BehrendLowerProfileWitnessImported :=
+    k3BehrendLowerProfileWitnessImported_of_literatureRateAssumptions
+  exact import_targets.k3_behrend_lower_template_dominance_of_beta_eq_half_and_constant_order
+    k3UpperProfileWitness_beta_eq_one_half_of_literatureK3BehrendScaleUpperSourceAssumptions
+    (h.k3_behrend_scale_constant_order)
+
+/-- Strongest local consequence currently available from the Behrend-scale `k = 3` route:
+the existing Behrend lower witness, a Behrend-scale upper witness at exponent `β = 1/2`,
+and the true compatibility direction between them. -/
+theorem k3_behrend_scale_split_profile_of_literatureK3BehrendScaleOrderedSourceAssumptions
+    [h : LiteratureK3BehrendScaleOrderedSourceAssumptions] :
+    ∃ cL CL cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+          (fun N => (r 3 N : ℝ)) ∧
+        (fun N => (r 3 N : ℝ)) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ ((1 : ℝ) / 2))) ∧
+        (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ ((1 : ℝ) / 2))) := by
+  letI : K3UpperProfileWitnessImported :=
+    k3UpperProfileWitnessImported_of_literatureK3BehrendScaleUpperSourceAssumptions
+  letI : K3BehrendLowerProfileWitnessImported :=
+    k3BehrendLowerProfileWitnessImported_of_literatureRateAssumptions
+  let wU : K3UpperProfileWitness := erdos_problem_142_explicit_k3_upper_profile_witness_imported
+  let wL : K3BehrendLowerProfileWitness := erdos_problem_142_k3_behrend_lower_profile_witness_imported
+  have hβwU : wU.β = (1 : ℝ) / 2 := by
+    simpa [wU] using
+      k3UpperProfileWitness_beta_eq_one_half_of_literatureK3BehrendScaleUpperSourceAssumptions
+  refine ⟨wL.c, wL.C, wU.c, wU.C, wL.hc, wL.hC, wU.hc, wU.hC, wL.hLower, ?_, ?_⟩
+  · simpa [hβwU] using wU.hUpper
+  ·
+    have hLowerEq :
+        (fun N : ℕ => wL.C * (N : ℝ) * Real.exp (-wL.c * Real.sqrt (Real.log (N + 2)))) =
+          k3_behrend_lower_template := by
+      funext N
+      simp [k3_behrend_lower_template, wL]
+    have hUpperEq :
+        (fun N : ℕ => wU.C * (N : ℝ) * Real.exp (-wU.c * (Real.log (N + 2)) ^ ((1 : ℝ) / 2))) =
+          k3_upper_profile := by
+      funext N
+      simp [k3_upper_profile, wU, hβwU]
+    rw [hLowerEq, hUpperEq]
+    exact
+      k3_behrend_lower_template_dominance_of_literatureK3BehrendScaleOrderedSourceAssumptions
+        (h := h)
 
 /-- The pivoted `k = 3` literature layer produces a first-class source-backed split witness:
 explicit Kelley-Meka upper witness with `β = 1 / 12`, Behrend lower witness, and the true

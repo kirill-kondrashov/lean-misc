@@ -338,6 +338,37 @@ theorem erdos_142_three_source_backed_split_of_bounds
     erdos_142_three_source_backed_split :=
   ⟨cL, CL, cU, CU, hcL, hCL, hcU, hCU, hLower, hUpper, hCompatibility⟩
 
+/-- Conjectural theorem-level `k = 3` endpoint for the explicit post-Behrend `β = 1 / 8` route:
+there exist explicit lower and upper profiles with the true compatibility direction between them.
+This is still weaker than `erdos_142 3`; after the March 8, 2026 source audit it should be read as
+an import/scaffolding surface rather than an audited source-backed theorem. -/
+def erdos_142_three_source_backed_split_one_eighth : Prop :=
+  ∃ cL CL cU CU : ℝ,
+    0 < cL ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+      (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+        (fun N => (r 3 N : ℝ)) ∧
+      (fun N => (r 3 N : ℝ)) =O[atTop]
+        (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ ((1 : ℝ) / 8))) ∧
+      (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+        (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ ((1 : ℝ) / 8)))
+
+/-- Any imported `k = 3` split sandwich on the conjectural `β = 1 / 8` scale realizes the
+corresponding theorem-level endpoint. -/
+theorem erdos_142_three_source_backed_split_one_eighth_of_bounds
+    {cL CL cU CU : ℝ}
+    (hcL : 0 < cL) (hCL : 0 < CL) (hcU : 0 < cU) (hCU : 0 < CU)
+    (hLower :
+      (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+        (fun N => (r 3 N : ℝ)))
+    (hUpper :
+      (fun N => (r 3 N : ℝ)) =O[atTop]
+        (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ ((1 : ℝ) / 8))))
+    (hCompatibility :
+      (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+        (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ ((1 : ℝ) / 8)))) :
+    erdos_142_three_source_backed_split_one_eighth :=
+  ⟨cL, CL, cU, CU, hcL, hCL, hcU, hCU, hLower, hUpper, hCompatibility⟩
+
 /-- Honest statement-level endpoint for the source-backed split route:
 all upper variants are available, and each branch carries explicit split data on the source-backed
 scale currently supported in the repository. This is weaker than `erdos_problem_142`, but unlike
@@ -397,6 +428,104 @@ theorem erdos_142_source_backed_split_of_route (h : SourceBackedSplitRoute) :
     erdos_142_source_backed_split :=
   ⟨h⟩
 
+/-- Parameter package for the architecture class isolated by the active negative `k = 3` route:
+`a` controls rank growth per step, and `b` controls the pure local size-loss term. -/
+structure K3ArchitectureBarrierParams where
+  a : ℕ
+  b : ℕ
+
+namespace K3ArchitectureBarrierParams
+
+/-- Total loss exponent propagated by the recurrence class:
+`γ(a,b) = max(a + 3, b + 1)`. -/
+def lossExponent (p : K3ArchitectureBarrierParams) : ℕ :=
+  max (p.a + 3) (p.b + 1)
+
+/-- Final stretched-exponential exponent propagated by the recurrence class:
+`θ(a,b) = 1 / γ(a,b)`. -/
+noncomputable def propagatedExponent (p : K3ArchitectureBarrierParams) : ℝ :=
+  1 / (lossExponent p : ℝ)
+
+/-- Behrend scale would require the propagated loss exponent to be at most `2`. -/
+def behrendScaleViable (p : K3ArchitectureBarrierParams) : Prop :=
+  lossExponent p ≤ 2
+
+/-- Any recurrence in this architecture class has propagated loss exponent at least `3`. -/
+theorem three_le_lossExponent (p : K3ArchitectureBarrierParams) : 3 ≤ lossExponent p := by
+  dsimp [lossExponent]
+  have h : 3 ≤ p.a + 3 := by omega
+  exact le_trans h (le_max_left (p.a + 3) (p.b + 1))
+
+/-- Therefore no recurrence in this architecture class is compatible with Behrend scale. -/
+theorem not_behrendScaleViable (p : K3ArchitectureBarrierParams) : ¬ behrendScaleViable p := by
+  intro h
+  have hγ : 3 ≤ lossExponent p := three_le_lossExponent p
+  have hlt : 2 < lossExponent p := lt_of_lt_of_le (by decide) hγ
+  exact not_le_of_gt hlt h
+
+end K3ArchitectureBarrierParams
+
+/-- Parameters extracted from the current published `k = 3` recurrence. -/
+def k3CurrentArchitectureBarrierParams : K3ArchitectureBarrierParams :=
+  { a := 6, b := 7 }
+
+/-- Parameters extracted from the first source-motivated local refinement. -/
+def k3OneEighthArchitectureBarrierParams : K3ArchitectureBarrierParams :=
+  { a := 5, b := 6 }
+
+/-- The current published recurrence propagates total loss exponent `9`. -/
+theorem k3CurrentArchitectureBarrierParams_lossExponent :
+    k3CurrentArchitectureBarrierParams.lossExponent = 9 := by
+  norm_num [k3CurrentArchitectureBarrierParams, K3ArchitectureBarrierParams.lossExponent]
+
+/-- The current published recurrence therefore propagates final exponent `1 / 9`. -/
+theorem k3CurrentArchitectureBarrierParams_propagatedExponent :
+    k3CurrentArchitectureBarrierParams.propagatedExponent = (1 : ℝ) / 9 := by
+  norm_num [K3ArchitectureBarrierParams.propagatedExponent,
+    k3CurrentArchitectureBarrierParams_lossExponent]
+
+/-- The first local refinement propagates total loss exponent `8`. -/
+theorem k3OneEighthArchitectureBarrierParams_lossExponent :
+    k3OneEighthArchitectureBarrierParams.lossExponent = 8 := by
+  norm_num [k3OneEighthArchitectureBarrierParams, K3ArchitectureBarrierParams.lossExponent]
+
+/-- The first local refinement therefore propagates final exponent `1 / 8`. -/
+theorem k3OneEighthArchitectureBarrierParams_propagatedExponent :
+    k3OneEighthArchitectureBarrierParams.propagatedExponent = (1 : ℝ) / 8 := by
+  norm_num [K3ArchitectureBarrierParams.propagatedExponent,
+    k3OneEighthArchitectureBarrierParams_lossExponent]
+
+/-- Named theorem-level post-critic barrier endpoint for the currently extracted architecture. -/
+def erdos_142_three_current_architecture_barrier : Prop :=
+  ¬ K3ArchitectureBarrierParams.behrendScaleViable k3CurrentArchitectureBarrierParams
+
+/-- The currently extracted architecture is not Behrend-scale viable. -/
+theorem erdos_142_three_current_architecture_barrier_true :
+    erdos_142_three_current_architecture_barrier := by
+  exact K3ArchitectureBarrierParams.not_behrendScaleViable k3CurrentArchitectureBarrierParams
+
+/-- Named theorem-level post-critic barrier endpoint for the first local refinement candidate. -/
+def erdos_142_three_one_eighth_refinement_barrier : Prop :=
+  ¬ K3ArchitectureBarrierParams.behrendScaleViable k3OneEighthArchitectureBarrierParams
+
+/-- The first local refinement candidate also remains off the Behrend scale. -/
+theorem erdos_142_three_one_eighth_refinement_barrier_true :
+    erdos_142_three_one_eighth_refinement_barrier := by
+  exact K3ArchitectureBarrierParams.not_behrendScaleViable k3OneEighthArchitectureBarrierParams
+
+/-- Combined post-critic negative endpoint:
+both the current extracted architecture and the first local refinement remain off the Behrend
+scale. -/
+def erdos_142_three_negative_route_stable : Prop :=
+  erdos_142_three_current_architecture_barrier ∧
+    erdos_142_three_one_eighth_refinement_barrier
+
+/-- The current negative route is stable at the theorem surface encoded in this repository. -/
+theorem erdos_142_three_negative_route_stable_true :
+    erdos_142_three_negative_route_stable := by
+  exact ⟨erdos_142_three_current_architecture_barrier_true,
+    erdos_142_three_one_eighth_refinement_barrier_true⟩
+
 namespace bound_targets
 
 /-- Literature target corresponding to Kelley-Meka (2023): the `k = 3` upper-bound regime. -/
@@ -448,6 +577,20 @@ def k3_superpolylog_upper_profile_one_twelfth : Prop :=
     (fun N => (r 3 N : ℝ)) =O[atTop]
       (fun N : ℕ => C * (N : ℝ) * Real.exp (-c * (Real.log (N + 2)) ^ ((1 : ℝ) / 12)))
 
+/-- Candidate `k = 3` upper-profile target for the first concrete post-Behrend pivot:
+the explicit `1/8` exponent suggested by the localized recurrence analysis, but not currently
+backed by an audited published source in this repository. -/
+def k3_superpolylog_upper_profile_one_eighth : Prop :=
+  ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+    (fun N => (r 3 N : ℝ)) =O[atTop]
+      (fun N : ℕ => C * (N : ℝ) * Real.exp (-c * (Real.log (N + 2)) ^ ((1 : ℝ) / 8)))
+
+/-- Stronger natural `k = 3` upper-profile target on the Behrend scale. -/
+def k3_behrend_scale_upper_profile : Prop :=
+  ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
+    (fun N => (r 3 N : ℝ)) =O[atTop]
+      (fun N : ℕ => C * (N : ℝ) * Real.exp (-c * Real.sqrt (Real.log (N + 2))))
+
 /-- The explicit Kelley-Meka-style `β = 1/12` target implies the weaker existential
 superpolylogarithmic upper-profile target. -/
 theorem k3_superpolylog_upper_profile_of_one_twelfth :
@@ -456,6 +599,25 @@ theorem k3_superpolylog_upper_profile_of_one_twelfth :
   rcases h with ⟨c, C, hc, hC, hUpper⟩
   refine ⟨(1 : ℝ) / 12, c, C, ?_, hc, hC, hUpper⟩
   norm_num
+
+/-- The explicit `β = 1/8` target implies the weaker existential superpolylogarithmic
+upper-profile target. -/
+theorem k3_superpolylog_upper_profile_of_one_eighth :
+    k3_superpolylog_upper_profile_one_eighth → k3_superpolylog_upper_profile := by
+  intro h
+  rcases h with ⟨c, C, hc, hC, hUpper⟩
+  refine ⟨(1 : ℝ) / 8, c, C, ?_, hc, hC, hUpper⟩
+  norm_num
+
+/-- A Behrend-scale `k = 3` upper theorem is, in particular, a superpolylogarithmic upper theorem
+with exponent `β = 1/2`. -/
+theorem k3_superpolylog_upper_profile_of_behrend_scale_upper_profile :
+    k3_behrend_scale_upper_profile → k3_superpolylog_upper_profile := by
+  intro h
+  rcases h with ⟨c, C, hc, hC, hUpper⟩
+  refine ⟨(1 : ℝ) / 2, c, C, ?_, hc, hC, ?_⟩
+  · norm_num
+  · simpa [Real.sqrt_eq_rpow] using hUpper
 
 /-- Rate-template target for `k = 4`: polylogarithmic decay in an explicit `O`-profile. -/
 def k4_polylog_upper_profile : Prop :=

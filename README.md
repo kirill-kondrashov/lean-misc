@@ -89,6 +89,67 @@ Axioms used:
 - propext
 - Quot.sound
 - Classical.choice
+✅ The proof of 'Erdos142.k3_negative_route_stable' is free of 'sorry' and uses only base axioms.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+🟡 The proof of 'Erdos142.matchedProfileFrontier_exists' is free of 'sorry' but relies on temporary allowed axiom debt.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+- Erdos142.splitGap_k3_upper_exponent_gt_half_frontier
+- Erdos142.splitGap_k4_profile_dominance_frontier
+- Erdos142.splitGap_kge5_profile_dominance_frontier
+Temporarily allowed non-base axioms (must be proved later):
+- Erdos142.splitGap_k3_upper_exponent_gt_half_frontier
+- Erdos142.splitGap_k4_profile_dominance_frontier
+- Erdos142.splitGap_kge5_profile_dominance_frontier
+🟡 The proof of 'Erdos142.currentResearchStatus_exists_of_literature_sourceBacked_route' is free of 'sorry' but relies on temporary allowed axiom debt.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+- Erdos142.splitGap_k3_upper_exponent_gt_half_frontier
+- Erdos142.splitGap_k4_profile_dominance_frontier
+- Erdos142.splitGap_kge5_profile_dominance_frontier
+Temporarily allowed non-base axioms (must be proved later):
+- Erdos142.splitGap_k3_upper_exponent_gt_half_frontier
+- Erdos142.splitGap_k4_profile_dominance_frontier
+- Erdos142.splitGap_kge5_profile_dominance_frontier
+🟡 The proof of 'Erdos142.splitGapToMainTheoreticalGapAssumptions_exists_of_frontier' is free of 'sorry' but relies on temporary allowed axiom debt.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+- Erdos142.splitGap_k3_upper_exponent_gt_half_frontier
+- Erdos142.splitGap_k4_profile_dominance_frontier
+- Erdos142.splitGap_kge5_profile_dominance_frontier
+Temporarily allowed non-base axioms (must be proved later):
+- Erdos142.splitGap_k3_upper_exponent_gt_half_frontier
+- Erdos142.splitGap_k4_profile_dominance_frontier
+- Erdos142.splitGap_kge5_profile_dominance_frontier
+✅ The proof of 'Erdos142.splitGapToMainTheoreticalGapAssumptions_exists_of_matchedProfileFrontier' is free of 'sorry' and uses only base axioms.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+✅ The proof of 'Erdos142.mainTheoreticalGap_exists_of_mainSplitGap_and_assumptions' is free of 'sorry' and uses only base axioms.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+✅ The proof of 'Erdos142.erdos_problem_142_of_mainSplitGap_and_assumptions' is free of 'sorry' and uses only base axioms.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+✅ The proof of 'Erdos142.erdos_problem_142_of_mainSplitGap_and_matchedProfileFrontier' is free of 'sorry' and uses only base axioms.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
 🟡 The proof of 'Erdos142.erdos_problem_142_of_mainSplitGap_and_frontier' is free of 'sorry' but relies on temporary allowed axiom debt.
 Axioms used:
 - propext
@@ -124,7 +185,7 @@ make docs       # build API docs
 
 ## Erdős #142: current status and references
 
-- As of March 8, 2026, Problem #142 remains open; this repository keeps the full matched-profile route behind the temporary frontier axioms `Erdos142.splitGap_k3_upper_exponent_gt_half_frontier`, `Erdos142.splitGap_k4_profile_dominance_frontier`, and `Erdos142.splitGap_kge5_profile_dominance_frontier`, now packaged as the stronger off-path object `Erdos142.Problem142MatchedProfileFrontier`. The active honest route instead uses source-backed split packages for every branch, with practical target `Erdos142.MainAllSourceBackedSplitGap`, named internal endpoint `Erdos142.Problem142AllSourceBackedSplitData`, theorem-surface structure `Erdos142.SourceBackedSplitRoute`, and theorem-level proposition `Erdos142.erdos_142_source_backed_split`. On that active practical route, there is no remaining coupling debt.
+- As of March 8, 2026, Problem #142 remains open; this repository keeps the full matched-profile route behind the temporary frontier axioms `Erdos142.splitGap_k3_upper_exponent_gt_half_frontier`, `Erdos142.splitGap_k4_profile_dominance_frontier`, and `Erdos142.splitGap_kge5_profile_dominance_frontier`, now packaged as the stronger off-path object `Erdos142.Problem142MatchedProfileFrontier` with theorem-level realization surface `Erdos142.matchedProfileFrontier_exists`. The stronger route now has four clean generic checked layers: the frontier-to-coupling bridge `Erdos142.splitGapToMainTheoreticalGapAssumptions_exists_of_matchedProfileFrontier`, the main-gap realization theorem `Erdos142.mainTheoreticalGap_exists_of_mainSplitGap_and_assumptions`, the explicit coupling theorem `Erdos142.erdos_problem_142_of_mainSplitGap_and_assumptions`, and the named matched-profile route theorem `Erdos142.erdos_problem_142_of_mainSplitGap_and_matchedProfileFrontier`. On the current instantiated frontier side, the debt-carrying layers are now also explicit: `Erdos142.matchedProfileFrontier_exists`, `Erdos142.splitGapToMainTheoreticalGapAssumptions_exists_of_frontier`, and `Erdos142.erdos_problem_142_of_mainSplitGap_and_frontier`. The active honest route instead uses source-backed split packages for every branch, with practical target `Erdos142.MainAllSourceBackedSplitGap`, named internal endpoint `Erdos142.Problem142AllSourceBackedSplitData`, theorem-surface structure `Erdos142.SourceBackedSplitRoute`, and theorem-level proposition `Erdos142.erdos_142_source_backed_split`. On that active practical route, there is no remaining coupling debt. Separately, the repository now also exports the stabilized post-critic negative `k = 3` conclusion that the currently extracted architecture and its first local `1/8` refinement are both still off the Behrend scale, via `Erdos142.erdos_142_three_negative_route_stable` and the gap-layer alias `Erdos142.K3NegativeRouteStable`. The full current repository status is also packaged at the gap layer as `Erdos142.Problem142CurrentResearchStatus`.
 
 Exact formulation of Erdős Problem #142 in this repository:
 
@@ -166,6 +227,8 @@ What is already proven in this repository:
 - The $k = 5$ branch now also has a source-backed split package `K5SourceBackedSplitWitness`, and every fixed $k \ge 6$ has the tail-family source-backed split package `Kge6SourceBackedSplitWitness`; see [ErdosProblems/Problem142Literature.lean](./ErdosProblems/Problem142Literature.lean).
 - These are exposed at the gap layer as `K3SourceBackedSplitGap`, `K4SourceBackedSplitGap`, `K5SourceBackedSplitGap`, and the tail family `Kge6SourceBackedSplitGap`, with practical target `MainAllSourceBackedSplitGap`; they are also exported to the statement-level theorem surfaces `SourceBackedSplitRoute` and `erdos_142_source_backed_split`; see [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean).
 - Therefore, on the active post-pivot route, the repository now has explicit source-backed split control for every branch. The stronger unresolved content is no longer on the practical route; it survives only in the off-path matched-profile theorem family, including the stronger local target $U_4(N)=O(L_4(N))$.
+- The repository also exports the stabilized post-critic negative `k = 3` route, separating the statement “the current architecture is off-path for Behrend scale” from both the practical split route and the stronger off-path matched-profile frontier; see [ErdosProblems/Problem142.lean](./ErdosProblems/Problem142.lean) and [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean).
+- The current repository state is also packaged as one named object `Problem142CurrentResearchStatus`, whose fields expose the practical route, the stabilized negative `k = 3` route, and the off-path frontier in one place; its theorem-level realization surface is `currentResearchStatus_exists_of_literature_sourceBacked_route`; see [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean).
 
 Progress toward a proof in this repository:
 
@@ -179,7 +242,7 @@ Progress toward a proof in this repository:
 4. It packages that result into a first-class source-backed $k = 3$ split witness with explicit exponent $\beta = 1/12$; see [ErdosProblems/Problem142Literature.lean#L1391](./ErdosProblems/Problem142Literature.lean#L1391).
 5. It first reorganizes the downstream gap so that $k = 3$ and then $k = 4$ are no longer part of the active unresolved matched-profile frontier, and then refines the route further so that $k = 5$ and finally every fixed $k \ge 6$ are also handled by explicit source-backed split packages on the practical target `MainAllSourceBackedSplitGap`.
 6. It packages the resulting practical route into the named endpoint `Problem142AllSourceBackedSplitData`, exports it to the statement-level theorem surfaces `SourceBackedSplitRoute` and `erdos_142_source_backed_split`, and provides the theorem `all_source_backed_split_data_of_mainAllSourceBackedSplitGap`, which gives all upper variants together with correct branchwise split data for $k = 3$, $k = 4$, $k = 5$, and every fixed $k \ge 6$; see [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean).
-7. It also packages the stronger conjectural route into the named off-path object `Problem142MatchedProfileFrontier`, which cleanly isolates the full matched-profile debt from the practical split route; see [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean).
+7. It also packages the stronger conjectural route into the named off-path object `Problem142MatchedProfileFrontier`, with theorem-level realization surface `matchedProfileFrontier_exists`; the stronger route now has a four-step clean factorization through `splitGapToMainTheoreticalGapAssumptions_exists_of_matchedProfileFrontier`, `mainTheoreticalGap_exists_of_mainSplitGap_and_assumptions`, `erdos_problem_142_of_mainSplitGap_and_assumptions`, and `erdos_problem_142_of_mainSplitGap_and_matchedProfileFrontier`, while the currently instantiated frontier side is also explicit at the coupling layer via `splitGapToMainTheoreticalGapAssumptions_exists_of_frontier`; see [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean).
 8. It also proves that the old stronger $k = 3$ route would need an exponent threshold $\beta > 1/2$; see [ErdosProblems/Problem142Literature.lean#L1060](./ErdosProblems/Problem142Literature.lean#L1060). The current source-backed import does not provide that, so this route has been closed rather than left vague.
 
 The active missing mathematical theorems now live only on the stronger off-path matched-profile route. The practical route has been stabilized at source-backed split strength for every branch.

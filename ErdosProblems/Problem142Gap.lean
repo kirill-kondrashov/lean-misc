@@ -300,6 +300,56 @@ theorem erdos_142_three_source_backed_split_of_literatureK3OneTwelfthSourceAssum
   erdos_142_three_source_backed_split_of_k3SourceBackedSplitGap
     (k3SourceBackedSplitGap_of_literatureK3OneTwelfthSourceAssumptions (h := h))
 
+/-- The optional post-Behrend `β = 1 / 8` import wrapper yields the conjectural theorem-level
+`k = 3` split statement. This route is scaffolding only unless a published source-backed theorem
+is later audited into the repository. -/
+theorem erdos_142_three_source_backed_split_one_eighth_of_literatureK3OneEighthSourceAssumptions
+    [h : LiteratureK3OneEighthSourceAssumptions] :
+    Erdos142.erdos_142_three_source_backed_split_one_eighth := by
+  rcases h.k3_superpolylog_upper_profile_one_eighth with ⟨cU, CU, hcU, hCU, hUpper⟩
+  let wU : K3UpperProfileWitness :=
+    { β := (1 : ℝ) / 8
+      c := cU
+      C := CU
+      hβ := by norm_num
+      hc := hcU
+      hC := hCU
+      hUpper := hUpper }
+  let wL : K3BehrendLowerProfileWitness :=
+    k3BehrendLowerProfileWitness_of_literatureRateAssumptions
+  letI : K3UpperProfileWitnessImported := ⟨wU⟩
+  letI : K3BehrendLowerProfileWitnessImported := ⟨wL⟩
+  have hβw : wU.β < (1 : ℝ) / 2 := by
+    change (1 : ℝ) / 8 < (1 : ℝ) / 2
+    norm_num
+  have hβ :
+      erdos_problem_142_explicit_k3_upper_profile_witness_imported.β < (1 : ℝ) / 2 := by
+    change wU.β < (1 : ℝ) / 2
+    exact hβw
+  exact Erdos142.erdos_142_three_source_backed_split_one_eighth_of_bounds
+    wL.hc wL.hC wU.hc wU.hC
+    (by simpa [wL] using wL.hLower)
+    (by simpa [wU] using wU.hUpper)
+    (by
+      have hLowerEq :
+          (fun N : ℕ => wL.C * (N : ℝ) * Real.exp (-wL.c * Real.sqrt (Real.log (N + 2)))) =
+            k3_behrend_lower_template := by
+        funext N
+        change
+          wL.C * (N : ℝ) * Real.exp (-wL.c * Real.sqrt (Real.log (N + 2))) =
+            wL.C * (N : ℝ) * Real.exp (-wL.c * Real.sqrt (Real.log (N + 2)))
+        rfl
+      have hUpperEq :
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ ((1 : ℝ) / 8))) =
+            k3_upper_profile := by
+        funext N
+        change
+          CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ ((1 : ℝ) / 8)) =
+            wU.C * (N : ℝ) * Real.exp (-wU.c * (Real.log (N + 2)) ^ wU.β)
+        rw [show wU.C = CU by rfl, show wU.c = cU by rfl, show wU.β = (1 : ℝ) / 8 by rfl]
+      rw [hLowerEq, hUpperEq]
+      exact k3_behrend_lower_template_dominance_of_beta_lt_half hβ)
+
 /-- Asymmetric split-gap packaging after the source-backed `k = 3` pivot:
 `k = 3` is fixed by the honest source-backed split package, while `k = 4` and `k ≥ 5`
 still use the ordinary split upper/lower interfaces. -/
@@ -1004,6 +1054,13 @@ theorem erdos_142_source_backed_split_of_literature_sourceBacked_route
     (sourceBackedSplitRoute_of_literature_sourceBacked_route
       (h3 := h3) (hLower := hLower) (h5 := h5) (h6 := h6))
 
+/-- Gap-layer alias for the stabilized post-critic negative `k = 3` route. -/
+abbrev K3NegativeRouteStable : Prop := Erdos142.erdos_142_three_negative_route_stable
+
+/-- The stabilized post-critic negative `k = 3` route already holds in this repository. -/
+theorem k3_negative_route_stable : K3NegativeRouteStable :=
+  Erdos142.erdos_142_three_negative_route_stable_true
+
 /-- The current source-backed literature-side assumption layers already instantiate the full
 aggregate split-data theorem on the practical route. -/
 theorem all_source_backed_split_data_of_literature_sourceBacked_route
@@ -1285,6 +1342,44 @@ noncomputable def matchedProfileFrontier_axiomDebt :
       intro _ _ k hk
       exact @splitGap_kge5_profile_dominance_frontier _ _ k hk }
 
+/-- Proposition-level surface asserting that the named off-path matched-profile frontier is
+realized. -/
+abbrev MatchedProfileFrontierExists : Prop := Nonempty Problem142MatchedProfileFrontier
+
+/-- The current explicit frontier axiom debt already realizes the named matched-profile frontier
+package. -/
+theorem matchedProfileFrontier_exists : MatchedProfileFrontierExists :=
+  ⟨matchedProfileFrontier_axiomDebt⟩
+
+/-- Canonical package for the current repository research state:
+the honest practical split route, the stabilized post-critic negative `k = 3` route, and the
+separate off-path matched-profile frontier package. -/
+structure Problem142CurrentResearchStatus where
+  practical : Erdos142.erdos_142_source_backed_split
+  k3_negative : K3NegativeRouteStable
+  frontier : Problem142MatchedProfileFrontier
+
+/-- The current repository state packaged as one named object. -/
+noncomputable def currentResearchStatus_of_literature_sourceBacked_route
+    [h3 : LiteratureK3OneTwelfthSourceAssumptions] [hLower : LiteratureLowerImportAssumptions]
+    [h5 : LiteratureK5SourceBackedSplitAssumptions] [h6 : LiteratureKge6SourceBackedSplitAssumptions] :
+    Problem142CurrentResearchStatus :=
+  { practical := erdos_142_source_backed_split_of_literature_sourceBacked_route
+    k3_negative := k3_negative_route_stable
+    frontier := matchedProfileFrontier_axiomDebt }
+
+/-- Proposition-level surface asserting that the canonical current-status package is realized. -/
+abbrev CurrentResearchStatusExists : Prop := Nonempty Problem142CurrentResearchStatus
+
+/-- The current source-backed literature assumptions already realize the canonical current-status
+package. -/
+theorem currentResearchStatus_exists_of_literature_sourceBacked_route
+    [h3 : LiteratureK3OneTwelfthSourceAssumptions] [hLower : LiteratureLowerImportAssumptions]
+    [h5 : LiteratureK5SourceBackedSplitAssumptions] [h6 : LiteratureKge6SourceBackedSplitAssumptions] :
+    CurrentResearchStatusExists :=
+  ⟨currentResearchStatus_of_literature_sourceBacked_route
+    (h3 := h3) (hLower := hLower) (h5 := h5) (h6 := h6)⟩
+
 /-- Branch-local `k = 3` coupling can be built from an explicit upper/lower template dominance target. -/
 noncomputable def splitGap_k3_coupling_target_of_profile_dominance_target
     [K3UpperProfileWitnessImported] [K3BehrendLowerProfileWitnessImported]
@@ -1356,6 +1451,11 @@ noncomputable def splitGapToMainTheoreticalGapAssumptions_frontier :
       intro _ _ k hk
       exact splitGap_kge5_coupling_frontier (k := k) hk }
 
+/-- The current frontier axioms already realize a concrete split-to-full coupling package. -/
+theorem splitGapToMainTheoreticalGapAssumptions_exists_of_frontier :
+    Nonempty SplitGapToMainTheoreticalGapAssumptions :=
+  ⟨splitGapToMainTheoreticalGapAssumptions_frontier⟩
+
 /-- Convert the named off-path matched-profile frontier package into the corresponding coupling
 assumptions. This is the canonical bridge from the conjectural frontier route to the strong full
 matched-profile route. -/
@@ -1376,6 +1476,18 @@ noncomputable def splitGapToMainTheoreticalGapAssumptions_of_matchedProfileFront
           (by
             intro _ _ k hk
             exact @hFrontier.kge5_profile_dominance _ _ k hk) hk }
+
+/-- Proposition-level surface asserting that a named matched-profile frontier package determines
+concrete split-to-full coupling assumptions. -/
+abbrev SplitGapToMainTheoreticalGapAssumptionsExists : Prop :=
+  Nonempty SplitGapToMainTheoreticalGapAssumptions
+
+/-- Any named off-path matched-profile frontier package canonically yields a concrete split-to-full
+coupling package. -/
+theorem splitGapToMainTheoreticalGapAssumptions_exists_of_matchedProfileFrontier
+    (hFrontier : Problem142MatchedProfileFrontier) :
+    SplitGapToMainTheoreticalGapAssumptionsExists :=
+  ⟨splitGapToMainTheoreticalGapAssumptions_of_matchedProfileFrontier hFrontier⟩
 
 /-- Mixed replacement package: once the literature-side `k = 3` exponent threshold is imported,
 the remaining explicit frontier debt is only in the `k = 4` and `k ≥ 5` dominance branches. -/
@@ -1443,6 +1555,15 @@ noncomputable def mainTheoreticalGap_of_mainSplitGap_and_assumptions
       k4 := { k4_profile_witness := hCoupling.k4_profile_witness_of_split }
       kge5 := { kge5_profile_witness := fun {_} hk =>
         hCoupling.kge5_profile_witness_of_split hk } }
+
+/-- Proposition-level surface asserting that the full matched-profile gap object is realized. -/
+abbrev MainTheoreticalGapExists : Prop := Nonempty MainTheoreticalGap
+
+/-- Explicit coupling assumptions already realize the full matched-profile gap object. -/
+theorem mainTheoreticalGap_exists_of_mainSplitGap_and_assumptions
+    (hSplit : MainSplitGap) (hCoupling : SplitGapToMainTheoreticalGapAssumptions) :
+    MainTheoreticalGapExists :=
+  ⟨mainTheoreticalGap_of_mainSplitGap_and_assumptions hSplit hCoupling⟩
 
 /-- Split-gap witnesses plus explicit coupling assumptions imply the statement-level #142 target. -/
 theorem erdos_problem_142_of_mainSplitGap_and_assumptions
