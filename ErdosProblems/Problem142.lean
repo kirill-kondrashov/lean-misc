@@ -353,6 +353,18 @@ structure SourceBackedSplitRoute where
           =O[atTop]
           (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU))
 
+/-- The honest theorem-level endpoint currently supported by the repository:
+there exists a full source-backed split route covering every branch. This is weaker than
+`erdos_problem_142`, but unlike the matched-profile route it does not rely on the current frontier
+axioms. -/
+def erdos_142_source_backed_split : Prop :=
+  Nonempty SourceBackedSplitRoute
+
+/-- Any explicit source-backed split route realizes the honest theorem-level endpoint. -/
+theorem erdos_142_source_backed_split_of_route (h : SourceBackedSplitRoute) :
+    erdos_142_source_backed_split :=
+  ⟨h⟩
+
 namespace bound_targets
 
 /-- Literature target corresponding to Kelley-Meka (2023): the `k = 3` upper-bound regime. -/
