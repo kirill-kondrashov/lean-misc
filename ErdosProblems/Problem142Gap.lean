@@ -875,6 +875,25 @@ noncomputable def mainAllSourceBackedSplitData_of_mainAllSourceBackedSplitGap
     k5 := k5_mixed_two_sided_profile_of_sourceBackedSplitWitness hGap.k5
     kge6 := kge6_split_data_of_mainAllSourceBackedSplitGap hGap }
 
+/-- Export the internal practical endpoint to the statement-level theorem surface declared in
+`Problem142.lean`. This keeps the honest split route usable without depending on gap-layer
+implementation details. -/
+noncomputable def sourceBackedSplitRoute_of_mainAllSourceBackedSplitData
+    (hData : Problem142AllSourceBackedSplitData) :
+    Erdos142.SourceBackedSplitRoute :=
+  { upper := hData.upper
+    k3 := hData.k3
+    k4 := hData.k4
+    k5 := hData.k5
+    kge6 := hData.kge6 }
+
+/-- Direct export from the practical all-branches split gap to the statement-level split route. -/
+noncomputable def sourceBackedSplitRoute_of_mainAllSourceBackedSplitGap
+    (hGap : MainAllSourceBackedSplitGap) :
+    Erdos142.SourceBackedSplitRoute :=
+  sourceBackedSplitRoute_of_mainAllSourceBackedSplitData
+    (mainAllSourceBackedSplitData_of_mainAllSourceBackedSplitGap hGap)
+
 /-- Aggregate mathematical consequence of the practical all-branches source-backed split route:
 all upper variants are available, and each branch carries explicit source-backed split data on the
 correct scale for that branch. -/
@@ -928,6 +947,17 @@ noncomputable def mainAllSourceBackedSplitData_of_literature_sourceBacked_route
     Problem142AllSourceBackedSplitData :=
   mainAllSourceBackedSplitData_of_mainAllSourceBackedSplitGap
     (mainAllSourceBackedSplitGap_of_literatureK3OneTwelfth_and_lowerImportAssumptions_and_sourceBackedTail
+      (h3 := h3) (hLower := hLower) (h5 := h5) (h6 := h6))
+
+/-- Statement-level theorem surface for the current honest route:
+the source-backed literature assumptions imply the split-strength route packaged in
+`Erdos142.SourceBackedSplitRoute`. -/
+noncomputable def sourceBackedSplitRoute_of_literature_sourceBacked_route
+    [h3 : LiteratureK3OneTwelfthSourceAssumptions] [hLower : LiteratureLowerImportAssumptions]
+    [h5 : LiteratureK5SourceBackedSplitAssumptions] [h6 : LiteratureKge6SourceBackedSplitAssumptions] :
+    Erdos142.SourceBackedSplitRoute :=
+  sourceBackedSplitRoute_of_mainAllSourceBackedSplitData
+    (mainAllSourceBackedSplitData_of_literature_sourceBacked_route
       (h3 := h3) (hLower := hLower) (h5 := h5) (h6 := h6))
 
 /-- The current source-backed literature-side assumption layers already instantiate the full

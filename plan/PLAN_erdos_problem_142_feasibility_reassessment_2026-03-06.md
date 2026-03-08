@@ -98,7 +98,8 @@ Re-score the current Erdos-142 formalization pipeline against concrete, availabl
     `Problem142Gap.lean` now contains the further asymmetric downstream interfaces
     `MainK34ResolvedGap` and `MainK345ResolvedGap`, the practical all-branches
     source-backed split target `MainAllSourceBackedSplitGap` together with the named endpoint
-    `Problem142AllSourceBackedSplitData`, and the stronger off-path frontier package
+    `Problem142AllSourceBackedSplitData`, the exported statement-level theorem surface
+    `SourceBackedSplitRoute`, and the stronger off-path frontier package
     `Problem142MatchedProfileFrontier`.
     On the active practical path, `k=3`, `k=4`, `k=5`, and all fixed `k≥6`
     are treated by explicit source-backed split witnesses, so there is no remaining

@@ -306,6 +306,53 @@ def three : Prop :=
 end variants
 end erdos_142
 
+/-- Honest statement-level endpoint for the source-backed split route:
+all upper variants are available, and each branch carries explicit split data on the source-backed
+scale currently supported in the repository. This is weaker than `erdos_problem_142`, but unlike
+the matched-profile route it does not rely on the current frontier axioms. -/
+structure SourceBackedSplitRoute where
+  upper : ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142.variants.upper k
+  k3 :
+    ∃ cL CL β cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < β ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+          (fun N => (r 3 N : ℝ)) ∧
+        (fun N => (r 3 N : ℝ)) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ β)) ∧
+        (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ β))
+  k4 :
+    ∃ cL CL cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) / (Real.log (N + 2)) ^ cL) =O[atTop]
+          (fun N => (r 4 N : ℝ)) ∧
+        (fun N => (r 4 N : ℝ)) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) / (Real.log (N + 2)) ^ cU)
+  k5 :
+    ∃ α A B CL cU CU : ℝ,
+      0 < α ∧ 0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[atTop] (fun N => (r 5 N : ℝ)) ∧
+        (fun N => (r 5 N : ℝ)) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU))
+  kge6 :
+    ∀ ⦃k : ℕ⦄, 6 ≤ k → ∃ α A B CL cU CU : ℝ,
+      0 < α ∧ 0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[atTop] (fun N => (r k N : ℝ)) ∧
+        (fun N => (r k N : ℝ)) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU))
+
 namespace bound_targets
 
 /-- Literature target corresponding to Kelley-Meka (2023): the `k = 3` upper-bound regime. -/
