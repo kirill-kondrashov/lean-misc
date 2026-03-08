@@ -1,5 +1,10 @@
 import ErdosProblems.Problem1
 import ErdosProblems.Problem1LowerExactCore
+import ErdosProblems.Problem1CubeBoundary
+import ErdosProblems.Problem1CubeCompression
+import ErdosProblems.Problem1CubeDownset
+import ErdosProblems.Problem1CubeMinimalOutside
+import ErdosProblems.Problem1CubeOddExtremizer
 import ErdosProblems.Problem1Literature
 import ErdosProblems.Problem1Derived
 import ErdosProblems.Problem1ExactValues
