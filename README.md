@@ -79,6 +79,16 @@ Axioms used:
 - propext
 - Quot.sound
 - Classical.choice
+✅ The proof of 'Erdos142.erdos_142_three_source_backed_split_of_literatureK3OneTwelfthSourceAssumptions' is free of 'sorry' and uses only base axioms.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+✅ The proof of 'Erdos142.erdos_142_source_backed_split_of_literature_sourceBacked_route' is free of 'sorry' and uses only base axioms.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
 🟡 The proof of 'Erdos142.erdos_problem_142_of_mainSplitGap_and_frontier' is free of 'sorry' but relies on temporary allowed axiom debt.
 Axioms used:
 - propext
@@ -144,6 +154,14 @@ What is already proven in this repository:
 - The formalization also proves the true $k = 3$ comparison in the source-backed direction,
   $L_3(N)=O(U_3(N))$, packaged as `lower_isBigO_upper`; see [ErdosProblems/Problem142Literature.lean#L453](./ErdosProblems/Problem142Literature.lean#L453).
 - This is exposed at the gap layer as `K3SourceBackedSplitGap`; see [ErdosProblems/Problem142Gap.lean#L127](./ErdosProblems/Problem142Gap.lean#L127).
+- The repository now also exports the dedicated theorem-level $k = 3$ split statement
+  `erdos_142_three_source_backed_split`, and proves it from the current `\beta = 1/12`
+  source layer without temporary frontier axioms; this base-axiom-clean theorem is
+  `erdos_142_three_source_backed_split_of_literatureK3OneTwelfthSourceAssumptions`; see
+  [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean).
+- The exact stronger upper theorem needed to close the full $k = 3$ asymptotic-formula route is
+  written out in
+  [plan/NOTES_problem142_k3_stronger_upper_theorem_target_2026-03-08.md](./plan/NOTES_problem142_k3_stronger_upper_theorem_target_2026-03-08.md).
 - The $k = 4$ branch now also has a source-backed split package `K4SourceBackedSplitWitness`; see [ErdosProblems/Problem142Literature.lean](./ErdosProblems/Problem142Literature.lean).
 - The $k = 5$ branch now also has a source-backed split package `K5SourceBackedSplitWitness`, and every fixed $k \ge 6$ has the tail-family source-backed split package `Kge6SourceBackedSplitWitness`; see [ErdosProblems/Problem142Literature.lean](./ErdosProblems/Problem142Literature.lean).
 - These are exposed at the gap layer as `K3SourceBackedSplitGap`, `K4SourceBackedSplitGap`, `K5SourceBackedSplitGap`, and the tail family `Kge6SourceBackedSplitGap`, with practical target `MainAllSourceBackedSplitGap`; they are also exported to the statement-level theorem surfaces `SourceBackedSplitRoute` and `erdos_142_source_backed_split`; see [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean).

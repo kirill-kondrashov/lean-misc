@@ -306,6 +306,38 @@ def three : Prop :=
 end variants
 end erdos_142
 
+/-- The strongest theorem-level `k = 3` endpoint currently supported by the repository:
+there exist explicit source-backed lower and upper profiles for the `k = 3` branch, with imported
+upper exponent `1 / 12`, together with the true compatibility direction between them. This is
+weaker than `erdos_142 3`, but unlike the matched-profile route it does not rely on the current
+frontier axioms. -/
+def erdos_142_three_source_backed_split : Prop :=
+  ∃ cL CL cU CU : ℝ,
+    0 < cL ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+      (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+        (fun N => (r 3 N : ℝ)) ∧
+      (fun N => (r 3 N : ℝ)) =O[atTop]
+        (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ ((1 : ℝ) / 12))) ∧
+      (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+        (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ ((1 : ℝ) / 12)))
+
+/-- Any explicit source-backed `k = 3` split sandwich on the `β = 1 / 12` scale realizes the
+honest theorem-level endpoint. -/
+theorem erdos_142_three_source_backed_split_of_bounds
+    {cL CL cU CU : ℝ}
+    (hcL : 0 < cL) (hCL : 0 < CL) (hcU : 0 < cU) (hCU : 0 < CU)
+    (hLower :
+      (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+        (fun N => (r 3 N : ℝ)))
+    (hUpper :
+      (fun N => (r 3 N : ℝ)) =O[atTop]
+        (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ ((1 : ℝ) / 12))))
+    (hCompatibility :
+      (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+        (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ ((1 : ℝ) / 12)))) :
+    erdos_142_three_source_backed_split :=
+  ⟨cL, CL, cU, CU, hcL, hCL, hcU, hCU, hLower, hUpper, hCompatibility⟩
+
 /-- Honest statement-level endpoint for the source-backed split route:
 all upper variants are available, and each branch carries explicit split data on the source-backed
 scale currently supported in the repository. This is weaker than `erdos_problem_142`, but unlike

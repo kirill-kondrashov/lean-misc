@@ -17,6 +17,8 @@ def checkedTheorems : List Name :=
   , ``Erdos142.erdos_problem_142_iff_deepmind
   , ``Erdos142.erdos_problem_142_explicit_iff_deepmind
   , ``Erdos142.erdos_problem_142_solution_axiom
+  , ``Erdos142.erdos_142_three_source_backed_split_of_literatureK3OneTwelfthSourceAssumptions
+  , ``Erdos142.erdos_142_source_backed_split_of_literature_sourceBacked_route
   , ``Erdos142.erdos_problem_142_of_mainSplitGap_and_frontier
   ]
 

@@ -90,10 +90,14 @@ Re-score the current Erdos-142 formalization pipeline against concrete, availabl
      - `import_targets.split_gap_k3_coupling_target`
      - `import_targets.split_gap_k4_coupling_target`
      - `import_targets.split_gap_kge5_coupling_target`
-   - `k=3` note:
-     the old matched-profile elimination route is closed; active `k=3` work should now treat
-     `K3SourceBackedSplitGap` as the fixed honest endpoint and avoid further optimization of the
-     false `β > 1 / 2` path.
+  - `k=3` note:
+    the old matched-profile elimination route is closed; active `k=3` work should now treat
+    `K3SourceBackedSplitGap` as the fixed honest endpoint and avoid further optimization of the
+    false `β > 1 / 2` path.
+    This branch now also has a dedicated theorem-level endpoint
+    `erdos_142_three_source_backed_split`, and the theorem
+    `erdos_142_three_source_backed_split_of_literatureK3OneTwelfthSourceAssumptions`
+    is checked in `check_axioms.lean` using only base axioms.
   - Post-pivot redesign status:
     `Problem142Gap.lean` now contains the further asymmetric downstream interfaces
     `MainK34ResolvedGap` and `MainK345ResolvedGap`, the practical all-branches
@@ -104,6 +108,8 @@ Re-score the current Erdos-142 formalization pipeline against concrete, availabl
     On the active practical path, `k=3`, `k=4`, `k=5`, and all fixed `k≥6`
     are treated by explicit source-backed split witnesses, so there is no remaining
     active coupling frontier on that practical route.
+    The theorem `erdos_142_source_backed_split_of_literature_sourceBacked_route`
+    is now also in the `check_axioms.lean` verification set and checks with only base axioms.
   - `k≥5` note:
     the first elimination route through
     `import_targets.kge5_exponent_order_target`

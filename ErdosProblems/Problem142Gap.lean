@@ -274,6 +274,32 @@ noncomputable def k3SourceBackedSplitGap_of_literatureK3OneTwelfthSourceAssumpti
     K3SourceBackedSplitGap :=
   k3SourceBackedSplitWitness_of_literatureK3OneTwelfthSourceAssumptions
 
+/-- The honest theorem-level `k = 3` split statement follows from the local source-backed split
+package. -/
+theorem erdos_142_three_source_backed_split_of_k3SourceBackedSplitGap
+    (hK3 : K3SourceBackedSplitGap) :
+    Erdos142.erdos_142_three_source_backed_split := by
+  exact Erdos142.erdos_142_three_source_backed_split_of_bounds
+    hK3.lower.hc hK3.lower.hC hK3.upper.hc hK3.upper.hC
+    hK3.lower.hLower
+    (by simpa [hK3.upper_beta_eq_one_twelfth] using hK3.upper.hUpper)
+    (by
+      letI : K3UpperProfileWitnessImported := ⟨hK3.upper⟩
+      letI : K3BehrendLowerProfileWitnessImported := ⟨hK3.lower⟩
+      convert hK3.hCompatibility using 1
+      ext N
+      simp [k3_upper_profile,
+        erdos_problem_142_explicit_k3_upper_profile_witness_imported,
+        hK3.upper_beta_eq_one_twelfth])
+
+/-- The pivoted Kelley-Meka `β = 1 / 12` source layer already yields the strongest honest
+theorem-level `k = 3` split statement. -/
+theorem erdos_142_three_source_backed_split_of_literatureK3OneTwelfthSourceAssumptions
+    [h : LiteratureK3OneTwelfthSourceAssumptions] :
+    Erdos142.erdos_142_three_source_backed_split :=
+  erdos_142_three_source_backed_split_of_k3SourceBackedSplitGap
+    (k3SourceBackedSplitGap_of_literatureK3OneTwelfthSourceAssumptions (h := h))
+
 /-- Asymmetric split-gap packaging after the source-backed `k = 3` pivot:
 `k = 3` is fixed by the honest source-backed split package, while `k = 4` and `k ≥ 5`
 still use the ordinary split upper/lower interfaces. -/
