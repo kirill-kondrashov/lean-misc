@@ -64,6 +64,15 @@ theorem positiveBoundaryFamilyNat_subset_positiveHalfFamilyNat (A : Finset ℕ) 
   intro S hS
   exact (mem_positiveBoundaryFamilyNat_iff_mem_positiveHalf_and_exists_erase_negative.mp hS).1
 
+/-- A nonempty sum-distinct set cannot live in the degenerate ambient interval `{1, ..., 0}`. -/
+theorem nonempty_of_isSumDistinctSet_ne_zero {A : Finset ℕ} {N : ℕ}
+    (h : IsSumDistinctSet A N) (hA : A.Nonempty) : N ≠ 0 := by
+  intro hN
+  rcases hA with ⟨a, ha⟩
+  have haIcc := h.1 ha
+  rw [hN, Finset.Icc_eq_empty_of_lt (by omega)] at haIcc
+  simp at haIcc
+
 /-- Sum-distinctness gives injectivity of `sum` on `A.powerset`. -/
 theorem sum_injOn_powerset {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) :
     Set.InjOn (fun S : Finset ℕ => S.sum id) A.powerset := by
@@ -251,7 +260,7 @@ Non-core frontier input: the missing Harper-style lower bound on the size of the
 family attached to a sum-distinct set.
 -/
 axiom positiveBoundaryMiddleLower_frontier :
-  ∀ ⦃N : ℕ⦄ ⦃A : Finset ℕ⦄, IsSumDistinctSet A N →
+  ∀ ⦃N : ℕ⦄ ⦃A : Finset ℕ⦄, IsSumDistinctSet A N → A.Nonempty →
     Nat.choose A.card (A.card / 2) ≤ (positiveBoundaryFamilyNat A).card
 
 /--
@@ -259,19 +268,19 @@ Public theorem surface for the positive-boundary middle lower bound.
 It is currently routed through the non-core frontier input above.
 -/
 theorem PositiveBoundaryMiddleLower :
-    ∀ ⦃N : ℕ⦄ ⦃A : Finset ℕ⦄, IsSumDistinctSet A N →
+    ∀ ⦃N : ℕ⦄ ⦃A : Finset ℕ⦄, IsSumDistinctSet A N → A.Nonempty →
       Nat.choose A.card (A.card / 2) ≤ (positiveBoundaryFamilyNat A).card :=
   positiveBoundaryMiddleLower_frontier
 
 /--
 Once `PositiveBoundaryMiddleLower` is available, the exact Dubroff-Fox-Xu integer lower theorem
-follows from the already formalized interval-counting argument.
+follows from the already formalized interval-counting argument for nonempty `A`.
 -/
 theorem erdos_1_lower_bound_exact_of_positiveBoundaryMiddleLower
     :
-    ∀ (N : ℕ) (A : Finset ℕ), IsSumDistinctSet A N →
+    ∀ (N : ℕ) (A : Finset ℕ), IsSumDistinctSet A N → A.Nonempty →
       Nat.choose A.card (A.card / 2) ≤ N := by
-  intro N A hA
-  exact choose_middle_le_of_boundary_lower hA (PositiveBoundaryMiddleLower hA)
+  intro N A hA hAne
+  exact choose_middle_le_of_boundary_lower hA (PositiveBoundaryMiddleLower hA hAne)
 
 end Erdos1

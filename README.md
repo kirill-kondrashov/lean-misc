@@ -186,6 +186,7 @@ In particular, the bridge module makes the following map explicit:
   -> [ErdosProblems/Problem1LowerExactCore.lean](./ErdosProblems/Problem1LowerExactCore.lean)
   -> `Erdos1.erdos_1.variants.current.exact_integer_lower_frontier_backed`
   from the positive-boundary theorem `Erdos1.PositiveBoundaryMiddleLower`
+  for nonempty `A`
 - exact-value witness branch
   -> `Erdos1.erdos_1.variants.exists_N_9`
   and `Erdos1.erdos_1.variants.exists_N_10`
@@ -236,6 +237,9 @@ Current proof status:
 - [ErdosProblems/Problem1Bridge.lean](./ErdosProblems/Problem1Bridge.lean) now packages the
   connection between the original `Problem1.lean` surface and the current split modules, so the
   status of each original statement is visible in one place.
+- [ErdosProblems/Problem1LowerExactCore.lean](./ErdosProblems/Problem1LowerExactCore.lean) now
+  proves the half-cube arithmetic layer behind the exact Dubroff-Fox-Xu theorem, and exposes the
+  remaining positive-boundary frontier in a corrected nonempty form.
 - The sharp middle-binomial asymptotic is now proved locally; the remaining Problem #1 bottlenecks
   are the imported literature axioms for the exact Dubroff-Fox-Xu/Bohman results together with the
   still-public placeholder surfaces in [ErdosProblems/Problem1.lean](./ErdosProblems/Problem1.lean).

@@ -40,7 +40,7 @@ structure OriginalSurfaceBridge where
         (Real.sqrt (2 / Real.pi) - o A.card) * 2 ^ A.card / (A.card : ℝ).sqrt ≤ N
   real_known_theory : KnownRealSpacingTheory
   exact_integer_lower_frontier_backed :
-    ∀ (N : ℕ) (A : Finset ℕ), IsSumDistinctSet A N →
+    ∀ (N : ℕ) (A : Finset ℕ), IsSumDistinctSet A N → A.Nonempty →
       Nat.choose A.card (A.card / 2) ≤ N
   exact_witness_N_9 : ∃ A, IsSumDistinctSet A 161 ∧ A.card = 9
   exact_witness_N_10 : ∃ A, IsSumDistinctSet A 309 ∧ A.card = 10
@@ -57,7 +57,9 @@ theorem originalSurfaceBridge_from_currentCodebase : OriginalSurfaceBridge := by
       real_known_lb := erdos_1.variants.proved.real_lb
       real_known_lb_strong := erdos_1.variants.proved.real_lb_strong
       real_known_theory := knownRealSpacingTheory_from_imports
-      exact_integer_lower_frontier_backed := erdos_1_lower_bound_exact_of_positiveBoundaryMiddleLower
+      exact_integer_lower_frontier_backed := by
+        intro N A hA hAne
+        exact erdos_1_lower_bound_exact_of_positiveBoundaryMiddleLower N A hA hAne
       exact_witness_N_9 := erdos_1.variants.exists_N_9
       exact_witness_N_10 := erdos_1.variants.exists_N_10 }
 
@@ -106,8 +108,10 @@ Frontier-backed exact integer lower theorem obtained by combining the positive-b
 lower theorem with the already formalized interval-counting argument.
 -/
 theorem erdos_1.variants.current.exact_integer_lower_frontier_backed :
-    ∀ (N : ℕ) (A : Finset ℕ), IsSumDistinctSet A N →
+    ∀ (N : ℕ) (A : Finset ℕ), IsSumDistinctSet A N → A.Nonempty →
       Nat.choose A.card (A.card / 2) ≤ N :=
-  erdos_1_lower_bound_exact_of_positiveBoundaryMiddleLower
+by
+  intro N A hA hAne
+  exact erdos_1_lower_bound_exact_of_positiveBoundaryMiddleLower N A hA hAne
 
 end Erdos1

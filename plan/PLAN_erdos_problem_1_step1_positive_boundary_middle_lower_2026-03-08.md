@@ -12,7 +12,8 @@ by proving the theorem
 PositiveBoundaryMiddleLower
 ```
 
-that is, for every sum-distinct set `A ⊆ {1, ..., N}`,
+in its corrected nonempty form, that is, for every nonempty sum-distinct set
+`A ⊆ {1, ..., N}`,
 
 ```text
 C(|A|, floor(|A|/2)) <= |positiveBoundaryFamilyNat(A)|.
@@ -24,7 +25,7 @@ Combined with the already proved upper bound
 |positiveBoundaryFamilyNat(A)| <= N,
 ```
 
-this yields the exact Dubroff-Fox-Xu integer lower theorem
+this yields the exact Dubroff-Fox-Xu integer lower theorem for nonempty `A`
 
 ```text
 C(|A|, floor(|A|/2)) <= N.
@@ -45,6 +46,9 @@ So the remaining task is exactly to replace the frontier input
 - `positiveBoundaryMiddleLower_frontier`
 
 with a theorem from base axioms.
+
+Note: the naive all-`A` statement is false at `A = ∅`, `N = 0`, so the corrected local target
+must include a nonempty side condition (equivalently, a nondegenerate ambient condition).
 
 ## Mathematical formulation
 

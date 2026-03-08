@@ -17,7 +17,7 @@ Define the positive boundary family
 
 Then the frontier theorem is:
 
-`|B^+(A)| >= C(n, floor(n/2))`.
+`A != ∅  =>  |B^+(A)| >= C(n, floor(n/2))`.
 
 Here `C(n,k)` means the binomial coefficient `n choose k`.
 
@@ -83,7 +83,7 @@ The proof is:
 2. distinct subset sums imply the values `sum(S)` for `S in B^+(A)` are all distinct
 3. there are at most `N` integers in the interval `(T/2, T/2 + N]`
 
-So if one proves
+So if one proves, for nonempty `A`,
 
 `|B^+(A)| >= C(n, floor(n/2))`,
 
