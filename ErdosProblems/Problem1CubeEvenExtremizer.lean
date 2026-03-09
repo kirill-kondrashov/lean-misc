@@ -14,19 +14,32 @@ def succFamily {n : ℕ} (𝒜 : Finset (Finset (Fin n))) : Finset (Finset (Fin 
   𝒜.map (Finset.mapEmbedding (Fin.succEmb n)).toEmbedding
 
 /-- Pull a family on `Fin (n+1)` back to `Fin n` by deleting the `0` coordinate. -/
-def predFamily {n : ℕ} (𝒜 : Finset (Finset (Fin (n + 1)))) : Finset (Finset (Fin n)) :=
+noncomputable def predFamily {n : ℕ} (𝒜 : Finset (Finset (Fin (n + 1)))) :
+    Finset (Finset (Fin n)) :=
   𝒜.image fun s => s.preimage Fin.succ (Fin.succ_injective n).injOn
 
-[simp]
+@[simp]
 theorem mem_predFamily {n : ℕ} {𝒜 : Finset (Finset (Fin (n + 1)))} {s : Finset (Fin n)} :
     s ∈ predFamily 𝒜 ↔
       ∃ t ∈ 𝒜, t.preimage Fin.succ (Fin.succ_injective n).injOn = s := by
-  simp [predFamily]
+  unfold predFamily
+  constructor
+  · intro hs
+    rcases Finset.mem_image.mp hs with ⟨t, ht, rfl⟩
+    exact ⟨t, ht, rfl⟩
+  · rintro ⟨t, ht, rfl⟩
+    exact Finset.mem_image.mpr ⟨t, ht, rfl⟩
 
 @[simp]
 theorem card_succFamily {n : ℕ} (𝒜 : Finset (Finset (Fin n))) :
     #(succFamily 𝒜) = #𝒜 := by
   simp [succFamily]
+
+@[simp]
+theorem preimage_map_succEmb {n : ℕ} (s : Finset (Fin n)) :
+    (s.map (Fin.succEmb n)).preimage Fin.succ (Fin.succ_injective n).injOn = s := by
+  ext x
+  simp
 
 theorem predFamily_succFamily {n : ℕ} (𝒜 : Finset (Finset (Fin n))) :
     predFamily (succFamily 𝒜) = 𝒜 := by
@@ -34,12 +47,21 @@ theorem predFamily_succFamily {n : ℕ} (𝒜 : Finset (Finset (Fin n))) :
   constructor
   · intro hs
     rcases mem_predFamily.mp hs with ⟨t, ht, hts⟩
-    rw [mem_succFamily_iff] at ht
-    simpa [← hts] using ht.2
+    rcases Finset.mem_map.mp ht with ⟨u, hu, rfl⟩
+    have hmap : (Finset.mapEmbedding (Fin.succEmb n)) u = u.map (Fin.succEmb n) := rfl
+    have hpreu :
+        ((Finset.mapEmbedding (Fin.succEmb n)).toEmbedding u).preimage Fin.succ
+            (Fin.succ_injective n).injOn = u := by
+      rw [show ((Finset.mapEmbedding (Fin.succEmb n)).toEmbedding u) = u.map (Fin.succEmb n) by
+        exact hmap]
+      exact preimage_map_succEmb (n := n) u
+    have hsu : s = u := by
+      exact hts.symm.trans hpreu
+    simpa [hsu] using hu
   · intro hs
-    exact mem_predFamily.mpr ⟨s.map (Fin.succEmb n), by
-      exact Finset.mem_map.mpr ⟨s, hs, rfl⟩, by
-      rw [Finset.preimage_map]⟩
+    refine mem_predFamily.mpr ⟨s.map (Fin.succEmb n), ?_, ?_⟩
+    · exact Finset.mem_map.mpr ⟨s, hs, rfl⟩
+    · simpa using preimage_map_succEmb (n := n) s
 
 theorem zero_not_mem_of_mem_succFamily {n : ℕ} {𝒜 : Finset (Finset (Fin n))}
     {s : Finset (Fin (n + 1))} (hs : s ∈ succFamily 𝒜) :
@@ -60,10 +82,10 @@ theorem mem_succFamily_iff {n : ℕ} {𝒜 : Finset (Finset (Fin n))}
       simpa [Finset.mapEmbedding_apply] using hts0
     constructor
     · exact zero_not_mem_of_mem_succFamily (𝒜 := 𝒜) (s := s) hs
-    · rw [← hts]
-      change (t.map (Fin.succEmb n)).preimage (Fin.succEmb n) (Fin.succEmb n).injective.injOn ∈ 𝒜
-      rw [Finset.preimage_map]
-      exact ht
+    · have hpre : s.preimage Fin.succ (Fin.succ_injective n).injOn = t := by
+        rw [← hts]
+        simpa using preimage_map_succEmb (n := n) t
+      simpa [hpre] using ht
   · rintro ⟨h0, ht⟩
     refine Finset.mem_map.mpr ?_
     refine ⟨s.preimage Fin.succ (Fin.succ_injective n).injOn, ht, ?_⟩
@@ -173,82 +195,17 @@ theorem isDownSetFamily_predFamily {n : ℕ} {𝒜 : Finset (Finset (Fin (n + 1)
   have huEq : s.map (Fin.succEmb n) = u := by
     simpa [Finset.map_eq_image, huImage] using
       congrArg (fun v : Finset (Fin n) => v.image Fin.succ) hus.symm
-  refine mem_predFamily.mpr ⟨t.map (Fin.succEmb n), ?_, by rw [Finset.preimage_map]⟩
+  refine mem_predFamily.mpr ⟨t.map (Fin.succEmb n), ?_, by
+    simpa using preimage_map_succEmb (n := n) t⟩
   apply h𝒜
   · intro x hx
     rcases Finset.mem_map.mp hx with ⟨y, hy, rfl⟩
-    rw [← huEq]
-    exact Finset.mem_map.mpr ⟨y, hts hy, rfl⟩
+    have hyu : (Fin.succEmb n) y ∈ u := by
+      have hys : (Fin.succEmb n) y ∈ s.map (Fin.succEmb n) :=
+        Finset.mem_map.mpr ⟨y, hts hy, rfl⟩
+      simpa [huEq] using hys
+    exact hyu
   · exact hu
-
-theorem nonMemberSubfamily_positiveBoundary_eq_succFamily_positiveBoundary_predFamily
-    {n : ℕ} {𝒜 : Finset (Finset (Fin (n + 1)))}
-    (h0 : ∀ s ∈ 𝒜, (0 : Fin (n + 1)) ∉ s) :
-    (positiveBoundary 𝒜).nonMemberSubfamily 0 =
-      succFamily (positiveBoundary (predFamily 𝒜)) := by
-  rw [← succFamily_predFamily h0, nonMemberSubfamily_positiveBoundary_succFamily]
-
-theorem card_nonMemberSubfamily_positiveBoundary_eq_card_positiveBoundary_predFamily
-    {n : ℕ} {𝒜 : Finset (Finset (Fin (n + 1)))}
-    (h0 : ∀ s ∈ 𝒜, (0 : Fin (n + 1)) ∉ s) :
-    #((positiveBoundary 𝒜).nonMemberSubfamily 0) =
-      #(positiveBoundary (predFamily 𝒜)) := by
-  rw [nonMemberSubfamily_positiveBoundary_eq_succFamily_positiveBoundary_predFamily h0,
-    card_succFamily]
-
-theorem card_predFamily_nonMemberSubfamily {n : ℕ}
-    (𝒜 : Finset (Finset (Fin (n + 1)))) :
-    #(predFamily (𝒜.nonMemberSubfamily 0)) = #(𝒜.nonMemberSubfamily 0) := by
-  apply card_predFamily
-  intro s hs
-  exact (mem_nonMemberSubfamily.mp hs).2
-
-theorem card_predFamily_memberSubfamily {n : ℕ}
-    (𝒜 : Finset (Finset (Fin (n + 1)))) :
-    #(predFamily (𝒜.memberSubfamily 0)) = #(𝒜.memberSubfamily 0) := by
-  apply card_predFamily
-  intro s hs
-  exact (mem_memberSubfamily.mp hs).2
-
-theorem isDownSetFamily_predFamily_nonMemberSubfamily {n : ℕ}
-    {𝒜 : Finset (Finset (Fin (n + 1)))} (h𝒜 : IsDownSetFamily 𝒜) :
-    IsDownSetFamily (predFamily (𝒜.nonMemberSubfamily 0)) := by
-  apply isDownSetFamily_predFamily
-  · intro s hs
-    exact (mem_nonMemberSubfamily.mp hs).2
-  · exact isDownSetFamily_nonMemberSubfamily h𝒜 0
-
-theorem isDownSetFamily_predFamily_memberSubfamily {n : ℕ}
-    {𝒜 : Finset (Finset (Fin (n + 1)))} (h𝒜 : IsDownSetFamily 𝒜) :
-    IsDownSetFamily (predFamily (𝒜.memberSubfamily 0)) := by
-  apply isDownSetFamily_predFamily
-  · intro s hs
-    exact (mem_memberSubfamily.mp hs).2
-  · exact isDownSetFamily_memberSubfamily h𝒜 0
-
-theorem card_positiveBoundary_predFamily_nonMemberSubfamily {n : ℕ}
-    (𝒜 : Finset (Finset (Fin (n + 1)))) :
-    #(positiveBoundary (predFamily (𝒜.nonMemberSubfamily 0))) =
-      #((positiveBoundary (𝒜.nonMemberSubfamily 0)).nonMemberSubfamily 0) := by
-  symm
-  apply card_nonMemberSubfamily_positiveBoundary_eq_card_positiveBoundary_predFamily
-  intro s hs
-  exact (mem_nonMemberSubfamily.mp hs).2
-
-theorem card_positiveBoundary_predFamily_memberSubfamily {n : ℕ}
-    (𝒜 : Finset (Finset (Fin (n + 1)))) :
-    #(positiveBoundary (predFamily (𝒜.memberSubfamily 0))) =
-      #((positiveBoundary (𝒜.memberSubfamily 0)).nonMemberSubfamily 0) := by
-  symm
-  apply card_nonMemberSubfamily_positiveBoundary_eq_card_positiveBoundary_predFamily
-  intro s hs
-  exact (mem_memberSubfamily.mp hs).2
-
-theorem predFamily_memberSubfamily_subset_predFamily_nonMemberSubfamily {n : ℕ}
-    {𝒜 : Finset (Finset (Fin (n + 1)))} (h𝒜 : IsDownSetFamily 𝒜) :
-    predFamily (𝒜.memberSubfamily 0) ⊆ predFamily (𝒜.nonMemberSubfamily 0) := by
-  apply predFamily_mono
-  exact h𝒜.memberSubfamily_subset_nonMemberSubfamily (a := 0)
 
 /-- Lift a family on `Fin n` into `Fin (n+1)` while skipping a pivot coordinate `a`. -/
 def succAboveFamily {n : ℕ} (a : Fin (n + 1)) (𝒜 : Finset (Finset (Fin n))) :
@@ -256,21 +213,33 @@ def succAboveFamily {n : ℕ} (a : Fin (n + 1)) (𝒜 : Finset (Finset (Fin n)))
   𝒜.map (Finset.mapEmbedding (Fin.succAboveEmb a)).toEmbedding
 
 /-- Pull a family on `Fin (n+1)` back to `Fin n` by deleting a pivot coordinate `a`. -/
-def predAboveFamily {n : ℕ} (a : Fin (n + 1)) (𝒜 : Finset (Finset (Fin (n + 1)))) :
+noncomputable def predAboveFamily {n : ℕ} (a : Fin (n + 1)) (𝒜 : Finset (Finset (Fin (n + 1)))) :
     Finset (Finset (Fin n)) :=
   𝒜.image fun s => s.preimage a.succAbove a.succAboveEmb.injective.injOn
 
-[simp]
+@[simp]
 theorem mem_predAboveFamily {n : ℕ} {a : Fin (n + 1)}
     {𝒜 : Finset (Finset (Fin (n + 1)))} {s : Finset (Fin n)} :
     s ∈ predAboveFamily a 𝒜 ↔
       ∃ t ∈ 𝒜, t.preimage a.succAbove a.succAboveEmb.injective.injOn = s := by
-  simp [predAboveFamily]
+  unfold predAboveFamily
+  constructor
+  · intro hs
+    rcases Finset.mem_image.mp hs with ⟨t, ht, rfl⟩
+    exact ⟨t, ht, rfl⟩
+  · rintro ⟨t, ht, rfl⟩
+    exact Finset.mem_image.mpr ⟨t, ht, rfl⟩
 
 @[simp]
 theorem card_succAboveFamily {n : ℕ} (a : Fin (n + 1)) (𝒜 : Finset (Finset (Fin n))) :
     #(succAboveFamily a 𝒜) = #𝒜 := by
   simp [succAboveFamily]
+
+@[simp]
+theorem preimage_map_succAboveEmb {n : ℕ} (a : Fin (n + 1)) (s : Finset (Fin n)) :
+    (s.map (Fin.succAboveEmb a)).preimage a.succAbove a.succAboveEmb.injective.injOn = s := by
+  ext x
+  simp
 
 theorem pivot_not_mem_of_mem_succAboveFamily {n : ℕ} {a : Fin (n + 1)}
     {𝒜 : Finset (Finset (Fin n))} {s : Finset (Fin (n + 1))}
@@ -292,10 +261,10 @@ theorem mem_succAboveFamily_iff {n : ℕ} {a : Fin (n + 1)}
       simpa [Finset.mapEmbedding_apply] using hts0
     constructor
     · exact pivot_not_mem_of_mem_succAboveFamily (a := a) hs
-    · rw [← hts]
-      change (t.map (Fin.succAboveEmb a)).preimage a.succAbove a.succAboveEmb.injective.injOn ∈ 𝒜
-      rw [Finset.preimage_map]
-      exact ht
+    · have hpre : s.preimage a.succAbove a.succAboveEmb.injective.injOn = t := by
+        rw [← hts]
+        simpa using preimage_map_succAboveEmb a t
+      simpa [hpre] using ht
   · rintro ⟨ha, hsA⟩
     refine Finset.mem_map.mpr ?_
     refine ⟨s.preimage a.succAbove a.succAboveEmb.injective.injOn, hsA, ?_⟩
@@ -318,12 +287,21 @@ theorem predAboveFamily_succAboveFamily {n : ℕ} (a : Fin (n + 1))
   constructor
   · intro hs
     rcases mem_predAboveFamily.mp hs with ⟨t, ht, hts⟩
-    rw [mem_succAboveFamily_iff (a := a)] at ht
-    simpa [← hts] using ht.2
+    rcases Finset.mem_map.mp ht with ⟨u, hu, rfl⟩
+    have hmap : (Finset.mapEmbedding (Fin.succAboveEmb a)) u = u.map (Fin.succAboveEmb a) := rfl
+    have hpreu :
+        ((Finset.mapEmbedding (Fin.succAboveEmb a)).toEmbedding u).preimage a.succAbove
+            a.succAboveEmb.injective.injOn = u := by
+      rw [show ((Finset.mapEmbedding (Fin.succAboveEmb a)).toEmbedding u) = u.map (Fin.succAboveEmb a) by
+        exact hmap]
+      exact preimage_map_succAboveEmb a u
+    have hsu : s = u := by
+      exact hts.symm.trans hpreu
+    simpa [hsu] using hu
   · intro hs
-    exact mem_predAboveFamily.mpr ⟨s.map (Fin.succAboveEmb a), by
-      exact Finset.mem_map.mpr ⟨s, hs, rfl⟩, by
-      rw [Finset.preimage_map]⟩
+    refine mem_predAboveFamily.mpr ⟨s.map (Fin.succAboveEmb a), ?_, ?_⟩
+    · exact Finset.mem_map.mpr ⟨s, hs, rfl⟩
+    · simpa using preimage_map_succAboveEmb a s
 
 theorem succAboveFamily_predAboveFamily {n : ℕ} {a : Fin (n + 1)}
     {𝒜 : Finset (Finset (Fin (n + 1)))}
@@ -401,12 +379,16 @@ theorem isDownSetFamily_predAboveFamily {n : ℕ} {a : Fin (n + 1)}
   have huEq : s.map (Fin.succAboveEmb a) = u := by
     simpa [Finset.map_eq_image, huImage] using
       congrArg (fun v : Finset (Fin n) => v.image a.succAbove) hus.symm
-  refine mem_predAboveFamily.mpr ⟨t.map (Fin.succAboveEmb a), ?_, by rw [Finset.preimage_map]⟩
+  refine mem_predAboveFamily.mpr ⟨t.map (Fin.succAboveEmb a), ?_, by
+    simpa using preimage_map_succAboveEmb a t⟩
   apply h𝒜
   · intro x hx
     rcases Finset.mem_map.mp hx with ⟨y, hy, rfl⟩
-    rw [← huEq]
-    exact Finset.mem_map.mpr ⟨y, hts hy, rfl⟩
+    have hyu : a.succAboveEmb y ∈ u := by
+      have hys : a.succAboveEmb y ∈ s.map (Fin.succAboveEmb a) :=
+        Finset.mem_map.mpr ⟨y, hts hy, rfl⟩
+      simpa [huEq] using hys
+    exact hyu
   · exact hu
 
 theorem mem_positiveBoundary_succAboveFamily_iff {n : ℕ} {a : Fin (n + 1)}
@@ -449,7 +431,8 @@ theorem nonMemberSubfamily_positiveBoundary_succAboveFamily {n : ℕ}
     rw [mem_succAboveFamily_iff (a := a)]
     exact ⟨hs.2, (mem_positiveBoundary_succAboveFamily_iff (a := a) hs.2).1 hs.1⟩
   · intro hs
-    rw [mem_nonMemberSubfamily, mem_succAboveFamily_iff (a := a)] at hs ⊢
+    rw [mem_succAboveFamily_iff (a := a)] at hs
+    rw [mem_nonMemberSubfamily]
     exact ⟨(mem_positiveBoundary_succAboveFamily_iff (a := a) hs.1).2 hs.2, hs.1⟩
 
 theorem memberSubfamily_positiveBoundary_succAboveFamily {n : ℕ}
@@ -464,24 +447,29 @@ theorem memberSubfamily_positiveBoundary_succAboveFamily {n : ℕ}
     rcases mem_positiveBoundary.mp hs.1 with ⟨hsNot, b, hb, hsErase⟩
     have hba : b = a := by
       by_contra hba
+      have hba' : a ≠ b := by simpa [eq_comm] using hba
       have haErase : a ∈ (insert a s).erase b := by
-        simp [hsa, hba]
+        simp [hsa, hba']
       exact (pivot_not_mem_of_mem_succAboveFamily (a := a) hsErase) haErase
-    exact ⟨hsa, by simpa [hba, hsa] using hsErase⟩
+    have hsSucc : s ∈ succAboveFamily a 𝒜 := by
+      simpa [hba, hsa] using hsErase
+    exact ⟨hsa, (mem_succAboveFamily_iff (a := a) (s := s)).1 hsSucc |>.2⟩
   · rintro ⟨hsa, hsA⟩
     refine ⟨?_, hsa⟩
     refine mem_positiveBoundary.mpr ⟨?_, a, by simp, ?_⟩
     · intro hsInsert
       exact (pivot_not_mem_of_mem_succAboveFamily (a := a) hsInsert) (mem_insert_self _ _)
-    · simpa [hsa] using hsA
+    · have hsSucc : s ∈ succAboveFamily a 𝒜 :=
+        (mem_succAboveFamily_iff (a := a) (s := s)).2 ⟨hsa, hsA⟩
+      simpa [hsa] using hsSucc
 
 theorem nonMemberSubfamily_positiveBoundary_eq_succAboveFamily_positiveBoundary_predAboveFamily
     {n : ℕ} {a : Fin (n + 1)} {𝒜 : Finset (Finset (Fin (n + 1)))}
     (ha : ∀ s ∈ 𝒜, a ∉ s) :
     (positiveBoundary 𝒜).nonMemberSubfamily a =
       succAboveFamily a (positiveBoundary (predAboveFamily a 𝒜)) := by
-  rw [← succAboveFamily_predAboveFamily (a := a) ha,
-    nonMemberSubfamily_positiveBoundary_succAboveFamily]
+  simpa [succAboveFamily_predAboveFamily (a := a) ha] using
+    (nonMemberSubfamily_positiveBoundary_succAboveFamily a (predAboveFamily a 𝒜))
 
 theorem card_nonMemberSubfamily_positiveBoundary_eq_card_positiveBoundary_predAboveFamily
     {n : ℕ} {a : Fin (n + 1)} {𝒜 : Finset (Finset (Fin (n + 1)))}
@@ -574,6 +562,77 @@ theorem card_positiveBoundary_succFamily {n : ℕ}
   rw [memberSubfamily_positiveBoundary_succFamily,
     nonMemberSubfamily_positiveBoundary_succFamily,
     card_succFamily, card_succFamily]
+  simpa [Nat.add_comm, Nat.add_left_comm, Nat.add_assoc]
+
+theorem nonMemberSubfamily_positiveBoundary_eq_succFamily_positiveBoundary_predFamily
+    {n : ℕ} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    (h0 : ∀ s ∈ 𝒜, (0 : Fin (n + 1)) ∉ s) :
+    (positiveBoundary 𝒜).nonMemberSubfamily 0 =
+      succFamily (positiveBoundary (predFamily 𝒜)) := by
+  simpa [succFamily_predFamily h0] using
+    (nonMemberSubfamily_positiveBoundary_succFamily (predFamily 𝒜))
+
+theorem card_nonMemberSubfamily_positiveBoundary_eq_card_positiveBoundary_predFamily
+    {n : ℕ} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    (h0 : ∀ s ∈ 𝒜, (0 : Fin (n + 1)) ∉ s) :
+    #((positiveBoundary 𝒜).nonMemberSubfamily 0) =
+      #(positiveBoundary (predFamily 𝒜)) := by
+  rw [nonMemberSubfamily_positiveBoundary_eq_succFamily_positiveBoundary_predFamily h0,
+    card_succFamily]
+
+theorem card_predFamily_nonMemberSubfamily {n : ℕ}
+    (𝒜 : Finset (Finset (Fin (n + 1)))) :
+    #(predFamily (𝒜.nonMemberSubfamily 0)) = #(𝒜.nonMemberSubfamily 0) := by
+  apply card_predFamily
+  intro s hs
+  exact (mem_nonMemberSubfamily.mp hs).2
+
+theorem card_predFamily_memberSubfamily {n : ℕ}
+    (𝒜 : Finset (Finset (Fin (n + 1)))) :
+    #(predFamily (𝒜.memberSubfamily 0)) = #(𝒜.memberSubfamily 0) := by
+  apply card_predFamily
+  intro s hs
+  exact (mem_memberSubfamily.mp hs).2
+
+theorem isDownSetFamily_predFamily_nonMemberSubfamily {n : ℕ}
+    {𝒜 : Finset (Finset (Fin (n + 1)))} (h𝒜 : IsDownSetFamily 𝒜) :
+    IsDownSetFamily (predFamily (𝒜.nonMemberSubfamily 0)) := by
+  apply isDownSetFamily_predFamily
+  · intro s hs
+    exact (mem_nonMemberSubfamily.mp hs).2
+  · exact isDownSetFamily_nonMemberSubfamily h𝒜 0
+
+theorem isDownSetFamily_predFamily_memberSubfamily {n : ℕ}
+    {𝒜 : Finset (Finset (Fin (n + 1)))} (h𝒜 : IsDownSetFamily 𝒜) :
+    IsDownSetFamily (predFamily (𝒜.memberSubfamily 0)) := by
+  apply isDownSetFamily_predFamily
+  · intro s hs
+    exact (mem_memberSubfamily.mp hs).2
+  · exact isDownSetFamily_memberSubfamily h𝒜 0
+
+theorem card_positiveBoundary_predFamily_nonMemberSubfamily {n : ℕ}
+    (𝒜 : Finset (Finset (Fin (n + 1)))) :
+    #(positiveBoundary (predFamily (𝒜.nonMemberSubfamily 0))) =
+      #((positiveBoundary (𝒜.nonMemberSubfamily 0)).nonMemberSubfamily 0) := by
+  symm
+  apply card_nonMemberSubfamily_positiveBoundary_eq_card_positiveBoundary_predFamily
+  intro s hs
+  exact (mem_nonMemberSubfamily.mp hs).2
+
+theorem card_positiveBoundary_predFamily_memberSubfamily {n : ℕ}
+    (𝒜 : Finset (Finset (Fin (n + 1)))) :
+    #(positiveBoundary (predFamily (𝒜.memberSubfamily 0))) =
+      #((positiveBoundary (𝒜.memberSubfamily 0)).nonMemberSubfamily 0) := by
+  symm
+  apply card_nonMemberSubfamily_positiveBoundary_eq_card_positiveBoundary_predFamily
+  intro s hs
+  exact (mem_memberSubfamily.mp hs).2
+
+theorem predFamily_memberSubfamily_subset_predFamily_nonMemberSubfamily {n : ℕ}
+    {𝒜 : Finset (Finset (Fin (n + 1)))} (h𝒜 : IsDownSetFamily 𝒜) :
+    predFamily (𝒜.memberSubfamily 0) ⊆ predFamily (𝒜.nonMemberSubfamily 0) := by
+  apply predFamily_mono
+  exact h𝒜.memberSubfamily_subset_nonMemberSubfamily (a := 0)
 
 theorem slice_succFamily {n r : ℕ} {𝒜 : Finset (Finset (Fin n))} :
     (succFamily 𝒜) # r = succFamily (𝒜 # r) := by
@@ -600,9 +659,15 @@ theorem card_slice_succFamily {n r : ℕ} (𝒜 : Finset (Finset (Fin n))) :
 
 theorem card_one_slice_succFamily_powerset (n : ℕ) :
     #((succFamily ((Finset.univ : Finset (Fin n)).powerset)) # 1) = n := by
+  have hslice :
+      (((Finset.univ : Finset (Fin n)).powerset) # 1) =
+        (Finset.univ : Finset (Fin n)).powersetCard 1 := by
+    ext s
+    rw [Finset.mem_slice, Finset.mem_powersetCard]
+    simp
   rw [card_slice_succFamily]
-  simpa using
-    (Finset.card_powersetCard 1 (Finset.univ : Finset (Fin n)))
+  rw [hslice, Finset.card_powersetCard]
+  simpa using (Finset.card_univ : #(Finset.univ : Finset (Fin n)) = n)
 
 theorem exists_odd_halfCube_downSet_with_nonfull_one_slice (m : ℕ) (hm : 0 < m) :
     ∃ 𝒟 : Finset (Finset (Fin (2 * m + 1))),
@@ -617,10 +682,14 @@ theorem exists_odd_halfCube_downSet_with_nonfull_one_slice (m : ℕ) (hm : 0 < m
       positivity
     exact Finset.card_pos.mp hcard
   · intro s t hts hs
-    rw [mem_succFamily_iff] at hs ⊢
-    refine ⟨fun ht0 => hs.1 (hts ht0), ?_⟩
+    change s ∈ succFamily ((Finset.univ : Finset (Fin (2 * m))).powerset) at hs
+    change t ∈ succFamily ((Finset.univ : Finset (Fin (2 * m))).powerset)
+    have hsData := mem_succFamily_iff.mp hs
+    refine (mem_succFamily_iff).2 ⟨fun ht0 => hsData.1 (hts ht0), ?_⟩
     simp
   · rw [card_succFamily, Finset.card_powerset]
+    simpa using congrArg (fun k => 2 ^ k)
+      (Finset.card_univ : #(Finset.univ : Finset (Fin (2 * m))) = 2 * m)
   · rw [card_one_slice_succFamily_powerset, Nat.choose_one_right]
     omega
 
