@@ -1,7 +1,7 @@
 import ErdosProblems.Problem1Gap
 import ErdosProblems.Problem1Real
 import ErdosProblems.Problem1ExactValues
-import ErdosProblems.Problem1LowerExactCore
+import ErdosProblems.Problem1CubeHalfLowerFrontier
 
 open Filter
 open scoped Topology Real
@@ -59,7 +59,7 @@ theorem originalSurfaceBridge_from_currentCodebase : OriginalSurfaceBridge := by
       real_known_theory := knownRealSpacingTheory_from_imports
       exact_integer_lower_frontier_backed := by
         intro N A hA hAne
-        exact erdos_1_lower_bound_exact_of_positiveBoundaryMiddleLower N A hA hAne
+        exact erdos_1_lower_bound_exact_of_subcubeHalfCubeBoundaryLower N A hA hAne
       exact_witness_N_9 := erdos_1.variants.exists_N_9
       exact_witness_N_10 := erdos_1.variants.exists_N_10 }
 
@@ -112,6 +112,6 @@ theorem erdos_1.variants.current.exact_integer_lower_frontier_backed :
       Nat.choose A.card (A.card / 2) ≤ N :=
 by
   intro N A hA hAne
-  exact erdos_1_lower_bound_exact_of_positiveBoundaryMiddleLower N A hA hAne
+  exact erdos_1_lower_bound_exact_of_subcubeHalfCubeBoundaryLower N A hA hAne
 
 end Erdos1

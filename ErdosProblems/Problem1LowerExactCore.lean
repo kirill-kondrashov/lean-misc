@@ -190,6 +190,30 @@ theorem image_sdiff_negativeHalfFamilyNat (A : Finset ℕ) :
     rcases mem_positiveHalfFamilyNat.mp hS with ⟨hSA, -⟩
     rw [Finset.sdiff_sdiff_eq_self hSA]
 
+/-- The strict lower half is a down-set in the Boolean lattice on `A`. -/
+theorem isLowerSet_negativeHalfFamilyNat (A : Finset ℕ) :
+    IsLowerSet (negativeHalfFamilyNat A : Set (Finset ℕ)) := by
+  intro T S hTS hS
+  rcases mem_negativeHalfFamilyNat.mp hS with ⟨hSA, hlt⟩
+  refine mem_negativeHalfFamilyNat.mpr ⟨hTS.trans hSA, ?_⟩
+  exact lt_of_le_of_lt
+    (Nat.mul_le_mul_left 2 (Finset.sum_le_sum_of_subset hTS))
+    hlt
+
+/-- If `A` is nonempty, then the empty set lies in the strict lower half. -/
+theorem empty_mem_negativeHalfFamilyNat {A : Finset ℕ} {N : ℕ}
+    (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    ∅ ∈ negativeHalfFamilyNat A := by
+  refine mem_negativeHalfFamilyNat.mpr ⟨Finset.empty_subset A, ?_⟩
+  have hsumPos : 0 < A.sum id :=
+    Finset.sum_pos (fun a ha => (Finset.mem_Icc.mp (h.1 ha)).1) hA
+  simpa using hsumPos
+
+theorem negativeHalfFamilyNat_nonempty {A : Finset ℕ} {N : ℕ}
+    (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    (negativeHalfFamilyNat A).Nonempty :=
+  ⟨∅, empty_mem_negativeHalfFamilyNat h hA⟩
+
 /-- The strict lower and strict upper halves have the same cardinality. -/
 theorem negativeHalfFamilyNat_card_eq_positiveHalfFamilyNat_card (A : Finset ℕ) :
     (negativeHalfFamilyNat A).card = (positiveHalfFamilyNat A).card := by
