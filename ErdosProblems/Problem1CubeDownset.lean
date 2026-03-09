@@ -174,6 +174,91 @@ theorem totalSize_downCompression_eq_totalSize_sub_card_sdiff (a : α) (𝒜 : F
           omega
     _ = totalSize 𝒜 - #(𝒜.memberSubfamily a \ 𝒜.nonMemberSubfamily a) := by rfl
 
+theorem card_memberSubfamily_eq_card_filter_mem (a : α) (𝒜 : Finset (Finset α)) :
+    #(𝒜.memberSubfamily a) = #({s ∈ 𝒜 | a ∈ s} : Finset (Finset α)) := by
+  rw [Finset.memberSubfamily, Finset.card_image_of_injOn]
+  exact (Finset.erase_injOn' a).mono fun s hs => (Finset.mem_filter.mp hs).2
+
+theorem sum_card_memberSubfamily_eq_totalSize [Fintype α] (𝒜 : Finset (Finset α)) :
+    ∑ a, #(𝒜.memberSubfamily a) = totalSize 𝒜 := by
+  calc
+    ∑ a, #(𝒜.memberSubfamily a)
+      = ∑ a, ∑ s in ({s ∈ 𝒜 | a ∈ s} : Finset (Finset α)), 1 := by
+          refine Finset.sum_congr rfl ?_
+          intro a ha
+          rw [card_memberSubfamily_eq_card_filter_mem, Finset.card_eq_sum_ones]
+    _ = ∑ s in 𝒜, ∑ a in s, 1 := by
+          rw [Finset.sum_comm]
+          refine Finset.sum_congr rfl ?_
+          intro s hs
+          simp
+    _ = totalSize 𝒜 := by
+          simp [totalSize]
+
+theorem sum_card_nonMemberSubfamily_eq_card_mul_sub_totalSize [Fintype α]
+    (𝒜 : Finset (Finset α)) :
+    ∑ a, #(𝒜.nonMemberSubfamily a) = Fintype.card α * 𝒜.card - totalSize 𝒜 := by
+  have hsplit :
+      ∑ a, #(𝒜.memberSubfamily a) + ∑ a, #(𝒜.nonMemberSubfamily a) =
+        ∑ a : α, 𝒜.card := by
+    rw [← Finset.sum_add_distrib]
+    refine Finset.sum_congr rfl ?_
+    intro a ha
+    exact Finset.card_memberSubfamily_add_card_nonMemberSubfamily a 𝒜
+  rw [sum_card_memberSubfamily_eq_totalSize] at hsplit
+  simpa using hsplit.symm
+
+theorem card_nonMemberSubfamily_eq_half_of_card_eq_two_mul_of_totalSize_eq
+    [Fintype α] {𝒜 : Finset (Finset α)} (h𝒜 : IsDownSetFamily 𝒜) {m : ℕ}
+    (hcard : 𝒜.card = 2 * m)
+    (htotal : totalSize 𝒜 = Fintype.card α * m) (a : α) :
+    #(𝒜.nonMemberSubfamily a) = m := by
+  have hsum :
+      ∑ b, #(𝒜.nonMemberSubfamily b) = Fintype.card α * m := by
+    rw [sum_card_nonMemberSubfamily_eq_card_mul_sub_totalSize, hcard, htotal]
+    omega
+  have hhalf : ∀ b : α, m ≤ #(𝒜.nonMemberSubfamily b) := by
+    intro b
+    exact half_card_le_card_nonMemberSubfamily_of_card_eq_two_mul h𝒜 b m hcard
+  by_contra hne
+  have hgt : m + 1 ≤ #(𝒜.nonMemberSubfamily a) := by
+    have hmle := hhalf a
+    omega
+  have hrest :
+      (Finset.univ.erase a).sum (fun b : α => m) ≤
+        (Finset.univ.erase a).sum (fun b : α => #(𝒜.nonMemberSubfamily b)) := by
+    exact Finset.sum_le_sum fun b hb => hhalf b
+  have hbig :
+      Fintype.card α * m + 1 ≤ ∑ b, #(𝒜.nonMemberSubfamily b) := by
+    rw [Finset.sum_erase_add _ (Finset.mem_univ a)]
+    have hrest' :
+        (Fintype.card α - 1) * m ≤
+          (Finset.univ.erase a).sum (fun b : α => #(𝒜.nonMemberSubfamily b)) := by
+      calc
+        (Fintype.card α - 1) * m = (Finset.univ.erase a).sum (fun b : α => m) := by
+          simp
+        _ ≤ (Finset.univ.erase a).sum (fun b : α => #(𝒜.nonMemberSubfamily b)) := hrest
+    omega
+  omega
+
+theorem exists_card_nonMemberSubfamily_gt_half_of_card_eq_two_mul_of_totalSize_lt
+    [Fintype α] {𝒜 : Finset (Finset α)} {m : ℕ}
+    (hcard : 𝒜.card = 2 * m)
+    (htotal : totalSize 𝒜 < Fintype.card α * m) :
+    ∃ a : α, m < #(𝒜.nonMemberSubfamily a) := by
+  by_contra hnone
+  have hle : ∀ a : α, #(𝒜.nonMemberSubfamily a) ≤ m := by
+    intro a
+    exact le_of_not_gt (by simpa using hnone a)
+  have hsumle :
+      ∑ a, #(𝒜.nonMemberSubfamily a) ≤ ∑ _a : α, m := by
+    exact Finset.sum_le_sum fun a ha => hle a
+  have hsumgt :
+      Fintype.card α * m < ∑ a, #(𝒜.nonMemberSubfamily a) := by
+    rw [sum_card_nonMemberSubfamily_eq_card_mul_sub_totalSize, hcard]
+    omega
+  omega
+
 theorem totalSize_downCompression_lt_totalSize_of_ne {a : α} {𝒜 : Finset (Finset α)}
     (hneq : downCompression a 𝒜 ≠ 𝒜) :
     totalSize (downCompression a 𝒜) < totalSize 𝒜 := by
@@ -387,5 +472,28 @@ theorem card_positiveBoundary_ge_card_nonMemberSubfamily_positiveBoundary_add_ga
       #(positiveBoundary 𝒜) := by
   rw [← Finset.card_sdiff_of_subset (h𝒜.memberSubfamily_subset_nonMemberSubfamily (a := a))]
   exact card_positiveBoundary_ge_card_nonMemberSubfamily_positiveBoundary_add_card_sdiff a 𝒜
+
+theorem card_positiveBoundary_ge_card_nonMemberSubfamily_positiveBoundary_add_two_mul_excess_of_card_eq_two_mul
+    [Fintype α] {𝒜 : Finset (Finset α)} (h𝒜 : IsDownSetFamily 𝒜) (a : α) {m : ℕ}
+    (hcard : #𝒜 = 2 * m) :
+    #((positiveBoundary (𝒜.nonMemberSubfamily a)).nonMemberSubfamily a) +
+        2 * (#(𝒜.nonMemberSubfamily a) - m) ≤
+      #(positiveBoundary 𝒜) := by
+  have hhalf : m ≤ #(𝒜.nonMemberSubfamily a) :=
+    half_card_le_card_nonMemberSubfamily_of_card_eq_two_mul h𝒜 a m hcard
+  have hgap :=
+    card_positiveBoundary_ge_card_nonMemberSubfamily_positiveBoundary_add_gap h𝒜 a
+  have hsplit := Finset.card_memberSubfamily_add_card_nonMemberSubfamily a 𝒜
+  omega
+
+theorem card_positiveBoundary_ge_card_nonMemberSubfamily_positiveBoundary_add_two_mul_excess_of_card_eq_pow
+    [Fintype α] {𝒜 : Finset (Finset α)} (h𝒜 : IsDownSetFamily 𝒜) (a : α) {k : ℕ}
+    (hcard : #𝒜 = 2 ^ (k + 1)) :
+    #((positiveBoundary (𝒜.nonMemberSubfamily a)).nonMemberSubfamily a) +
+        2 * (#(𝒜.nonMemberSubfamily a) - 2 ^ k) ≤
+      #(positiveBoundary 𝒜) := by
+  simpa [pow_succ', two_mul] using
+    card_positiveBoundary_ge_card_nonMemberSubfamily_positiveBoundary_add_two_mul_excess_of_card_eq_two_mul
+      h𝒜 a (m := 2 ^ k) hcard
 
 end Erdos1

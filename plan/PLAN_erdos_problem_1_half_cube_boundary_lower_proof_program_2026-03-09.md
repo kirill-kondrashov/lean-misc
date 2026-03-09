@@ -104,14 +104,22 @@ remaining family combinatorics except the already-proved slice lemmas.
   - `card_positiveBoundary_slice_succ_div_choose_ge_sliceDensity_sub_sliceDensity_succ`
   - `sum_card_positiveBoundary_slice_succ_eq_card_positiveBoundary`
   - `weightedDrop_le_card_positiveBoundary`
+- abstract sequence interface added in `Problem1CubeHalfBoundarySequence.lean`
+  - `profileMass`
+  - `HalfCubeProfile`
+  - `HalfCubeWeightedDropLowerStatement`
+  - `profileMass_sliceDensity_eq_card`
+  - `halfCubeProfile_sliceDensity_of_isDownSetFamily_of_card_eq_half_cube`
+  - `halfCubeBoundaryLower_of_halfCubeWeightedDropLower`
 - the remaining work in Phase 1 is to package the half-cube assumptions as an abstract
   `HalfCubeProfile` theorem input, rather than to prove more family-local combinatorics
+  - this is now complete
 
 ## Phase 2: abstract half-mass sequence theorem
 
 ### Goal
 
-Prove the purely numerical statement:
+Original candidate target:
 
 ```text
 If
@@ -121,7 +129,28 @@ then
   weightedDrop n a >= choose(n, floor(n/2)).
 ```
 
-This is the real mathematical core now.
+This target is false.
+
+Concrete formalized counterexample:
+
+- `ErdosProblems/Problem1CubeHalfBoundarySequence.lean`
+  - `halfCubeProfileCounterexample`
+  - `not_HalfCubeWeightedDropLowerStatement`
+
+In dimension `2`, the profile
+
+```text
+a_0 = 1, a_1 = 1/2, a_2 = 0
+```
+
+has half-cube mass, but
+
+```text
+weightedDrop = 3/2 < 2 = choose(2,1).
+```
+
+So `weightedDrop` is a valid lower bound for the true boundary, but it is too weak to close the
+half-cube theorem.
 
 ### Proposed packaging
 
@@ -158,22 +187,125 @@ halfCubeWeightedDropLower :
 
 ### Acceptance criterion
 
-At the end of Phase 2, `halfCubeBoundaryLower` should depend only on `halfCubeWeightedDropLower`.
+The original acceptance criterion is invalid because the candidate theorem is false.
 
-## Phase 3: solve the sequence theorem by extremizer reduction
+### Status
+
+- the interface reduction is complete
+- the original abstract target has been disproved
+- the live blocker is no longer `HalfCubeWeightedDropLowerStatement`
+- the next route needs a stronger abstract quantity than `weightedDrop`
+
+## Phase 3: replace `weightedDrop` by a stronger slice-extremal quantity
 
 ### Main proof idea
 
-Treat the feasible profiles as a monotone box-constrained polytope with one linear mass equation.
-The objective `weightedDrop n a` is linear in `a`.
+The failure shows that the boundary cannot be controlled sharply from the slice densities alone via
+the linear drop functional
 
-The intended argument is:
+```text
+choose(n,r+1) * (a_r - a_{r+1}).
+```
 
-1. any minimizer may be assumed to have at most one fractional coordinate
-2. the monotonicity constraints then force the profile to be a step function, or a step function
-   with one middle fractional value
-3. the half-mass equation then forces the canonical odd/even half-cube profiles
-4. compute `weightedDrop` exactly on those profiles
+The missing strength must come from extra structure inside each fixed-size slice, namely the size of
+the upper shadow of the `r`-slice family.
+
+So the next candidate route is:
+
+1. for each `r`, use
+   ```text
+   |(positiveBoundary D)_(r+1)| + |D_(r+1)| = |upShadow(D_r)|
+   ```
+2. replace the weak local-LYM lower bound on `|upShadow(D_r)|` by a sharp lower bound as a function
+   of `|D_r|`
+3. optimize the resulting nonlinear slice recurrence under the half-mass constraint
+
+This points to a Kruskal-Katona / Lovász style slice theorem rather than a pure monotone-sequence LP.
+
+Status update:
+
+- this exact identity is now formalized in `Problem1CubeHalfBoundary.lean`
+  - `upShadow_slice_eq_slice_succ_union_positiveBoundary_slice_succ_of_isDownSetFamily`
+  - `card_upShadow_slice_eq_card_slice_succ_add_card_positiveBoundary_slice_succ_of_isDownSetFamily`
+- the global exact reduction is also formalized there
+  - `upperShadowGap`
+  - `upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily`
+  - `HalfCubeUpperShadowGapLowerStatement`
+  - `halfCubeBoundaryLower_of_halfCubeUpperShadowGapLower`
+- so the live frontier is no longer “find a better linear surrogate than `weightedDrop`”
+- it is now: prove the sharp lower bound for the exact nonlinear quantity `upperShadowGap`
+
+## Phase 4: new main route via sharp upper-shadow bounds
+
+### Step 4A: formalize the exact boundary slice identity
+
+For down-sets `D`, prove:
+
+```text
+|(positiveBoundary D)_(r+1)| + |D_(r+1)| = |upShadow(D_r)|.
+```
+
+This is stronger than the current recurrence because it keeps the actual upper shadow instead of
+only its local-LYM lower bound.
+
+Status:
+
+- complete in `Problem1CubeHalfBoundary.lean`
+- strengthened further to the exact global identity
+  ```text
+  |positiveBoundary D| = sum_r (|upShadow(D_r)| - |D_(r+1)|)
+  ```
+  via `upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily`
+
+### Step 4B: import the sharp slice theorem
+
+Use mathlib’s Kruskal-Katona / Lovász layer machinery, if possible, to derive a lower bound of the
+form
+
+```text
+|upShadow(A)| >= Φ_{n,r}(|A|)
+```
+
+for `A ⊆ (n choose r)`.
+
+This is now the most plausible source of the missing even-dimensional strength.
+
+Status:
+
+- partially complete in `Problem1CubeHalfBoundary.lean`
+- the codimension-1 threshold case is now formalized:
+  - `choose_pred_le_card_upShadow_of_choose_pred_le_card`
+  - `choose_pred_le_card_positiveBoundary_slice_succ_add_card_slice_succ_of_card_slice_ge_choose_pred`
+- concretely, if an `r`-uniform slice has size at least `choose(n-1, r-1)`, then its upper shadow
+  has size at least `choose(n-1, r)`, hence the corresponding
+  `|(positiveBoundary D)_(r+1)| + |D_(r+1)|` term is at least `choose(n-1, r)`
+- this is a real nonlinear shadow bound, but it is still only the first threshold case, not yet the
+  full function `Φ_{n,r}(|A|)`
+
+### Step 4C: optimize the nonlinear recurrence
+
+After Step 4B, the half-cube theorem reduces to a discrete optimization problem on slice sizes:
+
+```text
+B_{r+1} >= Φ_{n,r}(|D_r|) - |D_{r+1}|.
+```
+
+The remaining task is to show that, under:
+
+- down-set monotonicity
+- total size `|D| = 2^(n-1)`
+
+the sum of these lower bounds is at least `choose(n, floor(n/2))`.
+
+### Step 4D: odd/even split
+
+Do not force a unified optimization theorem if the even case is the only place where the weak route
+failed. Split the nonlinear argument into:
+
+1. odd dimensions
+2. even dimensions
+
+immediately if that makes the optimization tractable.
 
 ### Canonical target profiles
 
@@ -192,54 +324,12 @@ a_m = 1/2
 a_r = 0 for r > m
 ```
 
-### Sub-lemmas to target
+These remain the expected sharp slice-density profiles, but they are no longer enough by themselves
+to determine the right abstract theorem.
 
-1. `weightedDrop_linear`
-   - explicit linearity in the profile coordinates
+## Phase 5: instantiate the stronger abstract theorem back to families
 
-2. `extremal_profile_has_at_most_one_fractional_coordinate`
-   - prove by a perturbation / exchange argument, not by importing heavy convex-geometry machinery
-
-3. `half_mass_profile_is_canonical_odd`
-   - odd-dimensional classification under the half-mass equation
-
-4. `half_mass_profile_is_canonical_even`
-   - even-dimensional classification under the half-mass equation
-
-5. `weightedDrop_canonical_odd`
-   - compute exact value `choose(2m+1, m)`
-
-6. `weightedDrop_canonical_even`
-   - compute exact value `choose(2m, m)`
-
-### Preferred proof style
-
-Prefer an elementary perturbation argument over a general convex-extreme-point development.
-
-The intended pattern is:
-
-- if two separated coordinates are both fractional, shift a small `ε` of mass between them while
-  preserving monotonicity and total weighted mass
-- show the objective cannot increase under the improving direction
-- iterate until only the canonical profile remains
-
-This is more likely to be Lean-manageable than setting up a general linear-programming framework.
-
-## Phase 4: odd/even split if unified proof stalls
-
-If the unified extremizer argument becomes awkward, split immediately into:
-
-1. `halfCubeWeightedDropLower_odd`
-2. `halfCubeWeightedDropLower_even`
-
-This is acceptable. The repository already has odd/even witness files, and the combinatorics is
-different enough that a split may reduce proof friction rather than increase it.
-
-The unification can happen only at the final wrapper theorem.
-
-## Phase 5: instantiate back to families
-
-After the sequence theorem is proved:
+After the stronger slice-shadow theorem is proved:
 
 1. deduce `halfCubeBoundaryLower` in `Problem1CubeHalfBoundary.lean`
 2. remove the placeholder dependency from:
@@ -251,14 +341,17 @@ At this point the exact theorem chain should be theorem-only.
 
 ## Fallback route
 
-If Phase 3 fails, the fallback is:
+If the sharp upper-shadow route stalls, the fallback is:
 
 1. keep the same abstract sequence theorem target
-2. re-derive it by recursion on dimension using section decompositions of down-sets
+2. replace `weightedDrop` by a stronger recursively defined quantity built from actual section
+   boundary sizes or upper shadows
+3. re-derive the half-cube lower bound by recursion on dimension using section decompositions of
+   down-sets
 3. do not reopen arbitrary-family compression unless that recursive route genuinely collapses
 
-This fallback is acceptable only if it still targets `halfCubeWeightedDropLower`. If it drifts back
-to proving a global Harper theorem for arbitrary families, stop.
+This fallback is acceptable only if it still targets the down-set half-cube theorem directly. If it
+drifts back to proving a global Harper theorem for arbitrary families, stop.
 
 ## What to avoid
 
@@ -273,8 +366,9 @@ to proving a global Harper theorem for arbitrary families, stop.
 
 1. `ErdosProblems/Problem1CubeHalfBoundarySequence.lean`
 2. `boundary_card_ge_weightedDrop`
-3. `halfCubeWeightedDropLower`
-4. `halfCubeBoundaryLower`
+3. explicit falsity witness for `HalfCubeWeightedDropLowerStatement`
+4. a stronger replacement abstract theorem
+5. `halfCubeBoundaryLower`
 
 ### Verification deliverables
 
@@ -284,12 +378,13 @@ to proving a global Harper theorem for arbitrary families, stop.
 
 ## Stop condition
 
-If the abstract sequence theorem resists both:
+If both:
 
-1. the perturbation/extremizer proof, and
-2. the odd/even direct proof,
+1. the sharp upper-shadow route, and
+2. the recursive down-set route,
 
-then the blocker should be reclassified as a new standalone discrete-optimization frontier rather
+fail to replace the false `weightedDrop` target by a true one, then the blocker should be
+reclassified as a new standalone slice-isoperimetric frontier rather
 than “unfinished cube formalization”.
 
 That is the honest boundary of the current program.

@@ -227,7 +227,7 @@ Status:
 - the remaining work in that file is to replace the frontier placeholder by the actual theorem
   `halfCubeBoundaryLower`
 
-### Step 2: reduce the down-set theorem to a weighted slice inequality
+### Step 2: reduce the down-set theorem to an exact upper-shadow-gap inequality
 
 Use the slice lemmas already established in:
 
@@ -235,14 +235,19 @@ Use the slice lemmas already established in:
 - `Problem1CubeBoundary.lean`
 - `Problem1CubeDownset.lean`
 
-The active reduction is now:
+The old weighted-drop reduction was only a lower bound and turned out to be too weak. The active
+reduction is now:
 
 1. define normalized slice densities `a_r := |𝒟 # r| / choose(n,r)`
 2. use down-set local-LYM to prove `a_{r+1} ≤ a_r`
 3. use the boundary-slice recurrence to prove
    `|(positiveBoundary 𝒟)#(r+1)| / choose(n,r+1) ≥ a_r - a_{r+1}`
 4. sum these inequalities into a weighted lower bound for `|positiveBoundary 𝒟|`
-5. discharge the remaining problem as a pure monotone-sequence optimization at half mass
+5. record the falsity of the pure weighted-drop target
+6. replace it by the exact slice-shadow identity
+   `|(positiveBoundary 𝒟)_(r+1)| + |𝒟_(r+1)| = |upShadow(𝒟_r)|`
+7. package the exact global target as
+   `upperShadowGap 𝒟 = |positiveBoundary 𝒟|`
 
 Status:
 
@@ -259,9 +264,28 @@ Status:
   - `weightedDrop`
   - `sum_card_positiveBoundary_slice_succ_eq_card_positiveBoundary`
   - `weightedDrop_le_card_positiveBoundary`
+- the abstract sequence bridge is now factored into
+  `Problem1CubeHalfBoundarySequence.lean`
+  - `HalfCubeProfile`
+  - `HalfCubeWeightedDropLowerStatement`
+  - `halfCubeBoundaryLower_of_halfCubeWeightedDropLower`
+- but that candidate abstract theorem is now proved false via
+  `not_HalfCubeWeightedDropLowerStatement`
+- the exact replacement is now formalized back in `Problem1CubeHalfBoundary.lean`
+  - `upperShadowGap`
+  - `upShadow_slice_eq_slice_succ_union_positiveBoundary_slice_succ_of_isDownSetFamily`
+  - `card_upShadow_slice_eq_card_slice_succ_add_card_positiveBoundary_slice_succ_of_isDownSetFamily`
+  - `upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily`
+  - `HalfCubeUpperShadowGapLowerStatement`
+  - `halfCubeBoundaryLower_of_halfCubeUpperShadowGapLower`
+- Step 4B has now partially landed in the same file:
+  - `choose_pred_le_card_upShadow_of_choose_pred_le_card`
+  - `choose_pred_le_card_positiveBoundary_slice_succ_add_card_slice_succ_of_card_slice_ge_choose_pred`
+- so the project now has one genuine sharp upper-shadow threshold lemma from
+  Kruskal-Katona/Lovász, not just local-LYM
 - the blocker in this step is now exact:
-  prove the weighted monotone-sequence inequality obtained after summing the normalized slice-drop
-  bounds
+  extend this codimension-1 threshold lemma to a sufficiently strong global optimization for
+  `upperShadowGap`, not the false linear `weightedDrop` surrogate
 
 ### Step 3: keep `minimalOutside` only as support, not as the target
 
