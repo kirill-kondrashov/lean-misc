@@ -32,9 +32,8 @@ Replacing this axiom with a proof removes the final exact-theorem blocker.
 -/
 axiom halfCubeBoundaryLower : HalfCubeBoundaryLowerStatement
 
-/-- Remaining odd-dimensional paired frontier suggested by the section recursion for even ambient
-dimension: nested down-sets whose cardinalities are symmetrically placed around half should have
-combined boundary at least twice the odd middle binomial. -/
+/-- Archival odd-dimensional paired frontier suggested by the first section-recursion route.
+This statement is false; see `not_OddSectionPairBoundaryLowerStatement`. -/
 def OddSectionPairBoundaryLowerStatement : Prop :=
   ∀ {m e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
     IsDownSetFamily 𝒩 →
@@ -44,6 +43,59 @@ def OddSectionPairBoundaryLowerStatement : Prop :=
       ℳ.card = 2 ^ (2 * m) - e →
       2 * Nat.choose (2 * m + 1) m ≤
         (positiveBoundary 𝒩).card + (positiveBoundary ℳ).card
+
+/-- Corrected live frontier candidate after rejecting the false paired odd-section statement. -/
+def OddSectionExcessBoundaryLowerStatement : Prop :=
+  ∀ {m e : ℕ} {𝒩 : Finset (Finset (Fin (2 * m + 1)))},
+    IsDownSetFamily 𝒩 →
+      𝒩.card = 2 ^ (2 * m) + e →
+      2 * Nat.choose (2 * m + 1) m ≤ (positiveBoundary 𝒩).card + 2 * e
+
+/-- Live strict-excess optimization frontier: enough to close the even deficit branch without
+claiming a false closed-form lower bound for all odd sections. -/
+def OddSectionStrictExcessOptimizationStatement : Prop :=
+  ∃ β : ℕ → ℕ → ℕ,
+    (∀ {m e : ℕ} {𝒩 : Finset (Finset (Fin (2 * m + 1)))},
+      0 < e →
+        IsDownSetFamily 𝒩 →
+        𝒩.card = 2 ^ (2 * m) + e →
+        β m e ≤ (positiveBoundary 𝒩).card) ∧
+    (∀ m e : ℕ, 0 < e →
+      2 * Nat.choose (2 * m + 1) m ≤ β m e + 2 * e)
+
+/-- Odd-dimensional half-cube boundary lower bound, isolated as the balanced-case input for the
+even proof program. -/
+def OddHalfCubeBoundaryLowerStatement : Prop :=
+  ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+    IsDownSetFamily 𝒟 →
+      𝒟.card = 2 ^ (2 * m) →
+      Nat.choose (2 * m + 1) m ≤ #(positiveBoundary 𝒟)
+
+theorem not_OddSectionPairBoundaryLowerStatement :
+    ¬ OddSectionPairBoundaryLowerStatement := by
+  intro hPair
+  let 𝒩 : Finset (Finset (Fin 1)) := (Finset.univ : Finset (Fin 1)).powerset
+  let ℳ : Finset (Finset (Fin 1)) := ∅
+  have h𝒩down : IsDownSetFamily 𝒩 := by
+    intro s t hts hs
+    simp [𝒩]
+  have hℳdown : IsDownSetFamily ℳ := by
+    intro s t hts hs
+    simpa [ℳ] using hs
+  have hsubset : ℳ ⊆ 𝒩 := by
+    intro s hs
+    simpa [ℳ] using hs
+  have h𝒩card : 𝒩.card = 2 ^ (2 * 0) + 1 := by
+    simp [𝒩]
+  have hℳcard : ℳ.card = 2 ^ (2 * 0) - 1 := by
+    simp [ℳ]
+  have hbad :
+      2 * Nat.choose (2 * 0 + 1) 0 ≤
+        (positiveBoundary 𝒩).card + (positiveBoundary ℳ).card :=
+    hPair (m := 0) (e := 1) h𝒩down hℳdown hsubset h𝒩card hℳcard
+  have : 2 ≤ 0 := by
+    simpa [𝒩, ℳ] using hbad
+  omega
 
 /-- The normalized density of the `r`-slice of a family. -/
 def sliceDensity (𝒟 : Finset (Finset α)) (r : ℕ) : ℚ :=
@@ -1110,6 +1162,132 @@ theorem choose_middle_le_card_positiveBoundary_even_of_totalSize_lt_max_of_secti
   exact choose_middle_le_card_positiveBoundary_even_of_section_excess_of_section_pairBoundaryLower
     (a := a) hPair h𝒟 hcard hexcess
 
+theorem choose_middle_le_card_positiveBoundary_even_of_section_excess_of_strictExcessOptimization
+    (hOpt : OddSectionStrictExcessOptimizationStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {a : Fin (2 * m + 2)}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (2 * m + 1))
+    (hexcess : 2 ^ (2 * m) < #(𝒟.nonMemberSubfamily a)) :
+    Nat.choose (2 * m + 2) (m + 1) ≤ #(positiveBoundary 𝒟) := by
+  rcases hOpt with ⟨β, hβlower, hβtarget⟩
+  let 𝒩 : Finset (Finset (Fin (2 * m + 1))) := predAboveFamily a (𝒟.nonMemberSubfamily a)
+  let e := #(𝒟.nonMemberSubfamily a) - 2 ^ (2 * m)
+  have he : 0 < e := by
+    dsimp [e]
+    omega
+  have h𝒩down : IsDownSetFamily 𝒩 := by
+    simpa [𝒩] using
+      (isDownSetFamily_predAboveFamily (a := a)
+        (𝒜 := 𝒟.nonMemberSubfamily a)
+        (fun s hs => (mem_nonMemberSubfamily.mp hs).2)
+        (isDownSetFamily_nonMemberSubfamily h𝒟 a))
+  have h𝒩card : 𝒩.card = 2 ^ (2 * m) + e := by
+    have hcardPred :
+        #(predAboveFamily a (𝒟.nonMemberSubfamily a)) = #(𝒟.nonMemberSubfamily a) := by
+      apply card_predAboveFamily (a := a)
+      intro s hs
+      exact (mem_nonMemberSubfamily.mp hs).2
+    simpa [𝒩, e] using hcardPred
+  have hβ :
+      β m e ≤ #((positiveBoundary (𝒟.nonMemberSubfamily a)).nonMemberSubfamily a) := by
+    have hβraw :
+        β m e ≤ #(positiveBoundary 𝒩) :=
+      hβlower he h𝒩down h𝒩card
+    rw [← card_nonMemberSubfamily_positiveBoundary_eq_card_positiveBoundary_predAboveFamily
+      (a := a) (𝒜 := 𝒟.nonMemberSubfamily a)
+      (fun s hs => (mem_nonMemberSubfamily.mp hs).2), 𝒩] at hβraw
+    exact hβraw
+  have hstep :
+      #((positiveBoundary (𝒟.nonMemberSubfamily a)).nonMemberSubfamily a) + 2 * e ≤
+        #(positiveBoundary 𝒟) := by
+    have hraw :=
+      card_positiveBoundary_ge_card_nonMemberSubfamily_positiveBoundary_add_two_mul_excess_of_card_eq_pow
+        h𝒟 a (k := 2 * m) hcard
+    simpa [e] using hraw
+  rw [choose_middle_even_eq_two_mul_choose_middle_odd]
+  calc
+    2 * Nat.choose (2 * m + 1) m ≤ β m e + 2 * e := hβtarget m e he
+    _ ≤ #((positiveBoundary (𝒟.nonMemberSubfamily a)).nonMemberSubfamily a) + 2 * e := by
+      exact add_le_add_right hβ _
+    _ ≤ #(positiveBoundary 𝒟) := hstep
+
+theorem choose_middle_le_card_positiveBoundary_even_of_totalSize_lt_max_of_strictExcessOptimization
+    (hOpt : OddSectionStrictExcessOptimizationStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (2 * m + 1))
+    (htotal : totalSize 𝒟 < (2 * m + 2) * 2 ^ (2 * m)) :
+    Nat.choose (2 * m + 2) (m + 1) ≤ #(positiveBoundary 𝒟) := by
+  rcases exists_coordinate_excess_of_halfCube_of_totalSize_lt_max
+      (n := 2 * m + 1) (by positivity) hcard htotal with ⟨a, hexcess⟩
+  exact choose_middle_le_card_positiveBoundary_even_of_section_excess_of_strictExcessOptimization
+    (a := a) hOpt h𝒟 hcard hexcess
+
+theorem choose_middle_le_card_positiveBoundary_even_of_totalSize_eq_max_of_oddHalfCubeBoundaryLower
+    (hOdd : OddHalfCubeBoundaryLowerStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (2 * m + 1))
+    (htotal : totalSize 𝒟 = (2 * m + 2) * 2 ^ (2 * m)) :
+    Nat.choose (2 * m + 2) (m + 1) ≤ #(positiveBoundary 𝒟) := by
+  have hbal :
+      #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m) :=
+    zero_section_balanced_of_halfCube_of_totalSize_eq_max
+      (n := 2 * m + 1) (by positivity) h𝒟 hcard htotal
+  let 𝒩 : Finset (Finset (Fin (2 * m + 1))) := predFamily (𝒟.nonMemberSubfamily 0)
+  let ℳ : Finset (Finset (Fin (2 * m + 1))) := predFamily (𝒟.memberSubfamily 0)
+  have hsplit := Finset.card_memberSubfamily_add_card_nonMemberSubfamily 0 𝒟
+  have hMcardRaw : #(𝒟.memberSubfamily 0) = 2 ^ (2 * m) := by
+    omega
+  have h𝒩card : 𝒩.card = 2 ^ (2 * m) := by
+    simpa [𝒩, hbal] using card_predFamily_nonMemberSubfamily 𝒟
+  have hℳcard : ℳ.card = 2 ^ (2 * m) := by
+    simpa [ℳ, hMcardRaw] using card_predFamily_memberSubfamily 𝒟
+  have h𝒩down : IsDownSetFamily 𝒩 := by
+    simpa [𝒩] using isDownSetFamily_predFamily_nonMemberSubfamily h𝒟
+  have hℳdown : IsDownSetFamily ℳ := by
+    simpa [ℳ] using isDownSetFamily_predFamily_memberSubfamily h𝒟
+  have h𝒩bdry :
+      Nat.choose (2 * m + 1) m ≤ #((positiveBoundary (𝒟.nonMemberSubfamily 0)).nonMemberSubfamily 0) := by
+    have hraw :
+        Nat.choose (2 * m + 1) m ≤ #(positiveBoundary 𝒩) :=
+      hOdd h𝒩down h𝒩card
+    rw [← card_positiveBoundary_predFamily_nonMemberSubfamily (𝒟 := 𝒟), 𝒩] at hraw
+    exact hraw
+  have hℳbdry :
+      Nat.choose (2 * m + 1) m ≤ #((positiveBoundary (𝒟.memberSubfamily 0)).nonMemberSubfamily 0) := by
+    have hraw :
+        Nat.choose (2 * m + 1) m ≤ #(positiveBoundary ℳ) :=
+      hOdd hℳdown hℳcard
+    rw [← card_positiveBoundary_predFamily_memberSubfamily (𝒟 := 𝒟), ℳ] at hraw
+    exact hraw
+  have hsum :
+      Nat.choose (2 * m + 1) m + Nat.choose (2 * m + 1) m ≤ #(positiveBoundary 𝒟) := by
+    calc
+      Nat.choose (2 * m + 1) m + Nat.choose (2 * m + 1) m
+          ≤ #((positiveBoundary (𝒟.nonMemberSubfamily 0)).nonMemberSubfamily 0) +
+              #((positiveBoundary (𝒟.memberSubfamily 0)).nonMemberSubfamily 0) := by
+                exact add_le_add h𝒩bdry hℳbdry
+      _ ≤ #(positiveBoundary 𝒟) :=
+        card_positiveBoundary_ge_two_nonMemberSubfamily_sections 0 𝒟
+  simpa [two_mul] using hsum
+
+theorem choose_middle_le_card_positiveBoundary_even_of_card_eq_half_cube_of_oddHalfCubeBoundaryLower_of_strictExcessOptimization
+    (hOdd : OddHalfCubeBoundaryLowerStatement)
+    (hOpt : OddSectionStrictExcessOptimizationStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (2 * m + 1)) :
+    Nat.choose (2 * m + 2) (m + 1) ≤ #(positiveBoundary 𝒟) := by
+  have htotal_le :
+      totalSize 𝒟 ≤ (2 * m + 2) * 2 ^ (2 * m) :=
+    totalSize_le_max_of_isDownSetFamily_of_card_eq_half_cube_even h𝒟 hcard
+  rcases lt_or_eq_of_le htotal_le with hlt | hEq
+  · exact choose_middle_le_card_positiveBoundary_even_of_totalSize_lt_max_of_strictExcessOptimization
+      hOpt h𝒟 hcard hlt
+  · exact choose_middle_le_card_positiveBoundary_even_of_totalSize_eq_max_of_oddHalfCubeBoundaryLower
+      hOdd h𝒟 hcard hEq
+
 theorem totalSize_le_max_of_isDownSetFamily_of_card_eq_half_cube_even
     {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
     (h𝒟 : IsDownSetFamily 𝒟)
@@ -1136,6 +1314,28 @@ theorem totalSize_le_max_of_isDownSetFamily_of_card_eq_half_cube_even
       exact hmember a
     _ = (2 * m + 2) * 2 ^ (2 * m) := by
       simp
+
+/-- Active `Fin n` proof-program closure after rejecting the false paired-section branch. -/
+theorem choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_oddHalfCubeBoundaryLower_of_strictExcessOptimization
+    (hOdd : OddHalfCubeBoundaryLowerStatement)
+    (hOpt : OddSectionStrictExcessOptimizationStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  rcases Nat.even_or_odd n with ⟨k, rfl⟩ | ⟨k, rfl⟩
+  · cases k with
+    | zero =>
+        omega
+    | succ m =>
+        have hcard' : 𝒟.card = 2 ^ (2 * m + 1) := by
+          convert hcard using 1 <;> omega
+        convert
+          choose_middle_le_card_positiveBoundary_even_of_card_eq_half_cube_of_oddHalfCubeBoundaryLower_of_strictExcessOptimization
+            hOdd hOpt h𝒟 hcard' using 1 <;> omega
+  · have hcard' : 𝒟.card = 2 ^ (2 * k) := by
+      convert hcard using 1 <;> omega
+    convert hOdd h𝒟 hcard' using 1 <;> omega
 
 theorem choose_middle_le_card_positiveBoundary_odd_of_section_pairBoundaryLower
     (hPair : OddSectionPairBoundaryLowerStatement)
@@ -1182,6 +1382,28 @@ theorem choose_middle_le_card_positiveBoundary_even_of_card_eq_half_cube_of_sect
       hPair h𝒟 hcard hlt
   · exact choose_middle_le_card_positiveBoundary_even_of_totalSize_eq_max_of_section_pairBoundaryLower
       hPair h𝒟 hcard hEq
+
+theorem choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_section_pairBoundaryLower
+    (hPair : OddSectionPairBoundaryLowerStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  rcases Nat.even_or_odd n with ⟨k, rfl⟩ | ⟨k, rfl⟩
+  · cases k with
+    | zero =>
+        omega
+    | succ m =>
+        have hcard' : 𝒟.card = 2 ^ (2 * m + 1) := by
+          convert hcard using 1 <;> omega
+        convert
+          choose_middle_le_card_positiveBoundary_even_of_card_eq_half_cube_of_section_pairBoundaryLower
+            (hPair := hPair) (m := m) h𝒟 hcard' using 1 <;> omega
+  · have hcard' : 𝒟.card = 2 ^ (2 * k) := by
+      convert hcard using 1 <;> omega
+    convert
+      choose_middle_le_card_positiveBoundary_odd_of_section_pairBoundaryLower
+        (hPair := hPair) (m := k) h𝒟 hcard' using 1 <;> omega
 
 theorem subcubeHalfCubeBoundaryLower_of_halfCubeBoundaryLower
     (hCube : HalfCubeBoundaryLowerStatement)

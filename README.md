@@ -1,44 +1,59 @@
 # Lean Experiments
 
-Lean formalization experiments and problem-focused developments, using a project structure modeled after:
-<https://github.com/kirill-kondrashov/yoccos-theorem>.
+Lean formalization experiments and problem-focused developments, using a project structure modeled
+after <https://github.com/kirill-kondrashov/yoccos-theorem>.
 
-## Current contents
+## At a glance
 
-- `Erdos1.erdos_1`:
-  Erdős Problem 1 and several sum-distinct variants, following the statement layer from
-  DeepMind's `formal-conjectures`; the main open and literature statements are currently
-  imported as local axioms, while the exact finite benchmark `least_N_3` is proved in
-  [ErdosProblems/Problem1.lean](./ErdosProblems/Problem1.lean).
+- Main active fronts:
+  [Erdős #1](#erdős-1) and [Erdős #142](#erdős-142)
+- Toolchain:
+  Lean `v4.27.0`, mathlib `v4.27.0`
+- Main entrypoint for the current Erdős #1 frontier:
+  [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean)
+- Main entrypoint for the current Erdős #142 frontier:
+  [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean)
 
-- `TaoExercises.TaoBook.Chapter2.exercise_2_3`:
-  Terence Tao, *Solving mathematical problems: a personal perspective*, Exercise 2.3
-  (`x^4 + 131 = 3y^4` has no integer solutions in integers).
+## Quick links
 
-- `TaoExercises.TaoBook.Chapter2.exercise_2_6`:
-  Problem 2.6 (Shklarsky et al. 1962, p. 14):
-  if `k` is odd, then `1^k + 2^k + · · · + n^k` is divisible by `1 + 2 + · · · + n`.
+- [Repository map](#repository-map)
+- [Toolchain](#toolchain-and-dependencies)
+- [Common commands](#common-commands)
+- [Verification policy](#verification-policy)
+- [CI workflow](#ci-workflow-github-actions)
+- [Erdős #1](#erdős-1)
+- [Erdős #142](#erdős-142)
 
-- `ErdosProblems` (Erdős #142 family):
-  statement, explicit-profile strengthening, and gap decomposition are present under
-  `Erdos142` (`erdos_problem_142`, `erdos_problem_142_explicit`, `Problem142Gap`)
-  with `erdos_problem_142_iff_deepmind`, `erdos_problem_142_explicit_iff_deepmind`,
-  and the current plan series in `plan/` (`PLAN_erdos_problem_142.md` and follow-on files).
+## Repository map
+
+| Area | What it contains | Main file |
+| --- | --- | --- |
+| `Erdos1.erdos_1` | Erdős Problem 1 and sum-distinct variants, following the statement layer from DeepMind's `formal-conjectures`; open literature endpoints are still imported as local axioms while exact small benchmarks are proved locally | [ErdosProblems/Problem1.lean](./ErdosProblems/Problem1.lean) |
+| `TaoExercises.TaoBook.Chapter2.exercise_2_3` | Tao, *Solving mathematical problems*, Exercise 2.3: `x^4 + 131 = 3y^4` has no integer solutions | [TaoExercises/TaoBook/Chapter2.lean](./TaoExercises/TaoBook/Chapter2.lean) |
+| `TaoExercises.TaoBook.Chapter2.exercise_2_6` | If `k` is odd, then `1^k + 2^k + · · · + n^k` is divisible by `1 + 2 + · · · + n` | [TaoExercises/TaoBook/Chapter2.lean](./TaoExercises/TaoBook/Chapter2.lean) |
+| `ErdosProblems` (`Erdos142`) | Erdős #142 statement, explicit-profile strengthening, gap decomposition, and the current frontier packages | [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean) |
 
 ## Toolchain and dependencies
 
-- Lean: `leanprover/lean4:v4.27.0`
-- mathlib: `v4.27.0`
-- doc-gen4: `v4.27.0`
+| Component | Version |
+| --- | --- |
+| Lean | `leanprover/lean4:v4.27.0` |
+| mathlib | `v4.27.0` |
+| doc-gen4 | `v4.27.0` |
 
-## Build
+## Common commands
 
-```bash
-lake build
-lake exe check_axioms
-```
+| Task | Command |
+| --- | --- |
+| Build everything | `make build` |
+| Check axioms | `make check` |
+| Verify README checker output | `make verify` |
+| Refresh cache + build + check | `make auto-build` |
+| Build docs | `make docs` |
+| Direct `lake` build | `lake build` |
+| Direct checker run | `lake exe check_axioms` |
 
-## Verification
+## Verification policy
 
 All solved exercises are checked to ensure they:
 
@@ -70,7 +85,8 @@ make check
 make verify
 ```
 
-Expected Output:
+<details>
+<summary>Expected <code>make check</code> / <code>make verify</code> output</summary>
 
 ```text
 ✅ The proof of 'TaoExercises.TaoBook.Chapter2.exercise_2_3' is free of 'sorry' and uses only base axioms.
@@ -131,16 +147,7 @@ Temporarily allowed non-base axioms (must be proved later):
 ✅ All checked items are free of 'sorry'. Temporary Erdős #1/#142 axiom debt is explicitly allowed.
 ```
 
-## Useful Make targets
-
-```bash
-make cache      # fetch Mathlib cache
-make build      # lake build
-make check      # lake exe check_axioms
-make verify     # compare make check output with README expected output
-make auto-build # cache refresh + build + check
-make docs       # build API docs
-```
+</details>
 
 ## CI workflow (GitHub Actions)
 
@@ -149,7 +156,7 @@ make docs       # build API docs
 - Docs are not generated/deployed in CI.
 - Workflow concurrency is enabled with `cancel-in-progress: true`.
 
-## Erdős #1: current status
+## Erdős #1
 
 The local formalization of Erdős Problem #1 is in
 [ErdosProblems/Problem1.lean](./ErdosProblems/Problem1.lean). It introduces:
@@ -191,7 +198,72 @@ In particular, the bridge module makes the following map explicit:
   -> `Erdos1.erdos_1.variants.exists_N_9`
   and `Erdos1.erdos_1.variants.exists_N_10`
 
-Current proof status:
+### Current exact-lower frontier
+
+- Current exact-lower frontier for the cube-boundary route:
+
+  Write
+  $$
+  \partial^+\mathcal F := \{A \notin \mathcal F : \exists x \in A,\ A \setminus \{x\} \in \mathcal F\}.
+  $$
+  The active remaining mathematical targets are:
+
+  1. Odd half-cube boundary theorem. For every $m \ge 0$, if
+     $$
+     \mathcal D \subseteq 2^{[2m+1]}
+     \quad\text{is a down-set with}\quad
+     |\mathcal D| = 2^{2m},
+     $$
+     then
+     $$
+     |\partial^+\mathcal D| \ge \binom{2m+1}{m}.
+     $$
+
+  2. Strict-excess odd-section optimization. For every $m \ge 0$ and $e > 0$, it is enough to
+     produce a profile $\beta(m,e)$ such that whenever
+     $$
+     \mathcal N \subseteq 2^{[2m+1]}
+     \quad\text{is a down-set with}\quad
+     |\mathcal N| = 2^{2m} + e,
+     $$
+     one has
+     $$
+     \beta(m,e) \le |\partial^+\mathcal N|
+     \quad\text{and}\quad
+     2\binom{2m+1}{m} \le \beta(m,e) + 2e.
+     $$
+
+  These two inputs are now enough to recover the full half-cube boundary bound on every
+  `Fin n`:
+  $$
+  \mathcal D \subseteq 2^{[n]}
+  \text{ down-set},\quad
+  |\mathcal D| = 2^{n-1}
+  \;\Longrightarrow\;
+  |\partial^+\mathcal D| \ge \binom{n}{\lfloor n/2 \rfloor}.
+  $$
+
+  In the current codebase this live route is isolated by:
+  `OddHalfCubeBoundaryLowerStatement`,
+  `OddSectionStrictExcessOptimizationStatement`, and
+  `choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_oddHalfCubeBoundaryLower_of_strictExcessOptimization`
+  in
+  [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean).
+
+  The older paired odd-section frontier
+  $$
+  |\partial^+\mathcal N| + |\partial^+\mathcal M|
+  \ge 2\binom{2m+1}{m}
+  $$
+  for nested down-sets $\mathcal M \subseteq \mathcal N$ with
+  $|\mathcal N| = 2^{2m}+e$, $|\mathcal M| = 2^{2m}-e$,
+  is false. A counterexample is
+  $$
+  m=0,\quad e=1,\quad \mathcal N = 2^{[1]},\quad \mathcal M = \varnothing.
+  $$
+  That branch is now archival only and should not be treated as the active proof target.
+
+### Proof status
 
 - `Erdos1.erdos_1` remains a local axiom-level placeholder for the open exponential conjecture.
 - `Erdos1.erdos_1.variants.weaker` is now proved from elementary counting on `Finset.subsetSum`.
@@ -244,11 +316,13 @@ Current proof status:
   are the imported literature axioms for the exact Dubroff-Fox-Xu/Bohman results together with the
   still-public placeholder surfaces in [ErdosProblems/Problem1.lean](./ErdosProblems/Problem1.lean).
 
-## Erdős #142: current status and references
+## Erdős #142
+
+### Status summary
 
 - As of March 7, 2026, Problem #142 remains open; this repository keeps the full matched-profile route behind the temporary frontier axioms `Erdos142.splitGap_k3_upper_exponent_gt_half_frontier`, `Erdos142.splitGap_k4_profile_dominance_frontier`, and `Erdos142.splitGap_kge5_profile_dominance_frontier`, while the strongest honest local $k=3$ endpoint is now the source-backed split package `Erdos142.K3SourceBackedSplitGap`, built from Kelley-Meka's explicit $\beta = 1 / 12$ upper witness together with Behrend lower data and the true compatibility direction `k3_behrend_lower_template =O k3_upper_profile`.
 
-Exact formulation of Erdős Problem #142 in this repository:
+### Exact formulation
 
 First define the extremal function:
 
@@ -268,7 +342,7 @@ Equivalently: for each fixed $k \ge 3$, the function $r_k(N)$ has an asymptotic 
 
 In the local Lean formalization, this is exactly the statement `ErdosProblems.erdos_problem_142`; see [ErdosProblems/Problem142.lean#L267](./ErdosProblems/Problem142.lean#L267) and [ErdosProblems/Problem142.lean#L283](./ErdosProblems/Problem142.lean#L283).
 
-What is already proven in this repository:
+### What is already proven
 
 - The exact problem statement and its explicit variant are formalized in [ErdosProblems/Problem142.lean](./ErdosProblems/Problem142.lean).
 - The $k = 3$ branch already has a source-backed split package `K3SourceBackedSplitWitness`; see [ErdosProblems/Problem142Literature.lean#L446](./ErdosProblems/Problem142Literature.lean#L446).
@@ -278,7 +352,7 @@ What is already proven in this repository:
 - This is exposed at the gap layer as `K3SourceBackedSplitGap`; see [ErdosProblems/Problem142Gap.lean#L127](./ErdosProblems/Problem142Gap.lean#L127).
 - Therefore, in the active post-pivot formalization, the remaining unresolved mathematical frontier is no longer the $k = 3$ branch. It is the higher-branch profile-matching content for $k = 4$ and for each fixed $k \ge 5$.
 
-Progress toward a proof in this repository:
+### Progress toward a proof
 
 1. The repository formalizes the exact asymptotic-formula target for Problem #142, and also a stronger explicit-profile variant; see [ErdosProblems/Problem142.lean#L251](./ErdosProblems/Problem142.lean#L251) and [ErdosProblems/Problem142.lean#L267](./ErdosProblems/Problem142.lean#L267).
 2. It reduces the proof burden to explicit branchwise profile witnesses: superpolylogarithmic for $k = 3$, polylogarithmic for $k = 4$, and iterated-logarithmic for fixed $k \ge 5$; see [ErdosProblems/Problem142.lean#L323](./ErdosProblems/Problem142.lean#L323) through [ErdosProblems/Problem142.lean#L380](./ErdosProblems/Problem142.lean#L380).
@@ -291,7 +365,11 @@ Progress toward a proof in this repository:
 5. It reorganizes the downstream gap so that $k = 3$ is no longer part of the active unresolved matched-profile frontier; the active post-pivot target is [ErdosProblems/Problem142Gap.lean#L239](./ErdosProblems/Problem142Gap.lean#L239), and the remaining coupling debt is isolated in [ErdosProblems/Problem142Gap.lean#L363](./ErdosProblems/Problem142Gap.lean#L363).
 6. It also proves that the old stronger $k = 3$ route would need an exponent threshold $\beta > 1/2$; see [ErdosProblems/Problem142Literature.lean#L1060](./ErdosProblems/Problem142Literature.lean#L1060). The current source-backed import does not provide that, so this route has been closed rather than left vague.
 
+### Active missing mathematical theorems
+
 The active missing mathematical theorems are now the higher-branch profile-matching statements.
+
+### Asymptotic notation used below
 
 Definition of Landau asymptotic domination:
 
