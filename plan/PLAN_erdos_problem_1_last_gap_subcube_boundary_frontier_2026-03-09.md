@@ -50,6 +50,10 @@ choose(|A|, floor(|A|/2))
 
 This is the correct final subtype-cube theorem still missing.
 
+Focused proof program for the cube theorem:
+
+- `plan/PLAN_erdos_problem_1_half_cube_boundary_lower_proof_program_2026-03-09.md`
+
 ## What is already proved
 
 ### Transport layer
@@ -121,6 +125,7 @@ halfCubeBoundaryLower
 
 For any finite α and any family 𝒟 ⊆ P(α),
 if
+  - 0 < |α|,
   - 𝒟 is nonempty,
   - 𝒟 is a down-set,
   - |𝒟| = 2^(|α|-1),
@@ -130,6 +135,13 @@ then
 
 This is strong enough to discharge the subtype frontier immediately by specialization to
 `negativeHalfFamilySubcubeNat A`.
+
+Technical correction:
+
+- the unrestricted `|α| = 0` version is false
+  - for `α = ∅`, the unique down-set has size `2^(0-1) = 1`, but its positive boundary is empty
+  - so the actual cube theorem should include `0 < |α|`
+  - this is harmless for the subtype application, since `A.Nonempty` already gives `0 < |A|`
 
 ## Main proof routes
 
@@ -144,6 +156,7 @@ Primary target:
 ```text
 theorem halfCubeBoundaryLower
   {α : Type*} [DecidableEq α] [Fintype α] {𝒟 : Finset (Finset α)}
+  (hcard_pos : 0 < Fintype.card α)
   (hne : 𝒟.Nonempty)
   (h𝒟 : IsDownSetFamily 𝒟)
   (hcard : #𝒟 = 2 ^ (Fintype.card α - 1)) :
@@ -214,21 +227,41 @@ Status:
 - the remaining work in that file is to replace the frontier placeholder by the actual theorem
   `halfCubeBoundaryLower`
 
-### Step 2: try the direct inductive boundary proof
+### Step 2: reduce the down-set theorem to a weighted slice inequality
 
-Use the existing section lemmas in:
+Use the slice lemmas already established in:
 
+- `Problem1CubeHalfBoundary.lean`
 - `Problem1CubeBoundary.lean`
 - `Problem1CubeDownset.lean`
 
-The likely induction is on `Fintype.card α`.
+The active reduction is now:
 
-The proof needs:
+1. define normalized slice densities `a_r := |𝒟 # r| / choose(n,r)`
+2. use down-set local-LYM to prove `a_{r+1} ≤ a_r`
+3. use the boundary-slice recurrence to prove
+   `|(positiveBoundary 𝒟)#(r+1)| / choose(n,r+1) ≥ a_r - a_{r+1}`
+4. sum these inequalities into a weighted lower bound for `|positiveBoundary 𝒟|`
+5. discharge the remaining problem as a pure monotone-sequence optimization at half mass
 
-1. section down-set closure
-2. section size control from the half-cube hypothesis
-3. recursive lower bounds on the section boundary pieces
-4. recombination into the full boundary via `memberSubfamily_positiveBoundary`
+Status:
+
+- started in `Problem1CubeHalfBoundary.lean`
+- the file now contains slice-shadow and local-LYM helpers for down-sets
+- it also contains the parallel local-LYM bound for the outside slice after removing the positive
+  boundary slice
+- it now contains the raw adjacent recurrence and its normalized form
+  - `card_slice_mul_le_card_positiveBoundary_slice_succ_add_card_slice_succ_mul`
+  - `card_slice_div_choose_le_card_positiveBoundary_slice_succ_add_card_slice_succ_div_choose`
+  - `card_positiveBoundary_slice_succ_div_choose_ge_sub_card_slice_div_choose`
+- it now contains the first global weighted reduction layer
+  - `sliceDensity`
+  - `weightedDrop`
+  - `sum_card_positiveBoundary_slice_succ_eq_card_positiveBoundary`
+  - `weightedDrop_le_card_positiveBoundary`
+- the blocker in this step is now exact:
+  prove the weighted monotone-sequence inequality obtained after summing the normalized slice-drop
+  bounds
 
 ### Step 3: keep `minimalOutside` only as support, not as the target
 
