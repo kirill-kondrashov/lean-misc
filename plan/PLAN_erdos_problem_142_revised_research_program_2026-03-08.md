@@ -136,11 +136,12 @@ Lean-side work continues only after Tracks A-C produce one of:
    - chosen first target: `PLAN_erdos_problem_142_kge5_matched_profile_debt_audit_2026-03-08.md`
 
 7. `[x]` Start exactly one math-bearing next cycle from the audited verdict.
-   - active next cycle: `PLAN_erdos_problem_142_kge5_target_correction_2026-03-08.md`
+   - completed as:
+     `PLAN_erdos_problem_142_kge5_target_correction_2026-03-08.md`
 
 ## Current Active Cycle
 
-- `PLAN_erdos_problem_142_kge5_target_correction_2026-03-08.md`
+- `PLAN_erdos_problem_142_k3_varnavides_extremal_transport_encoding_2026-03-09.md`
 
 ## Current Verdict
 
@@ -148,9 +149,27 @@ Lean-side work continues only after Tracks A-C produce one of:
 The previous chain improved honesty and public structure, but it no longer deserves to be called
 the active research program.
 
-The revised active program is:
-  freeze packaging,
-  rank the real debts,
-  audit one debt hard,
-  and only then resume theorem construction.
+The revised program exhausted its original live debt cycles under the audited source set.
+
+Its successor is now explicit:
+the route-generation program.
+
+That program also reached dormancy.
+The active successor after that dormant endpoint is now:
+the post-dormancy exact-debt extraction program.
+
+That extraction program succeeded on its first cluster and opened a new active successor:
+the quantitative Varnavides import route.
+
+That route is now also localized:
+its first repository-facing object is the literature-layer extremal transport target for `r_3`.
+
+So the honest current state is:
+  no reused active theorem-construction cycle from the old debt set,
+  the route-generation successor has exhausted its active branches,
+  and the only active restart is now the Varnavides extremal-transport encoding route.
+
+Its only acceptable success criterion is:
+integrate that transport target cleanly enough to determine whether it supports one narrower
+direct-counting theorem-generation chain.
 ```

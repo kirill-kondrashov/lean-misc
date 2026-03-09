@@ -369,10 +369,11 @@ theorem erdos_142_three_source_backed_split_one_eighth_of_bounds
     erdos_142_three_source_backed_split_one_eighth :=
   ⟨cL, CL, cU, CU, hcL, hCL, hcU, hCU, hLower, hUpper, hCompatibility⟩
 
-/-- Honest statement-level endpoint for the source-backed split route:
+/-- Legacy statement-level endpoint for the local source-backed split route:
 all upper variants are available, and each branch carries explicit split data on the source-backed
-scale currently supported in the repository. This is weaker than `erdos_problem_142`, but unlike
-the matched-profile route it does not rely on the current frontier axioms. -/
+scale currently supported in the repository. Its `k = 4` component still uses the older
+polylogarithmic lower placeholder, so after the March 9, 2026 cutover it is no longer the
+canonical broader-source practical route. -/
 structure SourceBackedSplitRoute where
   upper : ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142.variants.upper k
   k3 :
@@ -426,6 +427,68 @@ def erdos_142_source_backed_split : Prop :=
 /-- Any explicit source-backed split route realizes the honest theorem-level endpoint. -/
 theorem erdos_142_source_backed_split_of_route (h : SourceBackedSplitRoute) :
     erdos_142_source_backed_split :=
+  ⟨h⟩
+
+/-- Corrected statement-level endpoint for the broader-source practical split route:
+all upper variants are available, and the `k = 4` branch now uses the heterogeneous
+Rankin/O'Bryant lower profile together with the Green-Tao polylog upper profile. This is still
+weaker than `erdos_problem_142`, but it is the canonical honest practical route after the
+March 9, 2026 `k = 4` cutover. -/
+structure HeterogeneousSourceBackedSplitRoute where
+  upper : ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142.variants.upper k
+  k3 :
+    ∃ cL CL β cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < β ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+          (fun N => (r 3 N : ℝ)) ∧
+        (fun N => (r 3 N : ℝ)) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ β)) ∧
+        (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ β))
+  k4 :
+    ∃ A B CL cU CU : ℝ,
+      0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) *
+            Real.exp (-A * Real.sqrt (Real.log (N + 2)) + B * Real.log (Real.log (N + 2))))
+          =O[atTop] (fun N => (r 4 N : ℝ)) ∧
+        (fun N => (r 4 N : ℝ)) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) / (Real.log (N + 2)) ^ cU)
+  k5 :
+    ∃ α A B CL cU CU : ℝ,
+      0 < α ∧ 0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[atTop] (fun N => (r 5 N : ℝ)) ∧
+        (fun N => (r 5 N : ℝ)) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU))
+  kge6 :
+    ∀ ⦃k : ℕ⦄, 6 ≤ k → ∃ α A B CL cU CU : ℝ,
+      0 < α ∧ 0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[atTop] (fun N => (r k N : ℝ)) ∧
+        (fun N => (r k N : ℝ)) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU))
+
+/-- The corrected broader-source theorem-level endpoint currently supported by the repository:
+there exists a full heterogeneous source-backed split route covering every branch. -/
+def erdos_142_heterogeneous_source_backed_split : Prop :=
+  Nonempty HeterogeneousSourceBackedSplitRoute
+
+/-- Any explicit heterogeneous source-backed split route realizes the corrected theorem-level
+endpoint. -/
+theorem erdos_142_heterogeneous_source_backed_split_of_route
+    (h : HeterogeneousSourceBackedSplitRoute) :
+    erdos_142_heterogeneous_source_backed_split :=
   ⟨h⟩
 
 /-- Parameter package for the architecture class isolated by the active negative `k = 3` route:
@@ -625,6 +688,15 @@ def k4_polylog_upper_profile : Prop :=
     (fun N => (r 4 N : ℝ)) =O[atTop]
       (fun N : ℕ => C * (N : ℝ) / (Real.log (N + 2)) ^ c)
 
+/-- Branch-local source-backed lower-profile target for `k = 4`:
+Rankin/O'Bryant-type decay on the `sqrt(log N)` scale with a `log log N` correction term. -/
+def k4_rankin_obryant_lower_profile : Prop :=
+  ∃ A B C : ℝ, 0 < A ∧ 0 < C ∧
+    (fun N : ℕ =>
+      C * (N : ℝ) *
+        Real.exp (-A * Real.sqrt (Real.log (N + 2)) + B * Real.log (Real.log (N + 2))))
+      =O[atTop] (fun N => (r 4 N : ℝ))
+
 /-- Rate-template target for `k ≥ 5`: iterated-log decay in an explicit `O`-profile. -/
 def kge5_iteratedlog_upper_profile : Prop :=
   ∀ ⦃k : ℕ⦄, 5 ≤ k →
@@ -673,6 +745,24 @@ def k3_sublinear : Prop :=
   (fun N => (r 3 N : ℝ)) =o[atTop] (fun N : ℕ => (N : ℝ))
 
 end bound_targets
+
+namespace local_targets
+
+/-- Local theorem-debt placeholder for the `k = 3` bootstrap `1 / 8` program.
+This records only the quantitative interface that a missing improved
+almost-periodicity-to-structure lemma would need to realize. The ambient regular Bohr-set
+hypotheses and structural outputs are not yet formalized in this repository, so this target is
+intentionally weaker than a theorem statement and should be read only as a local debt marker. -/
+def k3_bootstrap_one_eighth_step_target : Prop :=
+  ∃ C_rank C_loss c_inc : ℝ, 0 < C_rank ∧ 0 < C_loss ∧ 0 < c_inc ∧
+    ∀ d α : ℝ, 0 ≤ d → 0 < α → α ≤ 1 →
+      let L := Real.log (2 / α)
+      ∃ d' σ α' : ℝ,
+        d' ≤ d + C_rank * L ^ (5 : ℕ) ∧
+        Real.exp (-C_loss * (d * L + L ^ (6 : ℕ))) ≤ σ ∧
+        (1 + c_inc) * α ≤ α'
+
+end local_targets
 
 /-- Small-case benchmark connection: `k = 2` already has an asymptotic formula
 (indeed eventual equality to the constant `1`). -/

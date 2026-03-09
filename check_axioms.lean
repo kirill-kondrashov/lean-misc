@@ -19,9 +19,10 @@ def checkedTheorems : List Name :=
   , ``Erdos142.erdos_problem_142_solution_axiom
   , ``Erdos142.erdos_142_three_source_backed_split_of_literatureK3OneTwelfthSourceAssumptions
   , ``Erdos142.erdos_142_source_backed_split_of_literature_sourceBacked_route
+  , ``Erdos142.erdos_142_heterogeneous_source_backed_split_of_literature_heterogeneous_sourceBacked_route
   , ``Erdos142.k3_negative_route_stable
   , ``Erdos142.matchedProfileFrontier_exists
-  , ``Erdos142.currentResearchStatus_exists_of_literature_sourceBacked_route
+  , ``Erdos142.currentResearchStatus_exists_of_literature_heterogeneous_sourceBacked_route
   , ``Erdos142.splitGapToMainTheoreticalGapAssumptions_exists_of_frontier
   , ``Erdos142.splitGapToMainTheoreticalGapAssumptions_exists_of_matchedProfileFrontier
   , ``Erdos142.mainTheoreticalGap_exists_of_mainSplitGap_and_assumptions

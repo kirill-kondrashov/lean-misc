@@ -195,6 +195,32 @@ theorem k4_split_data_of_literatureLowerImportAssumptions
   exact k4_mixed_two_sided_profile_of_sourceBackedSplitWitness
     (k4SourceBackedSplitGap_of_literatureLowerImportAssumptions (h := h))
 
+/-- Gap-layer alias for the corrected broader-source `k = 4` split surface. -/
+abbrev K4HeterogeneousSourceBackedSplitGap : Type := K4HeterogeneousSourceBackedSplitWitness
+
+/-- The combined broader-source `k = 4` literature layer already instantiates the corrected
+heterogeneous split surface. -/
+noncomputable def k4HeterogeneousSourceBackedSplitGap_of_literatureK4HeterogeneousSourceBackedSplitAssumptions
+    [h : LiteratureK4HeterogeneousSourceBackedSplitAssumptions] :
+    K4HeterogeneousSourceBackedSplitGap :=
+  k4HeterogeneousSourceBackedSplitWitness_of_literatureK4HeterogeneousSourceBackedSplitAssumptions
+
+/-- Branch-local corrected `k = 4` split data follow directly from the heterogeneous source-backed
+package extracted from the broader-source literature assumptions. -/
+theorem k4_heterogeneous_split_data_of_literatureK4HeterogeneousSourceBackedSplitAssumptions
+    [h : LiteratureK4HeterogeneousSourceBackedSplitAssumptions] :
+    ∃ A B CL cU CU : ℝ,
+      0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) *
+            Real.exp (-A * Real.sqrt (Real.log (N + 2)) + B * Real.log (Real.log (N + 2))))
+          =O[Filter.atTop] (fun N => (r 4 N : ℝ)) ∧
+        (fun N => (r 4 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) / (Real.log (N + 2)) ^ cU) := by
+  exact k4_mixed_two_sided_profile_of_heterogeneousSourceBackedSplitWitness
+    (k4HeterogeneousSourceBackedSplitGap_of_literatureK4HeterogeneousSourceBackedSplitAssumptions
+      (h := h))
+
 /-- Gap-layer alias for the current source-backed `k = 5` toy-model split surface. -/
 abbrev K5SourceBackedSplitGap : Type := K5SourceBackedSplitWitness
 
@@ -818,16 +844,17 @@ theorem upper_variant_of_mainK345ResolvedGap
     refine ⟨fun N : ℕ => w.C * (N : ℝ) / (Real.log (Real.log (N + 3))) ^ w.c, ?_⟩
     simpa [w] using w.hUpper
 
-/-- All-branches source-backed split packaging after the tail-family pivot:
+/-- Legacy local all-branches source-backed split packaging after the tail-family pivot:
 `k = 3`, `k = 4`, `k = 5`, and every fixed `k ≥ 6` are all represented by explicit
-source-backed split witnesses, with no remaining coupling debt on this practical route. -/
+source-backed split witnesses, but the `k = 4` slot still uses the older polylog-lower
+placeholder. -/
 structure Problem142AllSourceBackedSplitImportedWitnessBundle where
   k3 : K3SourceBackedSplitGap
   k4 : K4SourceBackedSplitGap
   k5 : K5SourceBackedSplitGap
   kge6 : Kge6SourceBackedSplitGap
 
-/-- Practical all-branches source-backed split target after the tail-family pivot. -/
+/-- Legacy local all-branches split target before the March 9, 2026 `k = 4` public cutover. -/
 abbrev MainAllSourceBackedSplitGap : Type := Problem142AllSourceBackedSplitImportedWitnessBundle
 
 /-- The current source-backed literature-side assumption layers already instantiate the practical
@@ -894,9 +921,9 @@ theorem kge6_split_data_of_mainAllSourceBackedSplitGap
   intro k hk
   exact kge6_mixed_two_sided_profile_of_sourceBackedSplitWitness (hGap.kge6 hk)
 
-/-- Named mathematical endpoint for the practical all-branches source-backed route:
+/-- Named mathematical endpoint for the legacy local all-branches split route:
 all upper variants together with the branchwise source-backed split data on the correct scale for
-each branch. This packages the current honest route as one reusable object rather than a large
+each branch. This packages the older local route as one reusable object rather than a large
 conjunction. -/
 structure Problem142AllSourceBackedSplitData where
   upper : ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142.variants.upper k
@@ -1023,8 +1050,8 @@ theorem all_source_backed_split_data_of_mainAllSourceBackedSplitGap
   let hData := mainAllSourceBackedSplitData_of_mainAllSourceBackedSplitGap hGap
   exact ⟨hData.upper, hData.k3, hData.k4, hData.k5, hData.kge6⟩
 
-/-- The current source-backed literature-side assumption layers already instantiate the named
-all-branches source-backed split endpoint on the practical route. -/
+/-- The current legacy local literature-side assumption layers already instantiate the named
+all-branches source-backed split endpoint on the older local route. -/
 noncomputable def mainAllSourceBackedSplitData_of_literature_sourceBacked_route
     [h3 : LiteratureK3OneTwelfthSourceAssumptions] [hLower : LiteratureLowerImportAssumptions]
     [h5 : LiteratureK5SourceBackedSplitAssumptions] [h6 : LiteratureKge6SourceBackedSplitAssumptions] :
@@ -1106,6 +1133,266 @@ theorem all_source_backed_split_data_of_literature_sourceBacked_route
   exact all_source_backed_split_data_of_mainAllSourceBackedSplitGap
     (mainAllSourceBackedSplitGap_of_literatureK3OneTwelfth_and_lowerImportAssumptions_and_sourceBackedTail
       (h3 := h3) (hLower := hLower) (h5 := h5) (h6 := h6))
+
+/-- Corrected broader-source all-branches split packaging after the March 9, 2026 `k = 4`
+public cutover: `k = 3`, corrected `k = 4`, `k = 5`, and every fixed `k ≥ 6` are all
+represented by explicit source-backed split witnesses. -/
+structure Problem142AllHeterogeneousSourceBackedSplitImportedWitnessBundle where
+  k3 : K3SourceBackedSplitGap
+  k4 : K4HeterogeneousSourceBackedSplitGap
+  k5 : K5SourceBackedSplitGap
+  kge6 : Kge6SourceBackedSplitGap
+
+/-- Canonical broader-source practical target after the March 9, 2026 `k = 4` cutover. -/
+abbrev MainAllHeterogeneousSourceBackedSplitGap : Type :=
+  Problem142AllHeterogeneousSourceBackedSplitImportedWitnessBundle
+
+/-- The current broader-source literature-side assumption layers already instantiate the canonical
+all-branches split target once the corrected heterogeneous `k = 4` layer is supplied. -/
+noncomputable def
+    mainAllHeterogeneousSourceBackedSplitGap_of_literatureK3OneTwelfth_and_k4HeterogeneousSourceBackedSplitAssumptions_and_sourceBackedTail
+    [h3 : LiteratureK3OneTwelfthSourceAssumptions]
+    [h4 : LiteratureK4HeterogeneousSourceBackedSplitAssumptions]
+    [h5 : LiteratureK5SourceBackedSplitAssumptions] [h6 : LiteratureKge6SourceBackedSplitAssumptions] :
+    MainAllHeterogeneousSourceBackedSplitGap :=
+  { k3 := k3SourceBackedSplitGap_of_literatureK3OneTwelfthSourceAssumptions (h := h3)
+    k4 :=
+      k4HeterogeneousSourceBackedSplitGap_of_literatureK4HeterogeneousSourceBackedSplitAssumptions
+        (h := h4)
+    k5 := k5SourceBackedSplitGap_of_literatureK5SourceBackedSplitAssumptions (h := h5)
+    kge6 := kge6SourceBackedSplitGap_of_literatureKge6SourceBackedSplitAssumptions (h := h6) }
+
+/-- The canonical broader-source all-branches split target still yields all upper variants. -/
+theorem upper_variant_of_mainAllHeterogeneousSourceBackedSplitGap
+    (hGap : MainAllHeterogeneousSourceBackedSplitGap) :
+    ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142.variants.upper k := by
+  intro k hk
+  have hk_cases : k = 3 ∨ k = 4 ∨ k = 5 ∨ 6 ≤ k := by omega
+  rcases hk_cases with rfl | rfl | rfl | hk6
+  · letI : K3UpperProfileWitnessImported := ⟨hGap.k3.upper⟩
+    exact upper_variant_three_of_upper_profile_witness
+  · letI : K4UpperProfileWitnessImported := ⟨hGap.k4.upper⟩
+    exact upper_variant_four_of_upper_profile_witness
+  · letI : K5UpperStretchedexpProfileWitnessImported := ⟨hGap.k5.upper⟩
+    exact upper_variant_five_of_stretchedexp_upper_profile_witness
+  · letI : Kge6UpperStretchedexpProfileWitnessImported :=
+        { kge6_upper_stretchedexp_profile_witness := fun _ hk => (hGap.kge6 hk).upper }
+    exact upper_variant_ge_six_of_stretchedexp_upper_profile_witness hk6
+
+/-- The canonical broader-source practical route carries the corrected heterogeneous `k = 4`
+split data. -/
+theorem k4_heterogeneous_split_data_of_mainAllHeterogeneousSourceBackedSplitGap
+    (hGap : MainAllHeterogeneousSourceBackedSplitGap) :
+    ∃ A B CL cU CU : ℝ,
+      0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) *
+            Real.exp (-A * Real.sqrt (Real.log (N + 2)) + B * Real.log (Real.log (N + 2))))
+          =O[Filter.atTop] (fun N => (r 4 N : ℝ)) ∧
+        (fun N => (r 4 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) / (Real.log (N + 2)) ^ cU) := by
+  exact k4_mixed_two_sided_profile_of_heterogeneousSourceBackedSplitWitness hGap.k4
+
+/-- The canonical broader-source all-branches split target carries the explicit source-backed
+`k = 5` split data. -/
+theorem k5_split_data_of_mainAllHeterogeneousSourceBackedSplitGap
+    (hGap : MainAllHeterogeneousSourceBackedSplitGap) :
+    ∃ α A B CL cU CU : ℝ,
+      0 < α ∧ 0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop] (fun N => (r 5 N : ℝ)) ∧
+        (fun N => (r 5 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) := by
+  exact k5_mixed_two_sided_profile_of_sourceBackedSplitWitness hGap.k5
+
+/-- The canonical broader-source all-branches split target carries the explicit source-backed
+tail-family split data for every fixed `k ≥ 6`. -/
+theorem kge6_split_data_of_mainAllHeterogeneousSourceBackedSplitGap
+    (hGap : MainAllHeterogeneousSourceBackedSplitGap) :
+    ∀ ⦃k : ℕ⦄, 6 ≤ k → ∃ α A B CL cU CU : ℝ,
+      0 < α ∧ 0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop] (fun N => (r k N : ℝ)) ∧
+        (fun N => (r k N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) := by
+  intro k hk
+  exact kge6_mixed_two_sided_profile_of_sourceBackedSplitWitness (hGap.kge6 hk)
+
+/-- Named mathematical endpoint for the canonical broader-source practical route:
+all upper variants together with the branchwise source-backed split data on the correct scale for
+each branch, now with the corrected heterogeneous `k = 4` component. -/
+structure Problem142AllHeterogeneousSourceBackedSplitData where
+  upper : ∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142.variants.upper k
+  k3 :
+    ∃ cL CL β cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < β ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[Filter.atTop]
+          (fun N => (r 3 N : ℝ)) ∧
+        (fun N => (r 3 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ β)) ∧
+        (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ β))
+  k4 :
+    ∃ A B CL cU CU : ℝ,
+      0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) *
+            Real.exp (-A * Real.sqrt (Real.log (N + 2)) + B * Real.log (Real.log (N + 2))))
+          =O[Filter.atTop] (fun N => (r 4 N : ℝ)) ∧
+        (fun N => (r 4 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) / (Real.log (N + 2)) ^ cU)
+  k5 :
+    ∃ α A B CL cU CU : ℝ,
+      0 < α ∧ 0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop] (fun N => (r 5 N : ℝ)) ∧
+        (fun N => (r 5 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU))
+  kge6 :
+    ∀ ⦃k : ℕ⦄, 6 ≤ k → ∃ α A B CL cU CU : ℝ,
+      0 < α ∧ 0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop] (fun N => (r k N : ℝ)) ∧
+        (fun N => (r k N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU))
+
+/-- Build the canonical broader-source practical endpoint from the corrected gap witness. -/
+noncomputable def mainAllHeterogeneousSourceBackedSplitData_of_mainAllHeterogeneousSourceBackedSplitGap
+    (hGap : MainAllHeterogeneousSourceBackedSplitGap) :
+    Problem142AllHeterogeneousSourceBackedSplitData :=
+  { upper := upper_variant_of_mainAllHeterogeneousSourceBackedSplitGap hGap
+    k3 := k3_mixed_two_sided_profile_of_sourceBackedSplitWitness hGap.k3
+    k4 := k4_mixed_two_sided_profile_of_heterogeneousSourceBackedSplitWitness hGap.k4
+    k5 := k5_split_data_of_mainAllHeterogeneousSourceBackedSplitGap hGap
+    kge6 := kge6_split_data_of_mainAllHeterogeneousSourceBackedSplitGap hGap }
+
+/-- Export the canonical broader-source practical endpoint to the corrected statement-level theorem
+surface declared in `Problem142.lean`. -/
+noncomputable def heterogeneousSourceBackedSplitRoute_of_mainAllHeterogeneousSourceBackedSplitData
+    (hData : Problem142AllHeterogeneousSourceBackedSplitData) :
+    Erdos142.HeterogeneousSourceBackedSplitRoute :=
+  { upper := hData.upper
+    k3 := hData.k3
+    k4 := hData.k4
+    k5 := hData.k5
+    kge6 := hData.kge6 }
+
+/-- Direct export from the corrected broader-source practical gap to the corrected statement-level
+split route. -/
+noncomputable def heterogeneousSourceBackedSplitRoute_of_mainAllHeterogeneousSourceBackedSplitGap
+    (hGap : MainAllHeterogeneousSourceBackedSplitGap) :
+    Erdos142.HeterogeneousSourceBackedSplitRoute :=
+  heterogeneousSourceBackedSplitRoute_of_mainAllHeterogeneousSourceBackedSplitData
+    (mainAllHeterogeneousSourceBackedSplitData_of_mainAllHeterogeneousSourceBackedSplitGap hGap)
+
+/-- The corrected broader-source practical gap already yields the canonical theorem-level endpoint
+`Erdos142.erdos_142_heterogeneous_source_backed_split`. -/
+theorem erdos_142_heterogeneous_source_backed_split_of_mainAllHeterogeneousSourceBackedSplitGap
+    (hGap : MainAllHeterogeneousSourceBackedSplitGap) :
+    Erdos142.erdos_142_heterogeneous_source_backed_split :=
+  Erdos142.erdos_142_heterogeneous_source_backed_split_of_route
+    (heterogeneousSourceBackedSplitRoute_of_mainAllHeterogeneousSourceBackedSplitGap hGap)
+
+/-- Aggregate mathematical consequence of the corrected broader-source practical route:
+all upper variants are available, and each branch carries explicit source-backed split data on the
+correct scale for that branch. -/
+theorem all_heterogeneous_source_backed_split_data_of_mainAllHeterogeneousSourceBackedSplitGap
+    (hGap : MainAllHeterogeneousSourceBackedSplitGap) :
+    (∀ ⦃k : ℕ⦄, 3 ≤ k → erdos_142.variants.upper k) ∧
+    (∃ cL CL β cU CU : ℝ,
+      0 < cL ∧ 0 < CL ∧ 0 < β ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[Filter.atTop]
+          (fun N => (r 3 N : ℝ)) ∧
+        (fun N => (r 3 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ β)) ∧
+        (fun N : ℕ => CL * (N : ℝ) * Real.exp (-cL * Real.sqrt (Real.log (N + 2)))) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-cU * (Real.log (N + 2)) ^ β))) ∧
+    (∃ A B CL cU CU : ℝ,
+      0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) *
+            Real.exp (-A * Real.sqrt (Real.log (N + 2)) + B * Real.log (Real.log (N + 2))))
+          =O[Filter.atTop] (fun N => (r 4 N : ℝ)) ∧
+        (fun N => (r 4 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) / (Real.log (N + 2)) ^ cU)) ∧
+    (∃ α A B CL cU CU : ℝ,
+      0 < α ∧ 0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop] (fun N => (r 5 N : ℝ)) ∧
+        (fun N => (r 5 N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU))) ∧
+    (∀ ⦃k : ℕ⦄, 6 ≤ k → ∃ α A B CL cU CU : ℝ,
+      0 < α ∧ 0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop] (fun N => (r k N : ℝ)) ∧
+        (fun N => (r k N : ℝ)) =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU)) ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) * Real.exp (-A * (Real.log (N + 3)) ^ α + B * Real.log (Real.log (N + 3))))
+          =O[Filter.atTop]
+          (fun N : ℕ => CU * (N : ℝ) * Real.exp (-(Real.log (Real.log (N + 3))) ^ cU))) := by
+  let hData := mainAllHeterogeneousSourceBackedSplitData_of_mainAllHeterogeneousSourceBackedSplitGap hGap
+  exact ⟨hData.upper, hData.k3, hData.k4, hData.k5, hData.kge6⟩
+
+/-- The current broader-source literature-side assumption layers already instantiate the named
+all-branches split endpoint on the corrected practical route. -/
+noncomputable def mainAllHeterogeneousSourceBackedSplitData_of_literature_heterogeneous_sourceBacked_route
+    [h3 : LiteratureK3OneTwelfthSourceAssumptions]
+    [h4 : LiteratureK4HeterogeneousSourceBackedSplitAssumptions]
+    [h5 : LiteratureK5SourceBackedSplitAssumptions] [h6 : LiteratureKge6SourceBackedSplitAssumptions] :
+    Problem142AllHeterogeneousSourceBackedSplitData :=
+  mainAllHeterogeneousSourceBackedSplitData_of_mainAllHeterogeneousSourceBackedSplitGap
+    (mainAllHeterogeneousSourceBackedSplitGap_of_literatureK3OneTwelfth_and_k4HeterogeneousSourceBackedSplitAssumptions_and_sourceBackedTail
+      (h3 := h3) (h4 := h4) (h5 := h5) (h6 := h6))
+
+/-- Statement-level theorem surface for the corrected practical route:
+the broader-source literature assumptions imply the heterogeneous split-strength route packaged in
+`Erdos142.HeterogeneousSourceBackedSplitRoute`. -/
+noncomputable def heterogeneousSourceBackedSplitRoute_of_literature_heterogeneous_sourceBacked_route
+    [h3 : LiteratureK3OneTwelfthSourceAssumptions]
+    [h4 : LiteratureK4HeterogeneousSourceBackedSplitAssumptions]
+    [h5 : LiteratureK5SourceBackedSplitAssumptions] [h6 : LiteratureKge6SourceBackedSplitAssumptions] :
+    Erdos142.HeterogeneousSourceBackedSplitRoute :=
+  heterogeneousSourceBackedSplitRoute_of_mainAllHeterogeneousSourceBackedSplitData
+    (mainAllHeterogeneousSourceBackedSplitData_of_literature_heterogeneous_sourceBacked_route
+      (h3 := h3) (h4 := h4) (h5 := h5) (h6 := h6))
+
+/-- The current broader-source literature-side assumptions directly realize the corrected
+theorem-level split statement `Erdos142.erdos_142_heterogeneous_source_backed_split`. -/
+theorem erdos_142_heterogeneous_source_backed_split_of_literature_heterogeneous_sourceBacked_route
+    [h3 : LiteratureK3OneTwelfthSourceAssumptions]
+    [h4 : LiteratureK4HeterogeneousSourceBackedSplitAssumptions]
+    [h5 : LiteratureK5SourceBackedSplitAssumptions] [h6 : LiteratureKge6SourceBackedSplitAssumptions] :
+    Erdos142.erdos_142_heterogeneous_source_backed_split :=
+  Erdos142.erdos_142_heterogeneous_source_backed_split_of_route
+    (heterogeneousSourceBackedSplitRoute_of_literature_heterogeneous_sourceBacked_route
+      (h3 := h3) (h4 := h4) (h5 := h5) (h6 := h6))
 
 /-- Bundle of imported witness interfaces that currently carry the unresolved
 mathematical content behind the #142 solution outline. -/
@@ -1352,19 +1639,21 @@ theorem matchedProfileFrontier_exists : MatchedProfileFrontierExists :=
   ⟨matchedProfileFrontier_axiomDebt⟩
 
 /-- Canonical package for the current repository research state:
-the honest practical split route, the stabilized post-critic negative `k = 3` route, and the
-separate off-path matched-profile frontier package. -/
+the corrected broader-source practical split route, the stabilized post-critic negative `k = 3`
+route, and the separate off-path matched-profile frontier package. -/
 structure Problem142CurrentResearchStatus where
-  practical : Erdos142.erdos_142_source_backed_split
+  practical : Erdos142.erdos_142_heterogeneous_source_backed_split
   k3_negative : K3NegativeRouteStable
   frontier : Problem142MatchedProfileFrontier
 
 /-- The current repository state packaged as one named object. -/
-noncomputable def currentResearchStatus_of_literature_sourceBacked_route
-    [h3 : LiteratureK3OneTwelfthSourceAssumptions] [hLower : LiteratureLowerImportAssumptions]
+noncomputable def currentResearchStatus_of_literature_heterogeneous_sourceBacked_route
+    [h3 : LiteratureK3OneTwelfthSourceAssumptions]
+    [h4 : LiteratureK4HeterogeneousSourceBackedSplitAssumptions]
     [h5 : LiteratureK5SourceBackedSplitAssumptions] [h6 : LiteratureKge6SourceBackedSplitAssumptions] :
     Problem142CurrentResearchStatus :=
-  { practical := erdos_142_source_backed_split_of_literature_sourceBacked_route
+  { practical := erdos_142_heterogeneous_source_backed_split_of_literature_heterogeneous_sourceBacked_route
+      (h3 := h3) (h4 := h4) (h5 := h5) (h6 := h6)
     k3_negative := k3_negative_route_stable
     frontier := matchedProfileFrontier_axiomDebt }
 
@@ -1373,12 +1662,13 @@ abbrev CurrentResearchStatusExists : Prop := Nonempty Problem142CurrentResearchS
 
 /-- The current source-backed literature assumptions already realize the canonical current-status
 package. -/
-theorem currentResearchStatus_exists_of_literature_sourceBacked_route
-    [h3 : LiteratureK3OneTwelfthSourceAssumptions] [hLower : LiteratureLowerImportAssumptions]
+theorem currentResearchStatus_exists_of_literature_heterogeneous_sourceBacked_route
+    [h3 : LiteratureK3OneTwelfthSourceAssumptions]
+    [h4 : LiteratureK4HeterogeneousSourceBackedSplitAssumptions]
     [h5 : LiteratureK5SourceBackedSplitAssumptions] [h6 : LiteratureKge6SourceBackedSplitAssumptions] :
     CurrentResearchStatusExists :=
-  ⟨currentResearchStatus_of_literature_sourceBacked_route
-    (h3 := h3) (hLower := hLower) (h5 := h5) (h6 := h6)⟩
+  ⟨currentResearchStatus_of_literature_heterogeneous_sourceBacked_route
+    (h3 := h3) (h4 := h4) (h5 := h5) (h6 := h6)⟩
 
 /-- Branch-local `k = 3` coupling can be built from an explicit upper/lower template dominance target. -/
 noncomputable def splitGap_k3_coupling_target_of_profile_dominance_target

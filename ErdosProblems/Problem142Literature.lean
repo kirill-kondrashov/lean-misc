@@ -398,6 +398,30 @@ noncomputable abbrev erdos_problem_142_explicit_k5_upper_stretchedexp_profile_wi
   h.k5_upper_stretchedexp_profile_witness
 
 /-- Branch-local source-backed lower-profile witness for `k = 5` on a Rankin/O'Bryant scale. -/
+structure K4LowerRankinProfileWitness where
+  A : ℝ
+  B : ℝ
+  C : ℝ
+  hA : 0 < A
+  hC : 0 < C
+  hLower :
+    (fun N : ℕ =>
+      C * (N : ℝ) *
+        Real.exp (-A * Real.sqrt (Real.log (N + 2)) + B * Real.log (Real.log (N + 2))))
+      =O[atTop] (fun N => (r 4 N : ℝ))
+
+/-- Imported branch-local Rankin/O'Bryant lower witness for `k = 4`. -/
+class K4LowerRankinProfileWitnessImported where
+  k4_lower_rankin_profile_witness : K4LowerRankinProfileWitness
+
+/-- Imported branch-local Rankin/O'Bryant lower witness for `k = 4`
+(from a registered assumption instance). -/
+noncomputable abbrev erdos_problem_142_explicit_k4_lower_rankin_profile_witness_imported
+    [h : K4LowerRankinProfileWitnessImported] :
+    K4LowerRankinProfileWitness :=
+  h.k4_lower_rankin_profile_witness
+
+/-- Branch-local source-backed lower-profile witness for `k = 5` on a Rankin/O'Bryant scale. -/
 structure K5LowerRankinProfileWitness where
   α : ℝ
   A : ℝ
@@ -557,6 +581,13 @@ structure K4SourceBackedSplitWitness where
   lower : K4LowerProfileWitness
   upper : K4UpperProfileWitness
 
+/-- Corrected broader-source split surface for `k = 4`:
+one Rankin/O'Bryant lower witness and one Green-Tao polylog upper witness, without any
+matched-profile coupling claim. -/
+structure K4HeterogeneousSourceBackedSplitWitness where
+  lower : K4LowerRankinProfileWitness
+  upper : K4UpperProfileWitness
+
 /-- First-class source-backed `k = 5` split surface:
 one Rankin/O'Bryant lower witness, one stretched-exponential `log log` upper witness, and the true
 compatibility direction between them. This is the current honest toy-model endpoint on the active
@@ -613,6 +644,21 @@ theorem k4_mixed_two_sided_profile_of_sourceBackedSplitWitness
   exact ⟨h.lower.c, h.lower.C, h.upper.c, h.upper.C, h.lower.hc, h.lower.hC, h.upper.hc,
     h.upper.hC, h.lower.hLower, h.upper.hUpper⟩
 
+/-- Mixed two-sided `k = 4` profile data extracted from the corrected broader-source split
+surface. -/
+theorem k4_mixed_two_sided_profile_of_heterogeneousSourceBackedSplitWitness
+    (h : K4HeterogeneousSourceBackedSplitWitness) :
+    ∃ A B CL cU CU : ℝ,
+      0 < A ∧ 0 < CL ∧ 0 < cU ∧ 0 < CU ∧
+        (fun N : ℕ =>
+          CL * (N : ℝ) *
+            Real.exp (-A * Real.sqrt (Real.log (N + 2)) + B * Real.log (Real.log (N + 2))))
+          =O[atTop] (fun N => (r 4 N : ℝ)) ∧
+        (fun N => (r 4 N : ℝ)) =O[atTop]
+          (fun N : ℕ => CU * (N : ℝ) / (Real.log (N + 2)) ^ cU) := by
+  exact ⟨h.lower.A, h.lower.B, h.lower.C, h.upper.c, h.upper.C, h.lower.hA, h.lower.hC,
+    h.upper.hc, h.upper.hC, h.lower.hLower, h.upper.hUpper⟩
+
 /-- Mixed two-sided `k = 5` profile data extracted from a source-backed split witness. -/
 theorem k5_mixed_two_sided_profile_of_sourceBackedSplitWitness
     (h : K5SourceBackedSplitWitness) :
@@ -654,6 +700,17 @@ noncomputable def k4_upper_profile [K4UpperProfileWitnessImported] : ℕ → ℝ
   fun N =>
     erdos_problem_142_explicit_k4_upper_profile_witness_imported.C * (N : ℝ) /
       (Real.log (N + 2)) ^ erdos_problem_142_explicit_k4_upper_profile_witness_imported.c
+
+/-- Fixed source-backed Rankin/O'Bryant lower-profile candidate for the corrected `k = 4`
+broader-source route. -/
+noncomputable def k4_rankin_lower_profile [K4LowerRankinProfileWitnessImported] : ℕ → ℝ :=
+  fun N =>
+    erdos_problem_142_explicit_k4_lower_rankin_profile_witness_imported.C * (N : ℝ) *
+      Real.exp
+        (-erdos_problem_142_explicit_k4_lower_rankin_profile_witness_imported.A *
+            Real.sqrt (Real.log (N + 2)) +
+          erdos_problem_142_explicit_k4_lower_rankin_profile_witness_imported.B *
+            Real.log (Real.log (N + 2)))
 
 /-- Fixed upper-profile candidate for each `k ≥ 5` branch. -/
 noncomputable def kge5_upper_profile [Kge5UpperProfileWitnessImported]
@@ -1181,6 +1238,15 @@ class LiteratureRateAssumptions : Prop extends LiteratureAssumptions where
 
 namespace import_targets
 
+/-- Import-ready direct counting reduction target for `k = 3`, extracted from a quantitative
+Varnavides theorem:
+subscale extremal density at length `M` controls the global extremal density at length `N`.
+This is the first repository-facing consequence of the stronger source theorem because the current
+repo formalizes `r_3` but does not yet formalize a progression-count function `T3(A)`. -/
+def k3_varnavides_extremal_transport_target : Prop :=
+  ∀ ⦃M N : ℕ⦄, 1 ≤ M → M ≤ N →
+    (r 3 N : ℝ) ≤ ((((r 3 M) + 1 : ℕ) : ℝ) / (M : ℝ)) * (N : ℝ)
+
 /-- Import-ready target shape for potential future `k = 4` lower-profile results. -/
 def k4_polylog_lower_profile : Prop :=
   ∃ c C : ℝ, 0 < c ∧ 0 < C ∧
@@ -1646,6 +1712,17 @@ needed to compare them into one matched profile. -/
 class LiteratureK4ExponentOrderAssumptions : Prop extends LiteratureLowerImportAssumptions where
   k4_exponent_order : import_targets.k4_exponent_order_target
 
+/-- Branch-local source-facing literature layer for the corrected broader-source `k = 4` route:
+it records the specialized O'Bryant/Rankin lower profile at `k = 4`. -/
+class LiteratureK4LowerRankinSourceAssumptions : Prop where
+  k4_rankin_obryant_lower_profile :
+    bound_targets.k4_rankin_obryant_lower_profile
+
+/-- Combined source-facing literature layer for the corrected broader-source `k = 4` route:
+one Green-Tao polylog upper witness and one O'Bryant/Rankin lower witness. -/
+class LiteratureK4HeterogeneousSourceBackedSplitAssumptions : Prop
+    extends LiteratureRateAssumptions, LiteratureK4LowerRankinSourceAssumptions
+
 /-- Source-facing strengthened literature layer for the `k ≥ 5` elimination route:
 it records the family-wise exponent-order relation needed to compare the split iterated-log
 profiles into matched profiles. -/
@@ -1679,6 +1756,13 @@ scaffolding for a possible future import. -/
 class LiteratureK3OneEighthSourceAssumptions : Prop extends LiteratureRateAssumptions where
   k3_superpolylog_upper_profile_one_eighth :
     bound_targets.k3_superpolylog_upper_profile_one_eighth
+
+/-- Source-facing literature layer for the direct `k = 3` counting restart:
+it records the quantitative Varnavides reduction in the first repository-facing form compatible
+with the current extremal-function API. -/
+class LiteratureK3QuantitativeVarnavidesSourceAssumptions : Prop where
+  k3_varnavides_extremal_transport :
+    import_targets.k3_varnavides_extremal_transport_target
 
 /-- Source-facing literature layer for the stronger natural `k = 3` route:
 it records a Behrend-scale upper theorem at exponent `β = 1/2`. -/
@@ -1781,6 +1865,13 @@ theorem k5_stretchedexp_loglog_upper_profile_of_literatureK5UpperStretchedexpSou
     [h : LiteratureK5UpperStretchedexpSourceAssumptions] :
     bound_targets.k5_stretchedexp_loglog_upper_profile := by
   exact h.k5_stretchedexp_loglog_upper_profile
+
+/-- Expose the branch-local Rankin/O'Bryant `k = 5` lower target from its source-facing
+literature layer. -/
+theorem k4_rankin_obryant_lower_profile_of_literatureK4LowerRankinSourceAssumptions
+    [h : LiteratureK4LowerRankinSourceAssumptions] :
+    bound_targets.k4_rankin_obryant_lower_profile := by
+  exact h.k4_rankin_obryant_lower_profile
 
 /-- Expose the branch-local Rankin/O'Bryant `k = 5` lower target from its source-facing
 literature layer. -/
@@ -2070,6 +2161,24 @@ noncomputable def k5UpperStretchedexpProfileWitness_of_literatureK5UpperStretche
 
 /-- Noncomputable extraction of the branch-local Rankin/O'Bryant `k = 5` lower witness from
 the dedicated source-facing literature layer. -/
+noncomputable def k4LowerRankinProfileWitness_of_literatureK4LowerRankinSourceAssumptions
+    [h : LiteratureK4LowerRankinSourceAssumptions] :
+    K4LowerRankinProfileWitness := by
+  classical
+  let hw : ∃ w : K4LowerRankinProfileWitness, True := by
+    rcases h.k4_rankin_obryant_lower_profile with ⟨A, B, C, hA, hC, hLower⟩
+    let w : K4LowerRankinProfileWitness :=
+      { A := A
+        B := B
+        C := C
+        hA := hA
+        hC := hC
+        hLower := hLower }
+    exact ⟨w, trivial⟩
+  exact Classical.choose hw
+
+/-- Noncomputable extraction of the branch-local Rankin/O'Bryant `k = 5` lower witness from
+the dedicated source-facing literature layer. -/
 noncomputable def k5LowerRankinProfileWitness_of_literatureK5LowerRankinSourceAssumptions
     [h : LiteratureK5LowerRankinSourceAssumptions] :
     K5LowerRankinProfileWitness := by
@@ -2150,6 +2259,14 @@ noncomputable instance k5UpperStretchedexpProfileWitnessImported_of_literatureK5
 
 /-- `LiteratureK5LowerRankinSourceAssumptions` provide the branch-local Rankin/O'Bryant lower
 witness interface for `k = 5`. -/
+noncomputable instance k4LowerRankinProfileWitnessImported_of_literatureK4LowerRankinSourceAssumptions
+    [h : LiteratureK4LowerRankinSourceAssumptions] :
+    K4LowerRankinProfileWitnessImported where
+  k4_lower_rankin_profile_witness :=
+    k4LowerRankinProfileWitness_of_literatureK4LowerRankinSourceAssumptions
+
+/-- `LiteratureK5LowerRankinSourceAssumptions` provide the branch-local Rankin/O'Bryant lower
+witness interface for `k = 5`. -/
 noncomputable instance k5LowerRankinProfileWitnessImported_of_literatureK5LowerRankinSourceAssumptions
     [h : LiteratureK5LowerRankinSourceAssumptions] :
     K5LowerRankinProfileWitnessImported where
@@ -2182,6 +2299,19 @@ theorem upper_variant_five_of_literatureK5UpperStretchedexpSourceAssumptions
   letI : K5UpperStretchedexpProfileWitnessImported :=
     k5UpperStretchedexpProfileWitnessImported_of_literatureK5UpperStretchedexpSourceAssumptions
   exact upper_variant_five_of_stretchedexp_upper_profile_witness
+
+/-- The combined source-facing `k = 5` toy-model literature layer produces the first-class
+source-backed split witness on the active pivot route. -/
+noncomputable def k4HeterogeneousSourceBackedSplitWitness_of_literatureK4HeterogeneousSourceBackedSplitAssumptions
+    [h : LiteratureK4HeterogeneousSourceBackedSplitAssumptions] :
+    K4HeterogeneousSourceBackedSplitWitness := by
+  let wL : K4LowerRankinProfileWitness :=
+    k4LowerRankinProfileWitness_of_literatureK4LowerRankinSourceAssumptions
+  let wU : K4UpperProfileWitness :=
+    k4UpperProfileWitness_of_literatureRateAssumptions
+  exact
+    { lower := wL
+      upper := wU }
 
 /-- The combined source-facing `k = 5` toy-model literature layer produces the first-class
 source-backed split witness on the active pivot route. -/
@@ -2434,6 +2564,13 @@ noncomputable instance k3UpperProfileWitnessImported_of_literatureK3OneEighthSou
     [h : LiteratureK3OneEighthSourceAssumptions] : K3UpperProfileWitnessImported where
   k3_upper_profile_witness :=
     k3UpperProfileWitness_of_literatureK3OneEighthSourceAssumptions
+
+/-- Extract the repository-facing quantitative Varnavides transport target from its
+source-facing literature wrapper. -/
+theorem k3_varnavides_extremal_transport_of_literatureK3QuantitativeVarnavidesSourceAssumptions
+    [h : LiteratureK3QuantitativeVarnavidesSourceAssumptions] :
+    import_targets.k3_varnavides_extremal_transport_target :=
+  h.k3_varnavides_extremal_transport
 
 /-- Under the strengthened Behrend-scale `k = 3` source layer, the lower Behrend template is
 asymptotically dominated by the Behrend-scale upper profile. -/
