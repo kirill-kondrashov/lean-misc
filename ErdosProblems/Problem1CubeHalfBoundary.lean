@@ -73,7 +73,21 @@ def OddHalfCubeBoundaryLowerStatement : Prop :=
 
 theorem not_OddSectionPairBoundaryLowerStatement :
     ¬ OddSectionPairBoundaryLowerStatement := by
-  sorry
+  intro hPair
+  let 𝒩 : Finset (Finset (Fin 1)) := Finset.univ.powerset
+  let ℳ : Finset (Finset (Fin 1)) := ∅
+  have h𝒩 : IsDownSetFamily 𝒩 := by
+    intro s t hst ht
+    simp [𝒩]
+  have hℳ : IsDownSetFamily ℳ := by
+    intro s t hst ht
+    simpa [ℳ] using ht
+  have hsub : ℳ ⊆ 𝒩 := by
+    intro s hs
+    simpa [ℳ] using hs
+  have hpair :=
+    hPair (m := 0) (e := 1) (𝒩 := 𝒩) (ℳ := ℳ) h𝒩 hℳ hsub (by simp [𝒩]) (by simp [ℳ])
+  norm_num [𝒩, ℳ, positiveBoundary] at hpair
 
 /-- The normalized density of the `r`-slice of a family. -/
 def sliceDensity (𝒟 : Finset (Finset α)) (r : ℕ) : ℚ :=
@@ -1466,7 +1480,7 @@ theorem choose_middle_le_card_positiveBoundary_odd_of_section_pairBoundaryLower
     (h𝒟 : IsDownSetFamily 𝒟)
     (hcard : 𝒟.card = 2 ^ (2 * m)) :
     Nat.choose (2 * m + 1) m ≤ #(positiveBoundary 𝒟) := by
-  sorry
+  exact False.elim (not_OddSectionPairBoundaryLowerStatement hPair)
 
 theorem choose_middle_le_card_positiveBoundary_even_of_totalSize_eq_max_of_section_pairBoundaryLower
     (hPair : OddSectionPairBoundaryLowerStatement)
@@ -1475,7 +1489,7 @@ theorem choose_middle_le_card_positiveBoundary_even_of_totalSize_eq_max_of_secti
     (hcard : 𝒟.card = 2 ^ (2 * m + 1))
     (htotal : totalSize 𝒟 = (2 * m + 2) * 2 ^ (2 * m)) :
     Nat.choose (2 * m + 2) (m + 1) ≤ #(positiveBoundary 𝒟) := by
-  sorry
+  exact False.elim (not_OddSectionPairBoundaryLowerStatement hPair)
 
 theorem choose_middle_le_card_positiveBoundary_even_of_card_eq_half_cube_of_section_pairBoundaryLower
     (hPair : OddSectionPairBoundaryLowerStatement)
@@ -1483,7 +1497,7 @@ theorem choose_middle_le_card_positiveBoundary_even_of_card_eq_half_cube_of_sect
     (h𝒟 : IsDownSetFamily 𝒟)
     (hcard : 𝒟.card = 2 ^ (2 * m + 1)) :
     Nat.choose (2 * m + 2) (m + 1) ≤ #(positiveBoundary 𝒟) := by
-  sorry
+  exact False.elim (not_OddSectionPairBoundaryLowerStatement hPair)
 
 theorem choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_section_pairBoundaryLower
     (hPair : OddSectionPairBoundaryLowerStatement)
@@ -1491,7 +1505,7 @@ theorem choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_section_p
     (h𝒟 : IsDownSetFamily 𝒟)
     (hcard : 𝒟.card = 2 ^ (n - 1)) :
     Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
-  sorry
+  exact False.elim (not_OddSectionPairBoundaryLowerStatement hPair)
 
 theorem subcubeHalfCubeBoundaryLower_of_halfCubeBoundaryLower
     (hCube : HalfCubeBoundaryLowerStatement)
