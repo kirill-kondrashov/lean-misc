@@ -26,12 +26,23 @@ after <https://github.com/kirill-kondrashov/yoccos-theorem>.
 
 ## Repository map
 
-| Area | What it contains | Main file |
-| --- | --- | --- |
-| `Erdos1.erdos_1` | Erdős Problem 1 and sum-distinct variants, following the statement layer from DeepMind's `formal-conjectures`; open literature endpoints are still imported as local axioms while exact small benchmarks are proved locally | [ErdosProblems/Problem1.lean](./ErdosProblems/Problem1.lean) |
-| `TaoExercises.TaoBook.Chapter2.exercise_2_3` | Tao, *Solving mathematical problems*, Exercise 2.3: `x^4 + 131 = 3y^4` has no integer solutions | [TaoExercises/TaoBook/Chapter2.lean](./TaoExercises/TaoBook/Chapter2.lean) |
-| `TaoExercises.TaoBook.Chapter2.exercise_2_6` | If `k` is odd, then `1^k + 2^k + · · · + n^k` is divisible by `1 + 2 + · · · + n` | [TaoExercises/TaoBook/Chapter2.lean](./TaoExercises/TaoBook/Chapter2.lean) |
-| `ErdosProblems` (`Erdos142`) | Erdős #142 statement, explicit-profile strengthening, gap decomposition, and the current frontier packages | [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean) |
+GitHub renders the old table too narrowly, so this section uses a list instead.
+
+- `Erdos1.erdos_1`
+  Statement layer for Erdős Problem #1, sum-distinct variants, and the imported/open literature endpoints.
+  Main file: [ErdosProblems/Problem1.lean](./ErdosProblems/Problem1.lean)
+
+- `TaoExercises.TaoBook.Chapter2.exercise_2_3`
+  Exercise 2.3: `x^4 + 131 = 3y^4` has no integer solutions.
+  Main file: [TaoExercises/TaoBook/Chapter2.lean](./TaoExercises/TaoBook/Chapter2.lean)
+
+- `TaoExercises.TaoBook.Chapter2.exercise_2_6`
+  If `k` is odd, then `1^k + 2^k + ··· + n^k` is divisible by `1 + 2 + ··· + n`.
+  Main file: [TaoExercises/TaoBook/Chapter2.lean](./TaoExercises/TaoBook/Chapter2.lean)
+
+- `ErdosProblems` (`Erdos142`)
+  Erdős #142 statement, explicit-profile strengthening, gap decomposition, and the current frontier packages.
+  Main file: [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean)
 
 ## Toolchain and dependencies
 
