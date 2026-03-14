@@ -234,16 +234,23 @@ In particular, the bridge module makes the following map explicit:
 
 - Standard mathematical formulation of the live frontier:
 
-  Let $[2m+1]$ be a ground set with $2m+1$ elements, and let
-  $\mathcal P([2m+1])$ denote its power set.
-
-  A family $\mathcal F \subseteq \mathcal P([2m+1])$ is a down-set if
+  Ground set and power set:
 
   $$
-  A \in \mathcal F,\quad B \subseteq A \quad\Longrightarrow\quad B \in \mathcal F.
+  [2m+1],
+  \qquad
+  \mathcal P([2m+1]).
   $$
 
-  For any family $\mathcal F$, define its positive boundary by
+  Down-set condition:
+
+  $$
+  A \in \mathcal F,\quad B \subseteq A
+  \qquad\Longrightarrow\qquad
+  B \in \mathcal F.
+  $$
+
+  Positive boundary:
 
   $$
   \partial^+\mathcal F
@@ -252,15 +259,15 @@ In particular, the bridge module makes the following map explicit:
   A \notin \mathcal F,\ \exists x \in A,\ A \setminus \{x\} \in \mathcal F \right\}.
   $$
 
-  For nested families $\mathcal M \subseteq \mathcal N$, define
+  Visible interface:
 
   $$
   I(\mathcal M,\mathcal N)
   :=
-  (\mathcal N \setminus \mathcal M)\cup \partial^+\mathcal M
+  (\mathcal N \setminus \mathcal M)\cup \partial^+\mathcal M.
   $$
 
-  and
+  Total visible boundary:
 
   $$
   B(\mathcal M,\mathcal N)
@@ -268,20 +275,24 @@ In particular, the bridge module makes the following map explicit:
   |\partial^+\mathcal N| + |I(\mathcal M,\mathcal N)|.
   $$
 
-  The `Prism Theorem` states that
+  Prism Theorem:
 
   $$
-  \mathcal M \subseteq \mathcal N \subseteq \mathcal P([2m+1]),\quad
-  \mathcal M,\mathcal N \text{ are down-sets},\quad
-  |\mathcal N| = 2^{2m}+e,\quad
+  \mathcal M \subseteq \mathcal N \subseteq \mathcal P([2m+1]),
+  \qquad
+  \mathcal M,\mathcal N \text{ are down-sets},
+  $$
+  $$
+  |\mathcal N| = 2^{2m}+e,
+  \qquad
   |\mathcal M| = 2^{2m}-e
-  $$
-  $$
-  \Longrightarrow\quad
+  \qquad\Longrightarrow\qquad
   B(\mathcal M,\mathcal N) \ge 2\binom{2m+1}{m}.
   $$
 
-  Here $|X|$ denotes cardinality, and $\binom{2m+1}{m}$ is the usual binomial coefficient.
+  Notation:
+  - `|X|` denotes cardinality.
+  - `\binom{2m+1}{m}` is the binomial coefficient.
 
   Here `|X|` denotes cardinality, and `\binom{2m+1}{m}` is the usual binomial coefficient.
 
