@@ -69,6 +69,34 @@ theorem card_minimalOutside_le_card_positiveBoundary_of_nonempty_isDownSetFamily
   Finset.card_le_card
     (minimalOutside_subset_positiveBoundary_of_nonempty_isDownSetFamily h𝒜 hne)
 
+theorem positiveBoundary_subset_minimalOutside_of_nonempty_isDownSetFamily_of_isAntichain
+    {𝒜 : Finset (Finset α)} (h𝒜 : IsDownSetFamily 𝒜) (hne : 𝒜.Nonempty)
+    (hAnt : IsAntichain (· ⊆ ·) (positiveBoundary 𝒜 : Set (Finset α))) :
+    positiveBoundary 𝒜 ⊆ minimalOutside 𝒜 := by
+  intro s hs
+  rcases mem_positiveBoundary.mp hs with ⟨hsNotA, _, _, _⟩
+  obtain ⟨t, hts, htMin⟩ := Finite.exists_le_minimal (p := fun u : Finset α => u ∉ 𝒜) hsNotA
+  have htMinMem : t ∈ minimalOutside 𝒜 := by
+    refine mem_minimalOutside.mpr ⟨htMin.1, ?_⟩
+    intro u hu
+    have hnot : ¬ u ∉ 𝒜 := htMin.not_prop_of_lt hu
+    simpa using hnot
+  have htPos : t ∈ positiveBoundary 𝒜 :=
+    minimalOutside_subset_positiveBoundary_of_nonempty_isDownSetFamily h𝒜 hne htMinMem
+  have htsEq : t = s := by
+    by_contra hne'
+    exact hAnt htPos hs hne' hts
+  simpa [htsEq] using htMinMem
+
+theorem positiveBoundary_eq_minimalOutside_of_nonempty_isDownSetFamily_of_isAntichain
+    {𝒜 : Finset (Finset α)} (h𝒜 : IsDownSetFamily 𝒜) (hne : 𝒜.Nonempty)
+    (hAnt : IsAntichain (· ⊆ ·) (positiveBoundary 𝒜 : Set (Finset α))) :
+    positiveBoundary 𝒜 = minimalOutside 𝒜 := by
+  apply Finset.Subset.antisymm
+  · exact positiveBoundary_subset_minimalOutside_of_nonempty_isDownSetFamily_of_isAntichain
+      h𝒜 hne hAnt
+  · exact minimalOutside_subset_positiveBoundary_of_nonempty_isDownSetFamily h𝒜 hne
+
 theorem card_positiveBoundary_ge_of_nonempty_downSet_minimalOutside_lower
     (hstep : ∀ a : α, ∀ 𝒜 : Finset (Finset α),
       #(positiveBoundary (downCompression a 𝒜)) ≤ #(positiveBoundary 𝒜))

@@ -44,15 +44,16 @@ def OddSectionPairBoundaryLowerStatement : Prop :=
       2 * Nat.choose (2 * m + 1) m ≤
         (positiveBoundary 𝒩).card + (positiveBoundary ℳ).card
 
-/-- Corrected live frontier candidate after rejecting the false paired odd-section statement. -/
+/-- Archival stronger one-family odd-section candidate. This statement is false at `e = 0`; see
+`not_OddSectionExcessBoundaryLowerStatement`. -/
 def OddSectionExcessBoundaryLowerStatement : Prop :=
   ∀ {m e : ℕ} {𝒩 : Finset (Finset (Fin (2 * m + 1)))},
     IsDownSetFamily 𝒩 →
       𝒩.card = 2 ^ (2 * m) + e →
       2 * Nat.choose (2 * m + 1) m ≤ (positiveBoundary 𝒩).card + 2 * e
 
-/-- Live strict-excess optimization frontier: enough to close the even deficit branch without
-claiming a false closed-form lower bound for all odd sections. -/
+/-- Archival existential odd strict-excess wrapper. This statement is false; see
+`not_OddSectionStrictExcessOptimizationStatement`. -/
 def OddSectionStrictExcessOptimizationStatement : Prop :=
   ∃ β : ℕ → ℕ → ℕ,
     (∀ {m e : ℕ} {𝒩 : Finset (Finset (Fin (2 * m + 1)))},
@@ -63,13 +64,396 @@ def OddSectionStrictExcessOptimizationStatement : Prop :=
     (∀ m e : ℕ, 0 < e →
       2 * Nat.choose (2 * m + 1) m ≤ β m e + 2 * e)
 
+/-- Archival direct odd strict-excess frontier. This statement is false; see
+`not_OddSectionDirectStrictExcessStatement`. -/
+def OddSectionDirectStrictExcessStatement : Prop :=
+  ∀ {m e : ℕ} {𝒩 : Finset (Finset (Fin (2 * m + 1)))},
+    0 < e →
+      IsDownSetFamily 𝒩 →
+      𝒩.card = 2 ^ (2 * m) + e →
+      2 * Nat.choose (2 * m + 1) m ≤ (positiveBoundary 𝒩).card + 2 * e
+
+theorem oddSectionStrictExcessOptimization_of_directStrictExcess
+    (hDirect : OddSectionDirectStrictExcessStatement) :
+    OddSectionStrictExcessOptimizationStatement := by
+  refine ⟨fun m e => 2 * Nat.choose (2 * m + 1) m - 2 * e, ?_⟩
+  constructor
+  · intro m e 𝒩 he h𝒩 hcard
+    exact (Nat.sub_le_iff_le_add).2 (hDirect (m := m) (e := e) (𝒩 := 𝒩) he h𝒩 hcard)
+  · intro m e he
+    by_cases hle : 2 * e ≤ 2 * Nat.choose (2 * m + 1) m
+    · simpa [Nat.sub_add_cancel hle]
+    · have hge : 2 * Nat.choose (2 * m + 1) m ≤ 2 * e := by
+        omega
+      have hsub : 2 * Nat.choose (2 * m + 1) m - 2 * e = 0 := by
+        exact Nat.sub_eq_zero_of_le hge
+      have hfinal : 2 * Nat.choose (2 * m + 1) m ≤ 2 * e + (2 * Nat.choose (2 * m + 1) m - 2 * e) := by
+        calc
+        2 * Nat.choose (2 * m + 1) m ≤ 2 * e := hge
+        _ = 2 * e + (2 * Nat.choose (2 * m + 1) m - 2 * e) := by
+          simp [hsub]
+      simpa [add_comm, add_left_comm, add_assoc] using hfinal
+
 /-- Odd-dimensional half-cube boundary lower bound, isolated as the balanced-case input for the
 even proof program. -/
 def OddHalfCubeBoundaryLowerStatement : Prop :=
   ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
-    IsDownSetFamily 𝒟 →
+      IsDownSetFamily 𝒟 →
       𝒟.card = 2 ^ (2 * m) →
       Nat.choose (2 * m + 1) m ≤ #(positiveBoundary 𝒟)
+
+/-- Search-guided odd half-cube slice-threshold candidate: every lower-half slice of a half-cube
+down-set in odd dimension should contain at least the corresponding slice of the even cube one
+dimension lower. This is weaker than exact extremizer classification and matches the current
+exhaustive data in `n = 1, 3, 5`. -/
+def OddHalfCubeSliceThresholdStatement : Prop :=
+  ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+      IsDownSetFamily 𝒟 →
+      𝒟.card = 2 ^ (2 * m) →
+      ∀ r ∈ Finset.range (m + 1), Nat.choose (2 * m) r ≤ #(𝒟 # r)
+
+/-- A global minimizer of the odd half-cube boundary functional: among all odd-cube down-sets of
+half-cube size, `𝒟` has minimum positive-boundary size. Unlike
+`IsOddHalfCubeBoundaryMinimizer`, this does not assume the sharp middle-binomial value in advance.
+-/
+def IsOddHalfCubeBoundaryGlobalMinimizer {m : ℕ}
+    (𝒟 : Finset (Finset (Fin (2 * m + 1)))) : Prop :=
+  IsDownSetFamily 𝒟 ∧
+    𝒟.card = 2 ^ (2 * m) ∧
+    ∀ {𝒜 : Finset (Finset (Fin (2 * m + 1)))},
+      IsDownSetFamily 𝒜 →
+        𝒜.card = 2 ^ (2 * m) →
+        #(positiveBoundary 𝒟) ≤ #(positiveBoundary 𝒜)
+
+/-- A sharp odd half-cube boundary minimizer: an odd-cube down-set of half-cube size whose
+positive boundary attains the middle binomial coefficient exactly. -/
+def IsOddHalfCubeBoundaryMinimizer {m : ℕ}
+    (𝒟 : Finset (Finset (Fin (2 * m + 1)))) : Prop :=
+  IsDownSetFamily 𝒟 ∧
+    𝒟.card = 2 ^ (2 * m) ∧
+    #(positiveBoundary 𝒟) = Nat.choose (2 * m + 1) m
+
+/-- Candidate odd balanced extremizer classification suggested by exhaustive search: a half-cube
+down-set in odd dimension that attains the sharp middle-binomial boundary value should have the
+exact lower-half slice profile of `oddLowerHalfFamily`. -/
+def OddHalfCubeBoundaryMinimizerExactProfileStatement : Prop :=
+  ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+      IsDownSetFamily 𝒟 →
+      𝒟.card = 2 ^ (2 * m) →
+      #(positiveBoundary 𝒟) = Nat.choose (2 * m + 1) m →
+      (∀ r ∈ Finset.range (m + 1), #(𝒟 # r) = Nat.choose (2 * m + 1) r) ∧
+      (∀ r, m + 1 ≤ r → #(𝒟 # r) = 0)
+
+/-- Weaker structural extremizer candidate: a sharp odd half-cube minimizer should have no
+positive-boundary mass below the middle layer. -/
+def OddHalfCubeBoundaryMinimizerLowerBoundarySlicesVanishStatement : Prop :=
+  ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+      IsOddHalfCubeBoundaryMinimizer (m := m) 𝒟 →
+      ∀ r ∈ Finset.Icc 1 m, #((positiveBoundary 𝒟) # r) = 0
+
+/-- Minimizer-only structural route for the odd balanced theorem: it should suffice to prove
+vanishing of lower positive-boundary slices only for actual global minimizers of the boundary
+functional at half-cube mass. -/
+def OddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanishStatement : Prop :=
+  ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 →
+      ∀ r ∈ Finset.Icc 1 m, #((positiveBoundary 𝒟) # r) = 0
+
+/-- Even weaker minimizer-only route: it would already suffice to prove that every odd half-cube
+global boundary minimizer has `minimalOutside` at least as large as the middle layer. Since
+`minimalOutside ⊆ positiveBoundary` for nonempty down-sets, this gives the odd boundary lower bound
+without any slice-by-slice structure. -/
+def OddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLowerStatement : Prop :=
+  ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 →
+      Nat.choose (2 * m + 1) m ≤ #(minimalOutside 𝒟)
+
+/-- Corrected minimizer-only antichain surface: on a genuine odd half-cube global boundary
+minimizer, the positive boundary should itself already be a middle-sized antichain. Unlike the
+false universal antichain route, this only quantifies over actual boundary minimizers. -/
+def OddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichainStatement : Prop :=
+  ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 →
+      IsAntichain (· ⊆ ·) (positiveBoundary 𝒟 : Set (Finset (Fin (2 * m + 1)))) ∧
+      #(positiveBoundary 𝒟) = Nat.choose (2 * m + 1) m
+
+/-- Archival antichain reformulation of the odd balanced half-cube problem. This statement is
+false; see `not_OddAntichainUpperClosureLowerStatement`. -/
+def OddAntichainUpperClosureLowerStatement : Prop :=
+  ∀ {m : ℕ} {𝒜 : Finset (Finset (Fin (2 * m + 1)))},
+      IsAntichain (· ⊆ ·) (𝒜 : Set (Finset (Fin (2 * m + 1)))) →
+      (↑(upperClosure (𝒜 : Set (Finset (Fin (2 * m + 1))))) :
+        Set (Finset (Fin (2 * m + 1)))).ncard = 2 ^ (2 * m) →
+      Nat.choose (2 * m + 1) m ≤ #𝒜
+
+/-- Archival universal `minimalOutside` version of the odd balanced half-cube problem. This
+statement is false; see `not_OddHalfCubeMinimalOutsideLowerStatement`. -/
+def OddHalfCubeMinimalOutsideLowerStatement : Prop :=
+  ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+      IsDownSetFamily 𝒟 →
+      𝒟.card = 2 ^ (2 * m) →
+      Nat.choose (2 * m + 1) m ≤ #(minimalOutside 𝒟)
+
+theorem oddHalfCubeBoundaryMinimizerExactProfileStatement_iff :
+    OddHalfCubeBoundaryMinimizerExactProfileStatement ↔
+      ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+        IsOddHalfCubeBoundaryMinimizer (m := m) 𝒟 →
+          (∀ r ∈ Finset.range (m + 1), #(𝒟 # r) = Nat.choose (2 * m + 1) r) ∧
+          (∀ r, m + 1 ≤ r → #(𝒟 # r) = 0) := by
+  constructor
+  · intro h m 𝒟 hmin
+    exact h hmin.1 hmin.2.1 hmin.2.2
+  · intro h m 𝒟 h𝒟 hcard hbdry
+    exact h ⟨h𝒟, hcard, hbdry⟩
+
+theorem oddLowerHalfFamily_isOddHalfCubeBoundaryMinimizer (m : ℕ) :
+    IsOddHalfCubeBoundaryMinimizer (m := m) (oddLowerHalfFamily m) := by
+  refine ⟨isDownSetFamily_oddLowerHalfFamily m, card_oddLowerHalfFamily_eq_half_cube m, ?_⟩
+  simpa using card_positiveBoundary_oddLowerHalfFamily m
+
+theorem oddLowerHalfFamily_realizes_oddHalfCubeBoundaryMinimizerExactProfileTarget (m : ℕ) :
+    IsOddHalfCubeBoundaryMinimizer (m := m) (oddLowerHalfFamily m) ∧
+      (∀ r ∈ Finset.range (m + 1),
+        #((oddLowerHalfFamily m) # r) = Nat.choose (2 * m + 1) r) ∧
+      (∀ r, m + 1 ≤ r → #((oddLowerHalfFamily m) # r) = 0) := by
+  refine ⟨oddLowerHalfFamily_isOddHalfCubeBoundaryMinimizer m, ?_⟩
+  exact oddLowerHalfFamily_has_exact_slice_profile m
+
+theorem oddLowerHalfFamily_realizes_oddHalfCubeBoundaryMinimizerLowerBoundarySlicesVanishTarget
+    (m : ℕ) :
+    IsOddHalfCubeBoundaryMinimizer (m := m) (oddLowerHalfFamily m) ∧
+      (∀ r ∈ Finset.Icc 1 m, #((positiveBoundary (oddLowerHalfFamily m)) # r) = 0) := by
+  refine ⟨oddLowerHalfFamily_isOddHalfCubeBoundaryMinimizer m, ?_⟩
+  intro r hr
+  rw [positiveBoundary_oddLowerHalfFamily]
+  refine Finset.card_eq_zero.mpr ?_
+  ext s
+  constructor
+  · intro hs
+    exfalso
+    rcases Finset.mem_slice.mp hs with ⟨hsMid, hsCard⟩
+    have hsCard' : s.card = m + 1 := by
+      simpa using (mem_oddMiddleLayer.mp hsMid)
+    rcases Finset.mem_Icc.mp hr with ⟨hr1, hrm⟩
+    omega
+  · intro hs
+    simpa using hs
+
+theorem oddMiddleLayer_realizes_oddAntichainUpperClosureLowerTarget (m : ℕ) :
+    IsAntichain (· ⊆ ·) (oddMiddleLayer m : Set (Finset (Fin (2 * m + 1)))) ∧
+      (↑(upperClosure (oddMiddleLayer m : Set (Finset (Fin (2 * m + 1))))) :
+        Set (Finset (Fin (2 * m + 1)))).ncard = 2 ^ (2 * m) ∧
+      #(oddMiddleLayer m) = Nat.choose (2 * m + 1) m := by
+  refine ⟨isAntichain_oddMiddleLayer m, ?_⟩
+  constructor
+  · rw [upperClosure_oddMiddleLayer_eq_compl_oddLowerHalfFamily, Set.ncard_compl]
+    rw [Nat.card_eq_fintype_card, Fintype.card_finset, Fintype.card_fin, Set.ncard_coe_finset,
+      card_oddLowerHalfFamily_eq_half_cube]
+    rw [pow_succ, Nat.mul_comm, two_mul, Nat.add_sub_cancel_left]
+  · exact card_oddMiddleLayer m
+
+theorem exists_isOddHalfCubeBoundaryGlobalMinimizer (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 1))), IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 := by
+  classical
+  let s : Finset (Finset (Finset (Fin (2 * m + 1)))) :=
+    (Finset.univ : Finset (Finset (Finset (Fin (2 * m + 1))))).filter
+      (fun 𝒟 => IsDownSetFamily 𝒟 ∧ 𝒟.card = 2 ^ (2 * m))
+  have hs_nonempty : s.Nonempty := by
+    refine ⟨oddLowerHalfFamily m, ?_⟩
+    simp [s, isDownSetFamily_oddLowerHalfFamily m, card_oddLowerHalfFamily_eq_half_cube m]
+  obtain ⟨𝒟, h𝒟s, hmin⟩ :=
+    Finset.exists_min_image s (fun 𝒜 => #(positiveBoundary 𝒜)) hs_nonempty
+  refine ⟨𝒟, ?_⟩
+  have h𝒟s' : IsDownSetFamily 𝒟 ∧ 𝒟.card = 2 ^ (2 * m) := by
+    simpa [s] using h𝒟s
+  rcases h𝒟s' with ⟨h𝒟down, h𝒟card⟩
+  refine ⟨h𝒟down, h𝒟card, ?_⟩
+  intro 𝒜 h𝒜 h𝒜card
+  have h𝒜s : 𝒜 ∈ s := by
+    simpa [s, h𝒜, h𝒜card]
+  exact hmin 𝒜 h𝒜s
+
+theorem oddLowerHalfFamily_realizes_oddHalfCubeSliceThresholdTarget (m : ℕ) :
+    IsDownSetFamily (oddLowerHalfFamily m) ∧
+      (oddLowerHalfFamily m).card = 2 ^ (2 * m) ∧
+      (∀ r ∈ Finset.range (m + 1), Nat.choose (2 * m) r ≤ #((oddLowerHalfFamily m) # r)) := by
+  refine ⟨isDownSetFamily_oddLowerHalfFamily m, card_oddLowerHalfFamily_eq_half_cube m, ?_⟩
+  intro r hr
+  have hrle : r ≤ m := Nat.le_of_lt_succ (Finset.mem_range.mp hr)
+  calc
+    Nat.choose (2 * m) r ≤ Nat.choose (2 * m + 1) r := by
+      exact Nat.choose_le_choose r (by omega)
+    _ = #((oddLowerHalfFamily m) # r) := by
+      symm
+      exact card_slice_oddLowerHalfFamily_eq_choose hrle
+
+theorem eq_oddLowerHalfFamily_of_isOddHalfCubeBoundaryMinimizer_of_exactProfile
+    (hProfile : OddHalfCubeBoundaryMinimizerExactProfileStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryMinimizer (m := m) 𝒟) :
+    𝒟 = oddLowerHalfFamily m := by
+  have hslices :
+      (∀ r ∈ Finset.range (m + 1), #(𝒟 # r) = Nat.choose (2 * m + 1) r) ∧
+        (∀ r, m + 1 ≤ r → #(𝒟 # r) = 0) :=
+    (oddHalfCubeBoundaryMinimizerExactProfileStatement_iff.mp hProfile) hmin
+  exact eq_oddLowerHalfFamily_of_exact_slice_profile hslices.1 hslices.2
+
+theorem positiveBoundary_eq_oddMiddleLayer_of_isOddHalfCubeBoundaryMinimizer_of_exactProfile
+    (hProfile : OddHalfCubeBoundaryMinimizerExactProfileStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryMinimizer (m := m) 𝒟) :
+    positiveBoundary 𝒟 = oddMiddleLayer m := by
+  have hEq :
+      𝒟 = oddLowerHalfFamily m :=
+    eq_oddLowerHalfFamily_of_isOddHalfCubeBoundaryMinimizer_of_exactProfile hProfile hmin
+  simpa [hEq] using positiveBoundary_oddLowerHalfFamily m
+
+theorem card_slice_oddMiddleLayer_eq_zero_of_ne_middle
+    {m r : ℕ} (hr : r ≠ m + 1) :
+    #((oddMiddleLayer m) # r) = 0 := by
+  refine Finset.card_eq_zero.mpr ?_
+  ext s
+  constructor
+  · intro hs
+    exfalso
+    rcases Finset.mem_slice.mp hs with ⟨hsMid, hsCard⟩
+    have hsCard' : s.card = m + 1 := by
+      simpa using (mem_oddMiddleLayer.mp hsMid)
+    exact hr (hsCard.symm.trans hsCard')
+  · intro hs
+    simpa using hs
+
+theorem oddHalfCubeBoundaryMinimizerLowerBoundarySlicesVanish_of_exactProfile
+    (hProfile : OddHalfCubeBoundaryMinimizerExactProfileStatement) :
+    OddHalfCubeBoundaryMinimizerLowerBoundarySlicesVanishStatement := by
+  intro m 𝒟 hmin r hr
+  have hEq :
+      positiveBoundary 𝒟 = oddMiddleLayer m :=
+    positiveBoundary_eq_oddMiddleLayer_of_isOddHalfCubeBoundaryMinimizer_of_exactProfile
+      hProfile hmin
+  rw [hEq]
+  exact card_slice_oddMiddleLayer_eq_zero_of_ne_middle (by
+    rcases Finset.mem_Icc.mp hr with ⟨hr1, hrm⟩
+    omega)
+
+theorem minimalOutside_eq_oddMiddleLayer_of_isOddHalfCubeBoundaryMinimizer_of_exactProfile
+    (hProfile : OddHalfCubeBoundaryMinimizerExactProfileStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryMinimizer (m := m) 𝒟) :
+    minimalOutside 𝒟 = oddMiddleLayer m := by
+  have hEq :
+      𝒟 = oddLowerHalfFamily m :=
+    eq_oddLowerHalfFamily_of_isOddHalfCubeBoundaryMinimizer_of_exactProfile hProfile hmin
+  simpa [hEq] using minimalOutside_oddLowerHalfFamily m
+
+theorem minimalOutside_eq_positiveBoundary_of_isOddHalfCubeBoundaryMinimizer_of_exactProfile
+    (hProfile : OddHalfCubeBoundaryMinimizerExactProfileStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryMinimizer (m := m) 𝒟) :
+    minimalOutside 𝒟 = positiveBoundary 𝒟 := by
+  rw [minimalOutside_eq_oddMiddleLayer_of_isOddHalfCubeBoundaryMinimizer_of_exactProfile
+      hProfile hmin,
+    positiveBoundary_eq_oddMiddleLayer_of_isOddHalfCubeBoundaryMinimizer_of_exactProfile
+      hProfile hmin]
+
+theorem oddHalfCubeSliceThreshold_of_isOddHalfCubeBoundaryMinimizer_of_exactProfile
+    (hProfile : OddHalfCubeBoundaryMinimizerExactProfileStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryMinimizer (m := m) 𝒟) :
+    ∀ r ∈ Finset.range (m + 1), Nat.choose (2 * m) r ≤ #(𝒟 # r) := by
+  have hslices :
+      (∀ r ∈ Finset.range (m + 1), #(𝒟 # r) = Nat.choose (2 * m + 1) r) ∧
+        (∀ r, m + 1 ≤ r → #(𝒟 # r) = 0) :=
+    (oddHalfCubeBoundaryMinimizerExactProfileStatement_iff.mp hProfile) hmin
+  intro r hr
+  calc
+    Nat.choose (2 * m) r ≤ Nat.choose (2 * m + 1) r := by
+      exact Nat.choose_le_choose r (by omega)
+    _ = #(𝒟 # r) := by
+      symm
+      exact hslices.1 r hr
+
+/-- Candidate odd-dimensional paired interface frontier suggested by the exact member/nonmember
+section decomposition of `positiveBoundary` on an even split. -/
+def OddSectionPairInterfaceBoundaryLowerStatement : Prop :=
+  ∀ {m e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
+    IsDownSetFamily 𝒩 →
+      IsDownSetFamily ℳ →
+      ℳ ⊆ 𝒩 →
+      𝒩.card = 2 ^ (2 * m) + e →
+      ℳ.card = 2 ^ (2 * m) - e →
+      2 * Nat.choose (2 * m + 1) m ≤
+        #(positiveBoundary 𝒩) + #((𝒩 \ ℳ) ∪ positiveBoundary ℳ)
+
+/-- Strictly positive-excess fragment of the pair-interface frontier. This isolates the odd
+balanced case from the genuine recursion step needed in even dimension. -/
+def OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement : Prop :=
+  ∀ {m e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
+    0 < e →
+      IsDownSetFamily 𝒩 →
+        IsDownSetFamily ℳ →
+        ℳ ⊆ 𝒩 →
+        𝒩.card = 2 ^ (2 * m) + e →
+        ℳ.card = 2 ^ (2 * m) - e →
+        2 * Nat.choose (2 * m + 1) m ≤
+          #(positiveBoundary 𝒩) + #((𝒩 \ ℳ) ∪ positiveBoundary ℳ)
+
+theorem oddSectionPositiveExcessPairInterfaceBoundaryLower_of_section_pairInterfaceBoundaryLower
+    (hPair : OddSectionPairInterfaceBoundaryLowerStatement) :
+    OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement := by
+  intro m e 𝒩 ℳ he h𝒩 hℳ hsub h𝒩card hℳcard
+  exact hPair h𝒩 hℳ hsub h𝒩card hℳcard
+
+theorem oddSectionPairInterfaceBoundaryLower_of_oddHalfCubeBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
+    (hOdd : OddHalfCubeBoundaryLowerStatement)
+    (hPair :
+      OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement) :
+    OddSectionPairInterfaceBoundaryLowerStatement := by
+  intro m e 𝒩 ℳ h𝒩 hℳ hsub h𝒩card hℳcard
+  by_cases he : e = 0
+  · have hcardLe : 𝒩.card ≤ ℳ.card := by
+      omega
+    have hEq : ℳ = 𝒩 := Finset.eq_of_subset_of_card_le hsub hcardLe
+    have h𝒩bdry : Nat.choose (2 * m + 1) m ≤ #(positiveBoundary 𝒩) := by
+      have hhalf : 𝒩.card = 2 ^ (2 * m) := by
+        omega
+      exact hOdd h𝒩 hhalf
+    calc
+      2 * Nat.choose (2 * m + 1) m ≤ #(positiveBoundary 𝒩) + #(positiveBoundary 𝒩) := by
+        omega
+      _ = #(positiveBoundary 𝒩) + #((𝒩 \ ℳ) ∪ positiveBoundary ℳ) := by
+        simp [hEq]
+  · exact hPair (Nat.pos_of_ne_zero he) h𝒩 hℳ hsub h𝒩card hℳcard
+
+theorem oddSectionPairInterfaceBoundaryLower_iff_oddHalfCubeBoundaryLower_and_positiveExcessPairInterfaceBoundaryLower :
+    OddSectionPairInterfaceBoundaryLowerStatement ↔
+      (OddHalfCubeBoundaryLowerStatement ∧
+        OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement) := by
+  constructor
+  · intro hPair
+    refine
+      ⟨?_,
+        oddSectionPositiveExcessPairInterfaceBoundaryLower_of_section_pairInterfaceBoundaryLower
+          hPair⟩
+    intro m 𝒟 h𝒟 hcard
+    have hpair :
+        2 * Nat.choose (2 * m + 1) m ≤
+          #(positiveBoundary 𝒟) + #((𝒟 \ 𝒟) ∪ positiveBoundary 𝒟) :=
+      hPair (e := 0) h𝒟 h𝒟 (by intro s hs; exact hs) (by simpa using hcard)
+        (by simpa using hcard)
+    have hpair' :
+        2 * Nat.choose (2 * m + 1) m ≤
+          #(positiveBoundary 𝒟) + #(positiveBoundary 𝒟) := by
+      calc
+        2 * Nat.choose (2 * m + 1) m
+          ≤ #(positiveBoundary 𝒟) + #((𝒟 \ 𝒟) ∪ positiveBoundary 𝒟) := hpair
+        _ = #(positiveBoundary 𝒟) + #(positiveBoundary 𝒟) := by
+              simp
+    omega
+  · rintro ⟨hOdd, hPair⟩
+    exact
+      oddSectionPairInterfaceBoundaryLower_of_oddHalfCubeBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
+        hOdd hPair
 
 theorem not_OddSectionPairBoundaryLowerStatement :
     ¬ OddSectionPairBoundaryLowerStatement := by
@@ -89,9 +473,151 @@ theorem not_OddSectionPairBoundaryLowerStatement :
     hPair (m := 0) (e := 1) (𝒩 := 𝒩) (ℳ := ℳ) h𝒩 hℳ hsub (by simp [𝒩]) (by simp [ℳ])
   norm_num [𝒩, ℳ, positiveBoundary] at hpair
 
+theorem not_OddSectionExcessBoundaryLowerStatement :
+    ¬ OddSectionExcessBoundaryLowerStatement := by
+  intro hExcess
+  have hbad :=
+    hExcess (m := 1) (e := 0) (𝒩 := oddLowerHalfFamily 1)
+      (isDownSetFamily_oddLowerHalfFamily 1)
+      (by simpa using card_oddLowerHalfFamily_eq_half_cube 1)
+  rw [card_positiveBoundary_oddLowerHalfFamily] at hbad
+  norm_num at hbad
+
+theorem not_OddSectionDirectStrictExcessStatement :
+    ¬ OddSectionDirectStrictExcessStatement := by
+  intro hDirect
+  let 𝒩 : Finset (Finset (Fin 3)) :=
+    oddLowerHalfFamily 1 ∪ {({1, 2} : Finset (Fin 3))}
+  have h𝒩 : IsDownSetFamily 𝒩 := by
+    intro t s hts hs
+    dsimp [𝒩] at hs ⊢
+    change t ∈ oddLowerHalfFamily 1 ∪ {({1, 2} : Finset (Fin 3))} at hs
+    change s ∈ oddLowerHalfFamily 1 ∪ {({1, 2} : Finset (Fin 3))}
+    rw [mem_union, mem_singleton] at hs ⊢
+    rcases hs with hs | rfl
+    · exact Or.inl (isDownSetFamily_oddLowerHalfFamily 1 hts hs)
+    · by_cases hsEq : s = ({1, 2} : Finset (Fin 3))
+      · exact Or.inr hsEq
+      · left
+        rw [mem_oddLowerHalfFamily]
+        have hnot : ¬ ({1, 2} : Finset (Fin 3)) ⊆ s := by
+          intro hsup
+          apply hsEq
+          exact Finset.Subset.antisymm hts hsup
+        have hslt : s.card < ({1, 2} : Finset (Fin 3)).card := by
+          exact Finset.card_lt_card ⟨hts, hnot⟩
+        have hslt' : s.card < 2 := by
+          simpa using hslt
+        omega
+  have hcard : 𝒩.card = 2 ^ (2 * 1) + 1 := by
+    decide
+  have hbad := hDirect (m := 1) (e := 1) (𝒩 := 𝒩) (by decide) h𝒩 hcard
+  have hbdry : (positiveBoundary 𝒩).card = 3 := by
+    decide
+  rw [hbdry] at hbad
+  norm_num at hbad
+
+theorem not_OddSectionStrictExcessOptimizationStatement :
+    ¬ OddSectionStrictExcessOptimizationStatement := by
+  rintro ⟨β, hlower, hupper⟩
+  let 𝒩 : Finset (Finset (Fin 3)) :=
+    oddLowerHalfFamily 1 ∪ {({1, 2} : Finset (Fin 3))}
+  have h𝒩 : IsDownSetFamily 𝒩 := by
+    intro t s hts hs
+    dsimp [𝒩] at hs ⊢
+    change t ∈ oddLowerHalfFamily 1 ∪ {({1, 2} : Finset (Fin 3))} at hs
+    change s ∈ oddLowerHalfFamily 1 ∪ {({1, 2} : Finset (Fin 3))}
+    rw [mem_union, mem_singleton] at hs ⊢
+    rcases hs with hs | rfl
+    · exact Or.inl (isDownSetFamily_oddLowerHalfFamily 1 hts hs)
+    · by_cases hsEq : s = ({1, 2} : Finset (Fin 3))
+      · exact Or.inr hsEq
+      · left
+        rw [mem_oddLowerHalfFamily]
+        have hnot : ¬ ({1, 2} : Finset (Fin 3)) ⊆ s := by
+          intro hsup
+          apply hsEq
+          exact Finset.Subset.antisymm hts hsup
+        have hslt : s.card < ({1, 2} : Finset (Fin 3)).card := by
+          exact Finset.card_lt_card ⟨hts, hnot⟩
+        have hslt' : s.card < 2 := by
+          simpa using hslt
+        omega
+  have hcard : 𝒩.card = 2 ^ (2 * 1) + 1 := by
+    decide
+  have hβle := hlower (m := 1) (e := 1) (𝒩 := 𝒩) (by decide) h𝒩 hcard
+  have hβge := hupper 1 1 (by decide)
+  have hbdry : (positiveBoundary 𝒩).card = 3 := by
+    decide
+  rw [hbdry] at hβle
+  norm_num at hβge
+  omega
+
+/-- Explicit odd half-cube down-set witnessing that `minimalOutside` can be much smaller than the
+middle layer even at half-cube mass. -/
+def oddHalfCubeMinimalOutsideCounterexample : Finset (Finset (Fin 3)) :=
+  (Finset.univ.erase 0).powerset
+
+theorem isDownSetFamily_oddHalfCubeMinimalOutsideCounterexample :
+    IsDownSetFamily oddHalfCubeMinimalOutsideCounterexample := by
+  intro s t hts hs
+  simp [oddHalfCubeMinimalOutsideCounterexample] at hs ⊢
+  intro x hx
+  exact hs (hts hx)
+
+theorem card_oddHalfCubeMinimalOutsideCounterexample :
+    oddHalfCubeMinimalOutsideCounterexample.card = 2 ^ (2 * 1) := by
+  decide
+
+theorem minimalOutside_oddHalfCubeMinimalOutsideCounterexample :
+    minimalOutside oddHalfCubeMinimalOutsideCounterexample = {({0} : Finset (Fin 3))} := by
+  decide
+
+theorem not_OddHalfCubeMinimalOutsideLowerStatement :
+    ¬ OddHalfCubeMinimalOutsideLowerStatement := by
+  intro hMinOut
+  have hbad :=
+    hMinOut (m := 1) (𝒟 := oddHalfCubeMinimalOutsideCounterexample)
+      isDownSetFamily_oddHalfCubeMinimalOutsideCounterexample
+      card_oddHalfCubeMinimalOutsideCounterexample
+  rw [minimalOutside_oddHalfCubeMinimalOutsideCounterexample] at hbad
+  norm_num at hbad
+
 /-- The normalized density of the `r`-slice of a family. -/
 def sliceDensity (𝒟 : Finset (Finset α)) (r : ℕ) : ℚ :=
   (#(𝒟 # r) : ℚ) / Nat.choose (Fintype.card α) r
+
+/-- Any family slice is bounded by the full layer. -/
+theorem card_slice_le_choose {n r : ℕ} {𝒟 : Finset (Finset (Fin n))} :
+    #(𝒟 # r) ≤ Nat.choose n r := by
+  have hsubset : 𝒟 # r ⊆ (Finset.univ : Finset (Fin n)).powersetCard r :=
+    Set.Sized.subset_powersetCard_univ (Finset.sized_slice (𝒜 := 𝒟) (r := r))
+  calc
+    #(𝒟 # r) ≤ #((Finset.univ : Finset (Fin n)).powersetCard r) := Finset.card_le_card hsubset
+    _ = Nat.choose n r := by simp
+
+/-- Total size is the weighted sum of the slice cardinalities. -/
+theorem totalSize_eq_sum_range_mul_card_slice (𝒟 : Finset (Finset α)) :
+    totalSize 𝒟 =
+      Finset.sum (Finset.range (Fintype.card α + 1)) (fun r => r * #(𝒟 # r)) := by
+  calc
+    totalSize 𝒟 = ∑ s ∈ 𝒟, s.card := rfl
+    _ = ∑ r ∈ Finset.range (Fintype.card α + 1), ∑ s ∈ 𝒟 with s.card = r, s.card := by
+        refine (sum_fiberwise_of_maps_to ?_ _).symm
+        intro s hs
+        simpa [Finset.mem_range] using (Nat.lt_succ_of_le (Finset.card_le_univ s))
+    _ = ∑ r ∈ Finset.range (Fintype.card α + 1), ∑ s ∈ 𝒟 # r, s.card := by
+        refine Finset.sum_congr rfl ?_
+        intro r hr
+        have hs : {s ∈ 𝒟 | s.card = r} = 𝒟 # r := by
+          ext s
+          simp [Finset.mem_slice]
+        rw [hs]
+    _ = Finset.sum (Finset.range (Fintype.card α + 1)) (fun r => r * #(𝒟 # r)) := by
+        refine Finset.sum_congr rfl ?_
+        intro r hr
+        rw [Finset.sum_const_nat (s := 𝒟 # r) (m := r) (fun s hs => (Finset.mem_slice.mp hs).2),
+          Nat.mul_comm]
 
 /-- The weighted drop functional on a profile `a : ℕ → ℚ` across the first `n` layers. -/
 def weightedDrop (n : ℕ) (a : ℕ → ℚ) : ℚ :=
@@ -102,6 +628,30 @@ def weightedDrop (n : ℕ) (a : ℕ → ℚ) : ℚ :=
 def upperShadowGap (𝒟 : Finset (Finset α)) : ℕ :=
   Finset.sum (Finset.range (Fintype.card α)) fun r =>
     #(∂⁺ (𝒟 # r)) - #(𝒟 # (r + 1))
+
+/-- The 3-dimensional half-cube counterexample has weighted drop `7/3`. -/
+theorem weightedDrop_oddHalfCubeMinimalOutsideCounterexample :
+    weightedDrop (Fintype.card (Fin 3))
+        (sliceDensity oddHalfCubeMinimalOutsideCounterexample) = (7 : ℚ) / 3 := by
+  native_decide
+
+/-- The same counterexample shows that `weightedDrop` can stay below the middle binomial
+coefficient even when a lower positive-boundary slice is present. -/
+theorem weightedDrop_lt_choose_middle_oddHalfCubeMinimalOutsideCounterexample :
+    weightedDrop (Fintype.card (Fin 3))
+        (sliceDensity oddHalfCubeMinimalOutsideCounterexample) < Nat.choose 3 1 := by
+  native_decide
+
+/-- The 3-dimensional minimal-outside counterexample has a nonzero lower boundary slice. -/
+theorem lower_boundary_slice_pos_oddHalfCubeMinimalOutsideCounterexample :
+    0 < #((positiveBoundary oddHalfCubeMinimalOutsideCounterexample) # 1) := by
+  native_decide
+
+/-- Despite the weighted-drop failure, the exact upper-shadow gap is still strictly above the
+middle binomial coefficient on this example. -/
+theorem choose_middle_lt_upperShadowGap_oddHalfCubeMinimalOutsideCounterexample :
+    Nat.choose 3 1 < upperShadowGap oddHalfCubeMinimalOutsideCounterexample := by
+  native_decide
 
 /-- The sharper family-level frontier statement: the exact upper-shadow gap of a half-cube down-set
 dominates the middle binomial coefficient. -/
@@ -649,6 +1199,115 @@ theorem halfCubeBoundaryLower_of_halfCubeUpperShadowGapLower
     hGap hn hne h𝒟 hcard
   simpa [upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily (𝒟 := 𝒟) h𝒟] using hGap'
 
+/-- For down-sets, the upper-shadow-gap formulation is also a direct consequence of the boundary
+theorem, since the gap equals the full positive-boundary cardinality. -/
+theorem halfCubeUpperShadowGapLower_of_halfCubeBoundaryLower
+    (hCube : HalfCubeBoundaryLowerStatement) :
+    HalfCubeUpperShadowGapLowerStatement := by
+  intro α _ _ 𝒟 hn hne h𝒟 hcard
+  have hCube' :
+      Nat.choose (Fintype.card α) (Fintype.card α / 2) ≤ #(positiveBoundary 𝒟) :=
+    hCube hn hne h𝒟 hcard
+  simpa [upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily (𝒟 := 𝒟) h𝒟] using hCube'
+
+/-- The upper-shadow-gap and positive-boundary formulations are equivalent theorem surfaces on
+down-sets. -/
+theorem halfCubeBoundaryLower_iff_halfCubeUpperShadowGapLower :
+    HalfCubeBoundaryLowerStatement ↔ HalfCubeUpperShadowGapLowerStatement := by
+  constructor
+  · exact halfCubeUpperShadowGapLower_of_halfCubeBoundaryLower
+  · exact halfCubeBoundaryLower_of_halfCubeUpperShadowGapLower
+
+/-- Odd-dimensional upper-shadow-gap reformulation of the balanced half-cube theorem. -/
+def OddHalfCubeUpperShadowGapLowerStatement : Prop :=
+  ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+      IsDownSetFamily 𝒟 →
+      𝒟.card = 2 ^ (2 * m) →
+      Nat.choose (2 * m + 1) m ≤ upperShadowGap 𝒟
+
+/-- A possible replacement direct-route surface: if an odd half-cube down-set has larger
+`totalSize` than the lower-half witness, then its upper-shadow gap is already strictly above the
+middle binomial coefficient. -/
+def OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement : Prop :=
+  ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+      IsDownSetFamily 𝒟 →
+      𝒟.card = 2 ^ (2 * m) →
+      totalSize (oddLowerHalfFamily m) < totalSize 𝒟 →
+      Nat.choose (2 * m + 1) m < upperShadowGap 𝒟
+
+theorem oddHalfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower
+    (hGap : OddHalfCubeUpperShadowGapLowerStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  intro m 𝒟 h𝒟 hcard
+  have hGap' : Nat.choose (2 * m + 1) m ≤ upperShadowGap 𝒟 :=
+    hGap h𝒟 hcard
+  simpa [upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily (𝒟 := 𝒟) h𝒟] using hGap'
+
+theorem oddHalfCubeUpperShadowGapLower_of_oddHalfCubeBoundaryLower
+    (hOdd : OddHalfCubeBoundaryLowerStatement) :
+    OddHalfCubeUpperShadowGapLowerStatement := by
+  intro m 𝒟 h𝒟 hcard
+  have hOdd' : Nat.choose (2 * m + 1) m ≤ #(positiveBoundary 𝒟) :=
+    hOdd h𝒟 hcard
+  simpa [upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily (𝒟 := 𝒟) h𝒟] using hOdd'
+
+theorem oddHalfCubeBoundaryLower_iff_oddHalfCubeUpperShadowGapLower :
+    OddHalfCubeBoundaryLowerStatement ↔ OddHalfCubeUpperShadowGapLowerStatement := by
+  constructor
+  · exact oddHalfCubeUpperShadowGapLower_of_oddHalfCubeBoundaryLower
+  · exact oddHalfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower
+
+/-- Direct strict-gap candidate for the odd balanced theorem: on a genuine odd half-cube global
+boundary minimizer, any nonzero lower positive-boundary slice should already force the upper
+shadow gap strictly above the middle binomial coefficient. Combined with the witness upper bound on
+global minimizers, this would rule out lower boundary slices entirely. -/
+def OddHalfCubeBoundaryGlobalMinimizerLowerBoundarySliceForcesStrictUpperShadowGapStatement : Prop :=
+  ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 →
+      (∃ r ∈ Finset.Icc 1 m, 0 < #((positiveBoundary 𝒟) # r)) →
+      Nat.choose (2 * m + 1) m < upperShadowGap 𝒟
+
+/-- Local version of the strict odd upper-shadow-gap target: if the initial segment of slices is
+already full and the next slice is strictly deficient, then the full upper-shadow gap should jump
+strictly above the middle binomial coefficient. This isolates the actual remaining direct-route gap
+after the lower-slice propagation lemmas. -/
+def OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGapStatement : Prop :=
+  ∀ {m r : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+      IsDownSetFamily 𝒟 →
+      𝒟.card = 2 ^ (2 * m) →
+      r < m →
+      (∀ s, s ≤ r →
+        𝒟 # s = (Finset.univ : Finset (Fin (2 * m + 1))).powersetCard s) →
+      #(𝒟 # (r + 1)) < Nat.choose (2 * m + 1) (r + 1) →
+      Nat.choose (2 * m + 1) m < upperShadowGap 𝒟
+
+/-- Intermediate local surface for the direct odd route: once one isolates the first nonzero lower
+boundary slice, that first bad slice alone should force the global upper-shadow gap to be
+strictly above the middle binomial coefficient. -/
+def OddHalfCubeFirstBadBoundarySliceForcesStrictUpperShadowGapStatement : Prop :=
+  ∀ {m r : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+      IsDownSetFamily 𝒟 →
+      𝒟.card = 2 ^ (2 * m) →
+      r < m →
+      (∀ s ∈ Finset.Icc 1 r, #((positiveBoundary 𝒟) # s) = 0) →
+      0 < #((positiveBoundary 𝒟) # (r + 1)) →
+      Nat.choose (2 * m + 1) m < upperShadowGap 𝒟
+
+theorem oddSectionPairInterfaceBoundaryLower_iff_oddHalfCubeUpperShadowGapLower_and_positiveExcessPairInterfaceBoundaryLower :
+    OddSectionPairInterfaceBoundaryLowerStatement ↔
+      (OddHalfCubeUpperShadowGapLowerStatement ∧
+        OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement) := by
+  constructor
+  · intro hPair
+    rcases
+        oddSectionPairInterfaceBoundaryLower_iff_oddHalfCubeBoundaryLower_and_positiveExcessPairInterfaceBoundaryLower.mp
+          hPair with ⟨hOdd, hPos⟩
+    exact ⟨oddHalfCubeUpperShadowGapLower_of_oddHalfCubeBoundaryLower hOdd, hPos⟩
+  · rintro ⟨hGap, hPos⟩
+    exact
+      oddSectionPairInterfaceBoundaryLower_of_oddHalfCubeBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
+        (oddHalfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower hGap) hPos
+
 /-- Sharp upper-shadow lower bound at an arbitrary codimension threshold, obtained from the
 Lovász form of Kruskal-Katona by passing to complements. -/
 theorem choose_sub_le_card_upShadow_of_choose_sub_le_card
@@ -866,6 +1525,679 @@ theorem sum_range_choose_succ_halfway_odd (m : ℕ) :
     positivity
   omega
 
+/-- The doubled lower-half binomial sum in even dimension. -/
+theorem two_mul_sum_range_choose_halfway_even (m : ℕ) :
+    2 * Finset.sum (Finset.range (m + 1)) (fun r => Nat.choose (2 * m) r) =
+      2 ^ (2 * m) + Nat.choose (2 * m) m := by
+  have hreflect :
+      Finset.sum (Finset.Ico (m + 1) (2 * m + 1)) (fun r => Nat.choose (2 * m) r) =
+        Finset.sum (Finset.range m) (fun r => Nat.choose (2 * m) r) := by
+    calc
+      Finset.sum (Finset.Ico (m + 1) (2 * m + 1)) (fun r => Nat.choose (2 * m) r) =
+        Finset.sum (Finset.Ico (m + 1) (2 * m + 1)) (fun r => Nat.choose (2 * m) (2 * m - r)) := by
+        refine Finset.sum_congr rfl ?_
+        intro r hr
+        have hrle : r ≤ 2 * m := Nat.le_of_lt_succ (Finset.mem_Ico.mp hr).2
+        symm
+        exact Nat.choose_symm hrle
+      _ = Finset.sum (Finset.range (2 * m - m)) (fun r => Nat.choose (2 * m) r) := by
+        simpa [Nat.Ico_zero_eq_range] using
+          (Finset.sum_Ico_reflect (f := fun r => Nat.choose (2 * m) r) (k := m + 1)
+            (m := 2 * m + 1) (n := 2 * m) le_rfl)
+      _ = Finset.sum (Finset.range m) (fun r => Nat.choose (2 * m) r) := by
+        rw [show 2 * m - m = m by omega]
+  have hsum :
+      Finset.sum (Finset.range (m + 1)) (fun r => Nat.choose (2 * m) r) +
+        Finset.sum (Finset.range m) (fun r => Nat.choose (2 * m) r) =
+          2 ^ (2 * m) := by
+    have hm : m + 1 ≤ 2 * m + 1 := by
+      simpa [two_mul, add_assoc, add_left_comm, add_comm] using
+        Nat.add_le_add_right (Nat.le_add_left m m) 1
+    calc
+      Finset.sum (Finset.range (m + 1)) (fun r => Nat.choose (2 * m) r) +
+          Finset.sum (Finset.range m) (fun r => Nat.choose (2 * m) r) =
+      Finset.sum (Finset.range (m + 1)) (fun r => Nat.choose (2 * m) r) +
+          Finset.sum (Finset.Ico (m + 1) (2 * m + 1)) (fun r => Nat.choose (2 * m) r) := by
+        rw [hreflect]
+      _ = Finset.sum (Finset.range (2 * m + 1)) (fun r => Nat.choose (2 * m) r) := by
+        exact Finset.sum_range_add_sum_Ico (fun r => Nat.choose (2 * m) r) hm
+      _ = 2 ^ (2 * m) := by
+        simpa using Nat.sum_range_choose (2 * m)
+  have hsucc :
+      Finset.sum (Finset.range (m + 1)) (fun r => Nat.choose (2 * m) r) =
+        Finset.sum (Finset.range m) (fun r => Nat.choose (2 * m) r) + Nat.choose (2 * m) m := by
+    rw [Finset.sum_range_succ]
+  calc
+    2 * Finset.sum (Finset.range (m + 1)) (fun r => Nat.choose (2 * m) r) =
+      Finset.sum (Finset.range (m + 1)) (fun r => Nat.choose (2 * m) r) +
+        Finset.sum (Finset.range (m + 1)) (fun r => Nat.choose (2 * m) r) := by
+      rw [two_mul]
+    _ =
+      Finset.sum (Finset.range (m + 1)) (fun r => Nat.choose (2 * m) r) +
+        (Finset.sum (Finset.range m) (fun r => Nat.choose (2 * m) r) +
+          Nat.choose (2 * m) m) := by
+      rw [hsucc]
+    _ = 2 ^ (2 * m) + Nat.choose (2 * m) m := by
+      rw [← add_assoc, hsum]
+
+/-- The doubled interior lower-half binomial sum in even dimension. -/
+theorem two_mul_sum_Icc_choose_even (m : ℕ) :
+    2 * Finset.sum (Finset.Icc 1 m) (fun r => Nat.choose (2 * m) r) =
+      (2 ^ (2 * m) + Nat.choose (2 * m) m) - 2 := by
+  have hsplit :
+      Finset.sum (Finset.range (m + 1)) (fun r => Nat.choose (2 * m) r) =
+        1 + Finset.sum (Finset.Icc 1 m) (fun r => Nat.choose (2 * m) r) := by
+    rw [show Finset.range (m + 1) = insert 0 (Finset.Icc 1 m) by
+      ext r
+      constructor
+      · intro hr
+        rw [Finset.mem_insert, Finset.mem_Icc]
+        by_cases h0 : r = 0
+        · exact Or.inl h0
+        · right
+          exact ⟨Nat.succ_le_of_lt (Nat.pos_of_ne_zero h0), Nat.le_of_lt_succ (Finset.mem_range.mp hr)⟩
+      · intro hr
+        rw [Finset.mem_insert, Finset.mem_Icc] at hr
+        rcases hr with rfl | ⟨hr1, hrm⟩
+        · exact Finset.mem_range.mpr (by positivity)
+        · exact Finset.mem_range.mpr (Nat.lt_succ_of_le hrm)]
+    simp
+  have hEq :
+      2 * Finset.sum (Finset.Icc 1 m) (fun r => Nat.choose (2 * m) r) + 2 =
+        2 ^ (2 * m) + Nat.choose (2 * m) m := by
+    calc
+      2 * Finset.sum (Finset.Icc 1 m) (fun r => Nat.choose (2 * m) r) + 2 =
+        2 * (1 + Finset.sum (Finset.Icc 1 m) (fun r => Nat.choose (2 * m) r)) := by
+        ring
+      _ = 2 * Finset.sum (Finset.range (m + 1)) (fun r => Nat.choose (2 * m) r) := by
+        rw [hsplit]
+      _ = 2 ^ (2 * m) + Nat.choose (2 * m) m := two_mul_sum_range_choose_halfway_even m
+  have htwo : 2 ≤ 2 ^ (2 * m) + Nat.choose (2 * m) m := by
+    have hpow : 0 < 2 ^ (2 * m) := by
+      positivity
+    have hchoose : 0 < Nat.choose (2 * m) m := by
+      exact Nat.choose_pos (by omega)
+    omega
+  omega
+
+/-- The search-guided odd slice-threshold candidate already implies a concrete partial-sum boundary
+inequality via the codimension-1 threshold lemmas. This is the current proved output of that route,
+although it does not yet close the sharp odd half-cube theorem. -/
+theorem sum_Icc_choose_even_le_card_positiveBoundary_add_sum_card_slice_succ_of_oddHalfCubeSliceThreshold
+    (hThr : OddHalfCubeSliceThresholdStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (2 * m)) :
+    Finset.sum (Finset.Icc 1 m) (fun r => Nat.choose (2 * m) r) ≤
+      #(positiveBoundary 𝒟) + Finset.sum (Finset.Icc 1 m) (fun r => #(𝒟 # (r + 1))) := by
+  have hthr : ∀ r ∈ Finset.range (m + 1), Nat.choose (2 * m) r ≤ #(𝒟 # r) :=
+    hThr h𝒟 hcard
+  have hbase :
+      Finset.sum (Finset.Icc 1 m) (fun r => Nat.choose (2 * m) (r - 1 + 1)) ≤
+        #(positiveBoundary 𝒟) + Finset.sum (Finset.Icc 1 m) (fun r => #(𝒟 # (r + 1))) := by
+    refine
+      sum_choose_sub_le_card_positiveBoundary_add_sum_card_slice_succ_of_card_slice_ge_choose_sub_on
+        (𝒟 := 𝒟) (s := Finset.Icc 1 m) (j := fun _ => 1) ?_ h𝒟 ?_ ?_
+    · intro r hr
+      exact Finset.mem_range.mpr (by
+        rcases Finset.mem_Icc.mp hr with ⟨hr1, hrm⟩
+        omega)
+    · intro r hr
+      exact (Finset.mem_Icc.mp hr).1
+    · intro r hr
+      rcases Finset.mem_Icc.mp hr with ⟨hr1, hrm⟩
+      have hrange : r ∈ Finset.range (m + 1) := Finset.mem_range.mpr (Nat.lt_succ_of_le hrm)
+      have hmono : Nat.choose (2 * m) (r - 1) ≤ Nat.choose (2 * m) r := by
+        have hrpred : r - 1 < (2 * m) / 2 := by
+          omega
+        simpa [Nat.sub_add_cancel hr1] using
+          (Nat.choose_le_succ_of_lt_half_left (r := r - 1) (n := 2 * m) hrpred)
+      exact hmono.trans (hthr r hrange)
+  have hsumEq :
+      Finset.sum (Finset.Icc 1 m) (fun r => Nat.choose (2 * m) (r - 1 + 1)) =
+        Finset.sum (Finset.Icc 1 m) (fun r => Nat.choose (2 * m) r) := by
+    refine Finset.sum_congr rfl ?_
+    intro r hr
+    rw [Nat.sub_add_cancel (Finset.mem_Icc.mp hr).1]
+  rw [hsumEq] at hbase
+  exact hbase
+
+theorem sum_Icc_choose_even_le_upperShadowGap_add_sum_card_slice_succ_of_oddHalfCubeSliceThreshold
+    (hThr : OddHalfCubeSliceThresholdStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (2 * m)) :
+    Finset.sum (Finset.Icc 1 m) (fun r => Nat.choose (2 * m) r) ≤
+      upperShadowGap 𝒟 + Finset.sum (Finset.Icc 1 m) (fun r => #(𝒟 # (r + 1))) := by
+  simpa [upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily (𝒟 := 𝒟) h𝒟] using
+    sum_Icc_choose_even_le_card_positiveBoundary_add_sum_card_slice_succ_of_oddHalfCubeSliceThreshold
+      hThr h𝒟 hcard
+
+theorem two_mul_sum_Icc_choose_even_le_upperShadowGap_double_add_two_mul_sum_card_slice_succ_of_oddHalfCubeSliceThreshold
+    (hThr : OddHalfCubeSliceThresholdStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (2 * m)) :
+    2 * Finset.sum (Finset.Icc 1 m) (fun r => Nat.choose (2 * m) r) ≤
+      2 * upperShadowGap 𝒟 + 2 * Finset.sum (Finset.Icc 1 m) (fun r => #(𝒟 # (r + 1))) := by
+  simpa [two_mul, add_assoc, add_left_comm, add_comm] using
+    Nat.mul_le_mul_left 2
+      (sum_Icc_choose_even_le_upperShadowGap_add_sum_card_slice_succ_of_oddHalfCubeSliceThreshold
+        hThr h𝒟 hcard)
+
+theorem two_pow_add_choose_middle_even_sub_two_le_upperShadowGap_double_add_two_mul_sum_card_slice_succ_of_oddHalfCubeSliceThreshold
+    (hThr : OddHalfCubeSliceThresholdStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (2 * m)) :
+    (2 ^ (2 * m) + Nat.choose (2 * m) m) - 2 ≤
+      2 * upperShadowGap 𝒟 + 2 * Finset.sum (Finset.Icc 1 m) (fun r => #(𝒟 # (r + 1))) := by
+  calc
+    (2 ^ (2 * m) + Nat.choose (2 * m) m) - 2 =
+      2 * Finset.sum (Finset.Icc 1 m) (fun r => Nat.choose (2 * m) r) := by
+      symm
+      exact two_mul_sum_Icc_choose_even m
+    _ ≤ 2 * upperShadowGap 𝒟 + 2 * Finset.sum (Finset.Icc 1 m) (fun r => #(𝒟 # (r + 1))) := by
+      exact
+        two_mul_sum_Icc_choose_even_le_upperShadowGap_double_add_two_mul_sum_card_slice_succ_of_oddHalfCubeSliceThreshold
+          hThr h𝒟 hcard
+
+theorem sum_Icc_card_slice_succ_add_sum_Icc_upper_tail_eq_card_sub_one_sub_card_slice_one_of_nonempty_isDownSetFamily
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hne : 𝒟.Nonempty) (h𝒟 : IsDownSetFamily 𝒟) :
+    Finset.sum (Finset.Icc 1 m) (fun r => #(𝒟 # (r + 1))) +
+      Finset.sum (Finset.Icc (m + 1) (2 * m)) (fun r => #(𝒟 # (r + 1))) =
+        𝒟.card - 1 - #(𝒟 # 1) := by
+  let f : ℕ → ℕ := fun r => #(𝒟 # (r + 1))
+  have hsplitRange : Finset.range (2 * m + 1) = insert 0 (Finset.Icc 1 (2 * m)) := by
+    ext r
+    constructor
+    · intro hr
+      rw [Finset.mem_insert, Finset.mem_Icc]
+      by_cases h0 : r = 0
+      · exact Or.inl h0
+      · right
+        exact ⟨Nat.succ_le_of_lt (Nat.pos_of_ne_zero h0), Nat.le_of_lt_succ (Finset.mem_range.mp hr)⟩
+    · intro hr
+      rw [Finset.mem_insert, Finset.mem_Icc] at hr
+      rcases hr with rfl | ⟨hr1, hrm⟩
+      · exact Finset.mem_range.mpr (by positivity)
+      · exact Finset.mem_range.mpr (Nat.lt_succ_of_le hrm)
+  have hsumIcc :
+      Finset.sum (Finset.Icc 1 (2 * m)) f = 𝒟.card - 1 - #(𝒟 # 1) := by
+    have htotal :
+        #(𝒟 # 1) + Finset.sum (Finset.Icc 1 (2 * m)) f = 𝒟.card - 1 := by
+      have htotal' :=
+        sum_card_slice_succ_eq_card_sub_one_of_nonempty_isDownSetFamily hne h𝒟
+      simpa [Fintype.card_fin, hsplitRange, f] using htotal'
+    omega
+  have hsplitIcc :
+      Finset.Icc 1 (2 * m) = Finset.Icc 1 m ∪ Finset.Icc (m + 1) (2 * m) := by
+    ext r
+    rw [Finset.mem_union, Finset.mem_Icc, Finset.mem_Icc, Finset.mem_Icc]
+    omega
+  have hdisj :
+      Disjoint (Finset.Icc 1 m) (Finset.Icc (m + 1) (2 * m)) := by
+    refine Finset.disjoint_left.mpr ?_
+    intro r hr1 hr2
+    rw [Finset.mem_Icc] at hr1 hr2
+    omega
+  calc
+    Finset.sum (Finset.Icc 1 m) (fun r => #(𝒟 # (r + 1))) +
+        Finset.sum (Finset.Icc (m + 1) (2 * m)) (fun r => #(𝒟 # (r + 1))) =
+      Finset.sum (Finset.Icc 1 (2 * m)) f := by
+        rw [hsplitIcc, Finset.sum_union hdisj]
+    _ = 𝒟.card - 1 - #(𝒟 # 1) := hsumIcc
+
+theorem choose_middle_even_add_two_mul_card_slice_one_add_two_mul_sum_card_slice_succ_upper_tail_le_two_mul_upperShadowGap_add_two_pow_of_oddHalfCubeSliceThreshold
+    (hThr : OddHalfCubeSliceThresholdStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (2 * m)) :
+    Nat.choose (2 * m) m + 2 * #(𝒟 # 1) +
+      2 * Finset.sum (Finset.Icc (m + 1) (2 * m)) (fun r => #(𝒟 # (r + 1))) ≤
+        2 * upperShadowGap 𝒟 + 2 ^ (2 * m) := by
+  let S := Finset.sum (Finset.Icc 1 m) (fun r => #(𝒟 # (r + 1)))
+  let T := Finset.sum (Finset.Icc (m + 1) (2 * m)) (fun r => #(𝒟 # (r + 1)))
+  have hpow : 0 < 2 ^ (2 * m) := by
+    positivity
+  have hne : 𝒟.Nonempty := by
+    exact Finset.card_pos.mp (by simpa [hcard] using hpow)
+  have hsumTail :
+      S + T =
+          𝒟.card - 1 - #(𝒟 # 1) :=
+    by
+      simpa [S, T] using
+        sum_Icc_card_slice_succ_add_sum_Icc_upper_tail_eq_card_sub_one_sub_card_slice_one_of_nonempty_isDownSetFamily
+          hne h𝒟
+  have hmain :
+      (2 ^ (2 * m) + Nat.choose (2 * m) m) - 2 ≤
+        2 * upperShadowGap 𝒟 + 2 * S :=
+    two_pow_add_choose_middle_even_sub_two_le_upperShadowGap_double_add_two_mul_sum_card_slice_succ_of_oddHalfCubeSliceThreshold
+      hThr h𝒟 hcard
+  have htwoLe :
+      2 ≤ 2 ^ (2 * m) + Nat.choose (2 * m) m := by
+    have hchoose : 0 < Nat.choose (2 * m) m := by
+      exact Nat.choose_pos (by omega)
+    omega
+  have hmain' :
+      Nat.choose (2 * m) m + 2 ^ (2 * m) - 2 ≤
+        2 * upperShadowGap 𝒟 + 2 * S := by
+    omega
+  have hsumTailAdd :
+      S + T + #(𝒟 # 1) = 2 ^ (2 * m) - 1 := by
+    have hsumTailAdd' : S + T + #(𝒟 # 1) = 𝒟.card - 1 := by
+      have hle : #(𝒟 # 1) ≤ 𝒟.card - 1 := by
+        calc
+          #(𝒟 # 1) ≤ Finset.sum (Finset.range (2 * m + 1)) (fun r => #(𝒟 # (r + 1))) := by
+            simpa using
+              (Finset.single_le_sum
+                (f := fun r => #(𝒟 # (r + 1)))
+                (fun _ _ => Nat.zero_le _)
+                (by simp : 0 ∈ Finset.range (2 * m + 1)))
+          _ = 𝒟.card - 1 := by
+            simpa [Fintype.card_fin] using
+              sum_card_slice_succ_eq_card_sub_one_of_nonempty_isDownSetFamily
+                (α := Fin (2 * m + 1)) hne h𝒟
+      calc
+        S + T + #(𝒟 # 1) = (𝒟.card - 1 - #(𝒟 # 1)) + #(𝒟 # 1) := by
+          rw [← hsumTail]
+        _ = 𝒟.card - 1 := Nat.sub_add_cancel hle
+    simpa [hcard] using hsumTailAdd'
+  have htail :
+      T + #(𝒟 # 1) = 2 ^ (2 * m) - 1 - S := by
+    omega
+  have htwoTail :
+      2 * T + 2 * #(𝒟 # 1) = 2 * (2 ^ (2 * m) - 1 - S) := by
+    omega
+  calc
+    Nat.choose (2 * m) m + 2 * #(𝒟 # 1) +
+        2 * Finset.sum (Finset.Icc (m + 1) (2 * m)) (fun r => #(𝒟 # (r + 1))) =
+      Nat.choose (2 * m) m + (2 * T + 2 * #(𝒟 # 1)) := by
+        simp [T]
+        ring
+    _ = Nat.choose (2 * m) m + 2 * (2 ^ (2 * m) - 1 - S) := by
+        rw [htwoTail]
+    _ ≤ 2 * upperShadowGap 𝒟 + 2 ^ (2 * m) := by
+        omega
+
+/-- The full `r`-slice of the cube has full upper shadow in the next slice. -/
+theorem upShadow_powersetCard_univ_eq_powersetCard_succ
+    {n r : ℕ} :
+    ∂⁺ ((Finset.univ : Finset (Fin n)).powersetCard r) =
+      (Finset.univ : Finset (Fin n)).powersetCard (r + 1) := by
+  ext s
+  constructor
+  · intro hs
+    rcases Finset.mem_upShadow_iff_erase_mem.mp hs with ⟨a, ha, hsErase⟩
+    rw [Finset.mem_powersetCard] at hsErase ⊢
+    refine ⟨Finset.subset_univ _, ?_⟩
+    have hEraseCard : (s.erase a).card + 1 = s.card := by
+      simpa using Finset.card_erase_add_one ha
+    omega
+  · intro hs
+    rw [Finset.mem_powersetCard] at hs
+    have hsPos : 0 < s.card := by
+      omega
+    rcases Finset.card_pos.mp hsPos with ⟨a, ha⟩
+    rw [Finset.mem_upShadow_iff_erase_mem]
+    refine ⟨a, ha, ?_⟩
+    rw [Finset.mem_powersetCard]
+    refine ⟨Finset.erase_subset a s |>.trans hs.1, ?_⟩
+    have hEraseCard : (s.erase a).card + 1 = s.card := by
+      simpa using Finset.card_erase_add_one ha
+    omega
+
+theorem slice_succ_eq_powersetCard_of_slice_eq_powersetCard_of_card_positiveBoundary_slice_succ_eq_zero
+    {n r : ℕ} {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hslice : 𝒟 # r = (Finset.univ : Finset (Fin n)).powersetCard r)
+    (hboundary : #((positiveBoundary 𝒟) # (r + 1)) = 0) :
+    𝒟 # (r + 1) = (Finset.univ : Finset (Fin n)).powersetCard (r + 1) := by
+  have hboundaryEmpty : ((positiveBoundary 𝒟) # (r + 1)) = ∅ :=
+    Finset.card_eq_zero.mp hboundary
+  calc
+    𝒟 # (r + 1) = ∂⁺ (𝒟 # r) := by
+      have hsplit :=
+        upShadow_slice_eq_slice_succ_union_positiveBoundary_slice_succ_of_isDownSetFamily
+          (𝒟 := 𝒟) h𝒟 r
+      rw [hboundaryEmpty, Finset.union_empty] at hsplit
+      exact hsplit.symm
+    _ = ∂⁺ ((Finset.univ : Finset (Fin n)).powersetCard r) := by
+      rw [hslice]
+    _ = (Finset.univ : Finset (Fin n)).powersetCard (r + 1) :=
+      upShadow_powersetCard_univ_eq_powersetCard_succ
+
+/-- If all positive-boundary slices below the middle layer vanish, then the lower half of the family
+is forced to be the full lower half of the odd cube. -/
+theorem odd_initial_slices_eq_powersetCard_of_lower_boundary_slices_vanish_upto
+    {m k : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hne : 𝒟.Nonempty) (h𝒟 : IsDownSetFamily 𝒟) (hk : k ≤ m)
+    (hvanish : ∀ r ∈ Finset.Icc 1 k, #((positiveBoundary 𝒟) # r) = 0) :
+    ∀ r, r ≤ k →
+      𝒟 # r = (Finset.univ : Finset (Fin (2 * m + 1))).powersetCard r := by
+  intro r hr
+  induction' r with r ihr
+  · exact slice_eq_powersetCard_of_card_eq_choose (by
+      rw [card_slice_zero_eq_one_of_nonempty_isDownSetFamily hne h𝒟]
+      simp)
+  · have hr' : r ≤ k := Nat.le_of_succ_le hr
+    have hprev := ihr hr'
+    have hboundary : #((positiveBoundary 𝒟) # (r + 1)) = 0 :=
+      hvanish (r + 1) (by
+        rw [Finset.mem_Icc]
+        omega)
+    exact
+      slice_succ_eq_powersetCard_of_slice_eq_powersetCard_of_card_positiveBoundary_slice_succ_eq_zero
+        h𝒟 hprev hboundary
+
+theorem odd_initial_slices_full_of_lower_boundary_slices_vanish_upto
+    {m k : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hne : 𝒟.Nonempty) (h𝒟 : IsDownSetFamily 𝒟) (hk : k ≤ m)
+    (hvanish : ∀ r ∈ Finset.Icc 1 k, #((positiveBoundary 𝒟) # r) = 0) :
+    ∀ r, r ≤ k → #(𝒟 # r) = Nat.choose (2 * m + 1) r := by
+  intro r hr
+  have hs :=
+    odd_initial_slices_eq_powersetCard_of_lower_boundary_slices_vanish_upto hne h𝒟 hk hvanish r hr
+  simpa [Finset.card_powersetCard] using congrArg Finset.card hs
+
+/-- If all positive-boundary slices below the middle layer vanish, then the lower half of the family
+is forced to be the full lower half of the odd cube. -/
+theorem odd_initial_slices_full_of_lower_boundary_slices_vanish
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hne : 𝒟.Nonempty) (h𝒟 : IsDownSetFamily 𝒟)
+    (hvanish : ∀ r ∈ Finset.Icc 1 m, #((positiveBoundary 𝒟) # r) = 0) :
+    ∀ r ∈ Finset.range (m + 1), #(𝒟 # r) = Nat.choose (2 * m + 1) r := by
+  intro r hr
+  have hrle : r ≤ m := Nat.le_of_lt_succ (Finset.mem_range.mp hr)
+  exact odd_initial_slices_full_of_lower_boundary_slices_vanish_upto hne h𝒟 le_rfl hvanish r hrle
+
+theorem card_slice_succ_lt_choose_of_slice_eq_powersetCard_of_card_positiveBoundary_slice_succ_pos
+    {n r : ℕ} {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hslice : 𝒟 # r = (Finset.univ : Finset (Fin n)).powersetCard r)
+    (hboundaryPos : 0 < #((positiveBoundary 𝒟) # (r + 1))) :
+    #(𝒟 # (r + 1)) < Nat.choose n (r + 1) := by
+  have hshadow :
+      #(∂⁺ (𝒟 # r)) = Nat.choose n (r + 1) := by
+    calc
+      #(∂⁺ (𝒟 # r)) = #(∂⁺ ((Finset.univ : Finset (Fin n)).powersetCard r)) := by
+        rw [hslice]
+      _ = #((Finset.univ : Finset (Fin n)).powersetCard (r + 1)) := by
+        rw [upShadow_powersetCard_univ_eq_powersetCard_succ]
+      _ = Nat.choose n (r + 1) := by
+        simp
+  have hsplit :=
+    card_upShadow_slice_eq_card_slice_succ_add_card_positiveBoundary_slice_succ_of_isDownSetFamily
+      (𝒟 := 𝒟) h𝒟 r
+  have hsum :
+      Nat.choose n (r + 1) = #(𝒟 # (r + 1)) + #((positiveBoundary 𝒟) # (r + 1)) := by
+    rw [← hshadow]
+    exact hsplit
+  have hlt :
+      #(𝒟 # (r + 1)) < #(𝒟 # (r + 1)) + #((positiveBoundary 𝒟) # (r + 1)) :=
+    Nat.lt_add_of_pos_right hboundaryPos
+  simpa [hsum] using hlt
+
+theorem odd_card_slice_succ_lt_choose_of_lower_boundary_slices_vanish_upto_and_boundary_slice_succ_pos
+    {m r : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hne : 𝒟.Nonempty) (h𝒟 : IsDownSetFamily 𝒟) (hrm : r ≤ m)
+    (hvanish : ∀ s ∈ Finset.Icc 1 r, #((positiveBoundary 𝒟) # s) = 0)
+    (hboundaryPos : 0 < #((positiveBoundary 𝒟) # (r + 1))) :
+    #(𝒟 # (r + 1)) < Nat.choose (2 * m + 1) (r + 1) := by
+  have hslice :=
+    odd_initial_slices_eq_powersetCard_of_lower_boundary_slices_vanish_upto
+      hne h𝒟 hrm hvanish r le_rfl
+  exact
+    card_slice_succ_lt_choose_of_slice_eq_powersetCard_of_card_positiveBoundary_slice_succ_pos
+      h𝒟 hslice hboundaryPos
+
+theorem totalSize_oddLowerHalfFamily_lt_of_card_eq_half_cube_of_lower_slice_deficit
+    {m r : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hcard : 𝒟.card = 2 ^ (2 * m))
+    (hrm : r < m)
+    (hdeficit : #(𝒟 # (r + 1)) < Nat.choose (2 * m + 1) (r + 1)) :
+    totalSize (oddLowerHalfFamily m) < totalSize 𝒟 := by
+  let n := 2 * m + 1
+  let lowerMass : ℕ := Finset.sum (Finset.range (m + 1)) (fun k => #(𝒟 # k))
+  let upperMass : ℕ := Finset.sum (Finset.Ico (m + 1) (n + 1)) (fun k => #(𝒟 # k))
+  let lowerDeficit : ℕ :=
+    Finset.sum (Finset.range (m + 1)) (fun k => Nat.choose n k - #(𝒟 # k))
+  let lowerWeightD : ℕ := Finset.sum (Finset.range (m + 1)) (fun k => k * #(𝒟 # k))
+  let upperWeightD : ℕ := Finset.sum (Finset.Ico (m + 1) (n + 1)) (fun k => k * #(𝒟 # k))
+  have hmle : m + 1 ≤ n + 1 := by
+    dsimp [n]
+    omega
+  have hsumSlices :
+      Finset.sum (Finset.range (n + 1)) (fun k => #(𝒟 # k)) = 2 ^ (2 * m) := by
+    simpa [Nat.range_succ_eq_Iic, hcard] using (Finset.sum_card_slice 𝒟)
+  have hsplitMass :
+      lowerMass + upperMass = 2 ^ (2 * m) := by
+    have hsplit :
+        lowerMass + upperMass =
+          Finset.sum (Finset.range (n + 1)) (fun k => #(𝒟 # k)) := by
+            simpa [lowerMass, upperMass] using
+              (Finset.sum_range_add_sum_Ico (fun k => #(𝒟 # k)) hmle)
+    exact hsplit.trans hsumSlices
+  have hchooseHalf :
+      Finset.sum (Finset.range (m + 1)) (fun k => Nat.choose n k) = 2 ^ (2 * m) := by
+    dsimp [n]
+    simpa [show 4 ^ m = 2 ^ (2 * m) by
+      rw [show 4 = 2 ^ 2 by norm_num, pow_mul]] using Nat.sum_range_choose_halfway m
+  have hsumTsub :
+      lowerDeficit =
+        Finset.sum (Finset.range (m + 1)) (fun k => Nat.choose n k) - lowerMass := by
+    dsimp [lowerDeficit, lowerMass]
+    rw [Finset.sum_tsub_distrib]
+    intro k hk
+    exact card_slice_le_choose (𝒟 := 𝒟) (r := k)
+  have hlowerDeficit_eq_upperMass : lowerDeficit = upperMass := by
+    rw [hsumTsub]
+    omega
+  have hsliceDeficitPos :
+      0 < Nat.choose n (r + 1) - #(𝒟 # (r + 1)) := by
+    dsimp [n] at hdeficit ⊢
+    omega
+  have hsliceDeficit_le_lowerDeficit :
+      Nat.choose n (r + 1) - #(𝒟 # (r + 1)) ≤ lowerDeficit := by
+    dsimp [lowerDeficit]
+    simpa using
+      (Finset.single_le_sum
+        (f := fun k => Nat.choose n k - #(𝒟 # k))
+        (fun _ _ => Nat.zero_le _)
+        (Finset.mem_range.mpr (Nat.succ_lt_succ hrm)))
+  have hupperMassPos : 0 < upperMass := by
+    rw [← hlowerDeficit_eq_upperMass]
+    exact lt_of_lt_of_le hsliceDeficitPos hsliceDeficit_le_lowerDeficit
+  have hsplitTotalSize :
+      totalSize 𝒟 = lowerWeightD + upperWeightD := by
+    have hsumWeightAll :
+        totalSize 𝒟 = Finset.sum (Finset.range (n + 1)) (fun k => k * #(𝒟 # k)) := by
+          simpa [n] using totalSize_eq_sum_range_mul_card_slice 𝒟
+    have hsplitWeight :
+        lowerWeightD + upperWeightD =
+          Finset.sum (Finset.range (n + 1)) (fun k => k * #(𝒟 # k)) := by
+            simpa [lowerWeightD, upperWeightD] using
+              (Finset.sum_range_add_sum_Ico (fun k => k * #(𝒟 # k)) hmle)
+    exact hsumWeightAll.trans hsplitWeight.symm
+  have hupperWeight_lower :
+      (m + 1) * upperMass ≤ upperWeightD := by
+    have hconst :
+        (m + 1) * upperMass =
+          Finset.sum (Finset.Ico (m + 1) (n + 1)) (fun k => (m + 1) * #(𝒟 # k)) := by
+            dsimp [upperMass]
+            rw [Finset.mul_sum]
+    calc
+      (m + 1) * upperMass =
+          Finset.sum (Finset.Ico (m + 1) (n + 1)) (fun k => (m + 1) * #(𝒟 # k)) := hconst
+      _ ≤ upperWeightD := by
+            dsimp [upperWeightD]
+            exact Finset.sum_le_sum fun k hk => by
+              have hkge : m + 1 ≤ k := (Finset.mem_Ico.mp hk).1
+              exact Nat.mul_le_mul_right #(𝒟 # k) hkge
+  have hlowerWeight_upper :
+      Finset.sum (Finset.range (m + 1)) (fun k => k * Nat.choose n k) ≤
+        lowerWeightD + m * lowerDeficit := by
+    calc
+      Finset.sum (Finset.range (m + 1)) (fun k => k * Nat.choose n k)
+          =
+        Finset.sum (Finset.range (m + 1))
+          (fun k => k * #(𝒟 # k) + k * (Nat.choose n k - #(𝒟 # k))) := by
+            refine Finset.sum_congr rfl ?_
+            intro k hk
+            have hle : #(𝒟 # k) ≤ Nat.choose n k := card_slice_le_choose (𝒟 := 𝒟) (r := k)
+            have hmul : k * #(𝒟 # k) ≤ k * Nat.choose n k := Nat.mul_le_mul_left k hle
+            calc
+              k * Nat.choose n k = k * #(𝒟 # k) + (k * Nat.choose n k - k * #(𝒟 # k)) := by
+                exact (Nat.add_sub_of_le hmul).symm
+              _ = k * #(𝒟 # k) + k * (Nat.choose n k - #(𝒟 # k)) := by
+                rw [Nat.mul_sub_left_distrib]
+      _ ≤
+        Finset.sum (Finset.range (m + 1))
+          (fun k => k * #(𝒟 # k) + m * (Nat.choose n k - #(𝒟 # k))) := by
+            exact Finset.sum_le_sum fun k hk => by
+              have hkle : k ≤ m := Nat.le_of_lt_succ (Finset.mem_range.mp hk)
+              simpa [add_assoc, add_left_comm, add_comm] using
+                add_le_add_left
+                  (Nat.mul_le_mul_right (Nat.choose n k - #(𝒟 # k)) hkle)
+                  (k * #(𝒟 # k))
+      _ =
+        lowerWeightD + m * lowerDeficit := by
+          dsimp [lowerWeightD, lowerDeficit]
+          rw [Finset.sum_add_distrib, ← Finset.mul_sum]
+  have htsWitness :
+      totalSize (oddLowerHalfFamily m) =
+        Finset.sum (Finset.range (m + 1)) (fun k => k * Nat.choose n k) := by
+    have hsumWeightAll :
+        totalSize (oddLowerHalfFamily m) =
+          Finset.sum (Finset.range (n + 1)) (fun k => k * #((oddLowerHalfFamily m) # k)) := by
+            simpa [n] using totalSize_eq_sum_range_mul_card_slice (oddLowerHalfFamily m)
+    have hsplitWeight :
+        Finset.sum (Finset.range (n + 1)) (fun k => k * #((oddLowerHalfFamily m) # k)) =
+          Finset.sum (Finset.range (m + 1)) (fun k => k * #((oddLowerHalfFamily m) # k)) +
+            Finset.sum (Finset.Ico (m + 1) (n + 1))
+              (fun k => k * #((oddLowerHalfFamily m) # k)) := by
+                symm
+                simpa [n] using
+                  (Finset.sum_range_add_sum_Ico (fun k => k * #((oddLowerHalfFamily m) # k)) hmle)
+    have hlowerChoose :
+        Finset.sum (Finset.range (m + 1)) (fun k => k * #((oddLowerHalfFamily m) # k)) =
+          Finset.sum (Finset.range (m + 1)) (fun k => k * Nat.choose n k) := by
+            refine Finset.sum_congr rfl ?_
+            intro k hk
+            rw [card_slice_oddLowerHalfFamily_eq_choose (Nat.le_of_lt_succ (Finset.mem_range.mp hk))]
+    have hupperZero :
+        Finset.sum (Finset.Ico (m + 1) (n + 1))
+          (fun k => k * #((oddLowerHalfFamily m) # k)) = 0 := by
+            apply Finset.sum_eq_zero
+            intro k hk
+            rw [card_slice_oddLowerHalfFamily_eq_zero (Finset.mem_Ico.mp hk).1, Nat.mul_zero]
+    calc
+      totalSize (oddLowerHalfFamily m) =
+        Finset.sum (Finset.range (n + 1)) (fun k => k * #((oddLowerHalfFamily m) # k)) := hsumWeightAll
+      _ =
+        Finset.sum (Finset.range (m + 1)) (fun k => k * #((oddLowerHalfFamily m) # k)) +
+          Finset.sum (Finset.Ico (m + 1) (n + 1))
+            (fun k => k * #((oddLowerHalfFamily m) # k)) := hsplitWeight
+      _ =
+        Finset.sum (Finset.range (m + 1)) (fun k => k * Nat.choose n k) +
+          Finset.sum (Finset.Ico (m + 1) (n + 1))
+            (fun k => k * #((oddLowerHalfFamily m) # k)) := by
+              rw [hlowerChoose]
+      _ = Finset.sum (Finset.range (m + 1)) (fun k => k * Nat.choose n k) := by
+            rw [hupperZero, add_zero]
+  have hmainLower :
+      totalSize (oddLowerHalfFamily m) + upperMass ≤ totalSize 𝒟 := by
+    rw [htsWitness, hsplitTotalSize]
+    have hupperWeight' :
+        lowerWeightD + (m + 1) * upperMass ≤ lowerWeightD + upperWeightD := by
+      simpa [add_assoc, add_left_comm, add_comm] using
+        add_le_add_left hupperWeight_lower lowerWeightD
+    have hcompare :
+        Finset.sum (Finset.range (m + 1)) (fun k => k * Nat.choose n k) + upperMass ≤
+          lowerWeightD + (m + 1) * upperMass := by
+      have hle1 :
+          Finset.sum (Finset.range (m + 1)) (fun k => k * Nat.choose n k) ≤
+            lowerWeightD + m * lowerDeficit := hlowerWeight_upper
+      rw [hlowerDeficit_eq_upperMass] at hle1
+      calc
+        Finset.sum (Finset.range (m + 1)) (fun k => k * Nat.choose n k) + upperMass ≤
+            (lowerWeightD + m * upperMass) + upperMass := by
+              simpa [add_assoc, add_left_comm, add_comm] using add_le_add_right hle1 upperMass
+        _ = lowerWeightD + (m + 1) * upperMass := by
+              ring
+    exact hcompare.trans hupperWeight'
+  exact lt_of_lt_of_le (Nat.lt_add_of_pos_right hupperMassPos) hmainLower
+
+theorem oddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGap_of_largerTotalSizeThanWitness
+    (hSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGapStatement := by
+  intro m r 𝒟 h𝒟 hcard hrm hfull hdeficit
+  have hsizeStrict :
+      totalSize (oddLowerHalfFamily m) < totalSize 𝒟 :=
+    totalSize_oddLowerHalfFamily_lt_of_card_eq_half_cube_of_lower_slice_deficit hcard hrm hdeficit
+  exact hSize h𝒟 hcard hsizeStrict
+
+theorem oddHalfCubeFirstBadBoundarySliceForcesStrictUpperShadowGap_of_initialFullSlicesStrictSliceDeficit
+    (hDef :
+      OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeFirstBadBoundarySliceForcesStrictUpperShadowGapStatement := by
+  intro m r 𝒟 h𝒟 hcard hrm hvanish hboundaryPos
+  have hpow : 0 < 2 ^ (2 * m) := by
+    positivity
+  have hne : 𝒟.Nonempty := by
+    exact Finset.card_pos.mp (by simpa [hcard] using hpow)
+  have hfull :=
+    odd_initial_slices_eq_powersetCard_of_lower_boundary_slices_vanish_upto
+      hne h𝒟 (Nat.le_of_lt hrm) hvanish
+  have hdeficit :=
+    odd_card_slice_succ_lt_choose_of_lower_boundary_slices_vanish_upto_and_boundary_slice_succ_pos
+      hne h𝒟 (Nat.le_of_lt hrm) hvanish hboundaryPos
+  exact hDef h𝒟 hcard hrm hfull hdeficit
+
+theorem oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySliceForcesStrictUpperShadowGap_of_firstBadBoundarySliceForcesStrictUpperShadowGap
+    (hFirstBad :
+      OddHalfCubeFirstBadBoundarySliceForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerLowerBoundarySliceForcesStrictUpperShadowGapStatement := by
+  intro m 𝒟 hmin hexists
+  let p : ℕ → Prop :=
+    fun r => r ∈ Finset.Icc 1 m ∧ 0 < #((positiveBoundary 𝒟) # r)
+  have hp : ∃ r, p r := by
+    rcases hexists with ⟨r, hr, hpos⟩
+    exact ⟨r, hr, hpos⟩
+  let rmin := Nat.find hp
+  have hrmin : p rmin := Nat.find_spec hp
+  have hrmin_mem : rmin ∈ Finset.Icc 1 m := hrmin.1
+  have hrmin_pos : 0 < #((positiveBoundary 𝒟) # rmin) := hrmin.2
+  have hrmin_pos' : 1 ≤ rmin := (Finset.mem_Icc.mp hrmin_mem).1
+  have hrmin_le_m : rmin ≤ m := (Finset.mem_Icc.mp hrmin_mem).2
+  have hvanish : ∀ s ∈ Finset.Icc 1 (rmin - 1), #((positiveBoundary 𝒟) # s) = 0 := by
+    intro s hs
+    by_contra hsne
+    have hspos : 0 < #((positiveBoundary 𝒟) # s) := Nat.pos_of_ne_zero hsne
+    have hs_mem : s ∈ Finset.Icc 1 m := by
+      rw [Finset.mem_Icc] at hs ⊢
+      omega
+    have hsP : p s := ⟨hs_mem, hspos⟩
+    have hmin_le_s : rmin ≤ s := Nat.find_min' hp hsP
+    rw [Finset.mem_Icc] at hs
+    omega
+  have hrpred_lt_m : rmin - 1 < m := by
+    omega
+  have hrpred_pos : 0 < #((positiveBoundary 𝒟) # ((rmin - 1) + 1)) := by
+    simpa [Nat.sub_add_cancel hrmin_pos'] using hrmin_pos
+  exact hFirstBad hmin.1 hmin.2.1 hrpred_lt_m hvanish hrpred_pos
+
+theorem oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySliceForcesStrictUpperShadowGap_of_initialFullSlicesStrictSliceDeficit
+    (hDef :
+      OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerLowerBoundarySliceForcesStrictUpperShadowGapStatement := by
+  exact
+    oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySliceForcesStrictUpperShadowGap_of_firstBadBoundarySliceForcesStrictUpperShadowGap
+      (oddHalfCubeFirstBadBoundarySliceForcesStrictUpperShadowGap_of_initialFullSlicesStrictSliceDeficit
+        hDef)
+
 /-- Odd-dimensional reduction: once a half-cube down-set is known to contain every slice up to the
 middle rank, the sharp boundary lower bound follows. -/
 theorem choose_middle_le_card_positiveBoundary_of_odd_initial_slices_full
@@ -911,6 +2243,566 @@ theorem choose_middle_le_card_positiveBoundary_of_odd_initial_slices_full
       _ = #(positiveBoundary 𝒟) + (2 ^ (2 * m) - 1) := by
         rw [hhalf]
   omega
+
+/-- Vanishing lower boundary slices are already enough to close the sharp odd half-cube boundary
+bound, via exact shadow propagation of the full lower cube. -/
+theorem choose_middle_le_card_positiveBoundary_of_lower_boundary_slices_vanish
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hhalf : 𝒟.card = 2 ^ (2 * m))
+    (hvanish : ∀ r ∈ Finset.Icc 1 m, #((positiveBoundary 𝒟) # r) = 0) :
+    Nat.choose (2 * m + 1) m ≤ #(positiveBoundary 𝒟) := by
+  have hpow : 0 < 2 ^ (2 * m) := by
+    positivity
+  have hne : 𝒟.Nonempty := by
+    exact Finset.card_pos.mp (by simpa [hhalf] using hpow)
+  refine choose_middle_le_card_positiveBoundary_of_odd_initial_slices_full hne h𝒟 hhalf ?_
+  intro r hr
+  exact le_of_eq (odd_initial_slices_full_of_lower_boundary_slices_vanish hne h𝒟 hvanish r hr).symm
+
+theorem choose_middle_le_upperShadowGap_of_lower_boundary_slices_vanish
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hhalf : 𝒟.card = 2 ^ (2 * m))
+    (hvanish : ∀ r ∈ Finset.Icc 1 m, #((positiveBoundary 𝒟) # r) = 0) :
+    Nat.choose (2 * m + 1) m ≤ upperShadowGap 𝒟 := by
+  simpa [upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily (𝒟 := 𝒟) h𝒟] using
+    choose_middle_le_card_positiveBoundary_of_lower_boundary_slices_vanish h𝒟 hhalf hvanish
+
+theorem card_positiveBoundary_le_choose_middle_of_isOddHalfCubeBoundaryGlobalMinimizer
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟) :
+    #(positiveBoundary 𝒟) ≤ Nat.choose (2 * m + 1) m := by
+  have hle :
+      #(positiveBoundary 𝒟) ≤ #(positiveBoundary (oddLowerHalfFamily m)) :=
+    hmin.2.2 (𝒜 := oddLowerHalfFamily m)
+      (isDownSetFamily_oddLowerHalfFamily m) (card_oddLowerHalfFamily_eq_half_cube m)
+  simpa [card_positiveBoundary_oddLowerHalfFamily] using hle
+
+theorem oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanish_of_lowerBoundarySliceForcesStrictUpperShadowGap
+    (hStrict :
+      OddHalfCubeBoundaryGlobalMinimizerLowerBoundarySliceForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanishStatement := by
+  intro m 𝒟 hmin r hr
+  by_contra hnonzero
+  have hpos : 0 < #((positiveBoundary 𝒟) # r) := Nat.pos_of_ne_zero hnonzero
+  have hgapStrict :
+      Nat.choose (2 * m + 1) m < upperShadowGap 𝒟 :=
+    hStrict hmin ⟨r, hr, hpos⟩
+  have hgapLe :
+      upperShadowGap 𝒟 ≤ Nat.choose (2 * m + 1) m := by
+    simpa [upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily (𝒟 := 𝒟) hmin.1] using
+      card_positiveBoundary_le_choose_middle_of_isOddHalfCubeBoundaryGlobalMinimizer hmin
+  exact (not_lt_of_ge hgapLe) hgapStrict
+
+theorem isOddHalfCubeBoundaryMinimizer_of_isOddHalfCubeBoundaryGlobalMinimizer_of_lowerBoundarySlicesVanish
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hvanish : ∀ r ∈ Finset.Icc 1 m, #((positiveBoundary 𝒟) # r) = 0) :
+    IsOddHalfCubeBoundaryMinimizer (m := m) 𝒟 := by
+  have hlower :
+      Nat.choose (2 * m + 1) m ≤ #(positiveBoundary 𝒟) :=
+    choose_middle_le_card_positiveBoundary_of_lower_boundary_slices_vanish hmin.1 hmin.2.1 hvanish
+  have hupper :
+      #(positiveBoundary 𝒟) ≤ Nat.choose (2 * m + 1) m :=
+    card_positiveBoundary_le_choose_middle_of_isOddHalfCubeBoundaryGlobalMinimizer hmin
+  exact ⟨hmin.1, hmin.2.1, le_antisymm hupper hlower⟩
+
+theorem oddHalfCubeUpperShadowGapLower_of_globalMinimizerLowerBoundarySlicesVanish
+    (hVanish : OddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanishStatement) :
+    OddHalfCubeUpperShadowGapLowerStatement := by
+  intro m 𝒟 h𝒟 hcard
+  obtain ⟨𝒟min, hmin⟩ := exists_isOddHalfCubeBoundaryGlobalMinimizer m
+  have hgapMin :
+      Nat.choose (2 * m + 1) m ≤ upperShadowGap 𝒟min :=
+    choose_middle_le_upperShadowGap_of_lower_boundary_slices_vanish hmin.1 hmin.2.1 (hVanish hmin)
+  have hgapLe :
+      upperShadowGap 𝒟min ≤ upperShadowGap 𝒟 := by
+    have hbdryLe :
+        #(positiveBoundary 𝒟min) ≤ #(positiveBoundary 𝒟) :=
+      hmin.2.2 (𝒜 := 𝒟) h𝒟 hcard
+    simpa [upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily (𝒟 := 𝒟min) hmin.1,
+      upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily (𝒟 := 𝒟) h𝒟] using hbdryLe
+  exact hgapMin.trans hgapLe
+
+theorem oddHalfCubeBoundaryLower_of_globalMinimizerLowerBoundarySlicesVanish
+    (hVanish : OddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanishStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower
+      (oddHalfCubeUpperShadowGapLower_of_globalMinimizerLowerBoundarySlicesVanish hVanish)
+
+theorem oddHalfCubeUpperShadowGapLower_of_globalMinimizerLowerBoundarySliceForcesStrictUpperShadowGap
+    (hStrict :
+      OddHalfCubeBoundaryGlobalMinimizerLowerBoundarySliceForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeUpperShadowGapLowerStatement := by
+  exact
+    oddHalfCubeUpperShadowGapLower_of_globalMinimizerLowerBoundarySlicesVanish
+      (oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanish_of_lowerBoundarySliceForcesStrictUpperShadowGap
+        hStrict)
+
+theorem oddHalfCubeBoundaryLower_of_globalMinimizerLowerBoundarySliceForcesStrictUpperShadowGap
+    (hStrict :
+      OddHalfCubeBoundaryGlobalMinimizerLowerBoundarySliceForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower
+      (oddHalfCubeUpperShadowGapLower_of_globalMinimizerLowerBoundarySliceForcesStrictUpperShadowGap
+        hStrict)
+
+theorem exact_slice_profile_of_isOddHalfCubeBoundaryMinimizer_of_lowerBoundarySlicesVanish
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryMinimizer (m := m) 𝒟)
+    (hvanish : ∀ r ∈ Finset.Icc 1 m, #((positiveBoundary 𝒟) # r) = 0) :
+    (∀ r ∈ Finset.range (m + 1), #(𝒟 # r) = Nat.choose (2 * m + 1) r) ∧
+      (∀ r, m + 1 ≤ r → #(𝒟 # r) = 0) := by
+  have h𝒟 : IsDownSetFamily 𝒟 := hmin.1
+  have hcard : 𝒟.card = 2 ^ (2 * m) := hmin.2.1
+  have hpow : 0 < 2 ^ (2 * m) := by
+    positivity
+  have hne : 𝒟.Nonempty := by
+    exact Finset.card_pos.mp (by simpa [hcard] using hpow)
+  have hlower :
+      ∀ r ∈ Finset.range (m + 1), #(𝒟 # r) = Nat.choose (2 * m + 1) r :=
+    odd_initial_slices_full_of_lower_boundary_slices_vanish hne h𝒟 hvanish
+  have hsumAll :
+      Finset.sum (Finset.range (2 * m + 2)) (fun r => #(𝒟 # r)) = 𝒟.card := by
+    simpa [Nat.range_succ_eq_Iic, Fintype.card_fin] using (Finset.sum_card_slice 𝒟)
+  have hsumLowerChoose :
+      Finset.sum (Finset.range (m + 1)) (fun r => Nat.choose (2 * m + 1) r) = 2 ^ (2 * m) := by
+    simpa [show 4 ^ m = 2 ^ (2 * m) by rw [show 4 = 2 ^ 2 by norm_num, pow_mul]] using
+      Nat.sum_range_choose_halfway m
+  have hsumLower :
+      Finset.sum (Finset.range (m + 1)) (fun r => #(𝒟 # r)) = 2 ^ (2 * m) := by
+    calc
+      Finset.sum (Finset.range (m + 1)) (fun r => #(𝒟 # r)) =
+          Finset.sum (Finset.range (m + 1)) (fun r => Nat.choose (2 * m + 1) r) := by
+            refine Finset.sum_congr rfl ?_
+            intro r hr
+            exact hlower r hr
+      _ = 2 ^ (2 * m) := hsumLowerChoose
+  have hmle : m + 1 ≤ 2 * m + 2 := by
+    omega
+  have hsumUpper :
+      Finset.sum (Finset.Ico (m + 1) (2 * m + 2)) (fun r => #(𝒟 # r)) = 0 := by
+    have hsplit :
+        Finset.sum (Finset.range (m + 1)) (fun r => #(𝒟 # r)) +
+            Finset.sum (Finset.Ico (m + 1) (2 * m + 2)) (fun r => #(𝒟 # r)) =
+          2 ^ (2 * m) := by
+      calc
+        Finset.sum (Finset.range (m + 1)) (fun r => #(𝒟 # r)) +
+            Finset.sum (Finset.Ico (m + 1) (2 * m + 2)) (fun r => #(𝒟 # r)) =
+          Finset.sum (Finset.range (2 * m + 2)) (fun r => #(𝒟 # r)) := by
+            exact Finset.sum_range_add_sum_Ico (fun r => #(𝒟 # r)) hmle
+        _ = 𝒟.card := hsumAll
+        _ = 2 ^ (2 * m) := hcard
+    have hleZero :
+        Finset.sum (Finset.Ico (m + 1) (2 * m + 2)) (fun r => #(𝒟 # r)) ≤ 0 := by
+      omega
+    exact le_antisymm hleZero (Nat.zero_le _)
+  refine ⟨hlower, ?_⟩
+  intro r hmr
+  by_cases hrle : r ≤ 2 * m + 1
+  · have hrIco : r ∈ Finset.Ico (m + 1) (2 * m + 2) := by
+      rw [Finset.mem_Ico]
+      omega
+    have hleTerm :
+        #(𝒟 # r) ≤ Finset.sum (Finset.Ico (m + 1) (2 * m + 2)) (fun q => #(𝒟 # q)) := by
+      simpa using
+        (Finset.single_le_sum
+          (f := fun q => #(𝒟 # q))
+          (fun _ _ => Nat.zero_le _)
+          hrIco)
+    omega
+  · have hrgt : 2 * m + 1 < r := by
+      omega
+    have hsubset : 𝒟 # r ⊆ (Finset.univ : Finset (Fin (2 * m + 1))).powersetCard r :=
+      Set.Sized.subset_powersetCard_univ (Finset.sized_slice (𝒜 := 𝒟) (r := r))
+    have hleCard :
+        #(𝒟 # r) ≤ #((Finset.univ : Finset (Fin (2 * m + 1))).powersetCard r) :=
+      Finset.card_le_card hsubset
+    have hzeroCard :
+        #((Finset.univ : Finset (Fin (2 * m + 1))).powersetCard r) = 0 := by
+      rw [Finset.card_powersetCard]
+      simpa [Fintype.card_fin] using (Nat.choose_eq_zero_of_lt hrgt)
+    omega
+
+theorem exact_slice_profile_of_isOddHalfCubeBoundaryGlobalMinimizer_of_lowerBoundarySlicesVanish
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hvanish : ∀ r ∈ Finset.Icc 1 m, #((positiveBoundary 𝒟) # r) = 0) :
+    (∀ r ∈ Finset.range (m + 1), #(𝒟 # r) = Nat.choose (2 * m + 1) r) ∧
+      (∀ r, m + 1 ≤ r → #(𝒟 # r) = 0) := by
+  exact
+    exact_slice_profile_of_isOddHalfCubeBoundaryMinimizer_of_lowerBoundarySlicesVanish
+      (isOddHalfCubeBoundaryMinimizer_of_isOddHalfCubeBoundaryGlobalMinimizer_of_lowerBoundarySlicesVanish
+        hmin hvanish)
+      hvanish
+
+theorem eq_oddLowerHalfFamily_of_isOddHalfCubeBoundaryGlobalMinimizer_of_lowerBoundarySlicesVanish
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hvanish : ∀ r ∈ Finset.Icc 1 m, #((positiveBoundary 𝒟) # r) = 0) :
+    𝒟 = oddLowerHalfFamily m := by
+  have hslices :
+      (∀ r ∈ Finset.range (m + 1), #(𝒟 # r) = Nat.choose (2 * m + 1) r) ∧
+        (∀ r, m + 1 ≤ r → #(𝒟 # r) = 0) :=
+    exact_slice_profile_of_isOddHalfCubeBoundaryGlobalMinimizer_of_lowerBoundarySlicesVanish
+      hmin hvanish
+  exact eq_oddLowerHalfFamily_of_exact_slice_profile hslices.1 hslices.2
+
+theorem positiveBoundary_eq_oddMiddleLayer_of_isOddHalfCubeBoundaryGlobalMinimizer_of_lowerBoundarySlicesVanish
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hvanish : ∀ r ∈ Finset.Icc 1 m, #((positiveBoundary 𝒟) # r) = 0) :
+    positiveBoundary 𝒟 = oddMiddleLayer m := by
+  have hEq :
+      𝒟 = oddLowerHalfFamily m :=
+    eq_oddLowerHalfFamily_of_isOddHalfCubeBoundaryGlobalMinimizer_of_lowerBoundarySlicesVanish
+      hmin hvanish
+  simpa [hEq] using positiveBoundary_oddLowerHalfFamily m
+
+theorem minimalOutside_eq_oddMiddleLayer_of_isOddHalfCubeBoundaryGlobalMinimizer_of_lowerBoundarySlicesVanish
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hvanish : ∀ r ∈ Finset.Icc 1 m, #((positiveBoundary 𝒟) # r) = 0) :
+    minimalOutside 𝒟 = oddMiddleLayer m := by
+  have hEq :
+      𝒟 = oddLowerHalfFamily m :=
+    eq_oddLowerHalfFamily_of_isOddHalfCubeBoundaryGlobalMinimizer_of_lowerBoundarySlicesVanish
+      hmin hvanish
+  simpa [hEq] using minimalOutside_oddLowerHalfFamily m
+
+theorem oddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLower_of_globalMinimizerLowerBoundarySlicesVanish
+    (hVanish : OddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanishStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLowerStatement := by
+  intro m 𝒟 hmin
+  rw [minimalOutside_eq_oddMiddleLayer_of_isOddHalfCubeBoundaryGlobalMinimizer_of_lowerBoundarySlicesVanish
+      hmin (hVanish hmin)]
+  exact le_of_eq (card_oddMiddleLayer m).symm
+
+theorem ncard_upperClosure_minimalOutside_eq_two_pow_of_card_eq_half_cube
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (2 * m)) :
+    (↑(upperClosure (minimalOutside 𝒟 : Set (Finset (Fin (2 * m + 1))))) :
+      Set (Finset (Fin (2 * m + 1)))).ncard = 2 ^ (2 * m) := by
+  rw [upperClosure_minimalOutside_eq_compl h𝒟, Set.ncard_compl]
+  rw [Nat.card_eq_fintype_card, Fintype.card_finset, Fintype.card_fin, Set.ncard_coe_finset,
+    hcard]
+  rw [pow_succ, Nat.mul_comm, two_mul, Nat.add_sub_cancel_left]
+
+theorem oddHalfCubeMinimalOutsideLower_of_antichainUpperClosureLower
+    (hAntichain : OddAntichainUpperClosureLowerStatement) :
+    OddHalfCubeMinimalOutsideLowerStatement := by
+  intro m 𝒟 h𝒟 hcard
+  exact hAntichain (isAntichain_minimalOutside 𝒟)
+    (ncard_upperClosure_minimalOutside_eq_two_pow_of_card_eq_half_cube h𝒟 hcard)
+
+theorem oddAntichainUpperClosureLower_of_minimalOutsideLower
+    (hMinOut : OddHalfCubeMinimalOutsideLowerStatement) :
+    OddAntichainUpperClosureLowerStatement := by
+  intro m 𝒜 h𝒜 hupper
+  classical
+  let 𝒟 : Finset (Finset (Fin (2 * m + 1))) :=
+    ((↑(upperClosure (𝒜 : Set (Finset (Fin (2 * m + 1))))) :
+      Set (Finset (Fin (2 * m + 1)))).toFinset)ᶜ
+  have h𝒟 :
+      IsDownSetFamily 𝒟 := by
+    change IsLowerSet (𝒟 : Set (Finset (Fin (2 * m + 1))))
+    rw [show (𝒟 : Set (Finset (Fin (2 * m + 1)))) =
+        ((↑(upperClosure (𝒜 : Set (Finset (Fin (2 * m + 1))))) :
+          Set (Finset (Fin (2 * m + 1))))ᶜ) by
+        simp [𝒟]]
+    exact (upperClosure (𝒜 : Set (Finset (Fin (2 * m + 1))))).upper.compl
+  have hcard𝒟 : 𝒟.card = 2 ^ (2 * m) := by
+    rw [Finset.card_compl, ← Set.ncard_eq_toFinset_card', hupper]
+    rw [Fintype.card_finset, Fintype.card_fin]
+    rw [pow_succ, Nat.mul_comm, two_mul, Nat.add_sub_cancel_left]
+  have hEq : minimalOutside 𝒟 = 𝒜 := by
+    apply eq_of_upperClosure_eq_of_isAntichain
+    · exact isAntichain_minimalOutside 𝒟
+    · exact h𝒜
+    · rw [upperClosure_minimalOutside_eq_compl h𝒟]
+      ext s
+      simp [𝒟]
+  simpa [hEq] using hMinOut h𝒟 hcard𝒟
+
+theorem oddAntichainUpperClosureLower_iff_oddHalfCubeMinimalOutsideLower :
+    OddAntichainUpperClosureLowerStatement ↔ OddHalfCubeMinimalOutsideLowerStatement := by
+  constructor
+  · exact oddHalfCubeMinimalOutsideLower_of_antichainUpperClosureLower
+  · exact oddAntichainUpperClosureLower_of_minimalOutsideLower
+
+theorem not_OddAntichainUpperClosureLowerStatement :
+    ¬ OddAntichainUpperClosureLowerStatement := by
+  intro hAntichain
+  exact not_OddHalfCubeMinimalOutsideLowerStatement
+    (oddHalfCubeMinimalOutsideLower_of_antichainUpperClosureLower hAntichain)
+
+theorem oddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLower_of_antichainUpperClosureLower
+    (hAntichain : OddAntichainUpperClosureLowerStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLowerStatement := by
+  intro m 𝒟 hmin
+  exact oddHalfCubeMinimalOutsideLower_of_antichainUpperClosureLower hAntichain hmin.1 hmin.2.1
+
+theorem oddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLower_of_minimalOutsideLower
+    (hMinOut : OddHalfCubeMinimalOutsideLowerStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLowerStatement := by
+  intro m 𝒟 hmin
+  exact hMinOut hmin.1 hmin.2.1
+
+theorem isOddHalfCubeBoundaryMinimizer_of_isOddHalfCubeBoundaryGlobalMinimizer_of_minimalOutsideLower
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hMinOut : Nat.choose (2 * m + 1) m ≤ #(minimalOutside 𝒟)) :
+    IsOddHalfCubeBoundaryMinimizer (m := m) 𝒟 := by
+  have hpow : 0 < 2 ^ (2 * m) := by
+    positivity
+  have hne : 𝒟.Nonempty := by
+    exact Finset.card_pos.mp (by simpa [hmin.2.1] using hpow)
+  have hlower :
+      Nat.choose (2 * m + 1) m ≤ #(positiveBoundary 𝒟) :=
+    hMinOut.trans
+      (card_minimalOutside_le_card_positiveBoundary_of_nonempty_isDownSetFamily hmin.1 hne)
+  have hupper :
+      #(positiveBoundary 𝒟) ≤ Nat.choose (2 * m + 1) m :=
+    card_positiveBoundary_le_choose_middle_of_isOddHalfCubeBoundaryGlobalMinimizer hmin
+  exact ⟨hmin.1, hmin.2.1, le_antisymm hupper hlower⟩
+
+theorem card_minimalOutside_eq_choose_middle_of_isOddHalfCubeBoundaryGlobalMinimizer_of_minimalOutsideLower
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hMinOut : Nat.choose (2 * m + 1) m ≤ #(minimalOutside 𝒟)) :
+    #(minimalOutside 𝒟) = Nat.choose (2 * m + 1) m := by
+  have hpow : 0 < 2 ^ (2 * m) := by
+    positivity
+  have hne : 𝒟.Nonempty := by
+    exact Finset.card_pos.mp (by simpa [hmin.2.1] using hpow)
+  have hupper :
+      #(minimalOutside 𝒟) ≤ Nat.choose (2 * m + 1) m :=
+    (card_minimalOutside_le_card_positiveBoundary_of_nonempty_isDownSetFamily hmin.1 hne).trans
+      (card_positiveBoundary_le_choose_middle_of_isOddHalfCubeBoundaryGlobalMinimizer hmin)
+  exact le_antisymm hupper hMinOut
+
+theorem minimalOutside_eq_positiveBoundary_of_isOddHalfCubeBoundaryGlobalMinimizer_of_minimalOutsideLower
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hMinOut : Nat.choose (2 * m + 1) m ≤ #(minimalOutside 𝒟)) :
+    minimalOutside 𝒟 = positiveBoundary 𝒟 := by
+  have hpow : 0 < 2 ^ (2 * m) := by
+    positivity
+  have hne : 𝒟.Nonempty := by
+    exact Finset.card_pos.mp (by simpa [hmin.2.1] using hpow)
+  have hsub :
+      minimalOutside 𝒟 ⊆ positiveBoundary 𝒟 :=
+    minimalOutside_subset_positiveBoundary_of_nonempty_isDownSetFamily hmin.1 hne
+  apply Finset.eq_of_subset_of_card_le hsub
+  have hsharp :
+      IsOddHalfCubeBoundaryMinimizer (m := m) 𝒟 :=
+    isOddHalfCubeBoundaryMinimizer_of_isOddHalfCubeBoundaryGlobalMinimizer_of_minimalOutsideLower
+      hmin hMinOut
+  have hcardMinOut :
+      #(minimalOutside 𝒟) = Nat.choose (2 * m + 1) m :=
+    card_minimalOutside_eq_choose_middle_of_isOddHalfCubeBoundaryGlobalMinimizer_of_minimalOutsideLower
+      hmin hMinOut
+  simpa [hsharp.2.2, hcardMinOut]
+
+theorem oddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichain_of_globalMinimizerMinimalOutsideLower
+    (hMinOut : OddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLowerStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichainStatement := by
+  intro m 𝒟 hmin
+  have hpow : 0 < 2 ^ (2 * m) := by
+    positivity
+  have hne : 𝒟.Nonempty := by
+    exact Finset.card_pos.mp (by simpa [hmin.2.1] using hpow)
+  refine ⟨?_, ?_⟩
+  · rw [← minimalOutside_eq_positiveBoundary_of_isOddHalfCubeBoundaryGlobalMinimizer_of_minimalOutsideLower
+      hmin (hMinOut hmin)]
+    exact isAntichain_minimalOutside 𝒟
+  · have hupper :
+        #(positiveBoundary 𝒟) ≤ Nat.choose (2 * m + 1) m :=
+      card_positiveBoundary_le_choose_middle_of_isOddHalfCubeBoundaryGlobalMinimizer hmin
+    have hlower :
+        Nat.choose (2 * m + 1) m ≤ #(positiveBoundary 𝒟) :=
+      (hMinOut hmin).trans
+        (card_minimalOutside_le_card_positiveBoundary_of_nonempty_isDownSetFamily hmin.1 hne)
+    exact le_antisymm hupper hlower
+
+theorem oddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLower_of_globalMinimizerPositiveBoundaryAntichain
+    (hAnt :
+      OddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichainStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLowerStatement := by
+  intro m 𝒟 hmin
+  have hpow : 0 < 2 ^ (2 * m) := by
+    positivity
+  have hne : 𝒟.Nonempty := by
+    exact Finset.card_pos.mp (by simpa [hmin.2.1] using hpow)
+  have hEq :
+      positiveBoundary 𝒟 = minimalOutside 𝒟 :=
+    positiveBoundary_eq_minimalOutside_of_nonempty_isDownSetFamily_of_isAntichain
+      hmin.1 hne (hAnt hmin).1
+  rw [← hEq, (hAnt hmin).2]
+
+theorem
+    oddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichain_iff_globalMinimizerMinimalOutsideLower :
+    OddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichainStatement ↔
+      OddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLowerStatement := by
+  constructor
+  · exact oddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLower_of_globalMinimizerPositiveBoundaryAntichain
+  · exact oddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichain_of_globalMinimizerMinimalOutsideLower
+
+theorem oddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichain_of_globalMinimizerLowerBoundarySlicesVanish
+    (hVanish : OddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanishStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichainStatement := by
+  intro m 𝒟 hmin
+  have hEq :
+      positiveBoundary 𝒟 = oddMiddleLayer m :=
+    positiveBoundary_eq_oddMiddleLayer_of_isOddHalfCubeBoundaryGlobalMinimizer_of_lowerBoundarySlicesVanish
+      hmin (hVanish hmin)
+  refine ⟨?_, ?_⟩
+  · rw [hEq]
+    exact isAntichain_oddMiddleLayer m
+  · rw [hEq, card_oddMiddleLayer]
+
+theorem oddHalfCubeUpperShadowGapLower_of_globalMinimizerMinimalOutsideLower
+    (hMinOut : OddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLowerStatement) :
+    OddHalfCubeUpperShadowGapLowerStatement := by
+  intro m 𝒟 h𝒟 hcard
+  obtain ⟨𝒟min, hmin⟩ := exists_isOddHalfCubeBoundaryGlobalMinimizer m
+  have hpow : 0 < 2 ^ (2 * m) := by
+    positivity
+  have hne : 𝒟min.Nonempty := by
+    exact Finset.card_pos.mp (by simpa [hmin.2.1] using hpow)
+  have hmoLe :
+      #(minimalOutside 𝒟min) ≤ #(positiveBoundary 𝒟min) :=
+    card_minimalOutside_le_card_positiveBoundary_of_nonempty_isDownSetFamily hmin.1 hne
+  have hbdryMin :
+      Nat.choose (2 * m + 1) m ≤ #(positiveBoundary 𝒟min) :=
+    (hMinOut hmin).trans hmoLe
+  have hbdryLe :
+      #(positiveBoundary 𝒟min) ≤ #(positiveBoundary 𝒟) :=
+    hmin.2.2 (𝒜 := 𝒟) h𝒟 hcard
+  have hbdry :
+      Nat.choose (2 * m + 1) m ≤ #(positiveBoundary 𝒟) :=
+    hbdryMin.trans hbdryLe
+  simpa [upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily (𝒟 := 𝒟) h𝒟] using hbdry
+
+theorem oddHalfCubeUpperShadowGapLower_of_globalMinimizerPositiveBoundaryAntichain
+    (hAnt : OddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichainStatement) :
+    OddHalfCubeUpperShadowGapLowerStatement := by
+  exact
+    oddHalfCubeUpperShadowGapLower_of_globalMinimizerMinimalOutsideLower
+      (oddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLower_of_globalMinimizerPositiveBoundaryAntichain
+        hAnt)
+
+theorem oddHalfCubeUpperShadowGapLower_of_minimalOutsideLower
+    (hMinOut : OddHalfCubeMinimalOutsideLowerStatement) :
+    OddHalfCubeUpperShadowGapLowerStatement := by
+  intro m 𝒟 h𝒟 hcard
+  have hpow : 0 < 2 ^ (2 * m) := by
+    positivity
+  have hne : 𝒟.Nonempty := by
+    exact Finset.card_pos.mp (by simpa [hcard] using hpow)
+  have hbdry :
+      Nat.choose (2 * m + 1) m ≤ #(positiveBoundary 𝒟) :=
+    (hMinOut h𝒟 hcard).trans
+      (card_minimalOutside_le_card_positiveBoundary_of_nonempty_isDownSetFamily h𝒟 hne)
+  simpa [upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily (𝒟 := 𝒟) h𝒟] using hbdry
+
+theorem oddHalfCubeUpperShadowGapLower_of_antichainUpperClosureLower
+    (hAntichain : OddAntichainUpperClosureLowerStatement) :
+    OddHalfCubeUpperShadowGapLowerStatement := by
+  exact oddHalfCubeUpperShadowGapLower_of_minimalOutsideLower
+    (oddHalfCubeMinimalOutsideLower_of_antichainUpperClosureLower hAntichain)
+
+theorem oddHalfCubeBoundaryLower_of_antichainUpperClosureLower
+    (hAntichain : OddAntichainUpperClosureLowerStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact oddHalfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower
+    (oddHalfCubeUpperShadowGapLower_of_antichainUpperClosureLower hAntichain)
+
+theorem oddHalfCubeBoundaryLower_of_minimalOutsideLower
+    (hMinOut : OddHalfCubeMinimalOutsideLowerStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact oddHalfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower
+    (oddHalfCubeUpperShadowGapLower_of_minimalOutsideLower hMinOut)
+
+theorem oddHalfCubeBoundaryLower_of_globalMinimizerMinimalOutsideLower
+    (hMinOut : OddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLowerStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower
+      (oddHalfCubeUpperShadowGapLower_of_globalMinimizerMinimalOutsideLower hMinOut)
+
+theorem oddHalfCubeBoundaryLower_of_globalMinimizerPositiveBoundaryAntichain
+    (hAnt : OddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichainStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower
+      (oddHalfCubeUpperShadowGapLower_of_globalMinimizerPositiveBoundaryAntichain hAnt)
+
+theorem oddHalfCubeBoundaryMinimizerExactProfile_of_lowerBoundarySlicesVanish
+    (hVanish : OddHalfCubeBoundaryMinimizerLowerBoundarySlicesVanishStatement) :
+    OddHalfCubeBoundaryMinimizerExactProfileStatement := by
+  intro m 𝒟 h𝒟 hcard hbdry
+  exact
+    exact_slice_profile_of_isOddHalfCubeBoundaryMinimizer_of_lowerBoundarySlicesVanish
+      ⟨h𝒟, hcard, hbdry⟩
+      (hVanish ⟨h𝒟, hcard, hbdry⟩)
+
+theorem oddHalfCubeBoundaryMinimizerExactProfileStatement_iff_lowerBoundarySlicesVanishStatement :
+    OddHalfCubeBoundaryMinimizerExactProfileStatement ↔
+      OddHalfCubeBoundaryMinimizerLowerBoundarySlicesVanishStatement := by
+  constructor
+  · exact oddHalfCubeBoundaryMinimizerLowerBoundarySlicesVanish_of_exactProfile
+  · exact oddHalfCubeBoundaryMinimizerExactProfile_of_lowerBoundarySlicesVanish
+
+theorem eq_oddLowerHalfFamily_of_isOddHalfCubeBoundaryMinimizer_of_lowerBoundarySlicesVanish
+    (hVanish : OddHalfCubeBoundaryMinimizerLowerBoundarySlicesVanishStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryMinimizer (m := m) 𝒟) :
+    𝒟 = oddLowerHalfFamily m := by
+  exact
+    eq_oddLowerHalfFamily_of_isOddHalfCubeBoundaryMinimizer_of_exactProfile
+      (oddHalfCubeBoundaryMinimizerExactProfile_of_lowerBoundarySlicesVanish hVanish) hmin
+
+theorem positiveBoundary_eq_oddMiddleLayer_of_isOddHalfCubeBoundaryMinimizer_of_lowerBoundarySlicesVanish
+    (hVanish : OddHalfCubeBoundaryMinimizerLowerBoundarySlicesVanishStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryMinimizer (m := m) 𝒟) :
+    positiveBoundary 𝒟 = oddMiddleLayer m := by
+  exact
+    positiveBoundary_eq_oddMiddleLayer_of_isOddHalfCubeBoundaryMinimizer_of_exactProfile
+      (oddHalfCubeBoundaryMinimizerExactProfile_of_lowerBoundarySlicesVanish hVanish) hmin
+
+theorem minimalOutside_eq_positiveBoundary_of_isOddHalfCubeBoundaryMinimizer_of_lowerBoundarySlicesVanish
+    (hVanish : OddHalfCubeBoundaryMinimizerLowerBoundarySlicesVanishStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryMinimizer (m := m) 𝒟) :
+    minimalOutside 𝒟 = positiveBoundary 𝒟 := by
+  exact
+    minimalOutside_eq_positiveBoundary_of_isOddHalfCubeBoundaryMinimizer_of_exactProfile
+      (oddHalfCubeBoundaryMinimizerExactProfile_of_lowerBoundarySlicesVanish hVanish) hmin
+
+theorem minimalOutside_eq_oddMiddleLayer_of_isOddHalfCubeBoundaryMinimizer_of_lowerBoundarySlicesVanish
+    (hVanish : OddHalfCubeBoundaryMinimizerLowerBoundarySlicesVanishStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryMinimizer (m := m) 𝒟) :
+    minimalOutside 𝒟 = oddMiddleLayer m := by
+  rw [minimalOutside_eq_positiveBoundary_of_isOddHalfCubeBoundaryMinimizer_of_lowerBoundarySlicesVanish
+      hVanish hmin,
+    positiveBoundary_eq_oddMiddleLayer_of_isOddHalfCubeBoundaryMinimizer_of_lowerBoundarySlicesVanish
+      hVanish hmin]
+
+theorem oddHalfCubeSliceThreshold_of_isOddHalfCubeBoundaryMinimizer_of_lowerBoundarySlicesVanish
+    (hVanish : OddHalfCubeBoundaryMinimizerLowerBoundarySlicesVanishStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryMinimizer (m := m) 𝒟) :
+    ∀ r ∈ Finset.range (m + 1), Nat.choose (2 * m) r ≤ #(𝒟 # r) := by
+  exact
+    oddHalfCubeSliceThreshold_of_isOddHalfCubeBoundaryMinimizer_of_exactProfile
+      (oddHalfCubeBoundaryMinimizerExactProfile_of_lowerBoundarySlicesVanish hVanish) hmin
 
 /-- Sharp one-step upper-shadow lower bound at the codimension-1 threshold, obtained from the
 Lovász form of Kruskal-Katona by passing to complements. -/
@@ -1071,6 +2963,586 @@ theorem choose_middle_le_card_positiveBoundary_even_of_totalSize_eq_max_of_halfC
       (n := 2 * m + 1) (by positivity) h𝒟 hcard htotal
   exact choose_middle_le_card_positiveBoundary_of_balanced_zero_sections_even_of_halfCubeBoundaryLower
     hCube h𝒟 hcard hbal
+
+theorem predFamily_union {n : ℕ} {𝒜 ℬ : Finset (Finset (Fin (n + 1)))} :
+    predFamily (𝒜 ∪ ℬ) = predFamily 𝒜 ∪ predFamily ℬ := by
+  ext s
+  constructor
+  · intro hs
+    rw [mem_union]
+    rcases mem_predFamily.mp hs with ⟨t, ht, hts⟩
+    rcases Finset.mem_union.mp ht with ht | ht
+    · exact Or.inl <| mem_predFamily.mpr ⟨t, ht, hts⟩
+    · exact Or.inr <| mem_predFamily.mpr ⟨t, ht, hts⟩
+  · intro hs
+    rw [mem_union] at hs
+    rcases hs with hs | hs
+    · rcases mem_predFamily.mp hs with ⟨t, ht, hts⟩
+      exact mem_predFamily.mpr ⟨t, Finset.mem_union.mpr (Or.inl ht), hts⟩
+    · rcases mem_predFamily.mp hs with ⟨t, ht, hts⟩
+      exact mem_predFamily.mpr ⟨t, Finset.mem_union.mpr (Or.inr ht), hts⟩
+
+theorem predFamily_sdiff_zeroFree {n : ℕ} {𝒜 ℬ : Finset (Finset (Fin (n + 1)))}
+    (h𝒜0 : ∀ s ∈ 𝒜, (0 : Fin (n + 1)) ∉ s)
+    (hℬ0 : ∀ s ∈ ℬ, (0 : Fin (n + 1)) ∉ s) :
+    predFamily (𝒜 \ ℬ) = predFamily 𝒜 \ predFamily ℬ := by
+  ext s
+  constructor
+  · intro hs
+    rw [mem_sdiff]
+    rcases mem_predFamily.mp hs with ⟨t, ht, hts⟩
+    refine ⟨mem_predFamily.mpr ⟨t, (mem_sdiff.mp ht).1, hts⟩, ?_⟩
+    intro hsℬ
+    rcases mem_predFamily.mp hsℬ with ⟨u, hu, hus⟩
+    have ht𝒜 : t ∈ 𝒜 := (mem_sdiff.mp ht).1
+    have ht0 : (0 : Fin (n + 1)) ∉ t := h𝒜0 t ht𝒜
+    have hu0 : (0 : Fin (n + 1)) ∉ u := hℬ0 u hu
+    have hpre :
+        t.preimage Fin.succ (Fin.succ_injective n).injOn =
+          u.preimage Fin.succ (Fin.succ_injective n).injOn := by
+      rw [hts, hus]
+    have htu : t = u := by
+      ext x
+      constructor <;> intro hx
+      · have hx0 : x ≠ 0 := by
+          intro hx0
+          exact ht0 (hx0 ▸ hx)
+        rcases Fin.exists_succ_eq_of_ne_zero hx0 with ⟨y, rfl⟩
+        have hy : y ∈ t.preimage Fin.succ (Fin.succ_injective n).injOn := by
+          simpa using hx
+        have hy' : y ∈ u.preimage Fin.succ (Fin.succ_injective n).injOn := by
+          rw [← hpre]
+          exact hy
+        simpa using hy'
+      · have hx0 : x ≠ 0 := by
+          intro hx0
+          exact hu0 (hx0 ▸ hx)
+        rcases Fin.exists_succ_eq_of_ne_zero hx0 with ⟨y, rfl⟩
+        have hy : y ∈ u.preimage Fin.succ (Fin.succ_injective n).injOn := by
+          simpa using hx
+        have hy' : y ∈ t.preimage Fin.succ (Fin.succ_injective n).injOn := by
+          rw [hpre]
+          exact hy
+        simpa using hy'
+    exact (mem_sdiff.mp ht).2 (htu ▸ hu)
+  · intro hs
+    rw [mem_sdiff] at hs
+    rcases hs with ⟨hs𝒜, hsℬ⟩
+    rcases mem_predFamily.mp hs𝒜 with ⟨t, ht, hts⟩
+    refine mem_predFamily.mpr ⟨t, mem_sdiff.mpr ⟨ht, ?_⟩, hts⟩
+    intro htℬ
+    exact hsℬ <| mem_predFamily.mpr ⟨t, htℬ, hts⟩
+
+theorem predFamily_nonMemberSubfamily_positiveBoundary_eq_positiveBoundary_predFamily
+    {n : ℕ} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    (h0 : ∀ s ∈ 𝒜, (0 : Fin (n + 1)) ∉ s) :
+    predFamily ((positiveBoundary 𝒜).nonMemberSubfamily 0) =
+      positiveBoundary (predFamily 𝒜) := by
+  calc
+    predFamily ((positiveBoundary 𝒜).nonMemberSubfamily 0)
+      = predFamily (succFamily (positiveBoundary (predFamily 𝒜))) := by
+          rw [nonMemberSubfamily_positiveBoundary_eq_succFamily_positiveBoundary_predFamily h0]
+    _ = positiveBoundary (predFamily 𝒜) := by
+          rw [predFamily_succFamily]
+
+theorem card_memberSubfamily_positiveBoundary_eq_card_pairInterface_zero_sections
+    {n : ℕ} {𝒟 : Finset (Finset (Fin (n + 1)))} :
+    #((positiveBoundary 𝒟).memberSubfamily 0) =
+      #((predFamily (𝒟.nonMemberSubfamily 0) \ predFamily (𝒟.memberSubfamily 0)) ∪
+        positiveBoundary (predFamily (𝒟.memberSubfamily 0))) := by
+  have h0member : ∀ s ∈ (positiveBoundary 𝒟).memberSubfamily 0, (0 : Fin (n + 1)) ∉ s := by
+    intro s hs
+    exact (mem_memberSubfamily.mp hs).2
+  have h0non : ∀ s ∈ 𝒟.nonMemberSubfamily 0, (0 : Fin (n + 1)) ∉ s := by
+    intro s hs
+    exact (mem_nonMemberSubfamily.mp hs).2
+  have h0mem : ∀ s ∈ 𝒟.memberSubfamily 0, (0 : Fin (n + 1)) ∉ s := by
+    intro s hs
+    exact (mem_memberSubfamily.mp hs).2
+  have h0pbmem : ∀ s ∈ (positiveBoundary (𝒟.memberSubfamily 0)).nonMemberSubfamily 0,
+      (0 : Fin (n + 1)) ∉ s := by
+    intro s hs
+    exact (mem_nonMemberSubfamily.mp hs).2
+  calc
+    #((positiveBoundary 𝒟).memberSubfamily 0)
+      = #(predFamily ((positiveBoundary 𝒟).memberSubfamily 0)) := by
+          symm
+          exact card_predFamily h0member
+    _ = #(predFamily
+          ((𝒟.nonMemberSubfamily 0 \ 𝒟.memberSubfamily 0) ∪
+            (positiveBoundary (𝒟.memberSubfamily 0)).nonMemberSubfamily 0)) := by
+          rw [memberSubfamily_positiveBoundary]
+    _ = #(predFamily (𝒟.nonMemberSubfamily 0 \ 𝒟.memberSubfamily 0) ∪
+          predFamily ((positiveBoundary (𝒟.memberSubfamily 0)).nonMemberSubfamily 0)) := by
+          rw [predFamily_union]
+    _ = #((predFamily (𝒟.nonMemberSubfamily 0) \ predFamily (𝒟.memberSubfamily 0)) ∪
+          predFamily ((positiveBoundary (𝒟.memberSubfamily 0)).nonMemberSubfamily 0)) := by
+          rw [predFamily_sdiff_zeroFree h0non h0mem]
+    _ = #((predFamily (𝒟.nonMemberSubfamily 0) \ predFamily (𝒟.memberSubfamily 0)) ∪
+          positiveBoundary (predFamily (𝒟.memberSubfamily 0))) := by
+          rw [predFamily_nonMemberSubfamily_positiveBoundary_eq_positiveBoundary_predFamily h0mem]
+
+theorem choose_middle_le_card_positiveBoundary_even_of_zero_section_pairInterfaceBoundaryLower
+    (hPair : OddSectionPairInterfaceBoundaryLowerStatement)
+    {m e : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hNcard : #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m) + e)
+    (hMcard : #(𝒟.memberSubfamily 0) = 2 ^ (2 * m) - e) :
+    Nat.choose (2 * m + 2) (m + 1) ≤ #(positiveBoundary 𝒟) := by
+  let 𝒩 : Finset (Finset (Fin (2 * m + 1))) := predFamily (𝒟.nonMemberSubfamily 0)
+  let ℳ : Finset (Finset (Fin (2 * m + 1))) := predFamily (𝒟.memberSubfamily 0)
+  have h𝒩down : IsDownSetFamily 𝒩 := by
+    simpa [𝒩] using isDownSetFamily_predFamily_nonMemberSubfamily h𝒟
+  have hℳdown : IsDownSetFamily ℳ := by
+    simpa [ℳ] using isDownSetFamily_predFamily_memberSubfamily h𝒟
+  have hsubset : ℳ ⊆ 𝒩 := by
+    simpa [𝒩, ℳ] using predFamily_memberSubfamily_subset_predFamily_nonMemberSubfamily h𝒟
+  have h𝒩card : 𝒩.card = 2 ^ (2 * m) + e := by
+    simpa [𝒩, hNcard] using card_predFamily_nonMemberSubfamily (𝒜 := 𝒟)
+  have hℳcard : ℳ.card = 2 ^ (2 * m) - e := by
+    simpa [ℳ, hMcard] using card_predFamily_memberSubfamily (𝒜 := 𝒟)
+  have hpair :
+      2 * Nat.choose (2 * m + 1) m ≤
+        #(positiveBoundary 𝒩) + #((𝒩 \ ℳ) ∪ positiveBoundary ℳ) :=
+    hPair h𝒩down hℳdown hsubset h𝒩card hℳcard
+  have hNterm : #(positiveBoundary 𝒩) = #((positiveBoundary 𝒟).nonMemberSubfamily 0) := by
+    calc
+      #(positiveBoundary 𝒩)
+        = #((positiveBoundary (𝒟.nonMemberSubfamily 0)).nonMemberSubfamily 0) := by
+            simpa [𝒩] using card_positiveBoundary_predFamily_nonMemberSubfamily (𝒜 := 𝒟)
+      _ = #((positiveBoundary 𝒟).nonMemberSubfamily 0) := by
+            rw [← nonMemberSubfamily_positiveBoundary (a := 0) (𝒜 := 𝒟)]
+  have hMterm :
+      #((𝒩 \ ℳ) ∪ positiveBoundary ℳ) =
+        #((positiveBoundary 𝒟).memberSubfamily 0) := by
+    symm
+    simpa [𝒩, ℳ] using
+      card_memberSubfamily_positiveBoundary_eq_card_pairInterface_zero_sections (𝒟 := 𝒟)
+  have hpair' :
+      2 * Nat.choose (2 * m + 1) m ≤
+        #((positiveBoundary 𝒟).nonMemberSubfamily 0) +
+          #((positiveBoundary 𝒟).memberSubfamily 0) := by
+    calc
+      2 * Nat.choose (2 * m + 1) m
+        ≤ #(positiveBoundary 𝒩) + #((𝒩 \ ℳ) ∪ positiveBoundary ℳ) := hpair
+      _ = #((positiveBoundary 𝒟).nonMemberSubfamily 0) +
+            #((positiveBoundary 𝒟).memberSubfamily 0) := by
+              rw [hNterm, hMterm]
+  rw [choose_middle_even_eq_two_mul_choose_middle_odd]
+  calc
+    2 * Nat.choose (2 * m + 1) m
+      ≤ #((positiveBoundary 𝒟).nonMemberSubfamily 0) +
+          #((positiveBoundary 𝒟).memberSubfamily 0) := hpair'
+    _ = #(positiveBoundary 𝒟) := by
+          rw [add_comm, Finset.card_memberSubfamily_add_card_nonMemberSubfamily]
+
+theorem choose_middle_le_card_positiveBoundary_odd_of_section_pairInterfaceBoundaryLower
+    (hPair : OddSectionPairInterfaceBoundaryLowerStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (2 * m)) :
+    Nat.choose (2 * m + 1) m ≤ #(positiveBoundary 𝒟) := by
+  have hpair :
+      2 * Nat.choose (2 * m + 1) m ≤
+        #(positiveBoundary 𝒟) + #((𝒟 \ 𝒟) ∪ positiveBoundary 𝒟) :=
+    hPair (e := 0) h𝒟 h𝒟 (by intro s hs; exact hs) (by simpa using hcard) (by simpa using hcard)
+  have hpair' :
+      2 * Nat.choose (2 * m + 1) m ≤
+        #(positiveBoundary 𝒟) + #(positiveBoundary 𝒟) := by
+    calc
+      2 * Nat.choose (2 * m + 1) m
+        ≤ #(positiveBoundary 𝒟) + #((𝒟 \ 𝒟) ∪ positiveBoundary 𝒟) := hpair
+      _ = #(positiveBoundary 𝒟) + #(positiveBoundary 𝒟) := by
+            simp
+  omega
+
+theorem oddHalfCubeBoundaryLower_of_section_pairInterfaceBoundaryLower
+    (hPair : OddSectionPairInterfaceBoundaryLowerStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  intro m 𝒟 h𝒟 hcard
+  exact choose_middle_le_card_positiveBoundary_odd_of_section_pairInterfaceBoundaryLower
+    hPair h𝒟 hcard
+
+/-- For nested sheets `ℳ ⊆ 𝒩`, this is the interface visible from the upper sheet:
+the missing roof `𝒩 \ ℳ` together with the outer boundary of the upper sheet itself. -/
+def twoSheetInterfaceBoundary {α : Type} [DecidableEq α] [Fintype α]
+    (ℳ 𝒩 : Finset (Finset α)) : Finset (Finset α) :=
+  (𝒩 \ ℳ) ∪ positiveBoundary ℳ
+
+/-- Total visible outer boundary of a two-sheet monotone region:
+lower-sheet outer boundary plus upper-sheet interface boundary. -/
+def twoSheetOuterBoundaryCard {α : Type} [DecidableEq α] [Fintype α]
+    (ℳ 𝒩 : Finset (Finset α)) : ℕ :=
+  #(positiveBoundary 𝒩) + #(twoSheetInterfaceBoundary ℳ 𝒩)
+
+/-- Topological/two-sheet formulation of the current odd-dimensional frontier.
+
+Interpret `ℳ ⊆ 𝒩` as two nested monotone sheets over the odd cube. The target lower bound is on
+the total visible outer boundary: the outer boundary of the lower sheet `𝒩`, plus the visible
+interface of the upper sheet `ℳ`. -/
+def TopologicalOddSectionBoundaryLowerStatement : Prop :=
+  ∀ {m e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
+    IsDownSetFamily 𝒩 →
+      IsDownSetFamily ℳ →
+      ℳ ⊆ 𝒩 →
+      𝒩.card = 2 ^ (2 * m) + e →
+      ℳ.card = 2 ^ (2 * m) - e →
+      2 * Nat.choose (2 * m + 1) m ≤ twoSheetOuterBoundaryCard ℳ 𝒩
+
+/-- The topological two-sheet formulation is definitionally the same as the paired-interface
+frontier used by the current proof program. -/
+theorem topologicalOddSectionBoundaryLowerStatement_iff_pairInterface :
+    TopologicalOddSectionBoundaryLowerStatement ↔
+      OddSectionPairInterfaceBoundaryLowerStatement := by
+  constructor
+  · intro h m e 𝒩 ℳ h𝒩 hℳ hsub h𝒩card hℳcard
+    simpa [twoSheetOuterBoundaryCard, twoSheetInterfaceBoundary] using
+      h h𝒩 hℳ hsub h𝒩card hℳcard
+  · intro h m e 𝒩 ℳ h𝒩 hℳ hsub h𝒩card hℳcard
+    simpa [twoSheetOuterBoundaryCard, twoSheetInterfaceBoundary] using
+      h h𝒩 hℳ hsub h𝒩card hℳcard
+
+/-- The topological formulation already implies the odd half-cube theorem. -/
+theorem oddHalfCubeBoundaryLower_of_topologicalOddSectionBoundaryLower
+    (hTop : TopologicalOddSectionBoundaryLowerStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact oddHalfCubeBoundaryLower_of_section_pairInterfaceBoundaryLower
+    ((topologicalOddSectionBoundaryLowerStatement_iff_pairInterface).mp hTop)
+
+theorem choose_middle_le_card_positiveBoundary_even_of_totalSize_eq_max_of_section_pairInterfaceBoundaryLower
+    (hPair : OddSectionPairInterfaceBoundaryLowerStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (2 * m + 1))
+    (htotal : totalSize 𝒟 = (2 * m + 2) * 2 ^ (2 * m)) :
+    Nat.choose (2 * m + 2) (m + 1) ≤ #(positiveBoundary 𝒟) := by
+  have hbal :
+      #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m) :=
+    zero_section_balanced_of_halfCube_of_totalSize_eq_max
+      (n := 2 * m + 1) (by positivity) h𝒟 hcard htotal
+  have hsum :
+      #(𝒟.memberSubfamily 0) + #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m + 1) := by
+    simpa [hcard] using
+      (Finset.card_memberSubfamily_add_card_nonMemberSubfamily (a := 0) (𝒜 := 𝒟))
+  have hpow : 2 ^ (2 * m + 1) = 2 ^ (2 * m) + 2 ^ (2 * m) := by
+    rw [show 2 * m + 1 = 2 * m + 1 by omega, Nat.pow_succ]
+    ring
+  have hMcard : #(𝒟.memberSubfamily 0) = 2 ^ (2 * m) := by
+    rw [hbal, hpow] at hsum
+    omega
+  exact
+    choose_middle_le_card_positiveBoundary_even_of_zero_section_pairInterfaceBoundaryLower
+      (hPair := hPair) (e := 0) h𝒟 (by simpa using hbal) (by simpa using hMcard)
+
+theorem predAboveFamily_union {n : ℕ} {a : Fin (n + 1)}
+    {𝒜 ℬ : Finset (Finset (Fin (n + 1)))} :
+    predAboveFamily a (𝒜 ∪ ℬ) = predAboveFamily a 𝒜 ∪ predAboveFamily a ℬ := by
+  ext s
+  constructor
+  · intro hs
+    rw [mem_union]
+    rcases mem_predAboveFamily.mp hs with ⟨t, ht, hts⟩
+    rcases Finset.mem_union.mp ht with ht | ht
+    · exact Or.inl <| mem_predAboveFamily.mpr ⟨t, ht, hts⟩
+    · exact Or.inr <| mem_predAboveFamily.mpr ⟨t, ht, hts⟩
+  · intro hs
+    rw [mem_union] at hs
+    rcases hs with hs | hs
+    · rcases mem_predAboveFamily.mp hs with ⟨t, ht, hts⟩
+      exact mem_predAboveFamily.mpr ⟨t, Finset.mem_union.mpr (Or.inl ht), hts⟩
+    · rcases mem_predAboveFamily.mp hs with ⟨t, ht, hts⟩
+      exact mem_predAboveFamily.mpr ⟨t, Finset.mem_union.mpr (Or.inr ht), hts⟩
+
+theorem predAboveFamily_sdiff_pivotFree {n : ℕ} {a : Fin (n + 1)}
+    {𝒜 ℬ : Finset (Finset (Fin (n + 1)))}
+    (h𝒜a : ∀ s ∈ 𝒜, a ∉ s)
+    (hℬa : ∀ s ∈ ℬ, a ∉ s) :
+    predAboveFamily a (𝒜 \ ℬ) = predAboveFamily a 𝒜 \ predAboveFamily a ℬ := by
+  ext s
+  constructor
+  · intro hs
+    rw [mem_sdiff]
+    rcases mem_predAboveFamily.mp hs with ⟨t, ht, hts⟩
+    refine ⟨mem_predAboveFamily.mpr ⟨t, (mem_sdiff.mp ht).1, hts⟩, ?_⟩
+    intro hsℬ
+    rcases mem_predAboveFamily.mp hsℬ with ⟨u, hu, hus⟩
+    have ht𝒜 : t ∈ 𝒜 := (mem_sdiff.mp ht).1
+    have hta : a ∉ t := h𝒜a t ht𝒜
+    have hua : a ∉ u := hℬa u hu
+    have hpre :
+        t.preimage a.succAbove a.succAboveEmb.injective.injOn =
+          u.preimage a.succAbove a.succAboveEmb.injective.injOn := by
+      rw [hts, hus]
+    have htu : t = u := by
+      ext x
+      constructor <;> intro hx
+      · have hxa : x ≠ a := by
+          intro hxa
+          exact hta (hxa ▸ hx)
+        rcases Fin.exists_succAbove_eq hxa with ⟨y, rfl⟩
+        have hy : y ∈ t.preimage a.succAbove a.succAboveEmb.injective.injOn := by
+          simpa using hx
+        have hy' : y ∈ u.preimage a.succAbove a.succAboveEmb.injective.injOn := by
+          rw [← hpre]
+          exact hy
+        simpa using hy'
+      · have hxa : x ≠ a := by
+          intro hxa
+          exact hua (hxa ▸ hx)
+        rcases Fin.exists_succAbove_eq hxa with ⟨y, rfl⟩
+        have hy : y ∈ u.preimage a.succAbove a.succAboveEmb.injective.injOn := by
+          simpa using hx
+        have hy' : y ∈ t.preimage a.succAbove a.succAboveEmb.injective.injOn := by
+          rw [hpre]
+          exact hy
+        simpa using hy'
+    exact (mem_sdiff.mp ht).2 (htu ▸ hu)
+  · intro hs
+    rw [mem_sdiff] at hs
+    rcases hs with ⟨hs𝒜, hsℬ⟩
+    rcases mem_predAboveFamily.mp hs𝒜 with ⟨t, ht, hts⟩
+    refine mem_predAboveFamily.mpr ⟨t, mem_sdiff.mpr ⟨ht, ?_⟩, hts⟩
+    intro htℬ
+    exact hsℬ <| mem_predAboveFamily.mpr ⟨t, htℬ, hts⟩
+
+theorem predAboveFamily_nonMemberSubfamily_positiveBoundary_eq_positiveBoundary_predAboveFamily
+    {n : ℕ} {a : Fin (n + 1)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    (ha : ∀ s ∈ 𝒜, a ∉ s) :
+    predAboveFamily a ((positiveBoundary 𝒜).nonMemberSubfamily a) =
+      positiveBoundary (predAboveFamily a 𝒜) := by
+  calc
+    predAboveFamily a ((positiveBoundary 𝒜).nonMemberSubfamily a)
+      = predAboveFamily a (succAboveFamily a (positiveBoundary (predAboveFamily a 𝒜))) := by
+          rw [nonMemberSubfamily_positiveBoundary_eq_succAboveFamily_positiveBoundary_predAboveFamily ha]
+    _ = positiveBoundary (predAboveFamily a 𝒜) := by
+          rw [predAboveFamily_succAboveFamily]
+
+theorem card_memberSubfamily_positiveBoundary_eq_card_pairInterface_sections
+    {n : ℕ} {a : Fin (n + 1)} {𝒟 : Finset (Finset (Fin (n + 1)))} :
+    #((positiveBoundary 𝒟).memberSubfamily a) =
+      #((predAboveFamily a (𝒟.nonMemberSubfamily a) \ predAboveFamily a (𝒟.memberSubfamily a)) ∪
+        positiveBoundary (predAboveFamily a (𝒟.memberSubfamily a))) := by
+  have hamember : ∀ s ∈ (positiveBoundary 𝒟).memberSubfamily a, a ∉ s := by
+    intro s hs
+    exact (mem_memberSubfamily.mp hs).2
+  have hanon : ∀ s ∈ 𝒟.nonMemberSubfamily a, a ∉ s := by
+    intro s hs
+    exact (mem_nonMemberSubfamily.mp hs).2
+  have hamem : ∀ s ∈ 𝒟.memberSubfamily a, a ∉ s := by
+    intro s hs
+    exact (mem_memberSubfamily.mp hs).2
+  calc
+    #((positiveBoundary 𝒟).memberSubfamily a)
+      = #(predAboveFamily a ((positiveBoundary 𝒟).memberSubfamily a)) := by
+          symm
+          exact card_predAboveFamily (a := a) hamember
+    _ = #(predAboveFamily a
+          ((𝒟.nonMemberSubfamily a \ 𝒟.memberSubfamily a) ∪
+            (positiveBoundary (𝒟.memberSubfamily a)).nonMemberSubfamily a)) := by
+          rw [memberSubfamily_positiveBoundary]
+    _ = #(predAboveFamily a (𝒟.nonMemberSubfamily a \ 𝒟.memberSubfamily a) ∪
+          predAboveFamily a ((positiveBoundary (𝒟.memberSubfamily a)).nonMemberSubfamily a)) := by
+          rw [predAboveFamily_union]
+    _ = #((predAboveFamily a (𝒟.nonMemberSubfamily a) \ predAboveFamily a (𝒟.memberSubfamily a)) ∪
+          predAboveFamily a ((positiveBoundary (𝒟.memberSubfamily a)).nonMemberSubfamily a)) := by
+          rw [predAboveFamily_sdiff_pivotFree hanon hamem]
+    _ = #((predAboveFamily a (𝒟.nonMemberSubfamily a) \ predAboveFamily a (𝒟.memberSubfamily a)) ∪
+          positiveBoundary (predAboveFamily a (𝒟.memberSubfamily a))) := by
+          rw [predAboveFamily_nonMemberSubfamily_positiveBoundary_eq_positiveBoundary_predAboveFamily hamem]
+
+theorem choose_middle_le_card_positiveBoundary_even_of_section_pairInterfaceBoundaryLower
+    (hPair : OddSectionPairInterfaceBoundaryLowerStatement)
+    {m e : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {a : Fin (2 * m + 2)}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hNcard : #(𝒟.nonMemberSubfamily a) = 2 ^ (2 * m) + e)
+    (hMcard : #(𝒟.memberSubfamily a) = 2 ^ (2 * m) - e) :
+    Nat.choose (2 * m + 2) (m + 1) ≤ #(positiveBoundary 𝒟) := by
+  let 𝒩 : Finset (Finset (Fin (2 * m + 1))) := predAboveFamily a (𝒟.nonMemberSubfamily a)
+  let ℳ : Finset (Finset (Fin (2 * m + 1))) := predAboveFamily a (𝒟.memberSubfamily a)
+  have h𝒩down : IsDownSetFamily 𝒩 := by
+    simpa [𝒩] using
+      (isDownSetFamily_predAboveFamily (a := a)
+        (𝒜 := 𝒟.nonMemberSubfamily a)
+        (fun s hs => (mem_nonMemberSubfamily.mp hs).2)
+        (isDownSetFamily_nonMemberSubfamily h𝒟 a))
+  have hℳdown : IsDownSetFamily ℳ := by
+    simpa [ℳ] using
+      (isDownSetFamily_predAboveFamily (a := a)
+        (𝒜 := 𝒟.memberSubfamily a)
+        (fun s hs => (mem_memberSubfamily.mp hs).2)
+        (isDownSetFamily_memberSubfamily h𝒟 a))
+  have hsubset : ℳ ⊆ 𝒩 := by
+    simpa [𝒩, ℳ] using predAboveFamily_memberSubfamily_subset_predAboveFamily_nonMemberSubfamily h𝒟
+  have h𝒩card : 𝒩.card = 2 ^ (2 * m) + e := by
+    simpa [𝒩, hNcard] using
+      (card_predAboveFamily (a := a)
+        (𝒜 := 𝒟.nonMemberSubfamily a)
+        (fun s hs => (mem_nonMemberSubfamily.mp hs).2))
+  have hℳcard : ℳ.card = 2 ^ (2 * m) - e := by
+    simpa [ℳ, hMcard] using
+      (card_predAboveFamily (a := a)
+        (𝒜 := 𝒟.memberSubfamily a)
+        (fun s hs => (mem_memberSubfamily.mp hs).2))
+  have hpair :
+      2 * Nat.choose (2 * m + 1) m ≤
+        #(positiveBoundary 𝒩) + #((𝒩 \ ℳ) ∪ positiveBoundary ℳ) :=
+    hPair h𝒩down hℳdown hsubset h𝒩card hℳcard
+  have hNterm :
+      #(positiveBoundary 𝒩) = #((positiveBoundary 𝒟).nonMemberSubfamily a) := by
+    calc
+      #(positiveBoundary 𝒩)
+        = #((positiveBoundary (𝒟.nonMemberSubfamily a)).nonMemberSubfamily a) := by
+            symm
+            simpa [𝒩] using
+              (card_nonMemberSubfamily_positiveBoundary_eq_card_positiveBoundary_predAboveFamily
+                (a := a) (𝒜 := 𝒟.nonMemberSubfamily a)
+                (fun s hs => (mem_nonMemberSubfamily.mp hs).2))
+      _ = #((positiveBoundary 𝒟).nonMemberSubfamily a) := by
+            rw [← nonMemberSubfamily_positiveBoundary (a := a) (𝒜 := 𝒟)]
+  have hMterm :
+      #((𝒩 \ ℳ) ∪ positiveBoundary ℳ) =
+        #((positiveBoundary 𝒟).memberSubfamily a) := by
+    symm
+    simpa [𝒩, ℳ] using
+      (card_memberSubfamily_positiveBoundary_eq_card_pairInterface_sections (a := a) (𝒟 := 𝒟))
+  have hpair' :
+      2 * Nat.choose (2 * m + 1) m ≤
+        #((positiveBoundary 𝒟).nonMemberSubfamily a) +
+          #((positiveBoundary 𝒟).memberSubfamily a) := by
+    calc
+      2 * Nat.choose (2 * m + 1) m
+        ≤ #(positiveBoundary 𝒩) + #((𝒩 \ ℳ) ∪ positiveBoundary ℳ) := hpair
+      _ = #((positiveBoundary 𝒟).nonMemberSubfamily a) +
+            #((positiveBoundary 𝒟).memberSubfamily a) := by
+              rw [hNterm, hMterm]
+  rw [choose_middle_even_eq_two_mul_choose_middle_odd]
+  calc
+    2 * Nat.choose (2 * m + 1) m
+      ≤ #((positiveBoundary 𝒟).nonMemberSubfamily a) +
+          #((positiveBoundary 𝒟).memberSubfamily a) := hpair'
+    _ = #(positiveBoundary 𝒟) := by
+          simpa [add_comm] using
+            (Finset.card_memberSubfamily_add_card_nonMemberSubfamily
+              (a := a) (𝒜 := positiveBoundary 𝒟))
+
+theorem choose_middle_le_card_positiveBoundary_even_of_section_excess_of_section_pairInterfaceBoundaryLower
+    (hPair : OddSectionPairInterfaceBoundaryLowerStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {a : Fin (2 * m + 2)}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (2 * m + 1))
+    (hexcess : 2 ^ (2 * m) < #(𝒟.nonMemberSubfamily a)) :
+    Nat.choose (2 * m + 2) (m + 1) ≤ #(positiveBoundary 𝒟) := by
+  let e := #(𝒟.nonMemberSubfamily a) - 2 ^ (2 * m)
+  have hNcard : #(𝒟.nonMemberSubfamily a) = 2 ^ (2 * m) + e := by
+    dsimp [e]
+    omega
+  have hsplit := Finset.card_memberSubfamily_add_card_nonMemberSubfamily a 𝒟
+  have hMcard : #(𝒟.memberSubfamily a) = 2 ^ (2 * m) - e := by
+    dsimp [e]
+    omega
+  exact choose_middle_le_card_positiveBoundary_even_of_section_pairInterfaceBoundaryLower
+    (m := m) (e := e) (a := a) hPair h𝒟 hNcard hMcard
+
+theorem choose_middle_le_card_positiveBoundary_even_of_totalSize_lt_max_of_section_pairInterfaceBoundaryLower
+    (hPair : OddSectionPairInterfaceBoundaryLowerStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (2 * m + 1))
+    (htotal : totalSize 𝒟 < (2 * m + 2) * 2 ^ (2 * m)) :
+    Nat.choose (2 * m + 2) (m + 1) ≤ #(positiveBoundary 𝒟) := by
+  rcases exists_coordinate_excess_of_halfCube_of_totalSize_lt_max
+      (n := 2 * m + 1) (by positivity) hcard htotal with ⟨a, hexcess⟩
+  exact choose_middle_le_card_positiveBoundary_even_of_section_excess_of_section_pairInterfaceBoundaryLower
+    (a := a) hPair h𝒟 hcard hexcess
+
+theorem choose_middle_le_card_positiveBoundary_even_of_card_eq_half_cube_of_section_pairInterfaceBoundaryLower
+    (hPair : OddSectionPairInterfaceBoundaryLowerStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (2 * m + 1)) :
+    Nat.choose (2 * m + 2) (m + 1) ≤ #(positiveBoundary 𝒟) := by
+  have hcard' : 𝒟.card = 2 * 2 ^ (2 * m) := by
+    simpa [pow_succ', mul_comm, mul_left_comm, mul_assoc] using hcard
+  have hhalf : ∀ a : Fin (2 * m + 2), 2 ^ (2 * m) ≤ #(𝒟.nonMemberSubfamily a) := by
+    intro a
+    exact half_card_le_card_nonMemberSubfamily_of_card_eq_two_mul h𝒟 a (2 ^ (2 * m)) hcard'
+  have hsumLower :
+      ∑ a : Fin (2 * m + 2), 2 ^ (2 * m) ≤
+        ∑ a : Fin (2 * m + 2), #(𝒟.nonMemberSubfamily a) := by
+    exact Finset.sum_le_sum fun a _ => hhalf a
+  have hconst :
+      ∑ _a : Fin (2 * m + 2), 2 ^ (2 * m) = (2 * m + 2) * 2 ^ (2 * m) := by
+    simp
+  have hsumEq :
+      ∑ a : Fin (2 * m + 2), #(𝒟.nonMemberSubfamily a) =
+        (2 * m + 2) * (2 * 2 ^ (2 * m)) - totalSize 𝒟 := by
+    simpa [hcard'] using
+      (sum_card_nonMemberSubfamily_eq_card_mul_sub_totalSize (𝒜 := 𝒟))
+  have hdouble :
+      (2 * m + 2) * (2 * 2 ^ (2 * m)) =
+        2 * ((2 * m + 2) * 2 ^ (2 * m)) := by
+    ring
+  let x := (2 * m + 2) * 2 ^ (2 * m)
+  have htotalUpper : totalSize 𝒟 ≤ 2 * x := by
+    dsimp [x]
+    unfold totalSize
+    calc
+      ∑ s ∈ 𝒟, s.card ≤ ∑ s ∈ 𝒟, (2 * m + 2) := by
+        exact Finset.sum_le_sum fun s hs => by
+          simpa using (Finset.card_le_univ (s := s))
+      _ = 𝒟.card * (2 * m + 2) := by
+        rw [Finset.sum_const_nat]
+        intro x hx
+        rfl
+      _ = 2 * ((2 * m + 2) * 2 ^ (2 * m)) := by
+        rw [hcard']
+        ring
+  have htotalLe : totalSize 𝒟 ≤ (2 * m + 2) * 2 ^ (2 * m) := by
+    rw [hconst, hsumEq, hdouble] at hsumLower
+    have hsumLower' : x + totalSize 𝒟 ≤ 2 * x :=
+      (Nat.le_sub_iff_add_le htotalUpper).1 hsumLower
+    have hsumLower'' : x + totalSize 𝒟 ≤ x + x := by
+      simpa [x, two_mul, add_assoc, add_left_comm, add_comm] using hsumLower'
+    exact Nat.le_of_add_le_add_left hsumLower''
+  by_cases htotal : totalSize 𝒟 = (2 * m + 2) * 2 ^ (2 * m)
+  · exact choose_middle_le_card_positiveBoundary_even_of_totalSize_eq_max_of_section_pairInterfaceBoundaryLower
+      hPair h𝒟 hcard htotal
+  · have hlt : totalSize 𝒟 < (2 * m + 2) * 2 ^ (2 * m) := lt_of_le_of_ne htotalLe htotal
+    exact choose_middle_le_card_positiveBoundary_even_of_totalSize_lt_max_of_section_pairInterfaceBoundaryLower
+      hPair h𝒟 hcard hlt
+
+/-- Direct `Fin n` closure from the odd section pair-interface inequality. This packages the
+odd-dimensional theorem and the even-dimensional recursion through a single candidate frontier. -/
+theorem choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_section_pairInterfaceBoundaryLower
+    (hPair : OddSectionPairInterfaceBoundaryLowerStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  obtain ⟨m, rfl | rfl⟩ := Nat.even_or_odd' n
+  · have hm : 0 < m := by
+      omega
+    rcases Nat.exists_eq_succ_of_ne_zero (Nat.ne_of_gt hm) with ⟨k, rfl⟩
+    have hdiv : (k + (k + 2)) / 2 = k + 1 := by
+      omega
+    simpa [two_mul, hdiv, add_assoc, add_left_comm, add_comm] using
+      (choose_middle_le_card_positiveBoundary_even_of_card_eq_half_cube_of_section_pairInterfaceBoundaryLower
+        hPair (m := k) h𝒟 (by
+          simpa [two_mul, add_assoc, add_left_comm, add_comm] using hcard))
+  · have hdiv : (2 * m + 1) / 2 = m := by
+      omega
+    simpa [hdiv] using
+      (choose_middle_le_card_positiveBoundary_odd_of_section_pairInterfaceBoundaryLower
+        hPair h𝒟 hcard)
+
+theorem choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_topologicalOddSectionBoundaryLower
+    (hTop : TopologicalOddSectionBoundaryLowerStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_section_pairInterfaceBoundaryLower
+    ((topologicalOddSectionBoundaryLowerStatement_iff_pairInterface).mp hTop) hn h𝒟 hcard
 
 theorem choose_middle_le_card_positiveBoundary_even_of_zero_section_pairBoundaryLower
     (hPair : OddSectionPairBoundaryLowerStatement)
@@ -1474,6 +3946,19 @@ theorem choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_oddHalfCu
       omega
     simpa [hdiv] using hOdd h𝒟 hcard
 
+/-- Direct `Fin n` closure from the odd half-cube theorem and the explicit strict-excess odd
+section inequality. -/
+theorem choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_oddHalfCubeBoundaryLower_of_directStrictExcess
+    (hOdd : OddHalfCubeBoundaryLowerStatement)
+    (hDirect : OddSectionDirectStrictExcessStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_oddHalfCubeBoundaryLower_of_strictExcessOptimization
+      hOdd (oddSectionStrictExcessOptimization_of_directStrictExcess hDirect) hn h𝒟 hcard
+
 theorem choose_middle_le_card_positiveBoundary_odd_of_section_pairBoundaryLower
     (hPair : OddSectionPairBoundaryLowerStatement)
     {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
@@ -1507,6 +3992,190 @@ theorem choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_section_p
     Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
   exact False.elim (not_OddSectionPairBoundaryLowerStatement hPair)
 
+section Relabel
+
+variable {β : Type*} [DecidableEq β] [Fintype β]
+
+theorem map_map_symm_equiv (e : α ≃ β) (s : Finset α) :
+    (s.map e.toEmbedding).map e.symm.toEmbedding = s := by
+  have hcomp : e.toEmbedding.trans e.symm.toEmbedding = Function.Embedding.refl α := by
+    ext x
+    simp
+  simpa [hcomp] using Finset.map_map e.toEmbedding e.symm.toEmbedding s
+
+theorem map_map_equiv_symm (e : α ≃ β) (s : Finset β) :
+    (s.map e.symm.toEmbedding).map e.toEmbedding = s := by
+  have hcomp : e.symm.toEmbedding.trans e.toEmbedding = Function.Embedding.refl β := by
+    ext x
+    simp
+  simpa [hcomp] using Finset.map_map e.symm.toEmbedding e.toEmbedding s
+
+theorem image_positiveBoundary_map_equiv (e : α ≃ β) (𝒜 : Finset (Finset α)) :
+    (positiveBoundary 𝒜).image (fun s => s.map e.toEmbedding) =
+      positiveBoundary (𝒜.image fun s => s.map e.toEmbedding) := by
+  ext t
+  constructor
+  · intro ht
+    rcases Finset.mem_image.mp ht with ⟨s, hs, rfl⟩
+    rw [mem_positiveBoundary] at hs
+    rcases hs with ⟨hsNotMem, a, ha, hsErase⟩
+    rw [mem_positiveBoundary]
+    refine ⟨?_, e a, Finset.mem_map.mpr ⟨a, ha, rfl⟩, ?_⟩
+    · intro hsImage
+      rcases Finset.mem_image.mp hsImage with ⟨u, hu, huEq⟩
+      exact hsNotMem ((Finset.map_injective e.toEmbedding) huEq ▸ hu)
+    · refine Finset.mem_image.mpr ⟨s.erase a, hsErase, ?_⟩
+      rw [Finset.map_erase]
+      rfl
+  · intro ht
+    rw [mem_positiveBoundary] at ht
+    rcases ht with ⟨htNotImage, b, hb, htEraseImage⟩
+    let s : Finset α := t.map e.symm.toEmbedding
+    have hsMap : s.map e.toEmbedding = t := by
+      simpa [s] using map_map_equiv_symm (e := e) t
+    have hbPre : e.symm b ∈ s := by
+      dsimp [s]
+      exact Finset.mem_map.mpr ⟨b, hb, by simp⟩
+    have hsNotMem : s ∉ 𝒜 := by
+      intro hsMem
+      exact htNotImage (Finset.mem_image.mpr ⟨s, hsMem, hsMap⟩)
+    rcases Finset.mem_image.mp htEraseImage with ⟨u, hu, huEq⟩
+    have hsEraseMap : (s.erase (e.symm b)).map e.toEmbedding = t.erase b := by
+      calc
+        (s.erase (e.symm b)).map e.toEmbedding = (s.map e.toEmbedding).erase (e (e.symm b)) := by
+          rw [Finset.map_erase]
+          rfl
+        _ = t.erase b := by simpa [hsMap]
+    have huEq' : u = s.erase (e.symm b) := by
+      exact (Finset.map_injective e.toEmbedding) (huEq.trans hsEraseMap.symm)
+    have hsEraseMem : s.erase (e.symm b) ∈ 𝒜 := by
+      simpa [huEq'] using hu
+    refine Finset.mem_image.mpr ⟨s, ?_, hsMap⟩
+    rw [mem_positiveBoundary]
+    exact ⟨hsNotMem, e.symm b, hbPre, hsEraseMem⟩
+
+theorem isDownSetFamily_image_equiv {𝒜 : Finset (Finset α)} (e : α ≃ β)
+    (h𝒜 : IsDownSetFamily 𝒜) :
+    IsDownSetFamily (𝒜.image fun s => s.map e.toEmbedding) := by
+  intro s t hts hs
+  rcases Finset.mem_image.mp hs with ⟨u, hu, rfl⟩
+  have hpre : t.map e.symm.toEmbedding ⊆ u := by
+    exact (Finset.map_symm_subset (t := t) (s := u) (f := e)).2 hts
+  refine Finset.mem_image.mpr ⟨t.map e.symm.toEmbedding, h𝒜 hpre hu, ?_⟩
+  simpa using map_map_equiv_symm (e := e) t
+
+theorem card_image_map_equiv (e : α ≃ β) (𝒜 : Finset (Finset α)) :
+    #(𝒜.image fun s => s.map e.toEmbedding) = #𝒜 := by
+  exact Finset.card_image_of_injOn (by
+    intro s hs t ht hEq
+    exact (Finset.map_injective e.toEmbedding) hEq)
+
+theorem halfCubeBoundaryLower_of_finHalfCubeBoundaryLower
+    (hFin :
+      ∀ {n : ℕ}, 0 < n → ∀ {𝒟 : Finset (Finset (Fin n))},
+        IsDownSetFamily 𝒟 →
+          𝒟.card = 2 ^ (n - 1) →
+            Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟)) :
+    HalfCubeBoundaryLowerStatement := by
+  intro α _ _ 𝒟 hn _ h𝒟 hcard
+  let e : α ≃ Fin (Fintype.card α) := Fintype.equivFin α
+  let 𝒟' : Finset (Finset (Fin (Fintype.card α))) := 𝒟.image fun s => s.map e.toEmbedding
+  have h𝒟'down : IsDownSetFamily 𝒟' := by
+    simpa [𝒟'] using isDownSetFamily_image_equiv (β := Fin (Fintype.card α)) e h𝒟
+  have h𝒟'card : 𝒟'.card = 2 ^ (Fintype.card α - 1) := by
+    calc
+      𝒟'.card = 𝒟.card := by
+        simpa [𝒟'] using card_image_map_equiv (β := Fin (Fintype.card α)) e 𝒟
+      _ = 2 ^ (Fintype.card α - 1) := hcard
+  have hbound :
+      Nat.choose (Fintype.card α) (Fintype.card α / 2) ≤ #(positiveBoundary 𝒟') := by
+    simpa [𝒟'] using hFin (n := Fintype.card α) hn h𝒟'down h𝒟'card
+  have hbdry :
+      #(positiveBoundary 𝒟') = #(positiveBoundary 𝒟) := by
+    calc
+      #(positiveBoundary 𝒟') = #((positiveBoundary 𝒟).image fun s => s.map e.toEmbedding) := by
+        rw [show 𝒟' = 𝒟.image (fun s => s.map e.toEmbedding) by rfl]
+        rw [← image_positiveBoundary_map_equiv (β := Fin (Fintype.card α)) e 𝒟]
+      _ = #(positiveBoundary 𝒟) := by
+        simpa using card_image_map_equiv (β := Fin (Fintype.card α)) e (positiveBoundary 𝒟)
+  rw [hbdry] at hbound
+  exact hbound
+
+end Relabel
+
+theorem choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_oddHalfCubeBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
+    (hOdd : OddHalfCubeBoundaryLowerStatement)
+    (hPair :
+      OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_section_pairInterfaceBoundaryLower
+      (oddSectionPairInterfaceBoundaryLower_of_oddHalfCubeBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
+        hOdd hPair)
+      hn h𝒟 hcard
+
+theorem halfCubeBoundaryLower_of_section_pairInterfaceBoundaryLower
+    (hPair : OddSectionPairInterfaceBoundaryLowerStatement) :
+    HalfCubeBoundaryLowerStatement := by
+  refine halfCubeBoundaryLower_of_finHalfCubeBoundaryLower ?_
+  intro n hn 𝒟 h𝒟 hcard
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_section_pairInterfaceBoundaryLower
+      hPair hn h𝒟 hcard
+
+theorem halfCubeBoundaryLower_of_topologicalOddSectionBoundaryLower
+    (hTop : TopologicalOddSectionBoundaryLowerStatement) :
+    HalfCubeBoundaryLowerStatement := by
+  exact halfCubeBoundaryLower_of_section_pairInterfaceBoundaryLower
+    ((topologicalOddSectionBoundaryLowerStatement_iff_pairInterface).mp hTop)
+
+theorem halfCubeBoundaryLower_of_oddHalfCubeBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
+    (hOdd : OddHalfCubeBoundaryLowerStatement)
+    (hPair :
+      OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement) :
+    HalfCubeBoundaryLowerStatement := by
+  refine halfCubeBoundaryLower_of_finHalfCubeBoundaryLower ?_
+  intro n hn 𝒟 h𝒟 hcard
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_oddHalfCubeBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
+      hOdd hPair hn h𝒟 hcard
+
+theorem choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_oddHalfCubeUpperShadowGapLower_of_positiveExcessPairInterfaceBoundaryLower
+    (hOdd : OddHalfCubeUpperShadowGapLowerStatement)
+    (hPair :
+      OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_oddHalfCubeBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
+      (oddHalfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower hOdd) hPair hn h𝒟 hcard
+
+theorem halfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower_of_positiveExcessPairInterfaceBoundaryLower
+    (hOdd : OddHalfCubeUpperShadowGapLowerStatement)
+    (hPair :
+      OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement) :
+    HalfCubeBoundaryLowerStatement := by
+  refine halfCubeBoundaryLower_of_finHalfCubeBoundaryLower ?_
+  intro n hn 𝒟 h𝒟 hcard
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_oddHalfCubeUpperShadowGapLower_of_positiveExcessPairInterfaceBoundaryLower
+      hOdd hPair hn h𝒟 hcard
+
+theorem halfCubeUpperShadowGapLower_of_oddHalfCubeUpperShadowGapLower_of_positiveExcessPairInterfaceBoundaryLower
+    (hOdd : OddHalfCubeUpperShadowGapLowerStatement)
+    (hPair :
+      OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement) :
+    HalfCubeUpperShadowGapLowerStatement := by
+  exact
+    halfCubeUpperShadowGapLower_of_halfCubeBoundaryLower
+      (halfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower_of_positiveExcessPairInterfaceBoundaryLower
+        hOdd hPair)
+
 theorem subcubeHalfCubeBoundaryLower_of_halfCubeBoundaryLower
     (hCube : HalfCubeBoundaryLowerStatement)
     {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
@@ -1534,5 +4203,43 @@ theorem positiveBoundaryFamilyNat_lower_of_halfCubeBoundaryLower
   have hsub := subcubeHalfCubeBoundaryLower_of_halfCubeBoundaryLower hCube h hA
   simpa [card_positiveBoundary_negativeHalfFamilySubcubeNat_eq_positiveBoundaryFamilyNat h hA] using
     hsub
+
+theorem subcubeHalfCubeBoundaryLower_of_section_pairInterfaceBoundaryLower
+    (hPair : OddSectionPairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundary (negativeHalfFamilySubcubeNat A)).card := by
+  exact
+    subcubeHalfCubeBoundaryLower_of_halfCubeBoundaryLower
+      (halfCubeBoundaryLower_of_section_pairInterfaceBoundaryLower hPair) h hA
+
+theorem positiveBoundaryFamilyNat_lower_of_section_pairInterfaceBoundaryLower
+    (hPair : OddSectionPairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundaryFamilyNat A).card := by
+  exact
+    positiveBoundaryFamilyNat_lower_of_halfCubeBoundaryLower
+      (halfCubeBoundaryLower_of_section_pairInterfaceBoundaryLower hPair) h hA
+
+theorem subcubeHalfCubeBoundaryLower_of_oddHalfCubeBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
+    (hOdd : OddHalfCubeBoundaryLowerStatement)
+    (hPair :
+      OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundary (negativeHalfFamilySubcubeNat A)).card := by
+  exact
+    subcubeHalfCubeBoundaryLower_of_halfCubeBoundaryLower
+      (halfCubeBoundaryLower_of_oddHalfCubeBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
+        hOdd hPair) h hA
+
+theorem positiveBoundaryFamilyNat_lower_of_oddHalfCubeBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
+    (hOdd : OddHalfCubeBoundaryLowerStatement)
+    (hPair :
+      OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundaryFamilyNat A).card := by
+  exact
+    positiveBoundaryFamilyNat_lower_of_halfCubeBoundaryLower
+      (halfCubeBoundaryLower_of_oddHalfCubeBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
+        hOdd hPair) h hA
 
 end Erdos1

@@ -5,6 +5,8 @@ import ErdosProblems.Problem1CubeCompression
 import ErdosProblems.Problem1CubeDownset
 import ErdosProblems.Problem1CubeMinimalOutside
 import ErdosProblems.Problem1CubeOddExtremizer
+import ErdosProblems.Problem1CubeAlexanderDual
+import ErdosProblems.Problem1CubeAlexanderDualFrontier
 import ErdosProblems.Problem1Literature
 import ErdosProblems.Problem1Derived
 import ErdosProblems.Problem1ExactValues

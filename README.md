@@ -88,6 +88,8 @@ make verify
 <details>
 <summary>Expected <code>make check</code> / <code>make verify</code> output</summary>
 
+Expected Output:
+
 ```text
 ✅ The proof of 'TaoExercises.TaoBook.Chapter2.exercise_2_3' is free of 'sorry' and uses only base axioms.
 Axioms used:
@@ -200,57 +202,58 @@ In particular, the bridge module makes the following map explicit:
 
 ### Current exact-lower frontier
 
-- Current exact-lower frontier for the cube-boundary route:
+- Current repo status:
+  - `make build` is green
+  - the current live target is the `Two-Sheet Boundary Theorem`
+  - old candidate frontiers were explicitly disproved and archived
+  - the current Lean reduction already shows that `Two-Sheet Boundary Theorem` implies the full
+    half-cube boundary theorem
+
+- Topological / two-sheet formulation is wired in
+  [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean)
+  via:
+  - `Erdos1.twoSheetInterfaceBoundary`
+  - `Erdos1.twoSheetOuterBoundaryCard`
+  - `Erdos1.TopologicalOddSectionBoundaryLowerStatement`
+  - `Erdos1.choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_topologicalOddSectionBoundaryLower`
+  - `Erdos1.halfCubeBoundaryLower_of_topologicalOddSectionBoundaryLower`
+
+- Terminal-friendly statement of the live frontier:
+  - let `M ⊆ N ⊆ P([2m+1])` be down-sets
+  - with `|N| = 2^(2m) + e` and `|M| = 2^(2m) - e`
+  - define the visible interface
+    `I(M,N) := (N \ M) ∪ ∂+ M`
+  - define the total visible outer boundary
+    `B(M,N) := |∂+ N| + |I(M,N)|`
+  - prove
+    `B(M,N) >= 2 * C(2m+1, m)`
+
+- Geometric meaning:
+  - split an even-dimensional half-cube down-set along one coordinate
+  - this produces two nested odd-dimensional sheets:
+    - lower sheet `N`
+    - upper sheet `M`
+  - the theorem is the sharp lower bound on the total visible boundary of that two-sheet object
+
+- Relation to the original cube theorem:
+  - `Two-Sheet Boundary Theorem` is definitionally equivalent to
+    `OddSectionPairInterfaceBoundaryLowerStatement`
+  - the current Lean reduction shows it already implies:
+    - the odd half-cube theorem
+    - the full even half-cube theorem
+    - hence the full exact lower-bound route for Erdős #1
 
   Write
   $$
   \partial^+\mathcal F := \{A \notin \mathcal F : \exists x \in A,\ A \setminus \{x\} \in \mathcal F\}.
   $$
-  The active remaining mathematical targets are:
+  The live remaining target is the two-sheet theorem above. In particular, the odd half-cube
+  theorem is no longer treated as a separate frontier assumption in the active route: it is now a
+  formal consequence of the two-sheet frontier.
 
-  1. Odd half-cube boundary theorem. For every $m \ge 0$, if
-     $$
-     \mathcal D \subseteq 2^{[2m+1]}
-     \quad\text{is a down-set with}\quad
-     |\mathcal D| = 2^{2m},
-     $$
-     then
-     $$
-     |\partial^+\mathcal D| \ge \binom{2m+1}{m}.
-     $$
+  What is now ruled out:
 
-  2. Strict-excess odd-section optimization. For every $m \ge 0$ and $e > 0$, it is enough to
-     produce a profile $\beta(m,e)$ such that whenever
-     $$
-     \mathcal N \subseteq 2^{[2m+1]}
-     \quad\text{is a down-set with}\quad
-     |\mathcal N| = 2^{2m} + e,
-     $$
-     one has
-     $$
-     \beta(m,e) \le |\partial^+\mathcal N|
-     \quad\text{and}\quad
-     2\binom{2m+1}{m} \le \beta(m,e) + 2e.
-     $$
-
-  These two inputs are now enough to recover the full half-cube boundary bound on every
-  `Fin n`:
-  $$
-  \mathcal D \subseteq 2^{[n]}
-  \text{ down-set},\quad
-  |\mathcal D| = 2^{n-1}
-  \;\Longrightarrow\;
-  |\partial^+\mathcal D| \ge \binom{n}{\lfloor n/2 \rfloor}.
-  $$
-
-  In the current codebase this live route is isolated by:
-  `OddHalfCubeBoundaryLowerStatement`,
-  `OddSectionStrictExcessOptimizationStatement`, and
-  `choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_oddHalfCubeBoundaryLower_of_strictExcessOptimization`
-  in
-  [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean).
-
-  The older paired odd-section frontier
+  1. The paired odd-section frontier
   $$
   |\partial^+\mathcal N| + |\partial^+\mathcal M|
   \ge 2\binom{2m+1}{m}
@@ -261,7 +264,52 @@ In particular, the bridge module makes the following map explicit:
   $$
   m=0,\quad e=1,\quad \mathcal N = 2^{[1]},\quad \mathcal M = \varnothing.
   $$
-  That branch is now archival only and should not be treated as the active proof target.
+  2. The stronger one-family odd excess frontier
+  $$
+  2\binom{2m+1}{m} \le |\partial^+\mathcal N| + 2e
+  $$
+  for $|\mathcal N| = 2^{2m}+e$ is also false. A counterexample is the down-set
+  $$
+  \mathcal N=\{\varnothing,\{0\},\{1\},\{2\},\{1,2\}\}\subseteq 2^{[3]},
+  $$
+  for which
+  $$
+  |\mathcal N| = 5 = 2^2 + 1,\qquad
+  |\partial^+\mathcal N| = 3,
+  $$
+  so the claimed inequality would require
+  $$
+  2\binom{3}{1} = 6 \le 3 + 2 = 5.
+  $$
+  3. The existential strict-excess optimization wrapper with
+  $$
+  \beta(m,e) \le |\partial^+\mathcal N|,
+  \qquad
+  2\binom{2m+1}{m} \le \beta(m,e) + 2e
+  $$
+  is therefore false as well: the same $n=3$, $e=1$ family forces
+  $\beta(1,1) \le 3$ and $\beta(1,1) \ge 4$ simultaneously.
+
+  Revised research program:
+
+  1. Prove the odd half-cube theorem above.
+  2. Identify the correct odd excess profile above half-cube mass. The current formulation is no
+     longer a fixed theorem statement; it is a formulation problem. A natural object is
+     $$
+     b_{2m+1}(2^{2m}+e)
+     :=
+     \min\{\,|\partial^+\mathcal N| :
+     \mathcal N \subseteq 2^{[2m+1]} \text{ down-set},
+     |\mathcal N| = 2^{2m}+e\,\}.
+     $$
+  3. Prove a true lower bound on that profile, compatible with the explicit `n = 3` and `n = 5`
+     data, and strong enough to close the even-dimensional recursion.
+  4. Rebuild the final `Fin n` reduction using that corrected odd excess theorem.
+
+  The current codebase still contains historical reduction wrappers through
+  `OddSectionStrictExcessOptimizationStatement` in
+  [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean),
+  but those are now archival packaging, not the live frontier.
 
 ### Proof status
 

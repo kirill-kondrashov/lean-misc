@@ -35,6 +35,9 @@ The program has already crossed the structural reductions.
   - outside-slice local-LYM after removing the boundary slice
   - the raw adjacent recurrence
   - the normalized boundary-drop inequality
+- The upper-shadow-gap theorem surface is now formally equivalent to the main boundary theorem
+  (`halfCubeBoundaryLower_iff_halfCubeUpperShadowGapLower`), so this is an exact reformulation of
+  the same remaining gap, not an additional assumption layer.
 
 ### Explicitly not done
 
@@ -53,7 +56,37 @@ The unrestricted `|α| = 0` form of the cube theorem is false.
 This does not affect the Erdős #1 application because the subtype family comes from a nonempty
 finite set `A`, hence automatically satisfies `0 < |A|`.
 
+## Status correction (March 12, 2026)
+
+The weighted-drop program below is now archival, not live.
+
+Reason:
+
+- the unrestricted sequence statement `HalfCubeWeightedDropLowerStatement` is false
+- this is formalized in `ErdosProblems/Problem1CubeHalfBoundarySequence.lean`
+- so a research program centered on proving that abstract theorem is no longer feasible
+
+The currently feasible live program is instead:
+
+1. prove `OddHalfCubeBoundaryLowerStatement` directly
+2. use actual odd down-set slice / upper-shadow-gap inequalities as the primary source of new
+   mathematics
+3. treat `OddHalfCubeBoundaryMinimizerExactProfileStatement` as a secondary equality-case upgrade,
+   not the default next theorem
+4. identify a corrected positive-excess odd theorem, currently most plausibly through the split
+   frontier with `OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement`
+5. rebuild the final cube closure from those true inputs
+
+Feasibility ranking:
+
+- most feasible: direct odd half-cube boundary lower proof
+- moderate but secondary: sharp odd minimizer classification
+- low feasibility: unrestricted sequence LP, full compression/Harper redevelopment
+
 ## Revised mathematical reduction
+
+What follows is therefore useful mainly as archival background for the slice-density machinery
+already proved in Lean, not as the current main route.
 
 The current local lemmas expose the real remaining problem as a weighted optimization on layer
 densities of a down-set.
