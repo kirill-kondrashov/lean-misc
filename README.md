@@ -204,19 +204,22 @@ In particular, the bridge module makes the following map explicit:
 
 - Current repo status:
   - `make build` is green
-  - the current live target is the `Two-Sheet Boundary Theorem`
+  - the current live target is the `Prism Theorem`
   - old candidate frontiers were explicitly disproved and archived
-  - the current Lean reduction already shows that `Two-Sheet Boundary Theorem` implies the full
-    half-cube boundary theorem
+  - the current Lean reduction already shows that `Prism Theorem` is equivalent to the current
+    cube-boundary form of Erdős #1, so proving it closes the Erdős #1 route used in this repo
 
-- Topological / two-sheet formulation is wired in
+- Prism / two-sheet formulation is wired in
   [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean)
   via:
   - `Erdos1.twoSheetInterfaceBoundary`
   - `Erdos1.twoSheetOuterBoundaryCard`
   - `Erdos1.TopologicalOddSectionBoundaryLowerStatement`
+  - `Erdos1.PrismHalfCubeBoundaryLowerStatement`
   - `Erdos1.choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_topologicalOddSectionBoundaryLower`
   - `Erdos1.halfCubeBoundaryLower_of_topologicalOddSectionBoundaryLower`
+  - `Erdos1.twoSheetBoundaryTheorem_iff_prismHalfCubeBoundary`
+  - `Erdos1.prismHalfCubeBoundaryLowerStatement_iff_twoSheetBoundaryTheorem`
 
 - Terminal-friendly statement of the live frontier:
   - let `M ⊆ N ⊆ P([2m+1])` be down-sets
@@ -233,23 +236,28 @@ In particular, the bridge module makes the following map explicit:
   - this produces two nested odd-dimensional sheets:
     - lower sheet `N`
     - upper sheet `M`
-  - the theorem is the sharp lower bound on the total visible boundary of that two-sheet object
+  - equivalently, build the prism family `twoSheetFamily M N` in the even cube
+  - the theorem is the sharp lower bound on the total visible boundary of that prism object
 
 - Relation to the original cube theorem:
-  - `Two-Sheet Boundary Theorem` is definitionally equivalent to
-    `OddSectionPairInterfaceBoundaryLowerStatement`
-  - the current Lean reduction shows it already implies:
+  - `Prism Theorem` is the talk/repo name for the current live frontier
+  - in Lean it is packaged via `TwoSheetBoundaryTheorem`,
+    `TopologicalOddSectionBoundaryLowerStatement`, and
+    `PrismHalfCubeBoundaryLowerStatement`
+  - the current Lean reduction shows these formulations are equivalent and already yield:
     - the odd half-cube theorem
     - the full even half-cube theorem
-    - hence the full exact lower-bound route for Erdős #1
+    - the full exact lower-bound route for Erdős #1
+  - so, in the current formal research program, `Prism Theorem` is equivalent to Erdős #1 in its
+    cube-boundary formulation
 
   Write
   $$
   \partial^+\mathcal F := \{A \notin \mathcal F : \exists x \in A,\ A \setminus \{x\} \in \mathcal F\}.
   $$
-  The live remaining target is the two-sheet theorem above. In particular, the odd half-cube
+  The live remaining target is the Prism Theorem above. In particular, the odd half-cube
   theorem is no longer treated as a separate frontier assumption in the active route: it is now a
-  formal consequence of the two-sheet frontier.
+  formal consequence of the prism frontier.
 
   What is now ruled out:
 
