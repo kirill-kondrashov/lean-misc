@@ -26,12 +26,23 @@ after <https://github.com/kirill-kondrashov/yoccos-theorem>.
 
 ## Repository map
 
-| Area | What it contains | Main file |
-| --- | --- | --- |
-| `Erdos1.erdos_1` | Erdős Problem 1 and sum-distinct variants, following the statement layer from DeepMind's `formal-conjectures`; open literature endpoints are still imported as local axioms while exact small benchmarks are proved locally | [ErdosProblems/Problem1.lean](./ErdosProblems/Problem1.lean) |
-| `TaoExercises.TaoBook.Chapter2.exercise_2_3` | Tao, *Solving mathematical problems*, Exercise 2.3: `x^4 + 131 = 3y^4` has no integer solutions | [TaoExercises/TaoBook/Chapter2.lean](./TaoExercises/TaoBook/Chapter2.lean) |
-| `TaoExercises.TaoBook.Chapter2.exercise_2_6` | If `k` is odd, then `1^k + 2^k + · · · + n^k` is divisible by `1 + 2 + · · · + n` | [TaoExercises/TaoBook/Chapter2.lean](./TaoExercises/TaoBook/Chapter2.lean) |
-| `ErdosProblems` (`Erdos142`) | Erdős #142 statement, explicit-profile strengthening, gap decomposition, and the current frontier packages | [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean) |
+GitHub renders the old table too narrowly, so this section uses a list instead.
+
+- `Erdos1.erdos_1`
+  Statement layer for Erdős Problem #1, sum-distinct variants, and the imported/open literature endpoints.
+  Main file: [ErdosProblems/Problem1.lean](./ErdosProblems/Problem1.lean)
+
+- `TaoExercises.TaoBook.Chapter2.exercise_2_3`
+  Exercise 2.3: `x^4 + 131 = 3y^4` has no integer solutions.
+  Main file: [TaoExercises/TaoBook/Chapter2.lean](./TaoExercises/TaoBook/Chapter2.lean)
+
+- `TaoExercises.TaoBook.Chapter2.exercise_2_6`
+  If `k` is odd, then `1^k + 2^k + ··· + n^k` is divisible by `1 + 2 + ··· + n`.
+  Main file: [TaoExercises/TaoBook/Chapter2.lean](./TaoExercises/TaoBook/Chapter2.lean)
+
+- `ErdosProblems` (`Erdos142`)
+  Erdős #142 statement, explicit-profile strengthening, gap decomposition, and the current frontier packages.
+  Main file: [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean)
 
 ## Toolchain and dependencies
 
@@ -278,16 +289,18 @@ In particular, the bridge module makes the following map explicit:
 
 ### Current exact-lower frontier
 
-- Current repo status:
-  - `make build` is green
-  - the current live target is the `Prism Theorem`
-  - old candidate frontiers were explicitly disproved and archived
-  - the current Lean reduction already shows that `Prism Theorem` is equivalent to the current
-    cube-boundary form of Erdős #1, so proving it closes the Erdős #1 route used in this repo
+Current repo status:
 
-- Prism / two-sheet formulation is wired in
-  [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean)
-  via:
+- `make build` is green.
+- The current live target is the `Prism Theorem`.
+- Old candidate frontiers were explicitly disproved and archived.
+- The current Lean reduction already shows that `Prism Theorem` is equivalent to the current
+  cube-boundary form of Erdős #1, so proving it closes the Erdős #1 route used in this repo.
+
+Lean entry points:
+
+- [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean)
+  packages the prism / two-sheet formulation through:
   - `Erdos1.twoSheetInterfaceBoundary`
   - `Erdos1.twoSheetOuterBoundaryCard`
   - `Erdos1.TopologicalOddSectionBoundaryLowerStatement`
@@ -297,103 +310,173 @@ In particular, the bridge module makes the following map explicit:
   - `Erdos1.twoSheetBoundaryTheorem_iff_prismHalfCubeBoundary`
   - `Erdos1.prismHalfCubeBoundaryLowerStatement_iff_twoSheetBoundaryTheorem`
 
-- Terminal-friendly statement of the live frontier:
-  - let `M ⊆ N ⊆ P([2m+1])` be down-sets
-  - with `|N| = 2^(2m) + e` and `|M| = 2^(2m) - e`
-  - define the visible interface
-    `I(M,N) := (N \ M) ∪ ∂+ M`
-  - define the total visible outer boundary
-    `B(M,N) := |∂+ N| + |I(M,N)|`
-  - prove
-    `B(M,N) >= 2 * C(2m+1, m)`
+Standard mathematical formulation of the live frontier:
 
-- Geometric meaning:
-  - split an even-dimensional half-cube down-set along one coordinate
-  - this produces two nested odd-dimensional sheets:
-    - lower sheet `N`
-    - upper sheet `M`
-  - equivalently, build the prism family `twoSheetFamily M N` in the even cube
-  - the theorem is the sharp lower bound on the total visible boundary of that prism object
+Let $[2m+1]$ be a fixed ground set with $2m+1$ elements, and let $\mathcal P([2m+1])$ be its
+power set.
 
-- Relation to the original cube theorem:
-  - `Prism Theorem` is the talk/repo name for the current live frontier
-  - in Lean it is packaged via `TwoSheetBoundaryTheorem`,
-    `TopologicalOddSectionBoundaryLowerStatement`, and
-    `PrismHalfCubeBoundaryLowerStatement`
-  - the current Lean reduction shows these formulations are equivalent and already yield:
-    - the odd half-cube theorem
-    - the full even half-cube theorem
-    - the full exact lower-bound route for Erdős #1
-  - so, in the current formal research program, `Prism Theorem` is equivalent to Erdős #1 in its
-    cube-boundary formulation
+A family $\mathcal F \subseteq \mathcal P([2m+1])$ is a down-set if
 
-  Write
-  $$
-  \partial^+\mathcal F := \{A \notin \mathcal F : \exists x \in A,\ A \setminus \{x\} \in \mathcal F\}.
-  $$
-  The live remaining target is the Prism Theorem above. In particular, the odd half-cube
-  theorem is no longer treated as a separate frontier assumption in the active route: it is now a
-  formal consequence of the prism frontier.
+```math
+A \in \mathcal F,\quad B \subseteq A
+\qquad\Longrightarrow\qquad
+B \in \mathcal F.
+```
 
-  What is now ruled out:
+Its positive boundary is
 
-  1. The paired odd-section frontier
-  $$
-  |\partial^+\mathcal N| + |\partial^+\mathcal M|
-  \ge 2\binom{2m+1}{m}
-  $$
-  for nested down-sets $\mathcal M \subseteq \mathcal N$ with
-  $|\mathcal N| = 2^{2m}+e$, $|\mathcal M| = 2^{2m}-e$,
-  is false. A counterexample is
-  $$
-  m=0,\quad e=1,\quad \mathcal N = 2^{[1]},\quad \mathcal M = \varnothing.
-  $$
-  2. The stronger one-family odd excess frontier
-  $$
-  2\binom{2m+1}{m} \le |\partial^+\mathcal N| + 2e
-  $$
-  for $|\mathcal N| = 2^{2m}+e$ is also false. A counterexample is the down-set
-  $$
-  \mathcal N=\{\varnothing,\{0\},\{1\},\{2\},\{1,2\}\}\subseteq 2^{[3]},
-  $$
-  for which
-  $$
-  |\mathcal N| = 5 = 2^2 + 1,\qquad
-  |\partial^+\mathcal N| = 3,
-  $$
-  so the claimed inequality would require
-  $$
-  2\binom{3}{1} = 6 \le 3 + 2 = 5.
-  $$
-  3. The existential strict-excess optimization wrapper with
-  $$
-  \beta(m,e) \le |\partial^+\mathcal N|,
-  \qquad
-  2\binom{2m+1}{m} \le \beta(m,e) + 2e
-  $$
-  is therefore false as well: the same $n=3$, $e=1$ family forces
-  $\beta(1,1) \le 3$ and $\beta(1,1) \ge 4$ simultaneously.
+```math
+\partial^+\mathcal F
+:=
+\left\{
+A \subseteq [2m+1] :
+A \notin \mathcal F,\ \exists x \in A,\ A \setminus \{x\} \in \mathcal F
+\right\}.
+```
 
-  Revised research program:
+For nested families $\mathcal M \subseteq \mathcal N$, define the visible interface by
 
-  1. Prove the odd half-cube theorem above.
-  2. Identify the correct odd excess profile above half-cube mass. The current formulation is no
-     longer a fixed theorem statement; it is a formulation problem. A natural object is
-     $$
-     b_{2m+1}(2^{2m}+e)
-     :=
-     \min\{\,|\partial^+\mathcal N| :
-     \mathcal N \subseteq 2^{[2m+1]} \text{ down-set},
-     |\mathcal N| = 2^{2m}+e\,\}.
-     $$
-  3. Prove a true lower bound on that profile, compatible with the explicit `n = 3` and `n = 5`
-     data, and strong enough to close the even-dimensional recursion.
-  4. Rebuild the final `Fin n` reduction using that corrected odd excess theorem.
+```math
+I(\mathcal M,\mathcal N) := (\mathcal N \setminus \mathcal M)\cup \partial^+\mathcal M,
+```
 
-  The current codebase still contains historical reduction wrappers through
-  `OddSectionStrictExcessOptimizationStatement` in
-  [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean),
-  but those are now archival packaging, not the live frontier.
+and the total visible boundary by
+
+```math
+B(\mathcal M,\mathcal N) := |\partial^+\mathcal N| + |I(\mathcal M,\mathcal N)|.
+```
+
+Then the Prism Theorem is the statement
+
+```math
+\text{If } \mathcal M \subseteq \mathcal N \subseteq \mathcal P([2m+1]) \text{ are down-sets, }
+|\mathcal N| = 2^{2m}+e,\text{ and }|\mathcal M| = 2^{2m}-e,
+\text{ then } B(\mathcal M,\mathcal N) \ge 2\binom{2m+1}{m}.
+```
+
+Here $|X|$ denotes cardinality, and $\binom{2m+1}{m}$ is the usual binomial coefficient.
+
+Geometric meaning:
+
+- Split an even-dimensional half-cube down-set along one coordinate.
+- This produces two nested odd-dimensional sheets:
+  - lower sheet `N`
+  - upper sheet `M`
+- Equivalently, build the prism family `twoSheetFamily M N` in the even cube.
+- The theorem is the sharp lower bound on the total visible boundary of that prism object.
+
+Relation to the original cube theorem:
+
+- `Prism Theorem` is the talk/repo name for the current live frontier.
+- In Lean it is packaged via `TwoSheetBoundaryTheorem`,
+  `TopologicalOddSectionBoundaryLowerStatement`, and
+  `PrismHalfCubeBoundaryLowerStatement`.
+- The current Lean reduction shows these formulations are equivalent and already yield:
+  - the odd half-cube theorem
+  - the full even half-cube theorem
+  - the full exact lower-bound route for Erdős #1
+- So, in the current formal research program, `Prism Theorem` is equivalent to Erdős #1 in its
+  cube-boundary formulation.
+
+Positive boundary notation used in the rest of this section:
+
+```math
+\partial^+\mathcal F
+:=
+\left\{
+A \notin \mathcal F : \exists x \in A,\ A \setminus \{x\} \in \mathcal F
+\right\}.
+```
+
+The live remaining target is the Prism Theorem above. In particular, the odd half-cube theorem is
+no longer treated as a separate frontier assumption in the active route: it is now a formal
+consequence of the prism frontier.
+
+What is now ruled out:
+
+Paired odd-section frontier: false.
+
+```math
+|\partial^+\mathcal N| + |\partial^+\mathcal M|
+\ge 2\binom{2m+1}{m}
+```
+
+under
+
+```math
+\mathcal M \subseteq \mathcal N,
+\qquad
+|\mathcal N| = 2^{2m}+e,
+\qquad
+|\mathcal M| = 2^{2m}-e.
+```
+
+Counterexample:
+
+```math
+m=0,\quad e=1,\quad \mathcal N = 2^{[1]},\quad \mathcal M = \varnothing.
+```
+
+One-family odd excess frontier: false.
+
+```math
+2\binom{2m+1}{m} \le |\partial^+\mathcal N| + 2e
+```
+
+under
+
+```math
+|\mathcal N| = 2^{2m}+e.
+```
+
+Counterexample:
+
+```math
+\mathcal N=\{\varnothing,\{0\},\{1\},\{2\},\{1,2\}\}\subseteq 2^{[3]}.
+```
+
+For this family,
+
+```math
+|\mathcal N| = 5 = 2^2 + 1,
+\qquad
+|\partial^+\mathcal N| = 3,
+```
+
+so the claimed inequality would force
+
+```math
+2\binom{3}{1} = 6 \le 3 + 2 = 5,
+```
+
+which is impossible.
+
+Strict-excess optimization wrapper: false.
+
+```math
+\beta(m,e) \le |\partial^+\mathcal N|,
+\qquad
+2\binom{2m+1}{m} \le \beta(m,e) + 2e
+```
+
+This fails for the same $n = 3$, $e = 1$ family above, because it would force
+
+```math
+\beta(1,1) \le 3
+\qquad\text{and}\qquad
+\beta(1,1) \ge 4.
+```
+
+Current research program:
+
+1. Prove the Prism Theorem.
+2. Work on it through the prism family `twoSheetFamily M N` in the even cube.
+3. Use the exact section-boundary decomposition and a canonical-minimizer / compression route.
+4. Replace `halfCubeBoundaryLower` by the proved prism frontier.
+
+The old odd-excess wrappers in
+[ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean)
+are now archival packaging only, not the live frontier.
 
 ### Proof status
 
