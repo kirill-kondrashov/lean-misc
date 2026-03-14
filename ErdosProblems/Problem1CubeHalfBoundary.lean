@@ -3175,6 +3175,157 @@ def twoSheetOuterBoundaryCard {α : Type} [DecidableEq α] [Fintype α]
     (ℳ 𝒩 : Finset (Finset α)) : ℕ :=
   #(positiveBoundary 𝒩) + #(twoSheetInterfaceBoundary ℳ 𝒩)
 
+/-- Realize two nested sheets over `Fin n` as a single family in the prism `Fin (n+1)`,
+with `𝒩` on the lower sheet and `ℳ` on the upper sheet. -/
+def twoSheetFamily {n : ℕ} (ℳ 𝒩 : Finset (Finset (Fin n))) :
+    Finset (Finset (Fin (n + 1))) :=
+  let lower := succFamily 𝒩
+  let upper := succFamily ℳ
+  lower ∪ upper.image (insert 0)
+
+theorem nonMemberSubfamily_twoSheetFamily {n : ℕ} (ℳ 𝒩 : Finset (Finset (Fin n))) :
+    (twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0 = succFamily 𝒩 := by
+  let lower := succFamily 𝒩
+  let upper := succFamily ℳ
+  have hlower : ∀ s ∈ lower, (0 : Fin (n + 1)) ∉ s := by
+    intro s hs
+    exact zero_not_mem_of_mem_succFamily hs
+  rw [twoSheetFamily, Finset.nonMemberSubfamily_union, nonMemberSubfamily_image_insert]
+  simpa [lower, upper] using nonMemberSubfamily_eq_self_of_forall_not_mem
+    (α := Fin (n + 1)) hlower
+
+theorem memberSubfamily_twoSheetFamily {n : ℕ} (ℳ 𝒩 : Finset (Finset (Fin n))) :
+    (twoSheetFamily ℳ 𝒩).memberSubfamily 0 = succFamily ℳ := by
+  let lower := succFamily 𝒩
+  let upper := succFamily ℳ
+  have hlower : ∀ s ∈ lower, (0 : Fin (n + 1)) ∉ s := by
+    intro s hs
+    exact zero_not_mem_of_mem_succFamily hs
+  have hupper : ∀ s ∈ upper, (0 : Fin (n + 1)) ∉ s := by
+    intro s hs
+    exact zero_not_mem_of_mem_succFamily hs
+  rw [twoSheetFamily, Finset.memberSubfamily_union]
+  rw [memberSubfamily_eq_empty_of_forall_not_mem
+    (α := Fin (n + 1)) (𝒜 := lower) hlower, empty_union]
+  simpa [lower, upper] using Finset.memberSubfamily_image_insert hupper
+
+theorem predFamily_nonMemberSubfamily_twoSheetFamily {n : ℕ} (ℳ 𝒩 : Finset (Finset (Fin n))) :
+    predFamily ((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0) = 𝒩 := by
+  rw [nonMemberSubfamily_twoSheetFamily, predFamily_succFamily]
+
+theorem predFamily_memberSubfamily_twoSheetFamily {n : ℕ} (ℳ 𝒩 : Finset (Finset (Fin n))) :
+    predFamily ((twoSheetFamily ℳ 𝒩).memberSubfamily 0) = ℳ := by
+  rw [memberSubfamily_twoSheetFamily, predFamily_succFamily]
+
+theorem card_twoSheetFamily {n : ℕ} (ℳ 𝒩 : Finset (Finset (Fin n))) :
+    (twoSheetFamily ℳ 𝒩).card = 𝒩.card + ℳ.card := by
+  calc
+    (twoSheetFamily ℳ 𝒩).card
+      = #((twoSheetFamily ℳ 𝒩).memberSubfamily 0) +
+          #((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0) := by
+            symm
+            exact Finset.card_memberSubfamily_add_card_nonMemberSubfamily
+              (a := 0) (𝒜 := twoSheetFamily ℳ 𝒩)
+    _ = #(succFamily ℳ) + #(succFamily 𝒩) := by
+          rw [memberSubfamily_twoSheetFamily, nonMemberSubfamily_twoSheetFamily]
+    _ = ℳ.card + 𝒩.card := by rw [card_succFamily, card_succFamily]
+    _ = 𝒩.card + ℳ.card := by omega
+
+theorem card_twoSheetFamily_of_symmetric {m e : ℕ}
+    {ℳ 𝒩 : Finset (Finset (Fin (2 * m + 1)))}
+    (he : e ≤ 2 ^ (2 * m))
+    (h𝒩 : 𝒩.card = 2 ^ (2 * m) + e)
+    (hℳ : ℳ.card = 2 ^ (2 * m) - e) :
+    (twoSheetFamily ℳ 𝒩).card = 2 ^ (2 * m + 1) := by
+  rw [card_twoSheetFamily, h𝒩, hℳ]
+  calc
+    2 ^ (2 * m) + e + (2 ^ (2 * m) - e)
+      = 2 ^ (2 * m) + (e + (2 ^ (2 * m) - e)) := by omega
+    _ = 2 ^ (2 * m) + 2 ^ (2 * m) := by rw [Nat.add_sub_of_le he]
+    _ = 2 ^ (2 * m) * 2 := by ring
+    _ = 2 ^ (2 * m + 1) := by
+          rw [show 2 * m + 1 = (2 * m) + 1 by omega, Nat.pow_succ]
+
+theorem isDownSetFamily_twoSheetFamily {n : ℕ} {ℳ 𝒩 : Finset (Finset (Fin n))}
+    (hℳ : IsDownSetFamily ℳ) (h𝒩 : IsDownSetFamily 𝒩) (hsub : ℳ ⊆ 𝒩) :
+    IsDownSetFamily (twoSheetFamily ℳ 𝒩) := by
+  let lower := succFamily 𝒩
+  let upper := succFamily ℳ
+  have hlower : IsDownSetFamily lower := isDownSetFamily_succFamily h𝒩
+  have hupper : IsDownSetFamily upper := isDownSetFamily_succFamily hℳ
+  have hupperSub : upper ⊆ lower := by
+    intro s hs
+    rw [mem_succFamily_iff] at hs ⊢
+    exact ⟨hs.1, hsub hs.2⟩
+  intro s t hts hs
+  change t ∈ twoSheetFamily ℳ 𝒩
+  change s ∈ twoSheetFamily ℳ 𝒩 at hs
+  rw [twoSheetFamily, mem_union] at hs ⊢
+  rcases hs with hsLower | hsUpper
+  · exact Or.inl (hlower hts hsLower)
+  · rcases Finset.mem_image.mp hsUpper with ⟨u, hu, rfl⟩
+    by_cases ht0 : (0 : Fin (n + 1)) ∈ t
+    · right
+      refine Finset.mem_image.mpr ⟨t.erase 0, ?_, insert_erase ht0⟩
+      apply hupper
+      · intro x hx
+        have hxt : x ∈ t := Finset.mem_of_mem_erase hx
+        have hsx : x ∈ insert 0 u := hts hxt
+        rw [Finset.mem_insert] at hsx
+        rcases hsx with hx0 | hxu
+        · exact ((notMem_erase 0 t) (hx0 ▸ hx)).elim
+        · exact hxu
+      · exact hu
+    · have htUpper : t ∈ upper := by
+        apply hupper
+        · intro x hx
+          have hsx : x ∈ insert 0 u := hts hx
+          rw [Finset.mem_insert] at hsx
+          rcases hsx with hx0 | hxu
+          · exact (ht0 (hx0 ▸ hx)).elim
+          · exact hxu
+        · exact hu
+      exact Or.inl (hupperSub htUpper)
+
+theorem twoSheetOuterBoundaryCard_eq_card_positiveBoundary_twoSheetFamily
+    {n : ℕ} (ℳ 𝒩 : Finset (Finset (Fin n))) :
+    twoSheetOuterBoundaryCard ℳ 𝒩 = #(positiveBoundary (twoSheetFamily ℳ 𝒩)) := by
+  have h𝒩term :
+      #(positiveBoundary 𝒩) =
+        #((positiveBoundary (twoSheetFamily ℳ 𝒩)).nonMemberSubfamily 0) := by
+    calc
+      #(positiveBoundary 𝒩)
+        = #(positiveBoundary (predFamily ((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0))) := by
+            rw [predFamily_nonMemberSubfamily_twoSheetFamily]
+      _ = #((positiveBoundary ((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0)).nonMemberSubfamily 0) := by
+            simpa using
+              card_positiveBoundary_predFamily_nonMemberSubfamily (𝒜 := twoSheetFamily ℳ 𝒩)
+      _ = #((positiveBoundary (twoSheetFamily ℳ 𝒩)).nonMemberSubfamily 0) := by
+            rw [← nonMemberSubfamily_positiveBoundary (a := 0) (𝒜 := twoSheetFamily ℳ 𝒩)]
+  have hℳterm :
+      #(twoSheetInterfaceBoundary ℳ 𝒩) =
+        #((positiveBoundary (twoSheetFamily ℳ 𝒩)).memberSubfamily 0) := by
+    calc
+      #(twoSheetInterfaceBoundary ℳ 𝒩)
+        = #((predFamily ((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0) \
+              predFamily ((twoSheetFamily ℳ 𝒩).memberSubfamily 0)) ∪
+            positiveBoundary (predFamily ((twoSheetFamily ℳ 𝒩).memberSubfamily 0))) := by
+              rw [predFamily_nonMemberSubfamily_twoSheetFamily, predFamily_memberSubfamily_twoSheetFamily,
+                twoSheetInterfaceBoundary]
+      _ = #((positiveBoundary (twoSheetFamily ℳ 𝒩)).memberSubfamily 0) := by
+            symm
+            simpa using
+              card_memberSubfamily_positiveBoundary_eq_card_pairInterface_zero_sections
+                (𝒟 := twoSheetFamily ℳ 𝒩)
+  calc
+    twoSheetOuterBoundaryCard ℳ 𝒩
+      = #(positiveBoundary 𝒩) + #(twoSheetInterfaceBoundary ℳ 𝒩) := rfl
+    _ = #((positiveBoundary (twoSheetFamily ℳ 𝒩)).nonMemberSubfamily 0) +
+          #((positiveBoundary (twoSheetFamily ℳ 𝒩)).memberSubfamily 0) := by
+            rw [h𝒩term, hℳterm]
+    _ = #(positiveBoundary (twoSheetFamily ℳ 𝒩)) := by
+          rw [add_comm, Finset.card_memberSubfamily_add_card_nonMemberSubfamily]
+
 /-- Topological/two-sheet formulation of the current odd-dimensional frontier.
 
 Interpret `ℳ ⊆ 𝒩` as two nested monotone sheets over the odd cube. The target lower bound is on
@@ -3208,6 +3359,87 @@ theorem oddHalfCubeBoundaryLower_of_topologicalOddSectionBoundaryLower
     OddHalfCubeBoundaryLowerStatement := by
   exact oddHalfCubeBoundaryLower_of_section_pairInterfaceBoundaryLower
     ((topologicalOddSectionBoundaryLowerStatement_iff_pairInterface).mp hTop)
+
+/-- Talk-level alias for the live Erdős #1 frontier. This is the current named theorem target:
+two nested monotone sheets in the odd cube have visible outer boundary at least the middle
+binomial threshold. -/
+abbrev TwoSheetBoundaryTheorem : Prop :=
+  TopologicalOddSectionBoundaryLowerStatement
+
+theorem twoSheetBoundaryTheorem_iff_topologicalOddSectionBoundaryLowerStatement :
+    TwoSheetBoundaryTheorem ↔ TopologicalOddSectionBoundaryLowerStatement := by
+  rfl
+
+/-- `TwoSheetBoundaryTheorem` is exactly the sharp middle-binomial boundary lower bound for the
+prism family built from the two sheets. -/
+theorem twoSheetBoundaryTheorem_iff_prismHalfCubeBoundary :
+    TwoSheetBoundaryTheorem ↔
+      ∀ {m e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
+        IsDownSetFamily 𝒩 →
+          IsDownSetFamily ℳ →
+          ℳ ⊆ 𝒩 →
+          𝒩.card = 2 ^ (2 * m) + e →
+          ℳ.card = 2 ^ (2 * m) - e →
+          Nat.choose (2 * m + 2) (m + 1) ≤ #(positiveBoundary (twoSheetFamily ℳ 𝒩)) := by
+  constructor
+  · intro hTwo m e 𝒩 ℳ h𝒩 hℳ hsub h𝒩card hℳcard
+    have hvis :
+        2 * Nat.choose (2 * m + 1) m ≤ twoSheetOuterBoundaryCard ℳ 𝒩 :=
+      hTwo h𝒩 hℳ hsub h𝒩card hℳcard
+    simpa [choose_middle_even_eq_two_mul_choose_middle_odd,
+      twoSheetOuterBoundaryCard_eq_card_positiveBoundary_twoSheetFamily (ℳ := ℳ) (𝒩 := 𝒩)] using hvis
+  · intro hPrism m e 𝒩 ℳ h𝒩 hℳ hsub h𝒩card hℳcard
+    have hbdry :
+        Nat.choose (2 * m + 2) (m + 1) ≤ #(positiveBoundary (twoSheetFamily ℳ 𝒩)) :=
+      hPrism h𝒩 hℳ hsub h𝒩card hℳcard
+    simpa [choose_middle_even_eq_two_mul_choose_middle_odd,
+      twoSheetOuterBoundaryCard_eq_card_positiveBoundary_twoSheetFamily (ℳ := ℳ) (𝒩 := 𝒩)] using hbdry
+
+/-- Prism-family form of the live frontier: the family built from two symmetric nested sheets is a
+sharp half-cube candidate in the even cube. This is the exact extremal statement to target if one
+wants to prove the Two-Sheet Boundary Theorem by compression/canonical minimizer methods. -/
+def PrismHalfCubeBoundaryLowerStatement : Prop :=
+  ∀ {m e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
+    IsDownSetFamily 𝒩 →
+      IsDownSetFamily ℳ →
+      ℳ ⊆ 𝒩 →
+      𝒩.card = 2 ^ (2 * m) + e →
+      ℳ.card = 2 ^ (2 * m) - e →
+      Nat.choose (2 * m + 2) (m + 1) ≤ #(positiveBoundary (twoSheetFamily ℳ 𝒩))
+
+theorem prismHalfCubeBoundaryLowerStatement_iff_twoSheetBoundaryTheorem :
+    PrismHalfCubeBoundaryLowerStatement ↔ TwoSheetBoundaryTheorem := by
+  simpa [PrismHalfCubeBoundaryLowerStatement] using
+    twoSheetBoundaryTheorem_iff_prismHalfCubeBoundary.symm
+
+/-- The prism family attached to two symmetric nested sheets is already a half-cube down-set.
+This isolates the exact input data needed for a compression/extremizer proof. -/
+theorem twoSheetFamily_halfCube_data
+    {m e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒩 : IsDownSetFamily 𝒩)
+    (hℳ : IsDownSetFamily ℳ)
+    (hsub : ℳ ⊆ 𝒩)
+    (h𝒩card : 𝒩.card = 2 ^ (2 * m) + e)
+    (hℳcard : ℳ.card = 2 ^ (2 * m) - e) :
+    IsDownSetFamily (twoSheetFamily ℳ 𝒩) ∧
+      (twoSheetFamily ℳ 𝒩).card = 2 ^ (2 * m + 1) := by
+  have he : e ≤ 2 ^ (2 * m) := by
+    omega
+  refine ⟨isDownSetFamily_twoSheetFamily hℳ h𝒩 hsub, ?_⟩
+  exact card_twoSheetFamily_of_symmetric he h𝒩card hℳcard
+
+/-- Boundary form of the prism extremal problem: after packaging the two sheets into one even-cube
+family, the target lower bound is exactly the sharp half-cube middle-layer bound. -/
+theorem choose_middle_le_card_positiveBoundary_twoSheetFamily
+    (hPrism : PrismHalfCubeBoundaryLowerStatement)
+    {m e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒩 : IsDownSetFamily 𝒩)
+    (hℳ : IsDownSetFamily ℳ)
+    (hsub : ℳ ⊆ 𝒩)
+    (h𝒩card : 𝒩.card = 2 ^ (2 * m) + e)
+    (hℳcard : ℳ.card = 2 ^ (2 * m) - e) :
+    Nat.choose (2 * m + 2) (m + 1) ≤ #(positiveBoundary (twoSheetFamily ℳ 𝒩)) :=
+  hPrism h𝒩 hℳ hsub h𝒩card hℳcard
 
 theorem choose_middle_le_card_positiveBoundary_even_of_totalSize_eq_max_of_section_pairInterfaceBoundaryLower
     (hPair : OddSectionPairInterfaceBoundaryLowerStatement)
@@ -3543,6 +3775,15 @@ theorem choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_topologic
     Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
   exact choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_section_pairInterfaceBoundaryLower
     ((topologicalOddSectionBoundaryLowerStatement_iff_pairInterface).mp hTop) hn h𝒟 hcard
+
+theorem choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_twoSheetBoundaryTheorem
+    (hTwo : TwoSheetBoundaryTheorem)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_topologicalOddSectionBoundaryLower
+    hTwo hn h𝒟 hcard
 
 theorem choose_middle_le_card_positiveBoundary_even_of_zero_section_pairBoundaryLower
     (hPair : OddSectionPairBoundaryLowerStatement)
@@ -4131,6 +4372,11 @@ theorem halfCubeBoundaryLower_of_topologicalOddSectionBoundaryLower
     HalfCubeBoundaryLowerStatement := by
   exact halfCubeBoundaryLower_of_section_pairInterfaceBoundaryLower
     ((topologicalOddSectionBoundaryLowerStatement_iff_pairInterface).mp hTop)
+
+theorem halfCubeBoundaryLower_of_twoSheetBoundaryTheorem
+    (hTwo : TwoSheetBoundaryTheorem) :
+    HalfCubeBoundaryLowerStatement := by
+  exact halfCubeBoundaryLower_of_topologicalOddSectionBoundaryLower hTwo
 
 theorem halfCubeBoundaryLower_of_oddHalfCubeBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
     (hOdd : OddHalfCubeBoundaryLowerStatement)
