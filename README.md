@@ -213,16 +213,18 @@ In particular, the bridge module makes the following map explicit:
 
 ### Current exact-lower frontier
 
-- Current repo status:
-  - `make build` is green
-  - the current live target is the `Prism Theorem`
-  - old candidate frontiers were explicitly disproved and archived
-  - the current Lean reduction already shows that `Prism Theorem` is equivalent to the current
-    cube-boundary form of Erdős #1, so proving it closes the Erdős #1 route used in this repo
+Current repo status:
 
-- Prism / two-sheet formulation is wired in
-  [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean)
-  via:
+- `make build` is green.
+- The current live target is the `Prism Theorem`.
+- Old candidate frontiers were explicitly disproved and archived.
+- The current Lean reduction already shows that `Prism Theorem` is equivalent to the current
+  cube-boundary form of Erdős #1, so proving it closes the Erdős #1 route used in this repo.
+
+Lean entry points:
+
+- [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean)
+  packages the prism / two-sheet formulation through:
   - `Erdos1.twoSheetInterfaceBoundary`
   - `Erdos1.twoSheetOuterBoundaryCard`
   - `Erdos1.TopologicalOddSectionBoundaryLowerStatement`
@@ -232,97 +234,83 @@ In particular, the bridge module makes the following map explicit:
   - `Erdos1.twoSheetBoundaryTheorem_iff_prismHalfCubeBoundary`
   - `Erdos1.prismHalfCubeBoundaryLowerStatement_iff_twoSheetBoundaryTheorem`
 
-- Standard mathematical formulation of the live frontier:
+Standard mathematical formulation of the live frontier:
 
-  Ground set and power set:
+Let $[2m+1]$ be a fixed ground set with $2m+1$ elements, and let $\mathcal P([2m+1])$ be its
+power set.
 
-  $$
-  [2m+1],
-  \qquad
-  \mathcal P([2m+1]).
-  $$
+A family $\mathcal F \subseteq \mathcal P([2m+1])$ is a down-set if
 
-  Down-set condition:
+```math
+A \in \mathcal F,\quad B \subseteq A
+\qquad\Longrightarrow\qquad
+B \in \mathcal F.
+```
 
-  $$
-  A \in \mathcal F,\quad B \subseteq A
-  \qquad\Longrightarrow\qquad
-  B \in \mathcal F.
-  $$
+Its positive boundary is
 
-  Positive boundary:
-
-  $$
-  \partial^+\mathcal F
-  :=
-  \left\{ A \subseteq [2m+1] :
-  A \notin \mathcal F,\ \exists x \in A,\ A \setminus \{x\} \in \mathcal F \right\}.
-  $$
-
-  Visible interface:
-
-  $$
-  I(\mathcal M,\mathcal N)
-  :=
-  (\mathcal N \setminus \mathcal M)\cup \partial^+\mathcal M.
-  $$
-
-  Total visible boundary:
-
-  $$
-  B(\mathcal M,\mathcal N)
-  :=
-  |\partial^+\mathcal N| + |I(\mathcal M,\mathcal N)|.
-  $$
-
-  Prism Theorem:
-
-  $$
-  \mathcal M \subseteq \mathcal N \subseteq \mathcal P([2m+1]),
-  \qquad
-  \mathcal M,\mathcal N \text{ are down-sets},
-  $$
-  $$
-  |\mathcal N| = 2^{2m}+e,
-  \qquad
-  |\mathcal M| = 2^{2m}-e
-  \qquad\Longrightarrow\qquad
-  B(\mathcal M,\mathcal N) \ge 2\binom{2m+1}{m}.
-  $$
-
-  Notation:
-  - `|X|` denotes cardinality.
-  - `\binom{2m+1}{m}` is the binomial coefficient.
-
-  Here `|X|` denotes cardinality, and `\binom{2m+1}{m}` is the usual binomial coefficient.
-
-- Geometric meaning:
-  - split an even-dimensional half-cube down-set along one coordinate
-  - this produces two nested odd-dimensional sheets:
-    - lower sheet `N`
-    - upper sheet `M`
-  - equivalently, build the prism family `twoSheetFamily M N` in the even cube
-  - the theorem is the sharp lower bound on the total visible boundary of that prism object
-
-- Relation to the original cube theorem:
-  - `Prism Theorem` is the talk/repo name for the current live frontier
-  - in Lean it is packaged via `TwoSheetBoundaryTheorem`,
-    `TopologicalOddSectionBoundaryLowerStatement`, and
-    `PrismHalfCubeBoundaryLowerStatement`
-  - the current Lean reduction shows these formulations are equivalent and already yield:
-    - the odd half-cube theorem
-    - the full even half-cube theorem
-    - the full exact lower-bound route for Erdős #1
-  - so, in the current formal research program, `Prism Theorem` is equivalent to Erdős #1 in its
-    cube-boundary formulation
-
-Positive boundary notation:
-
-$$
+```math
 \partial^+\mathcal F
 :=
-\{\,A \notin \mathcal F : \exists x \in A,\ A \setminus \{x\} \in \mathcal F\,\}.
-$$
+\left\{
+A \subseteq [2m+1] :
+A \notin \mathcal F,\ \exists x \in A,\ A \setminus \{x\} \in \mathcal F
+\right\}.
+```
+
+For nested families $\mathcal M \subseteq \mathcal N$, define the visible interface by
+
+```math
+I(\mathcal M,\mathcal N) := (\mathcal N \setminus \mathcal M)\cup \partial^+\mathcal M,
+```
+
+and the total visible boundary by
+
+```math
+B(\mathcal M,\mathcal N) := |\partial^+\mathcal N| + |I(\mathcal M,\mathcal N)|.
+```
+
+Then the Prism Theorem is the statement
+
+```math
+\text{If } \mathcal M \subseteq \mathcal N \subseteq \mathcal P([2m+1]) \text{ are down-sets, }
+|\mathcal N| = 2^{2m}+e,\text{ and }|\mathcal M| = 2^{2m}-e,
+\text{ then } B(\mathcal M,\mathcal N) \ge 2\binom{2m+1}{m}.
+```
+
+Here $|X|$ denotes cardinality, and $\binom{2m+1}{m}$ is the usual binomial coefficient.
+
+Geometric meaning:
+
+- Split an even-dimensional half-cube down-set along one coordinate.
+- This produces two nested odd-dimensional sheets:
+  - lower sheet `N`
+  - upper sheet `M`
+- Equivalently, build the prism family `twoSheetFamily M N` in the even cube.
+- The theorem is the sharp lower bound on the total visible boundary of that prism object.
+
+Relation to the original cube theorem:
+
+- `Prism Theorem` is the talk/repo name for the current live frontier.
+- In Lean it is packaged via `TwoSheetBoundaryTheorem`,
+  `TopologicalOddSectionBoundaryLowerStatement`, and
+  `PrismHalfCubeBoundaryLowerStatement`.
+- The current Lean reduction shows these formulations are equivalent and already yield:
+  - the odd half-cube theorem
+  - the full even half-cube theorem
+  - the full exact lower-bound route for Erdős #1
+- So, in the current formal research program, `Prism Theorem` is equivalent to Erdős #1 in its
+  cube-boundary formulation.
+
+Positive boundary notation used in the rest of this section:
+
+```math
+\partial^+\mathcal F
+:=
+\left\{
+A \notin \mathcal F : \exists x \in A,\ A \setminus \{x\} \in \mathcal F
+\right\}.
+```
 
 The live remaining target is the Prism Theorem above. In particular, the odd half-cube theorem is
 no longer treated as a separate frontier assumption in the active route: it is now a formal
@@ -330,101 +318,89 @@ consequence of the prism frontier.
 
 What is now ruled out:
 
-  Paired odd-section frontier: false.
+Paired odd-section frontier: false.
 
-  $$
-  |\partial^+\mathcal N| + |\partial^+\mathcal M|
-  \ge 2\binom{2m+1}{m}
-  $$
+```math
+|\partial^+\mathcal N| + |\partial^+\mathcal M|
+\ge 2\binom{2m+1}{m}
+```
 
-  under
+under
 
-  $$
-  \mathcal M \subseteq \mathcal N,
-  \qquad
-  |\mathcal N| = 2^{2m}+e,
-  \qquad
-  |\mathcal M| = 2^{2m}-e.
-  $$
+```math
+\mathcal M \subseteq \mathcal N,
+\qquad
+|\mathcal N| = 2^{2m}+e,
+\qquad
+|\mathcal M| = 2^{2m}-e.
+```
 
-  Counterexample:
+Counterexample:
 
-  $$
-  m=0,\quad e=1,\quad \mathcal N = 2^{[1]},\quad \mathcal M = \varnothing.
-  $$
+```math
+m=0,\quad e=1,\quad \mathcal N = 2^{[1]},\quad \mathcal M = \varnothing.
+```
 
-  One-family odd excess frontier: false.
+One-family odd excess frontier: false.
 
-  $$
-  2\binom{2m+1}{m} \le |\partial^+\mathcal N| + 2e
-  $$
+```math
+2\binom{2m+1}{m} \le |\partial^+\mathcal N| + 2e
+```
 
-  under
+under
 
-  $$
-  |\mathcal N| = 2^{2m}+e.
-  $$
+```math
+|\mathcal N| = 2^{2m}+e.
+```
 
-  Counterexample:
+Counterexample:
 
-  $$
-  \mathcal N=\{\varnothing,\{0\},\{1\},\{2\},\{1,2\}\}\subseteq 2^{[3]}.
-  $$
+```math
+\mathcal N=\{\varnothing,\{0\},\{1\},\{2\},\{1,2\}\}\subseteq 2^{[3]}.
+```
 
-  For this family,
+For this family,
 
-  $$
-  |\mathcal N| = 5 = 2^2 + 1,
-  \qquad
-  |\partial^+\mathcal N| = 3,
-  $$
+```math
+|\mathcal N| = 5 = 2^2 + 1,
+\qquad
+|\partial^+\mathcal N| = 3,
+```
 
-  so the claimed inequality would force
+so the claimed inequality would force
 
-  $$
-  2\binom{3}{1} = 6 \le 3 + 2 = 5,
-  $$
+```math
+2\binom{3}{1} = 6 \le 3 + 2 = 5,
+```
 
-  which is impossible.
+which is impossible.
 
-  Strict-excess optimization wrapper: false.
+Strict-excess optimization wrapper: false.
 
-  $$
-  \beta(m,e) \le |\partial^+\mathcal N|,
-  \qquad
-  2\binom{2m+1}{m} \le \beta(m,e) + 2e
-  $$
+```math
+\beta(m,e) \le |\partial^+\mathcal N|,
+\qquad
+2\binom{2m+1}{m} \le \beta(m,e) + 2e
+```
 
-  This fails for the same `n = 3`, `e = 1` family above, because it would force
+This fails for the same $n = 3$, $e = 1$ family above, because it would force
 
-  $$
-  \beta(1,1) \le 3
-  \qquad\text{and}\qquad
-  \beta(1,1) \ge 4
-  $$
+```math
+\beta(1,1) \le 3
+\qquad\text{and}\qquad
+\beta(1,1) \ge 4.
+```
 
-  simultaneously.
+Current research program:
 
-  Revised research program:
+1. Prove the Prism Theorem.
+2. Work on it through the prism family `twoSheetFamily M N` in the even cube.
+3. Use the exact section-boundary decomposition and a canonical-minimizer / compression route.
+4. Replace `halfCubeBoundaryLower` by the proved prism frontier.
 
-  1. Prove the odd half-cube theorem above.
-  2. Identify the correct odd excess profile above half-cube mass. The current formulation is no
-     longer a fixed theorem statement; it is a formulation problem. A natural object is
-     $$
-     b_{2m+1}(2^{2m}+e)
-     :=
-     \min\{\,|\partial^+\mathcal N| :
-     \mathcal N \subseteq 2^{[2m+1]} \text{ down-set},
-     |\mathcal N| = 2^{2m}+e\,\}.
-     $$
-  3. Prove a true lower bound on that profile, compatible with the explicit `n = 3` and `n = 5`
-     data, and strong enough to close the even-dimensional recursion.
-  4. Rebuild the final `Fin n` reduction using that corrected odd excess theorem.
-
-  The current codebase still contains historical reduction wrappers through
-  `OddSectionStrictExcessOptimizationStatement` in
-  [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean),
-  but those are now archival packaging, not the live frontier.
+The old odd-excess wrappers in
+[ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean)
+are now archival packaging only, not the live frontier.
 
 ### Proof status
 
