@@ -232,15 +232,58 @@ In particular, the bridge module makes the following map explicit:
   - `Erdos1.twoSheetBoundaryTheorem_iff_prismHalfCubeBoundary`
   - `Erdos1.prismHalfCubeBoundaryLowerStatement_iff_twoSheetBoundaryTheorem`
 
-- Terminal-friendly statement of the live frontier:
-  - let `M ⊆ N ⊆ P([2m+1])` be down-sets
-  - with `|N| = 2^(2m) + e` and `|M| = 2^(2m) - e`
-  - define the visible interface
-    `I(M,N) := (N \ M) ∪ ∂+ M`
-  - define the total visible outer boundary
-    `B(M,N) := |∂+ N| + |I(M,N)|`
-  - prove
-    `B(M,N) >= 2 * C(2m+1, m)`
+- Standard mathematical formulation of the live frontier:
+
+  Let `[2m+1]` denote a fixed ground set with `2m+1` elements, and let `\mathcal P([2m+1])`
+  denote its power set.
+
+  A family `\mathcal F \subseteq \mathcal P([2m+1])` is a down-set if
+
+  $$
+  A \in \mathcal F,\quad B \subseteq A
+  \qquad\Longrightarrow\qquad
+  B \in \mathcal F.
+  $$
+
+  For any family `\mathcal F`, define its positive boundary by
+
+  $$
+  \partial^+\mathcal F
+  :=
+  \{A \subseteq [2m+1] : A \notin \mathcal F,\ \exists x \in A,\ A \setminus \{x\} \in \mathcal F\}.
+  $$
+
+  For nested families `\mathcal M \subseteq \mathcal N`, define the visible interface
+
+  $$
+  I(\mathcal M,\mathcal N)
+  :=
+  (\mathcal N \setminus \mathcal M)\cup \partial^+\mathcal M,
+  $$
+
+  and define the total visible boundary
+
+  $$
+  B(\mathcal M,\mathcal N)
+  :=
+  |\partial^+\mathcal N| + |I(\mathcal M,\mathcal N)|.
+  $$
+
+  Then the `Prism Theorem` is the following statement:
+
+  $$
+  \text{If }\mathcal M \subseteq \mathcal N \subseteq \mathcal P([2m+1])
+  \text{ are down-sets, }
+  |\mathcal N| = 2^{2m}+e,
+  \text{ and }
+  |\mathcal M| = 2^{2m}-e,
+  $$
+  $$
+  \text{then }
+  B(\mathcal M,\mathcal N) \ge 2\binom{2m+1}{m}.
+  $$
+
+  Here `|X|` denotes cardinality, and `\binom{2m+1}{m}` is the usual binomial coefficient.
 
 - Geometric meaning:
   - split an even-dimensional half-cube down-set along one coordinate
