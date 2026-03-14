@@ -3419,12 +3419,11 @@ theorem twoSheetFamily_halfCube_data
     (h𝒩 : IsDownSetFamily 𝒩)
     (hℳ : IsDownSetFamily ℳ)
     (hsub : ℳ ⊆ 𝒩)
+    (he : e ≤ 2 ^ (2 * m))
     (h𝒩card : 𝒩.card = 2 ^ (2 * m) + e)
     (hℳcard : ℳ.card = 2 ^ (2 * m) - e) :
     IsDownSetFamily (twoSheetFamily ℳ 𝒩) ∧
       (twoSheetFamily ℳ 𝒩).card = 2 ^ (2 * m + 1) := by
-  have he : e ≤ 2 ^ (2 * m) := by
-    omega
   refine ⟨isDownSetFamily_twoSheetFamily hℳ h𝒩 hsub, ?_⟩
   exact card_twoSheetFamily_of_symmetric he h𝒩card hℳcard
 
