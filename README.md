@@ -264,9 +264,9 @@ In particular, the bridge module makes the following map explicit:
 
 Positive boundary notation:
 
-$$
-\partial^+\mathcal F := \{A \notin \mathcal F : \exists x \in A,\ A \setminus \{x\} \in \mathcal F\}.
-$$
+```text
+∂+ F := { A ∉ F : ∃ x ∈ A, A \ {x} ∈ F }.
+```
 
 The live remaining target is the Prism Theorem above. In particular, the odd half-cube theorem is
 no longer treated as a separate frontier assumption in the active route: it is now a formal
