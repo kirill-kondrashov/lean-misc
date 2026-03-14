@@ -234,15 +234,13 @@ In particular, the bridge module makes the following map explicit:
 
 - Standard mathematical formulation of the live frontier:
 
-  Let $[2m+1]$ denote a fixed ground set with $2m+1$ elements, and let
+  Let $[2m+1]$ be a ground set with $2m+1$ elements, and let
   $\mathcal P([2m+1])$ denote its power set.
 
   A family $\mathcal F \subseteq \mathcal P([2m+1])$ is a down-set if
 
   $$
-  A \in \mathcal F,\quad B \subseteq A
-  \qquad\Longrightarrow\qquad
-  B \in \mathcal F.
+  A \in \mathcal F,\quad B \subseteq A \quad\Longrightarrow\quad B \in \mathcal F.
   $$
 
   For any family $\mathcal F$, define its positive boundary by
@@ -250,18 +248,19 @@ In particular, the bridge module makes the following map explicit:
   $$
   \partial^+\mathcal F
   :=
-  \{A \subseteq [2m+1] : A \notin \mathcal F,\ \exists x \in A,\ A \setminus \{x\} \in \mathcal F\}.
+  \left\{ A \subseteq [2m+1] :
+  A \notin \mathcal F,\ \exists x \in A,\ A \setminus \{x\} \in \mathcal F \right\}.
   $$
 
-  For nested families $\mathcal M \subseteq \mathcal N$, define the visible interface
+  For nested families $\mathcal M \subseteq \mathcal N$, define
 
   $$
   I(\mathcal M,\mathcal N)
   :=
-  (\mathcal N \setminus \mathcal M)\cup \partial^+\mathcal M,
+  (\mathcal N \setminus \mathcal M)\cup \partial^+\mathcal M
   $$
 
-  and define the total visible boundary
+  and
 
   $$
   B(\mathcal M,\mathcal N)
@@ -269,13 +268,16 @@ In particular, the bridge module makes the following map explicit:
   |\partial^+\mathcal N| + |I(\mathcal M,\mathcal N)|.
   $$
 
-  Then the `Prism Theorem` is the following statement:
+  The `Prism Theorem` states that
 
   $$
-  \text{If } \mathcal M \subseteq \mathcal N \subseteq \mathcal P([2m+1])
-  \text{ are down-sets, } |\mathcal N| = 2^{2m}+e,
-  \text{ and } |\mathcal M| = 2^{2m}-e,
-  \text{ then }
+  \mathcal M \subseteq \mathcal N \subseteq \mathcal P([2m+1]),\quad
+  \mathcal M,\mathcal N \text{ are down-sets},\quad
+  |\mathcal N| = 2^{2m}+e,\quad
+  |\mathcal M| = 2^{2m}-e
+  $$
+  $$
+  \Longrightarrow\quad
   B(\mathcal M,\mathcal N) \ge 2\binom{2m+1}{m}.
   $$
 
