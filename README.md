@@ -261,42 +261,80 @@ In particular, the bridge module makes the following map explicit:
 
   What is now ruled out:
 
-  1. The paired odd-section frontier
+  Paired odd-section frontier: false.
+
   $$
   |\partial^+\mathcal N| + |\partial^+\mathcal M|
   \ge 2\binom{2m+1}{m}
   $$
-  for nested down-sets $\mathcal M \subseteq \mathcal N$ with
-  $|\mathcal N| = 2^{2m}+e$, $|\mathcal M| = 2^{2m}-e$,
-  is false. A counterexample is
+
+  under
+
+  $$
+  \mathcal M \subseteq \mathcal N,
+  \qquad
+  |\mathcal N| = 2^{2m}+e,
+  \qquad
+  |\mathcal M| = 2^{2m}-e.
+  $$
+
+  Counterexample:
+
   $$
   m=0,\quad e=1,\quad \mathcal N = 2^{[1]},\quad \mathcal M = \varnothing.
   $$
-  2. The stronger one-family odd excess frontier
+
+  One-family odd excess frontier: false.
+
   $$
   2\binom{2m+1}{m} \le |\partial^+\mathcal N| + 2e
   $$
-  for $|\mathcal N| = 2^{2m}+e$ is also false. A counterexample is the down-set
+
+  under
+
   $$
-  \mathcal N=\{\varnothing,\{0\},\{1\},\{2\},\{1,2\}\}\subseteq 2^{[3]},
+  |\mathcal N| = 2^{2m}+e.
   $$
-  for which
+
+  Counterexample:
+
   $$
-  |\mathcal N| = 5 = 2^2 + 1,\qquad
+  \mathcal N=\{\varnothing,\{0\},\{1\},\{2\},\{1,2\}\}\subseteq 2^{[3]}.
+  $$
+
+  For this family,
+
+  $$
+  |\mathcal N| = 5 = 2^2 + 1,
+  \qquad
   |\partial^+\mathcal N| = 3,
   $$
-  so the claimed inequality would require
+
+  so the claimed inequality would force
+
   $$
-  2\binom{3}{1} = 6 \le 3 + 2 = 5.
+  2\binom{3}{1} = 6 \le 3 + 2 = 5,
   $$
-  3. The existential strict-excess optimization wrapper with
+
+  which is impossible.
+
+  Strict-excess optimization wrapper: false.
+
   $$
   \beta(m,e) \le |\partial^+\mathcal N|,
   \qquad
   2\binom{2m+1}{m} \le \beta(m,e) + 2e
   $$
-  is therefore false as well: the same $n=3$, $e=1$ family forces
-  $\beta(1,1) \le 3$ and $\beta(1,1) \ge 4$ simultaneously.
+
+  This fails for the same `n = 3`, `e = 1` family above, because it would force
+
+  $$
+  \beta(1,1) \le 3
+  \qquad\text{and}\qquad
+  \beta(1,1) \ge 4
+  $$
+
+  simultaneously.
 
   Revised research program:
 
