@@ -262,15 +262,17 @@ In particular, the bridge module makes the following map explicit:
   - so, in the current formal research program, `Prism Theorem` is equivalent to Erdős #1 in its
     cube-boundary formulation
 
-  Write
-  $$
-  \partial^+\mathcal F := \{A \notin \mathcal F : \exists x \in A,\ A \setminus \{x\} \in \mathcal F\}.
-  $$
-  The live remaining target is the Prism Theorem above. In particular, the odd half-cube
-  theorem is no longer treated as a separate frontier assumption in the active route: it is now a
-  formal consequence of the prism frontier.
+Positive boundary notation:
 
-  What is now ruled out:
+$$
+\partial^+\mathcal F := \{A \notin \mathcal F : \exists x \in A,\ A \setminus \{x\} \in \mathcal F\}.
+$$
+
+The live remaining target is the Prism Theorem above. In particular, the odd half-cube theorem is
+no longer treated as a separate frontier assumption in the active route: it is now a formal
+consequence of the prism frontier.
+
+What is now ruled out:
 
   Paired odd-section frontier: false.
 
