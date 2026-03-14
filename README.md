@@ -1,48 +1,82 @@
 # Lean Experiments
 
-Lean formalization experiments and problem-focused developments, using a project structure modeled after:
-<https://github.com/kirill-kondrashov/yoccos-theorem>.
+Lean formalization experiments and problem-focused developments, using a project structure modeled
+after <https://github.com/kirill-kondrashov/yoccos-theorem>.
 
-## Current contents
+## At a glance
 
-- `TaoExercises.TaoBook.Chapter2.exercise_2_3`:
-  Terence Tao, *Solving mathematical problems: a personal perspective*, Exercise 2.3
-  (`x^4 + 131 = 3y^4` has no integer solutions in integers).
+- Main active fronts:
+  [Erdős #1](#erdős-1) and [Erdős #142](#erdős-142)
+- Toolchain:
+  Lean `v4.27.0`, mathlib `v4.27.0`
+- Main entrypoint for the current Erdős #1 frontier:
+  [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean)
+- Main entrypoint for the current Erdős #142 frontier:
+  [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean)
 
-- `TaoExercises.TaoBook.Chapter2.exercise_2_6`:
-  Problem 2.6 (Shklarsky et al. 1962, p. 14):
-  if `k` is odd, then `1^k + 2^k + · · · + n^k` is divisible by `1 + 2 + · · · + n`.
+## Quick links
 
-- `ErdosProblems` (Erdős #142 family):
-  statement, explicit-profile strengthening, and gap decomposition are present under
-  `Erdos142` (`erdos_problem_142`, `erdos_problem_142_explicit`, `Problem142Gap`)
-  with `erdos_problem_142_iff_deepmind`, `erdos_problem_142_explicit_iff_deepmind`,
-  and the current plan series in `plan/` (`PLAN_erdos_problem_142.md` and follow-on files).
+- [Repository map](#repository-map)
+- [Toolchain](#toolchain-and-dependencies)
+- [Common commands](#common-commands)
+- [Verification policy](#verification-policy)
+- [CI workflow](#ci-workflow-github-actions)
+- [Erdős #1](#erdős-1)
+- [Erdős #142](#erdős-142)
+
+## Repository map
+
+| Area | What it contains | Main file |
+| --- | --- | --- |
+| `Erdos1.erdos_1` | Erdős Problem 1 and sum-distinct variants, following the statement layer from DeepMind's `formal-conjectures`; open literature endpoints are still imported as local axioms while exact small benchmarks are proved locally | [ErdosProblems/Problem1.lean](./ErdosProblems/Problem1.lean) |
+| `TaoExercises.TaoBook.Chapter2.exercise_2_3` | Tao, *Solving mathematical problems*, Exercise 2.3: `x^4 + 131 = 3y^4` has no integer solutions | [TaoExercises/TaoBook/Chapter2.lean](./TaoExercises/TaoBook/Chapter2.lean) |
+| `TaoExercises.TaoBook.Chapter2.exercise_2_6` | If `k` is odd, then `1^k + 2^k + · · · + n^k` is divisible by `1 + 2 + · · · + n` | [TaoExercises/TaoBook/Chapter2.lean](./TaoExercises/TaoBook/Chapter2.lean) |
+| `ErdosProblems` (`Erdos142`) | Erdős #142 statement, explicit-profile strengthening, gap decomposition, and the current frontier packages | [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean) |
 
 ## Toolchain and dependencies
 
-- Lean: `leanprover/lean4:v4.27.0`
-- mathlib: `v4.27.0`
-- doc-gen4: `v4.27.0`
+| Component | Version |
+| --- | --- |
+| Lean | `leanprover/lean4:v4.27.0` |
+| mathlib | `v4.27.0` |
+| doc-gen4 | `v4.27.0` |
 
-## Build
+## Common commands
 
-```bash
-lake build
-lake exe check_axioms
-```
+| Task | Command |
+| --- | --- |
+| Build everything | `make build` |
+| Check axioms | `make check` |
+| Verify README checker output | `make verify` |
+| Refresh cache + build + check | `make auto-build` |
+| Build docs | `make docs` |
+| Direct `lake` build | `lake build` |
+| Direct checker run | `lake exe check_axioms` |
 
-## Verification
+## Verification policy
 
 All solved exercises are checked to ensure they:
 
 - do not use `sorry`
 - depend only on the base axioms `propext`, `Quot.sound`, and `Classical.choice`
+- build the top-level `ErdosProblems` library, including the `Erdos1` modules
+- include the checked `Erdos1` theorems
+  (`Erdos1.erdos_1.variants.weaker`, `Erdos1.choose_middle_isEquivalent`,
+  and the temporary-axiom wrapper `Erdos1.erdos_1_solution_axiom`)
 - include the Problem #142 DeepMind-equivalence theorem
   (`Erdos142.erdos_problem_142_iff_deepmind`)
 - include the strengthened explicit-profile DeepMind-equivalence theorem
   (`Erdos142.erdos_problem_142_explicit_iff_deepmind`)
 - keep checker output explicit about temporary axiom frontier debt where present
+
+The checker now imports the top-level `ErdosProblems` library, so `Erdos1` is built as part of
+`make check`. It currently reports two `Erdos1` theorems that are fully local and base-axiom
+clean: `Erdos1.erdos_1.variants.weaker` and `Erdos1.choose_middle_isEquivalent`.
+It also reports the open-problem wrapper `Erdos1.erdos_1_solution_axiom`, with the placeholder
+axiom `Erdos1.erdos_1` treated as temporary allowed axiom debt in the same style as the current
+`Erdos142` frontier checks.
+The exact-value theorems proved by `native_decide` are still excluded from this checker because the
+current policy treats `Lean.ofReduceBool` / `Lean.trustCompiler` as non-base axioms.
 
 Run:
 
@@ -50,6 +84,9 @@ Run:
 make check
 make verify
 ```
+
+<details>
+<summary>Expected <code>make check</code> / <code>make verify</code> output</summary>
 
 Expected Output:
 
@@ -64,6 +101,24 @@ Axioms used:
 - propext
 - Quot.sound
 - Classical.choice
+✅ The proof of 'Erdos1.erdos_1.variants.weaker' is free of 'sorry' and uses only base axioms.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+✅ The proof of 'Erdos1.choose_middle_isEquivalent' is free of 'sorry' and uses only base axioms.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+🟡 The proof of 'Erdos1.erdos_1_solution_axiom' is free of 'sorry' but relies on temporary allowed axiom debt.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+- Erdos1.erdos_1
+Temporarily allowed non-base axioms (must be proved later):
+- Erdos1.erdos_1
 ✅ The proof of 'Erdos142.erdos_problem_142_iff_deepmind' is free of 'sorry' and uses only base axioms.
 Axioms used:
 - propext
@@ -167,19 +222,10 @@ Temporarily allowed non-base axioms (must be proved later):
 - Erdos142.splitGap_k3_upper_exponent_gt_half_frontier
 - Erdos142.splitGap_k4_profile_dominance_frontier
 - Erdos142.splitGap_kge5_profile_dominance_frontier
-✅ All checked items are free of 'sorry'. Temporary Erdős #142 axiom debt is explicitly allowed.
+✅ All checked items are free of 'sorry'. Temporary Erdős #1/#142 axiom debt is explicitly allowed.
 ```
 
-## Useful Make targets
-
-```bash
-make cache      # fetch Mathlib cache
-make build      # lake build
-make check      # lake exe check_axioms
-make verify     # compare make check output with README expected output
-make auto-build # cache refresh + build + check
-make docs       # build API docs
-```
+</details>
 
 ## CI workflow (GitHub Actions)
 
@@ -188,11 +234,227 @@ make docs       # build API docs
 - Docs are not generated/deployed in CI.
 - Workflow concurrency is enabled with `cancel-in-progress: true`.
 
-## Erdős #142: current status and references
+## Erdős #1
+
+The local formalization of Erdős Problem #1 is in
+[ErdosProblems/Problem1.lean](./ErdosProblems/Problem1.lean). It introduces:
+
+- `Erdos1.IsSumDistinctSet` for sum-distinct subsets of `{1, ..., N}`.
+- `Erdos1.IsSumDistinctRealSet` for the real-valued spacing variant on `(0, N]`.
+- `Erdos1.erdos_1` and the upstream variant family under `Erdos1.erdos_1.variants`.
+
+The explicit bridge from that original surface to the current split modules is now in
+[ErdosProblems/Problem1Bridge.lean](./ErdosProblems/Problem1Bridge.lean), via:
+
+- `Erdos1.originalSurfaceBridge_from_currentCodebase`
+- `Erdos1.erdos_1.current.bridge`
+
+In particular, the bridge module makes the following map explicit:
+
+- original open integer target `Erdos1.erdos_1`
+  -> `Erdos1.erdos_1.current.open_integer_target`
+  -> `Erdos1.OpenIntegerExponentialVariant`
+  -> currently still open / axiom-backed
+- original lower placeholders
+  `Erdos1.erdos_1.variants.lb` and `Erdos1.erdos_1.variants.lb_strong`
+  -> `Erdos1.erdos_1.variants.current.lb`
+  and `Erdos1.erdos_1.variants.current.lb_strong`
+  -> proved from the imported exact lower theorem plus local middle-binomial analysis
+- original real open target `Erdos1.erdos_1.variants.real`
+  -> `Erdos1.erdos_1.variants.current.real_open_target`
+  -> `Erdos1.OpenRealExponentialVariant`
+  -> currently still open / axiom-backed
+- current real lower theory
+  -> `Erdos1.erdos_1.variants.current.real_lb`
+  and `Erdos1.erdos_1.variants.current.real_lb_strong`
+- exact lower-bound frontier route
+  -> [ErdosProblems/Problem1LowerExactCore.lean](./ErdosProblems/Problem1LowerExactCore.lean)
+  -> `Erdos1.erdos_1.variants.current.exact_integer_lower_frontier_backed`
+  from the positive-boundary theorem `Erdos1.PositiveBoundaryMiddleLower`
+  for nonempty `A`
+- exact-value witness branch
+  -> `Erdos1.erdos_1.variants.exists_N_9`
+  and `Erdos1.erdos_1.variants.exists_N_10`
+
+### Current exact-lower frontier
+
+- Current repo status:
+  - `make build` is green
+  - the current live target is the `Prism Theorem`
+  - old candidate frontiers were explicitly disproved and archived
+  - the current Lean reduction already shows that `Prism Theorem` is equivalent to the current
+    cube-boundary form of Erdős #1, so proving it closes the Erdős #1 route used in this repo
+
+- Prism / two-sheet formulation is wired in
+  [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean)
+  via:
+  - `Erdos1.twoSheetInterfaceBoundary`
+  - `Erdos1.twoSheetOuterBoundaryCard`
+  - `Erdos1.TopologicalOddSectionBoundaryLowerStatement`
+  - `Erdos1.PrismHalfCubeBoundaryLowerStatement`
+  - `Erdos1.choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_topologicalOddSectionBoundaryLower`
+  - `Erdos1.halfCubeBoundaryLower_of_topologicalOddSectionBoundaryLower`
+  - `Erdos1.twoSheetBoundaryTheorem_iff_prismHalfCubeBoundary`
+  - `Erdos1.prismHalfCubeBoundaryLowerStatement_iff_twoSheetBoundaryTheorem`
+
+- Terminal-friendly statement of the live frontier:
+  - let `M ⊆ N ⊆ P([2m+1])` be down-sets
+  - with `|N| = 2^(2m) + e` and `|M| = 2^(2m) - e`
+  - define the visible interface
+    `I(M,N) := (N \ M) ∪ ∂+ M`
+  - define the total visible outer boundary
+    `B(M,N) := |∂+ N| + |I(M,N)|`
+  - prove
+    `B(M,N) >= 2 * C(2m+1, m)`
+
+- Geometric meaning:
+  - split an even-dimensional half-cube down-set along one coordinate
+  - this produces two nested odd-dimensional sheets:
+    - lower sheet `N`
+    - upper sheet `M`
+  - equivalently, build the prism family `twoSheetFamily M N` in the even cube
+  - the theorem is the sharp lower bound on the total visible boundary of that prism object
+
+- Relation to the original cube theorem:
+  - `Prism Theorem` is the talk/repo name for the current live frontier
+  - in Lean it is packaged via `TwoSheetBoundaryTheorem`,
+    `TopologicalOddSectionBoundaryLowerStatement`, and
+    `PrismHalfCubeBoundaryLowerStatement`
+  - the current Lean reduction shows these formulations are equivalent and already yield:
+    - the odd half-cube theorem
+    - the full even half-cube theorem
+    - the full exact lower-bound route for Erdős #1
+  - so, in the current formal research program, `Prism Theorem` is equivalent to Erdős #1 in its
+    cube-boundary formulation
+
+  Write
+  $$
+  \partial^+\mathcal F := \{A \notin \mathcal F : \exists x \in A,\ A \setminus \{x\} \in \mathcal F\}.
+  $$
+  The live remaining target is the Prism Theorem above. In particular, the odd half-cube
+  theorem is no longer treated as a separate frontier assumption in the active route: it is now a
+  formal consequence of the prism frontier.
+
+  What is now ruled out:
+
+  1. The paired odd-section frontier
+  $$
+  |\partial^+\mathcal N| + |\partial^+\mathcal M|
+  \ge 2\binom{2m+1}{m}
+  $$
+  for nested down-sets $\mathcal M \subseteq \mathcal N$ with
+  $|\mathcal N| = 2^{2m}+e$, $|\mathcal M| = 2^{2m}-e$,
+  is false. A counterexample is
+  $$
+  m=0,\quad e=1,\quad \mathcal N = 2^{[1]},\quad \mathcal M = \varnothing.
+  $$
+  2. The stronger one-family odd excess frontier
+  $$
+  2\binom{2m+1}{m} \le |\partial^+\mathcal N| + 2e
+  $$
+  for $|\mathcal N| = 2^{2m}+e$ is also false. A counterexample is the down-set
+  $$
+  \mathcal N=\{\varnothing,\{0\},\{1\},\{2\},\{1,2\}\}\subseteq 2^{[3]},
+  $$
+  for which
+  $$
+  |\mathcal N| = 5 = 2^2 + 1,\qquad
+  |\partial^+\mathcal N| = 3,
+  $$
+  so the claimed inequality would require
+  $$
+  2\binom{3}{1} = 6 \le 3 + 2 = 5.
+  $$
+  3. The existential strict-excess optimization wrapper with
+  $$
+  \beta(m,e) \le |\partial^+\mathcal N|,
+  \qquad
+  2\binom{2m+1}{m} \le \beta(m,e) + 2e
+  $$
+  is therefore false as well: the same $n=3$, $e=1$ family forces
+  $\beta(1,1) \le 3$ and $\beta(1,1) \ge 4$ simultaneously.
+
+  Revised research program:
+
+  1. Prove the odd half-cube theorem above.
+  2. Identify the correct odd excess profile above half-cube mass. The current formulation is no
+     longer a fixed theorem statement; it is a formulation problem. A natural object is
+     $$
+     b_{2m+1}(2^{2m}+e)
+     :=
+     \min\{\,|\partial^+\mathcal N| :
+     \mathcal N \subseteq 2^{[2m+1]} \text{ down-set},
+     |\mathcal N| = 2^{2m}+e\,\}.
+     $$
+  3. Prove a true lower bound on that profile, compatible with the explicit `n = 3` and `n = 5`
+     data, and strong enough to close the even-dimensional recursion.
+  4. Rebuild the final `Fin n` reduction using that corrected odd excess theorem.
+
+  The current codebase still contains historical reduction wrappers through
+  `OddSectionStrictExcessOptimizationStatement` in
+  [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean),
+  but those are now archival packaging, not the live frontier.
+
+### Proof status
+
+- `Erdos1.erdos_1` remains a local axiom-level placeholder for the open exponential conjecture.
+- `Erdos1.erdos_1.variants.weaker` is now proved from elementary counting on `Finset.subsetSum`.
+- `Erdos1.erdos_1.variants.least_N_3` and `Erdos1.erdos_1.variants.least_N_5` are proved exactly
+  by finite verification.
+- `Erdos1.erdos_1.variants.least_N_9` remains axiomatized.
+- [ErdosProblems/Problem1ExactValues.lean](./ErdosProblems/Problem1ExactValues.lean) now records
+  certified OEIS witness sets for `HasSumDistinctSetCard 161 9` and `HasSumDistinctSetCard 309 10`,
+  exposed as `Erdos1.erdos_1.variants.exists_N_9` and `Erdos1.erdos_1.variants.exists_N_10`.
+- [ErdosProblems/Problem1Literature.lean](./ErdosProblems/Problem1Literature.lean) now contains:
+  the exact imported Dubroff-Fox-Xu lower bound, its real-valued analogue, a Bohman
+  upper-construction surface, and derived lower-bound packages
+  `erdos_1_variants_lb_strong_from_choose_middle_asymptotic`,
+  `erdos_1_variants_lb_from_choose_middle_asymptotic`,
+  `dubroffFoxXuSharpLowerBoundReal_from_imports`, and
+  `bestKnownIntegerGap_from_imports`.
+- [ErdosProblems/Problem1Derived.lean](./ErdosProblems/Problem1Derived.lean) now exposes
+  non-axiomatic downstream aliases
+  `Erdos1.erdos_1.variants.proved.lb`,
+  `Erdos1.erdos_1.variants.proved.lb_strong`,
+  `Erdos1.erdos_1.variants.proved.real_lb`,
+  `Erdos1.erdos_1.variants.proved.real_lb_strong`, and
+  `Erdos1.erdos_1.known.best_known_integer_gap`.
+- [ErdosProblems/Problem1Integer.lean](./ErdosProblems/Problem1Integer.lean) now bundles the
+  currently known integer lower theory into
+  `IntegerLowerBound`,
+  `IntegerLowerBoundStrong`,
+  `KnownIntegerLowerTheory`,
+  `integer_lower_bound_exact_imported`, and
+  `integer_lower_bound_avg`.
+- [ErdosProblems/Problem1Gap.lean](./ErdosProblems/Problem1Gap.lean) now makes the current integer
+  gap explicit as API:
+  `OpenIntegerExponentialVariant`,
+  `KnownIntegerGapTheory`, and
+  `knownIntegerGapTheory_from_imports`.
+- [ErdosProblems/Problem1Real.lean](./ErdosProblems/Problem1Real.lean) now separates the
+  real-valued branch into:
+  `RealSpacingLowerBound`,
+  `RealSpacingLowerBoundStrong`,
+  `KnownRealSpacingTheory`,
+  `real_spacing_lower_bound_avg`, and the explicit open-conjecture alias
+  `OpenRealExponentialVariant`.
+- [ErdosProblems/Problem1Bridge.lean](./ErdosProblems/Problem1Bridge.lean) now packages the
+  connection between the original `Problem1.lean` surface and the current split modules, so the
+  status of each original statement is visible in one place.
+- [ErdosProblems/Problem1LowerExactCore.lean](./ErdosProblems/Problem1LowerExactCore.lean) now
+  proves the half-cube arithmetic layer behind the exact Dubroff-Fox-Xu theorem, and exposes the
+  remaining positive-boundary frontier in a corrected nonempty form.
+- The sharp middle-binomial asymptotic is now proved locally; the remaining Problem #1 bottlenecks
+  are the imported literature axioms for the exact Dubroff-Fox-Xu/Bohman results together with the
+  still-public placeholder surfaces in [ErdosProblems/Problem1.lean](./ErdosProblems/Problem1.lean).
+
+## Erdős #142
+
+### Status summary
 
 - As of March 9, 2026, Problem #142 remains open; this repository keeps the full matched-profile route behind the temporary frontier axioms `Erdos142.splitGap_k3_upper_exponent_gt_half_frontier`, `Erdos142.splitGap_k4_profile_dominance_frontier`, and `Erdos142.splitGap_kge5_profile_dominance_frontier`, now packaged as the stronger off-path object `Erdos142.Problem142MatchedProfileFrontier` with theorem-level realization surface `Erdos142.matchedProfileFrontier_exists`. The stronger route now has four clean generic checked layers: the frontier-to-coupling bridge `Erdos142.splitGapToMainTheoreticalGapAssumptions_exists_of_matchedProfileFrontier`, the main-gap realization theorem `Erdos142.mainTheoreticalGap_exists_of_mainSplitGap_and_assumptions`, the explicit coupling theorem `Erdos142.erdos_problem_142_of_mainSplitGap_and_assumptions`, and the named matched-profile route theorem `Erdos142.erdos_problem_142_of_mainSplitGap_and_matchedProfileFrontier`. On the current instantiated frontier side, the debt-carrying layers are now also explicit: `Erdos142.matchedProfileFrontier_exists`, `Erdos142.splitGapToMainTheoreticalGapAssumptions_exists_of_frontier`, and `Erdos142.erdos_problem_142_of_mainSplitGap_and_frontier`. The canonical honest practical route now uses the corrected broader-source split packages for every branch, with practical target `Erdos142.MainAllHeterogeneousSourceBackedSplitGap`, named internal endpoint `Erdos142.Problem142AllHeterogeneousSourceBackedSplitData`, theorem-surface structure `Erdos142.HeterogeneousSourceBackedSplitRoute`, and theorem-level proposition `Erdos142.erdos_142_heterogeneous_source_backed_split`. The older local route `Erdos142.MainAllSourceBackedSplitGap` / `Erdos142.SourceBackedSplitRoute` remains in the repository only as a legacy placeholder surface. On the active practical route, there is no remaining coupling debt. Separately, the repository now also exports the stabilized post-critic negative `k = 3` conclusion that the currently extracted architecture and its first local `1/8` refinement are both still off the Behrend scale, via `Erdos142.erdos_142_three_negative_route_stable` and the gap-layer alias `Erdos142.K3NegativeRouteStable`. The full current repository status is also packaged at the gap layer as `Erdos142.Problem142CurrentResearchStatus`.
 
-Exact formulation of Erdős Problem #142 in this repository:
+### Exact formulation
 
 First define the extremal function:
 
@@ -212,7 +474,7 @@ Equivalently: for each fixed $k \ge 3$, the function $r_k(N)$ has an asymptotic 
 
 In the local Lean formalization, this is exactly the statement `ErdosProblems.erdos_problem_142`; see [ErdosProblems/Problem142.lean#L267](./ErdosProblems/Problem142.lean#L267) and [ErdosProblems/Problem142.lean#L283](./ErdosProblems/Problem142.lean#L283).
 
-What is already proven in this repository:
+### What is already proven
 
 - The exact problem statement and its explicit variant are formalized in [ErdosProblems/Problem142.lean](./ErdosProblems/Problem142.lean).
 - The $k = 3$ branch already has a source-backed split package `K3SourceBackedSplitWitness`; see [ErdosProblems/Problem142Literature.lean#L446](./ErdosProblems/Problem142Literature.lean#L446).
@@ -235,7 +497,7 @@ What is already proven in this repository:
 - The repository also exports the stabilized post-critic negative `k = 3` route, separating the statement “the current architecture is off-path for Behrend scale” from both the practical split route and the stronger off-path matched-profile frontier; see [ErdosProblems/Problem142.lean](./ErdosProblems/Problem142.lean) and [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean).
 - The current repository state is also packaged as one named object `Problem142CurrentResearchStatus`, whose fields expose the corrected practical route, the stabilized negative `k = 3` route, and the off-path frontier in one place; its theorem-level realization surface is `currentResearchStatus_exists_of_literature_heterogeneous_sourceBacked_route`; see [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean).
 
-Progress toward a proof in this repository:
+### Progress toward a proof
 
 1. The repository formalizes the exact asymptotic-formula target for Problem #142, and also a stronger explicit-profile variant; see [ErdosProblems/Problem142.lean#L251](./ErdosProblems/Problem142.lean#L251) and [ErdosProblems/Problem142.lean#L267](./ErdosProblems/Problem142.lean#L267).
 2. It reduces the proof burden to explicit branchwise profile witnesses: superpolylogarithmic for $k = 3$, polylogarithmic for $k = 4$, and iterated-logarithmic for fixed $k \ge 5$; see [ErdosProblems/Problem142.lean#L323](./ErdosProblems/Problem142.lean#L323) through [ErdosProblems/Problem142.lean#L380](./ErdosProblems/Problem142.lean#L380).
@@ -250,7 +512,11 @@ Progress toward a proof in this repository:
 7. It also packages the stronger conjectural route into the named off-path object `Problem142MatchedProfileFrontier`, with theorem-level realization surface `matchedProfileFrontier_exists`; the stronger route now has a four-step clean factorization through `splitGapToMainTheoreticalGapAssumptions_exists_of_matchedProfileFrontier`, `mainTheoreticalGap_exists_of_mainSplitGap_and_assumptions`, `erdos_problem_142_of_mainSplitGap_and_assumptions`, and `erdos_problem_142_of_mainSplitGap_and_matchedProfileFrontier`, while the currently instantiated frontier side is also explicit at the coupling layer via `splitGapToMainTheoreticalGapAssumptions_exists_of_frontier`; see [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean).
 8. It also proves that the old stronger $k = 3$ route would need an exponent threshold $\beta > 1/2$; see [ErdosProblems/Problem142Literature.lean#L1060](./ErdosProblems/Problem142Literature.lean#L1060). The current source-backed import does not provide that, so this route has been closed rather than left vague.
 
+### Active missing mathematical theorems
+
 The active missing mathematical theorems now live only on the stronger off-path matched-profile route. The practical route has been stabilized at source-backed split strength for every branch.
+
+### Asymptotic notation used below
 
 Definition of Landau asymptotic domination:
 

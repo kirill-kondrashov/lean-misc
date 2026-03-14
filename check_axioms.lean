@@ -1,8 +1,6 @@
 import TaoExercises.TaoBook.Chapter2.Exercise2_3
 import TaoExercises.TaoBook.Chapter2.Exercise2_6
-import ErdosProblems.Problem142
-import ErdosProblems.Problem142Literature
-import ErdosProblems.Problem142Gap
+import ErdosProblems
 import Lean
 
 open Lean Meta
@@ -14,6 +12,9 @@ structure CheckResult where
 def checkedTheorems : List Name :=
   [ ``TaoExercises.TaoBook.Chapter2.exercise_2_3
   , ``TaoExercises.TaoBook.Chapter2.exercise_2_6
+  , ``Erdos1.erdos_1.variants.weaker
+  , ``Erdos1.choose_middle_isEquivalent
+  , ``Erdos1.erdos_1_solution_axiom
   , ``Erdos142.erdos_problem_142_iff_deepmind
   , ``Erdos142.erdos_problem_142_explicit_iff_deepmind
   , ``Erdos142.erdos_problem_142_solution_axiom
@@ -35,7 +36,8 @@ def baseAxioms : Array Name :=
   #[``propext, ``Quot.sound, ``Classical.choice]
 
 def temporaryAllowedAxioms : Array Name :=
-  #[``Erdos142.splitGap_k3_upper_exponent_gt_half_frontier, ``Erdos142.splitGap_k4_profile_dominance_frontier,
+  #[``Erdos1.erdos_1,
+    ``Erdos142.splitGap_k3_upper_exponent_gt_half_frontier, ``Erdos142.splitGap_k4_profile_dominance_frontier,
     ``Erdos142.splitGap_kge5_profile_dominance_frontier]
 
 def checkOne (env : Environment) (name : Name) : IO CheckResult := do
@@ -82,9 +84,7 @@ def main : IO UInt32 := do
   let env ← importModules
     #[ { module := `TaoExercises.TaoBook.Chapter2.Exercise2_3 }
      , { module := `TaoExercises.TaoBook.Chapter2.Exercise2_6 }
-     , { module := `ErdosProblems.Problem142 }
-     , { module := `ErdosProblems.Problem142Literature }
-     , { module := `ErdosProblems.Problem142Gap }
+     , { module := `ErdosProblems }
      ]
     {}
 
@@ -98,7 +98,8 @@ def main : IO UInt32 := do
 
     if allOk then
       if anyTemporary then
-        IO.println "✅ All checked items are free of 'sorry'. Temporary Erdős #142 axiom debt is explicitly allowed."
+        IO.println
+          "✅ All checked items are free of 'sorry'. Temporary Erdős #1/#142 axiom debt is explicitly allowed."
       else
         IO.println "✅ All checked solutions are free of 'sorry' and use only base axioms."
       return (0 : UInt32)
