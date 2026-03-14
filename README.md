@@ -234,10 +234,10 @@ In particular, the bridge module makes the following map explicit:
 
 - Standard mathematical formulation of the live frontier:
 
-  Let `[2m+1]` denote a fixed ground set with `2m+1` elements, and let `\mathcal P([2m+1])`
-  denote its power set.
+  Let $[2m+1]$ denote a fixed ground set with $2m+1$ elements, and let
+  $\mathcal P([2m+1])$ denote its power set.
 
-  A family `\mathcal F \subseteq \mathcal P([2m+1])` is a down-set if
+  A family $\mathcal F \subseteq \mathcal P([2m+1])$ is a down-set if
 
   $$
   A \in \mathcal F,\quad B \subseteq A
@@ -245,7 +245,7 @@ In particular, the bridge module makes the following map explicit:
   B \in \mathcal F.
   $$
 
-  For any family `\mathcal F`, define its positive boundary by
+  For any family $\mathcal F$, define its positive boundary by
 
   $$
   \partial^+\mathcal F
@@ -253,7 +253,7 @@ In particular, the bridge module makes the following map explicit:
   \{A \subseteq [2m+1] : A \notin \mathcal F,\ \exists x \in A,\ A \setminus \{x\} \in \mathcal F\}.
   $$
 
-  For nested families `\mathcal M \subseteq \mathcal N`, define the visible interface
+  For nested families $\mathcal M \subseteq \mathcal N$, define the visible interface
 
   $$
   I(\mathcal M,\mathcal N)
@@ -272,16 +272,14 @@ In particular, the bridge module makes the following map explicit:
   Then the `Prism Theorem` is the following statement:
 
   $$
-  \text{If }\mathcal M \subseteq \mathcal N \subseteq \mathcal P([2m+1])
-  \text{ are down-sets, }
-  |\mathcal N| = 2^{2m}+e,
-  \text{ and }
-  |\mathcal M| = 2^{2m}-e,
-  $$
-  $$
-  \text{then }
+  \text{If } \mathcal M \subseteq \mathcal N \subseteq \mathcal P([2m+1])
+  \text{ are down-sets, } |\mathcal N| = 2^{2m}+e,
+  \text{ and } |\mathcal M| = 2^{2m}-e,
+  \text{ then }
   B(\mathcal M,\mathcal N) \ge 2\binom{2m+1}{m}.
   $$
+
+  Here $|X|$ denotes cardinality, and $\binom{2m+1}{m}$ is the usual binomial coefficient.
 
   Here `|X|` denotes cardinality, and `\binom{2m+1}{m}` is the usual binomial coefficient.
 
@@ -307,9 +305,11 @@ In particular, the bridge module makes the following map explicit:
 
 Positive boundary notation:
 
-```text
-∂+ F := { A ∉ F : ∃ x ∈ A, A \ {x} ∈ F }.
-```
+$$
+\partial^+\mathcal F
+:=
+\{\,A \notin \mathcal F : \exists x \in A,\ A \setminus \{x\} \in \mathcal F\,\}.
+$$
 
 The live remaining target is the Prism Theorem above. In particular, the odd half-cube theorem is
 no longer treated as a separate frontier assumption in the active route: it is now a formal
