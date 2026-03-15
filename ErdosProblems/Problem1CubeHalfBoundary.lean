@@ -3391,6 +3391,47 @@ theorem oddHalfCubeBoundaryLower_of_wideMiddleTransitionWindowForcesStrictUpperS
       (oddHalfCubeMiddleTransitionWindowLargerTotalSizeForcesStrictUpperShadowGap_of_wideMiddleTransitionWindowForcesStrictUpperShadowGap
         hWide)
 
+theorem oddHalfCubeWideMiddleTransitionWindowForcesStrictUpperShadowGap_of_initialFullSlicesStrictSliceDeficit
+    (hDef :
+      OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeWideMiddleTransitionWindowForcesStrictUpperShadowGapStatement := by
+  intro m 𝒟 t u hmin htlt hltu hfull hzero hmid hsize
+  have hne : 𝒟.Nonempty := by
+    refine Finset.card_pos.mp ?_
+    simpa [hmin.2.1] using (pow_pos (by decide : 0 < 2) (2 * m))
+  have hslice0 : #(𝒟 # 0) = 1 := by
+    exact card_slice_zero_eq_one_of_nonempty_isDownSetFamily hne hmin.1
+  have htpos : 0 < t := by
+    by_contra htz
+    have ht0 : t = 0 := by omega
+    have hnotFull0 : #(𝒟 # 0) ≠ Nat.choose (2 * m + 1) 0 := by
+      exact (hmid (ht0 ▸ le_rfl) (ht0 ▸ lt_trans htlt hltu)).1
+    simp [hslice0] at hnotFull0
+  have hrm : t - 1 < m := by
+    omega
+  have hfullSets :
+      ∀ s, s ≤ t - 1 →
+        𝒟 # s = (Finset.univ : Finset (Fin (2 * m + 1))).powersetCard s := by
+    intro s hs
+    apply slice_eq_powersetCard_of_card_eq_choose
+    exact hfull (by omega)
+  have hdeficit : #(𝒟 # t) < Nat.choose (2 * m + 1) t := by
+    exact lt_of_le_of_ne (card_slice_le_choose (𝒟 := 𝒟) (r := t))
+      (hmid le_rfl (lt_trans htlt hltu)).1
+  have htsucc : (t - 1) + 1 = t := Nat.sub_add_cancel (Nat.succ_le_of_lt htpos)
+  have hdeficit' : #(𝒟 # ((t - 1) + 1)) < Nat.choose (2 * m + 1) ((t - 1) + 1) := by
+    simpa [htsucc] using hdeficit
+  exact hDef hmin.1 hmin.2.1 hrm hfullSets hdeficit'
+
+theorem oddHalfCubeBoundaryLower_of_initialFullSlicesStrictSliceDeficit_via_wideMiddleTransitionWindow
+    (hDef :
+      OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_wideMiddleTransitionWindowForcesStrictUpperShadowGap
+      (oddHalfCubeWideMiddleTransitionWindowForcesStrictUpperShadowGap_of_initialFullSlicesStrictSliceDeficit
+        hDef)
+
 theorem exact_slice_profile_of_isOddHalfCubeBoundaryMinimizer_of_lowerBoundarySlicesVanish
     {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
     (hmin : IsOddHalfCubeBoundaryMinimizer (m := m) 𝒟)
