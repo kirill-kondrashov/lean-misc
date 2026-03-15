@@ -1144,6 +1144,90 @@ theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_sliceCandidateData_intervalP
     exact card_slice_eq_zero_of_monotoneProfile_of_card_slice_eq_zero_suffix
       hmono hrs hs hzero
 
+/-- A down-set in `P([n])` with cardinality strictly below the full cube has empty top slice. -/
+theorem card_top_slice_eq_zero_of_isDownSetFamily_of_card_lt_pow
+    {n : ℕ} {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟) (hcard : 𝒟.card < 2 ^ n) :
+    #(𝒟 # n) = 0 := by
+  rw [Finset.card_eq_zero]
+  ext s
+  constructor
+  · intro hs
+    rcases Finset.mem_slice.mp hs with ⟨hs𝒟, hsCard⟩
+    have hsUniv : s = (Finset.univ : Finset (Fin n)) := by
+      exact (Finset.card_eq_iff_eq_univ s).1 (by simpa [Fintype.card_fin] using hsCard)
+    have hEq : 𝒟 = (Finset.univ : Finset (Fin n)).powerset := by
+      ext t
+      constructor
+      · intro ht
+        simp
+      · intro ht
+        exact h𝒟 (Finset.mem_powerset.mp ht) (hsUniv ▸ hs𝒟)
+    have hEqCard : 𝒟.card = 2 ^ n := by
+      simpa [hEq]
+    exfalso
+    exact (Nat.ne_of_lt hcard) hEqCard
+  · intro hs
+    simpa using hs
+
+/-- The selected odd half-cube global minimizer has empty top slice. -/
+theorem card_top_slice_eq_zero_of_isOddHalfCubeBoundaryGlobalMinimizer
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟) :
+    #(𝒟 # (2 * m + 1)) = 0 := by
+  rcases hmin with ⟨h𝒟, hcard, -⟩
+  have hltNat : 2 ^ (2 * m) < 2 ^ (2 * m + 1) := by
+    rw [show 2 * m + 1 = 2 * m + 1 by omega, Nat.pow_succ]
+    have hpos : 0 < 2 ^ (2 * m) := by
+      exact pow_pos (by decide : 0 < 2) _
+    omega
+  have hlt : 𝒟.card < 2 ^ (2 * m + 1) := by
+    simpa [hcard] using hltNat
+  exact card_top_slice_eq_zero_of_isDownSetFamily_of_card_lt_pow h𝒟 hlt
+
+/-- The odd minimizer selected by the compression route can be chosen with concrete endpoint data:
+its `0`-slice is full and its top slice is empty. This is the first actual transition anchoring for
+the candidate profile. -/
+theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_sliceTransitionEndpoints
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 1))),
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      (∀ r : ℕ, ∂ (𝒟 # (r + 1)) ⊆ 𝒟 # r) ∧
+      (∀ ⦃r : ℕ⦄ ⦃i j : Fin (2 * m + 1)⦄, i < j →
+        ∀ ⦃s : Finset (Fin (2 * m + 1))⦄,
+          s ∈ (𝒟 # r) → i ∉ s → j ∈ s → swapCoord i j s ∈ (𝒟 # r)) ∧
+      (∀ r : ℕ,
+        ((#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 1) (r + 1)) ≤
+          (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 1) r) ∧
+      (∀ ⦃r s : ℕ⦄, s ≤ r → r ≤ 2 * m + 1 →
+        #(𝒟 # r) = Nat.choose (2 * m + 1) r →
+          #(𝒟 # s) = Nat.choose (2 * m + 1) s) ∧
+      (∀ ⦃r s : ℕ⦄, r ≤ s → s ≤ 2 * m + 1 →
+        #(𝒟 # r) = 0 → #(𝒟 # s) = 0) ∧
+      #(𝒟 # 0) = 1 ∧
+      #(𝒟 # (2 * m + 1)) = 0 := by
+  obtain ⟨𝒟, hmin, hshadow, hshift, hmono, hfullPrefix, hzeroSuffix⟩ :=
+    exists_isOddHalfCubeBoundaryGlobalMinimizer_sliceCandidateData_intervalPropagation m
+  have hne : 𝒟.Nonempty := by
+    refine Finset.card_pos.mp ?_
+    simpa [hmin.2.1] using (pow_pos (by decide : 0 < 2) (2 * m))
+  refine ⟨𝒟, hmin, hshadow, hshift, hmono, hfullPrefix, hzeroSuffix, ?_, ?_⟩
+  · have hempty : (∅ : Finset (Fin (2 * m + 1))) ∈ 𝒟 :=
+      empty_mem_of_nonempty_isDownSetFamily hmin.1 hne
+    refine Finset.card_eq_one.mpr ?_
+    refine ⟨∅, ?_⟩
+    ext s
+    rw [Finset.mem_slice]
+    constructor
+    · rintro ⟨hs𝒟, hsCard⟩
+      have hsEmpty : s = ∅ := Finset.card_eq_zero.mp hsCard
+      simpa [hsEmpty] using hs𝒟
+    · intro hs
+      have hsEmpty : s = ∅ := by simpa using hs
+      subst hsEmpty
+      exact ⟨hempty, by simp⟩
+  · exact card_top_slice_eq_zero_of_isOddHalfCubeBoundaryGlobalMinimizer hmin
+
 /-- A boundary slice lies in the corresponding outside slice. -/
 theorem positiveBoundary_slice_subset_outside_slice
     {𝒟 : Finset (Finset α)} (r : ℕ) :
