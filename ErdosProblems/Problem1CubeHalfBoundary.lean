@@ -1,5 +1,6 @@
 import ErdosProblems.Problem1CubeNatBridge
 import ErdosProblems.Problem1CubeEvenExtremizer
+import ErdosProblems.Problem1CubeCompression
 import Mathlib.Combinatorics.SetFamily.KruskalKatona
 import Mathlib.Combinatorics.SetFamily.LYM
 import Mathlib.Data.Nat.Choose.Sum
@@ -272,6 +273,43 @@ theorem exists_isOddHalfCubeBoundaryGlobalMinimizer (m : ℕ) :
   have h𝒜s : 𝒜 ∈ s := by
     simpa [s, h𝒜, h𝒜card]
   exact hmin 𝒜 h𝒜s
+
+/-- Coordinate compression preserves the boundary value of a genuine odd half-cube global
+minimizer. This is the first normalization step toward a compression-based extremizer proof of the
+Prism Theorem. -/
+theorem card_positiveBoundary_coordCompression_eq_of_isOddHalfCubeBoundaryGlobalMinimizer
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (i j : Fin (2 * m + 1)) :
+    #(positiveBoundary (coordCompression i j 𝒟)) = #(positiveBoundary 𝒟) := by
+  rcases hmin with ⟨h𝒟down, h𝒟card, hmin⟩
+  have hcomp :=
+    coordCompression_preserves_downset_card_positiveBoundary i j 𝒟 h𝒟down
+  have hmin_le :
+      #(positiveBoundary 𝒟) ≤ #(positiveBoundary (coordCompression i j 𝒟)) := by
+    exact hmin hcomp.1 (by simpa [h𝒟card] using hcomp.2.1)
+  exact Nat.le_antisymm hcomp.2.2 hmin_le
+
+/-- Coordinate compression keeps an odd half-cube global boundary minimizer inside the same
+minimizing class. This packages the compression step in the exact form needed for later canonical
+minimizer arguments. -/
+theorem isOddHalfCubeBoundaryGlobalMinimizer_coordCompression
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmin : IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (i j : Fin (2 * m + 1)) :
+    IsOddHalfCubeBoundaryGlobalMinimizer (m := m) (coordCompression i j 𝒟) := by
+  rcases hmin with ⟨h𝒟down, h𝒟card, hmin'⟩
+  have hcomp :=
+    coordCompression_preserves_downset_card_positiveBoundary i j 𝒟 h𝒟down
+  refine ⟨hcomp.1, ?_, ?_⟩
+  · simpa [h𝒟card] using hcomp.2.1
+  · intro 𝒜 h𝒜 h𝒜card
+    calc
+      #(positiveBoundary (coordCompression i j 𝒟))
+        = #(positiveBoundary 𝒟) :=
+          card_positiveBoundary_coordCompression_eq_of_isOddHalfCubeBoundaryGlobalMinimizer
+            ⟨h𝒟down, h𝒟card, hmin'⟩ i j
+      _ ≤ #(positiveBoundary 𝒜) := hmin' h𝒜 h𝒜card
 
 theorem oddLowerHalfFamily_realizes_oddHalfCubeSliceThresholdTarget (m : ℕ) :
     IsDownSetFamily (oddLowerHalfFamily m) ∧
