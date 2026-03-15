@@ -1049,6 +1049,101 @@ theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_sliceCandidateData_propagati
   · intro r hr hzero
     exact card_slice_succ_eq_zero_of_monotoneProfile_of_card_slice_eq_zero hmono hr hzero
 
+/-- Under a monotone normalized slice profile, a full slice forces every lower slice to be full. -/
+theorem card_slice_eq_choose_of_monotoneProfile_of_card_slice_eq_choose_prefix
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmono :
+      ∀ r : ℕ,
+        ((#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 1) (r + 1)) ≤
+          (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 1) r) :
+    ∀ r : ℕ, r ≤ 2 * m →
+      #(𝒟 # (r + 1)) = Nat.choose (2 * m + 1) (r + 1) →
+      ∀ s : ℕ, s ≤ r + 1 → #(𝒟 # s) = Nat.choose (2 * m + 1) s
+  | 0, hr, hfull, s, hs => by
+      have hs' : s = 0 ∨ s = 1 := by omega
+      rcases hs' with rfl | rfl
+      · exact card_slice_eq_choose_of_monotoneProfile_of_card_slice_succ_eq_choose
+          hmono (by omega) hfull
+      · exact hfull
+  | r + 1, hr, hfull, s, hs => by
+      have hprev :
+          #(𝒟 # (r + 1)) = Nat.choose (2 * m + 1) (r + 1) :=
+        card_slice_eq_choose_of_monotoneProfile_of_card_slice_succ_eq_choose
+          hmono (by omega) hfull
+      by_cases hsTop : s = r + 2
+      · subst hsTop
+        exact hfull
+      · have hsle : s ≤ r + 1 := by omega
+        exact card_slice_eq_choose_of_monotoneProfile_of_card_slice_eq_choose_prefix
+          hmono r (by omega) hprev s hsle
+
+/-- Under a monotone normalized slice profile, a zero slice forces every higher slice to vanish. -/
+theorem card_slice_eq_zero_of_monotoneProfile_of_card_slice_eq_zero_suffix
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmono :
+      ∀ r : ℕ,
+        ((#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 1) (r + 1)) ≤
+          (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 1) r)
+    {r s : ℕ} (hrs : r ≤ s) (hs : s ≤ 2 * m + 1)
+    (hzero : #(𝒟 # r) = 0) :
+    #(𝒟 # s) = 0 := by
+  have haux :
+      ∀ t : ℕ, r + t ≤ 2 * m + 1 → #(𝒟 # (r + t)) = 0 := by
+    intro t
+    induction t with
+    | zero =>
+        intro _
+        simpa using hzero
+    | succ t iht =>
+        intro hbound
+        have hcurr : #(𝒟 # (r + t)) = 0 := iht (by omega)
+        have hcurrBound : r + t ≤ 2 * m := by omega
+        have hnext :
+            #(𝒟 # ((r + t) + 1)) = 0 :=
+          card_slice_succ_eq_zero_of_monotoneProfile_of_card_slice_eq_zero
+            hmono hcurrBound hcurr
+        simpa [Nat.add_assoc] using hnext
+  have hsub : r + (s - r) = s := Nat.add_sub_of_le hrs
+  simpa [hsub] using haux (s - r) (by omega)
+
+/-- The odd minimizer selected by the compression route can be chosen with full-prefix and zero-tail
+slice propagation. This is the first interval-structure theorem for the candidate extremizer
+profile. -/
+theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_sliceCandidateData_intervalPropagation
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 1))),
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      (∀ r : ℕ, ∂ (𝒟 # (r + 1)) ⊆ 𝒟 # r) ∧
+      (∀ ⦃r : ℕ⦄ ⦃i j : Fin (2 * m + 1)⦄, i < j →
+        ∀ ⦃s : Finset (Fin (2 * m + 1))⦄,
+          s ∈ (𝒟 # r) → i ∉ s → j ∈ s → swapCoord i j s ∈ (𝒟 # r)) ∧
+      (∀ r : ℕ,
+        ((#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 1) (r + 1)) ≤
+          (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 1) r) ∧
+      (∀ ⦃r s : ℕ⦄, s ≤ r → r ≤ 2 * m + 1 →
+        #(𝒟 # r) = Nat.choose (2 * m + 1) r →
+          #(𝒟 # s) = Nat.choose (2 * m + 1) s) ∧
+      (∀ ⦃r s : ℕ⦄, r ≤ s → s ≤ 2 * m + 1 →
+        #(𝒟 # r) = 0 → #(𝒟 # s) = 0) := by
+  obtain ⟨𝒟, hmin, hshadow, hshift, hmono, hfullStep, hzeroStep⟩ :=
+    exists_isOddHalfCubeBoundaryGlobalMinimizer_sliceCandidateData_propagation m
+  refine ⟨𝒟, hmin, hshadow, hshift, hmono, ?_, ?_⟩
+  · intro r s hsr hr hfull
+    cases r with
+    | zero =>
+        have hs0 : s = 0 := by omega
+        subst hs0
+        simpa using hfull
+    | succ r' =>
+        have hr' : r' ≤ 2 * m := by omega
+        have hfullTop : #(𝒟 # (r' + 1)) = Nat.choose (2 * m + 1) (r' + 1) := by
+          simpa using hfull
+        exact card_slice_eq_choose_of_monotoneProfile_of_card_slice_eq_choose_prefix
+          hmono r' hr' hfullTop s hsr
+  · intro r s hrs hs hzero
+    exact card_slice_eq_zero_of_monotoneProfile_of_card_slice_eq_zero_suffix
+      hmono hrs hs hzero
+
 /-- A boundary slice lies in the corresponding outside slice. -/
 theorem positiveBoundary_slice_subset_outside_slice
     {𝒟 : Finset (Finset α)} (r : ℕ) :
