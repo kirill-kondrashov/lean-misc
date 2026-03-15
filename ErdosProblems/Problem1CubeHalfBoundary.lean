@@ -3253,6 +3253,15 @@ theorem oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySliceForcesStrictUpperSha
       (oddHalfCubeFirstBadBoundarySliceForcesStrictUpperShadowGap_of_initialFullSlicesStrictSliceDeficit
         hDef)
 
+theorem oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySliceForcesStrictUpperShadowGap_of_firstPositiveOutsideSliceForcesStrictUpperShadowGap
+    (hOut :
+      OddHalfCubeFirstPositiveOutsideSliceForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerLowerBoundarySliceForcesStrictUpperShadowGapStatement := by
+  exact
+    oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySliceForcesStrictUpperShadowGap_of_initialFullSlicesStrictSliceDeficit
+      (oddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGap_of_firstPositiveOutsideSliceForcesStrictUpperShadowGap
+        hOut)
+
 /-- Odd-dimensional reduction: once a half-cube down-set is known to contain every slice up to the
 middle rank, the sharp boundary lower bound follows. -/
 theorem choose_middle_le_card_positiveBoundary_of_odd_initial_slices_full
@@ -3556,6 +3565,15 @@ theorem oddHalfCubeBoundaryLower_of_firstPositiveOutsideSliceForcesStrictUpperSh
   exact
     oddHalfCubeBoundaryLower_of_initialFullSlicesStrictSliceDeficit_via_wideMiddleTransitionWindow
       (oddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGap_of_firstPositiveOutsideSliceForcesStrictUpperShadowGap
+        hOut)
+
+theorem oddHalfCubeBoundaryLower_of_firstPositiveOutsideSliceForcesStrictUpperShadowGap_via_globalMinimizer
+    (hOut :
+      OddHalfCubeFirstPositiveOutsideSliceForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_globalMinimizerLowerBoundarySliceForcesStrictUpperShadowGap
+      (oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySliceForcesStrictUpperShadowGap_of_firstPositiveOutsideSliceForcesStrictUpperShadowGap
         hOut)
 
 theorem oddHalfCubeWideMiddleTransitionWindowForcesStrictUpperShadowGap_of_firstBadBoundarySliceForcesStrictUpperShadowGap
