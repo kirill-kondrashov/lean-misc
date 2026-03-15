@@ -126,6 +126,11 @@ def IsOddHalfCubeBoundaryGlobalMinimizer {m : ℕ}
         𝒜.card = 2 ^ (2 * m) →
         #(positiveBoundary 𝒟) ≤ #(positiveBoundary 𝒜)
 
+/-- Secondary potential for compressed-extremizer arguments: total coordinate weight of a cube
+family, measured by summing the natural indices of all coordinates appearing in all sets. -/
+def totalIndexWeight {n : ℕ} (𝒜 : Finset (Finset (Fin n))) : ℕ :=
+  Finset.sum 𝒜 (fun s => Finset.sum s (fun a => (a : ℕ)))
+
 /-- A sharp odd half-cube boundary minimizer: an odd-cube down-set of half-cube size whose
 positive boundary attains the middle binomial coefficient exactly. -/
 def IsOddHalfCubeBoundaryMinimizer {m : ℕ}
@@ -273,6 +278,33 @@ theorem exists_isOddHalfCubeBoundaryGlobalMinimizer (m : ℕ) :
   have h𝒜s : 𝒜 ∈ s := by
     simpa [s, h𝒜, h𝒜card]
   exact hmin 𝒜 h𝒜s
+
+/-- One can choose an odd half-cube global boundary minimizer with least total coordinate weight.
+This is a cleaner secondary extremality surface for the simultaneous-compression normalization
+program than choosing one coordinate pair at a time. -/
+theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_minTotalIndexWeight
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 1))),
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      ∀ {𝒜 : Finset (Finset (Fin (2 * m + 1)))},
+        IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒜 →
+        totalIndexWeight 𝒟 ≤ totalIndexWeight 𝒜 := by
+  classical
+  let s : Finset (Finset (Finset (Fin (2 * m + 1)))) :=
+    (Finset.univ : Finset (Finset (Finset (Fin (2 * m + 1))))).filter
+      (fun 𝒟 => IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+  have hs_nonempty : s.Nonempty := by
+    obtain ⟨𝒟, h𝒟⟩ := exists_isOddHalfCubeBoundaryGlobalMinimizer m
+    refine ⟨𝒟, ?_⟩
+    simpa [s, h𝒟]
+  obtain ⟨𝒟, h𝒟s, hmin⟩ :=
+    Finset.exists_min_image s totalIndexWeight hs_nonempty
+  refine ⟨𝒟, ?_, ?_⟩
+  · simpa [s] using h𝒟s
+  · intro 𝒜 h𝒜
+    have h𝒜s : 𝒜 ∈ s := by
+      simpa [s, h𝒜]
+    exact hmin 𝒜 h𝒜s
 
 /-- Coordinate compression preserves the boundary value of a genuine odd half-cube global
 minimizer. This is the first normalization step toward a compression-based extremizer proof of the
