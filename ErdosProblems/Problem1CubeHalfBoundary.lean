@@ -3007,6 +3007,36 @@ theorem totalSize_oddLowerHalfFamily_lt_of_middleTransitionWindow_strict
     totalSize_oddLowerHalfFamily_lt_of_card_eq_half_cube_of_lower_slice_deficit
       (hcard := hmin.2.1) (r := t - 1) (by omega) hdeficit'
 
+/-- If a middle-transition-window odd minimizer has total size no larger than the lower-half
+witness, then the transition window must already collapse and the minimizer is exactly the lower
+half. This is the first clean rigidity package using the new strict middle-window penalty. -/
+theorem eq_oddLowerHalfFamily_of_middleTransitionWindow_of_totalSize_le_witness
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))} {t u : ℕ}
+    (hmin : IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (htmid : t ≤ m + 1) (humid : m + 1 ≤ u) (hu : u ≤ 2 * m + 1)
+    (hfull : ∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 1) r)
+    (hzero : ∀ ⦃r : ℕ⦄, u ≤ r → r ≤ 2 * m + 1 → #(𝒟 # r) = 0)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 1) r ∧ #(𝒟 # r) ≠ 0)
+    (hsize : totalSize 𝒟 ≤ totalSize (oddLowerHalfFamily m)) :
+    𝒟 = oddLowerHalfFamily m := by
+  by_cases htEq : t = m + 1
+  · exact
+      eq_oddLowerHalfFamily_of_middleTransitionWindow_of_t_eq_middle
+        hmin htmid humid hu hfull hzero hmid htEq
+  · by_cases huEq : u = m + 1
+    · exact
+        eq_oddLowerHalfFamily_of_middleTransitionWindow_of_u_eq_middle
+          hmin htmid humid hu hfull hzero hmid huEq
+    · exfalso
+      have htlt : t < m + 1 := lt_of_le_of_ne htmid htEq
+      have hltu : m + 1 < u := by
+        exact lt_of_le_of_ne humid (by simpa [eq_comm] using huEq)
+      have hstrict :
+          totalSize (oddLowerHalfFamily m) < totalSize 𝒟 :=
+        totalSize_oddLowerHalfFamily_lt_of_middleTransitionWindow_strict hmin hmid htlt hltu
+      exact (not_lt_of_ge hsize) hstrict
+
 theorem oddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGap_of_largerTotalSizeThanWitness
     (hSize :
       OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement) :
