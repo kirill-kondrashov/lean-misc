@@ -445,6 +445,21 @@ theorem coordCompression_eq_of_isOddHalfCubeBoundaryGlobalMinimizer_of_minTotalI
     totalIndexWeight_coordCompression_lt_of_ne hij hne
   exact (not_lt_of_ge hle) hlt
 
+/-- There exists an odd half-cube global boundary minimizer that is fixed by every ordered
+coordinate compression. This is the first genuine simultaneous-normalization theorem in the Prism
+proof program. -/
+theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_fully_coordCompressed
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 1))),
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      ∀ ⦃i j : Fin (2 * m + 1)⦄, i < j → coordCompression i j 𝒟 = 𝒟 := by
+  obtain ⟨𝒟, hmin, hWeightMin⟩ :=
+    exists_isOddHalfCubeBoundaryGlobalMinimizer_minTotalIndexWeight m
+  refine ⟨𝒟, hmin, ?_⟩
+  intro i j hij
+  exact coordCompression_eq_of_isOddHalfCubeBoundaryGlobalMinimizer_of_minTotalIndexWeight
+    hij hmin hWeightMin
+
 theorem oddLowerHalfFamily_realizes_oddHalfCubeSliceThresholdTarget (m : ℕ) :
     IsDownSetFamily (oddLowerHalfFamily m) ∧
       (oddLowerHalfFamily m).card = 2 ^ (2 * m) ∧
