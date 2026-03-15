@@ -1296,6 +1296,112 @@ theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_sliceTransitionWindow
           ⟨hrle, hrZero⟩
       omega
 
+/-- The transition window of the selected odd minimizer must straddle the middle rank `m + 1`. -/
+theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_middleTransitionWindow
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 1))), ∃ t u : ℕ,
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      t ≤ m + 1 ∧ m + 1 ≤ u ∧ u ≤ 2 * m + 1 ∧
+      (∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 1) r) ∧
+      (∀ ⦃r : ℕ⦄, u ≤ r → r ≤ 2 * m + 1 → #(𝒟 # r) = 0) ∧
+      (∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+        #(𝒟 # r) ≠ Nat.choose (2 * m + 1) r ∧ #(𝒟 # r) ≠ 0) := by
+  obtain ⟨𝒟, t, u, hmin, htu, hu, hfull, hzero, hmid⟩ :=
+    exists_isOddHalfCubeBoundaryGlobalMinimizer_sliceTransitionWindow m
+  let n := 2 * m + 1
+  let lowerMass : ℕ := Finset.sum (Finset.range (m + 1)) (fun k => #(𝒟 # k))
+  let upperMass : ℕ := Finset.sum (Finset.Ico (m + 1) (n + 1)) (fun k => #(𝒟 # k))
+  have hmle : m + 1 ≤ n + 1 := by
+    dsimp [n]
+    omega
+  have hsumSlices :
+      Finset.sum (Finset.range (n + 1)) (fun k => #(𝒟 # k)) = 2 ^ (2 * m) := by
+    simpa [Nat.range_succ_eq_Iic, hmin.2.1] using (Finset.sum_card_slice 𝒟)
+  have hsplitMass :
+      lowerMass + upperMass = 2 ^ (2 * m) := by
+    have hsplit :
+        lowerMass + upperMass =
+          Finset.sum (Finset.range (n + 1)) (fun k => #(𝒟 # k)) := by
+      simpa [lowerMass, upperMass] using
+        (Finset.sum_range_add_sum_Ico (fun k => #(𝒟 # k)) hmle)
+    exact hsplit.trans hsumSlices
+  have hchooseHalf :
+      Finset.sum (Finset.range (m + 1)) (fun k => Nat.choose n k) = 2 ^ (2 * m) := by
+    dsimp [n]
+    simpa [show 4 ^ m = 2 ^ (2 * m) by
+      rw [show 4 = 2 ^ 2 by norm_num, pow_mul]] using Nat.sum_range_choose_halfway m
+  have htmid : t ≤ m + 1 := by
+    by_contra hgt
+    have hlt : m + 1 < t := by omega
+    have hlowerFull : lowerMass = 2 ^ (2 * m) := by
+      calc
+        lowerMass = Finset.sum (Finset.range (m + 1)) (fun k => Nat.choose n k) := by
+          apply Finset.sum_congr rfl
+          intro k hk
+          exact hfull (lt_trans (Finset.mem_range.mp hk) hlt)
+        _ = 2 ^ (2 * m) := hchooseHalf
+    have hupperZero : upperMass = 0 := by
+      omega
+    have hmidFull : #(𝒟 # (m + 1)) = Nat.choose n (m + 1) := by
+      exact hfull hlt
+    have hmidPos : 0 < #(𝒟 # (m + 1)) := by
+      rw [hmidFull]
+      have hm1le : m + 1 ≤ n := by
+        dsimp [n]
+        omega
+      exact Nat.choose_pos hm1le
+    have hmidLe : #(𝒟 # (m + 1)) ≤ upperMass := by
+      dsimp [upperMass]
+      have hmem : m + 1 ∈ Finset.Ico (m + 1) (n + 1) := by
+        exact Finset.mem_Ico.mpr ⟨le_rfl, by dsimp [n]; omega⟩
+      exact
+        Finset.single_le_sum (f := fun k => #(𝒟 # k))
+          (fun _ _ => Nat.zero_le _) hmem
+    omega
+  have humid : m + 1 ≤ u := by
+    by_contra hlt
+    have hule : u ≤ m := by omega
+    have hupperZero : upperMass = 0 := by
+      apply Finset.sum_eq_zero
+      intro k hk
+      have hklo : m + 1 ≤ k := (Finset.mem_Ico.mp hk).1
+      have hkhi : k ≤ n := by
+        exact Nat.lt_succ_iff.mp (Finset.mem_Ico.mp hk).2
+      have huk : u ≤ k := by
+        omega
+      exact hzero huk hkhi
+    have hlowerEq : lowerMass = 2 ^ (2 * m) := by
+      omega
+    have hsliceMzero : #(𝒟 # m) = 0 := by
+      have hmle' : m ≤ n := by
+        dsimp [n]
+        omega
+      exact hzero hule hmle'
+    have hlowerLe :
+        Finset.sum (Finset.range m) (fun k => #(𝒟 # k)) ≤
+          Finset.sum (Finset.range m) (fun k => Nat.choose n k) := by
+      apply Finset.sum_le_sum
+      intro k hk
+      exact card_slice_le_choose (𝒟 := 𝒟) (r := k)
+    have hchooseMidPos : 0 < Nat.choose n m := by
+      have hmle' : m ≤ n := by
+        dsimp [n]
+        omega
+      exact Nat.choose_pos hmle'
+    have hchooseRangeM :
+        Finset.sum (Finset.range m) (fun k => Nat.choose n k) < 2 ^ (2 * m) := by
+      have hsplitChoose :
+          Finset.sum (Finset.range (m + 1)) (fun k => Nat.choose n k) =
+            Finset.sum (Finset.range m) (fun k => Nat.choose n k) + Nat.choose n m := by
+        rw [Finset.sum_range_succ]
+      omega
+    have hlowerLt : lowerMass < 2 ^ (2 * m) := by
+      dsimp [lowerMass]
+      rw [Finset.sum_range_succ, hsliceMzero]
+      exact lt_of_le_of_lt hlowerLe hchooseRangeM
+    omega
+  refine ⟨𝒟, t, u, hmin, htmid, humid, hu, hfull, hzero, hmid⟩
+
 /-- A boundary slice lies in the corresponding outside slice. -/
 theorem positiveBoundary_slice_subset_outside_slice
     {𝒟 : Finset (Finset α)} (r : ℕ) :
