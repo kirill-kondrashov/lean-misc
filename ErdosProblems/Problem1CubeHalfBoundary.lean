@@ -2817,6 +2817,36 @@ theorem card_slice_succ_lt_choose_of_slice_eq_powersetCard_of_card_positiveBound
     Nat.lt_add_of_pos_right hboundaryPos
   simpa [hsum] using hlt
 
+theorem card_positiveBoundary_slice_succ_eq_choose_sub_card_slice_succ_of_slice_eq_powersetCard
+    {n r : ℕ} {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hslice : 𝒟 # r = (Finset.univ : Finset (Fin n)).powersetCard r) :
+    #((positiveBoundary 𝒟) # (r + 1)) = Nat.choose n (r + 1) - #(𝒟 # (r + 1)) := by
+  have hshadow :
+      #(∂⁺ (𝒟 # r)) = Nat.choose n (r + 1) := by
+    calc
+      #(∂⁺ (𝒟 # r)) = #(∂⁺ ((Finset.univ : Finset (Fin n)).powersetCard r)) := by
+        rw [hslice]
+      _ = #((Finset.univ : Finset (Fin n)).powersetCard (r + 1)) := by
+        rw [upShadow_powersetCard_univ_eq_powersetCard_succ]
+      _ = Nat.choose n (r + 1) := by
+        simp
+  have hsplit :=
+    card_upShadow_slice_eq_card_slice_succ_add_card_positiveBoundary_slice_succ_of_isDownSetFamily
+      (𝒟 := 𝒟) h𝒟 r
+  omega
+
+theorem card_positiveBoundary_slice_eq_choose_sub_card_slice_of_pred_slice_eq_powersetCard
+    {n s : ℕ} {𝒟 : Finset (Finset (Fin n))}
+    (hspos : 0 < s)
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hslicePred : 𝒟 # (s - 1) = (Finset.univ : Finset (Fin n)).powersetCard (s - 1)) :
+    #((positiveBoundary 𝒟) # s) = Nat.choose n s - #(𝒟 # s) := by
+  have hsucc : (s - 1) + 1 = s := Nat.sub_add_cancel (Nat.succ_le_of_lt hspos)
+  simpa [hsucc] using
+    card_positiveBoundary_slice_succ_eq_choose_sub_card_slice_succ_of_slice_eq_powersetCard
+      (𝒟 := 𝒟) (r := s - 1) h𝒟 hslicePred
+
 theorem odd_card_slice_succ_lt_choose_of_lower_boundary_slices_vanish_upto_and_boundary_slice_succ_pos
     {m r : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
     (hne : 𝒟.Nonempty) (h𝒟 : IsDownSetFamily 𝒟) (hrm : r ≤ m)
@@ -3431,6 +3461,73 @@ theorem oddHalfCubeBoundaryLower_of_initialFullSlicesStrictSliceDeficit_via_wide
     oddHalfCubeBoundaryLower_of_wideMiddleTransitionWindowForcesStrictUpperShadowGap
       (oddHalfCubeWideMiddleTransitionWindowForcesStrictUpperShadowGap_of_initialFullSlicesStrictSliceDeficit
         hDef)
+
+theorem oddHalfCubeWideMiddleTransitionWindowForcesStrictUpperShadowGap_of_firstBadBoundarySliceForcesStrictUpperShadowGap
+    (hFirstBad :
+      OddHalfCubeFirstBadBoundarySliceForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeWideMiddleTransitionWindowForcesStrictUpperShadowGapStatement := by
+  intro m 𝒟 t u hmin htlt hltu hfull hzero hmid hsize
+  have hne : 𝒟.Nonempty := by
+    refine Finset.card_pos.mp ?_
+    simpa [hmin.2.1] using (pow_pos (by decide : 0 < 2) (2 * m))
+  have hslice0 : #(𝒟 # 0) = 1 := by
+    exact card_slice_zero_eq_one_of_nonempty_isDownSetFamily hne hmin.1
+  have htpos : 0 < t := by
+    by_contra htz
+    have ht0 : t = 0 := by omega
+    have hnotFull0 : #(𝒟 # 0) ≠ Nat.choose (2 * m + 1) 0 := by
+      exact (hmid (ht0 ▸ le_rfl) (ht0 ▸ lt_trans htlt hltu)).1
+    simp [hslice0] at hnotFull0
+  have hrm : t - 1 < m := by
+    omega
+  have hvanish : ∀ s ∈ Finset.Icc 1 (t - 1), #((positiveBoundary 𝒟) # s) = 0 := by
+    intro s hs
+    have hsIcc := Finset.mem_Icc.mp hs
+    have hspos : 0 < s := by
+      omega
+    have hslt : s < t := by
+      omega
+    have hslicePred :
+        𝒟 # (s - 1) = (Finset.univ : Finset (Fin (2 * m + 1))).powersetCard (s - 1) := by
+      apply slice_eq_powersetCard_of_card_eq_choose
+      exact hfull (by omega)
+    have hboundary :
+        #((positiveBoundary 𝒟) # s) =
+          Nat.choose (2 * m + 1) s - #(𝒟 # s) := by
+      exact
+        card_positiveBoundary_slice_eq_choose_sub_card_slice_of_pred_slice_eq_powersetCard
+          hspos hmin.1 hslicePred
+    have hsliceCard : #(𝒟 # s) = Nat.choose (2 * m + 1) s := by
+      exact hfull hslt
+    omega
+  have hboundary :
+      #((positiveBoundary 𝒟) # t) =
+        Nat.choose (2 * m + 1) t - #(𝒟 # t) := by
+    have hslicePred :
+        𝒟 # (t - 1) = (Finset.univ : Finset (Fin (2 * m + 1))).powersetCard (t - 1) := by
+      apply slice_eq_powersetCard_of_card_eq_choose
+      exact hfull (by omega)
+    exact
+      card_positiveBoundary_slice_eq_choose_sub_card_slice_of_pred_slice_eq_powersetCard
+        htpos hmin.1 hslicePred
+  have hdeficit : #(𝒟 # t) < Nat.choose (2 * m + 1) t := by
+    exact lt_of_le_of_ne (card_slice_le_choose (𝒟 := 𝒟) (r := t))
+      (hmid le_rfl (lt_trans htlt hltu)).1
+  have hboundaryPos : 0 < #((positiveBoundary 𝒟) # t) := by
+    omega
+  have htsucc : (t - 1) + 1 = t := Nat.sub_add_cancel (Nat.succ_le_of_lt htpos)
+  have hboundaryPos' : 0 < #((positiveBoundary 𝒟) # ((t - 1) + 1)) := by
+    simpa [htsucc] using hboundaryPos
+  exact hFirstBad hmin.1 hmin.2.1 hrm hvanish hboundaryPos'
+
+theorem oddHalfCubeBoundaryLower_of_firstBadBoundarySliceForcesStrictUpperShadowGap_via_wideMiddleTransitionWindow
+    (hFirstBad :
+      OddHalfCubeFirstBadBoundarySliceForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_wideMiddleTransitionWindowForcesStrictUpperShadowGap
+      (oddHalfCubeWideMiddleTransitionWindowForcesStrictUpperShadowGap_of_firstBadBoundarySliceForcesStrictUpperShadowGap
+        hFirstBad)
 
 theorem exact_slice_profile_of_isOddHalfCubeBoundaryMinimizer_of_lowerBoundarySlicesVanish
     {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
