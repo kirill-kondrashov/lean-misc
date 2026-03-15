@@ -325,6 +325,60 @@ theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_fixed_coordCompression
   simpa [coordCompression, uvCompression] using
     (UV.compression_idem ({i} : Finset (Fin (2 * m + 1))) ({j} : Finset (Fin (2 * m + 1))) 𝒟)
 
+/-- For a fixed coordinate pair `(i,j)`, one can choose an odd half-cube global boundary minimizer
+whose right-sector count is minimal among all global minimizers. This is the natural secondary
+extremality surface for turning non-strict compression monotonicity into a normalization theorem. -/
+theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_minRightSector
+    (m : ℕ) (i j : Fin (2 * m + 1)) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 1))),
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      ∀ {𝒜 : Finset (Finset (Fin (2 * m + 1)))},
+        IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒜 →
+        #((𝒟.filter fun s => i ∉ s ∧ j ∈ s))
+          ≤ #((𝒜.filter fun s => i ∉ s ∧ j ∈ s)) := by
+  classical
+  let s : Finset (Finset (Finset (Fin (2 * m + 1)))) :=
+    (Finset.univ : Finset (Finset (Finset (Fin (2 * m + 1))))).filter
+      (fun 𝒟 => IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+  have hs_nonempty : s.Nonempty := by
+    obtain ⟨𝒟, h𝒟⟩ := exists_isOddHalfCubeBoundaryGlobalMinimizer m
+    refine ⟨𝒟, ?_⟩
+    simpa [s, h𝒟]
+  obtain ⟨𝒟, h𝒟s, hmin⟩ :=
+    Finset.exists_min_image s (fun 𝒜 => #((𝒜.filter fun s => i ∉ s ∧ j ∈ s))) hs_nonempty
+  refine ⟨𝒟, ?_, ?_⟩
+  · simpa [s] using h𝒟s
+  · intro 𝒜 h𝒜
+    have h𝒜s : 𝒜 ∈ s := by
+      simpa [s, h𝒜]
+    exact hmin 𝒜 h𝒜s
+
+/-- A global odd half-cube minimizer that is also minimal for the `(i,j)` right-sector count must
+already be fixed by the `(i,j)` coordinate compression. This is the first secondary-extremality
+normalization theorem in the compression route. -/
+theorem coordCompression_eq_of_isOddHalfCubeBoundaryGlobalMinimizer_of_minRightSector
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))} {i j : Fin (2 * m + 1)}
+    (hmin : IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hRightMin :
+      ∀ {𝒜 : Finset (Finset (Fin (2 * m + 1)))},
+        IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒜 →
+        #((𝒟.filter fun s => i ∉ s ∧ j ∈ s))
+          ≤ #((𝒜.filter fun s => i ∉ s ∧ j ∈ s))) :
+    coordCompression i j 𝒟 = 𝒟 := by
+  by_contra hne
+  have hcompMin :
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) (coordCompression i j 𝒟) :=
+    isOddHalfCubeBoundaryGlobalMinimizer_coordCompression hmin i j
+  have hle :
+      #((𝒟.filter fun s => i ∉ s ∧ j ∈ s))
+        ≤ #(((coordCompression i j 𝒟).filter fun s => i ∉ s ∧ j ∈ s)) :=
+    hRightMin hcompMin
+  have hlt :
+      #(((coordCompression i j 𝒟).filter fun s => i ∉ s ∧ j ∈ s))
+        < #((𝒟.filter fun s => i ∉ s ∧ j ∈ s)) :=
+    card_rightSector_coordCompression_lt_of_ne i j 𝒟 hne
+  exact (not_lt_of_ge hle) hlt
+
 theorem oddLowerHalfFamily_realizes_oddHalfCubeSliceThresholdTarget (m : ℕ) :
     IsDownSetFamily (oddLowerHalfFamily m) ∧
       (oddLowerHalfFamily m).card = 2 ^ (2 * m) ∧
