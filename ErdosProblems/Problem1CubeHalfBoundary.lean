@@ -2977,6 +2977,36 @@ theorem totalSize_oddLowerHalfFamily_lt_of_card_eq_half_cube_of_lower_slice_defi
     exact hcompare.trans hupperWeight'
   exact lt_of_lt_of_le (Nat.lt_add_of_pos_right hupperMassPos) hmainLower
 
+/-- A genuinely wide middle transition window forces strictly larger total size than the lower-half
+model. This is the first quantitative penalty attached to a non-collapsed transition region. -/
+theorem totalSize_oddLowerHalfFamily_lt_of_middleTransitionWindow_strict
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))} {t u : ℕ}
+    (hmin : IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 1) r ∧ #(𝒟 # r) ≠ 0)
+    (htlt : t < m + 1) (hltu : m + 1 < u) :
+    totalSize (oddLowerHalfFamily m) < totalSize 𝒟 := by
+  have hne : 𝒟.Nonempty := by
+    refine Finset.card_pos.mp ?_
+    simpa [hmin.2.1] using (pow_pos (by decide : 0 < 2) (2 * m))
+  have hslice0 : #(𝒟 # 0) = 1 := by
+    exact card_slice_zero_eq_one_of_nonempty_isDownSetFamily hne hmin.1
+  have htpos : 0 < t := by
+    by_contra htz
+    have ht0 : t = 0 := by omega
+    have hnotFull0 : #(𝒟 # 0) ≠ Nat.choose (2 * m + 1) 0 := by
+      exact (hmid (ht0 ▸ le_rfl) (ht0 ▸ lt_trans htlt hltu)).1
+    simp [hslice0] at hnotFull0
+  have hdeficit : #(𝒟 # t) < Nat.choose (2 * m + 1) t := by
+    exact lt_of_le_of_ne (card_slice_le_choose (𝒟 := 𝒟) (r := t))
+      (hmid le_rfl (lt_trans htlt hltu)).1
+  have htsucc : (t - 1) + 1 = t := Nat.sub_add_cancel (Nat.succ_le_of_lt htpos)
+  have hdeficit' : #(𝒟 # ((t - 1) + 1)) < Nat.choose (2 * m + 1) ((t - 1) + 1) := by
+    simpa [htsucc] using hdeficit
+  exact
+    totalSize_oddLowerHalfFamily_lt_of_card_eq_half_cube_of_lower_slice_deficit
+      (hcard := hmin.2.1) (r := t - 1) (by omega) hdeficit'
+
 theorem oddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGap_of_largerTotalSizeThanWitness
     (hSize :
       OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement) :
