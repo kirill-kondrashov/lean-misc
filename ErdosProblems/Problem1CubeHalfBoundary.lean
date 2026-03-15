@@ -917,6 +917,25 @@ theorem card_slice_succ_div_choose_le_card_slice_div_choose_of_isDownSetFamily
     exact div_le_div_of_nonneg_right hcard (by positivity)
   exact hlym.trans hdiv
 
+/-- The shifted odd global minimizer can be chosen with a monotone normalized slice profile. This
+is the first quantitative slice-structure consequence on the Prism route toward canonical
+extremizers. -/
+theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_shifted_slices_monotoneProfile
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 1))),
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      (∀ ⦃r : ℕ⦄ ⦃i j : Fin (2 * m + 1)⦄, i < j →
+        ∀ ⦃s : Finset (Fin (2 * m + 1))⦄,
+          s ∈ (𝒟 # r) → i ∉ s → j ∈ s → swapCoord i j s ∈ (𝒟 # r)) ∧
+      ∀ r : ℕ,
+        ((#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 1) (r + 1)) ≤
+          (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 1) r := by
+  obtain ⟨𝒟, hmin, hshift⟩ := exists_isOddHalfCubeBoundaryGlobalMinimizer_shifted_slices m
+  refine ⟨𝒟, hmin, hshift, ?_⟩
+  intro r
+  simpa [Fintype.card_fin] using
+    (card_slice_succ_div_choose_le_card_slice_div_choose_of_isDownSetFamily hmin.1 r)
+
 /-- A boundary slice lies in the corresponding outside slice. -/
 theorem positiveBoundary_slice_subset_outside_slice
     {𝒟 : Finset (Finset α)} (r : ℕ) :
