@@ -23,6 +23,11 @@ def swapCoord (i j : α) (s : Finset α) : Finset α :=
   else if _ : j ∈ s ∧ i ∉ s then insert i (s.erase j)
   else s
 
+/-- Sum of coordinate indices in a finite subset of `Fin n`. This is the set-level weight behind
+the `totalIndexWeight` family potential used later in the Prism normalization program. -/
+def setIndexWeight {n : ℕ} (s : Finset (Fin n)) : ℕ :=
+  Finset.sum s (fun a => (a : ℕ))
+
 @[simp]
 theorem card_uvCompression (u v : Finset α) (𝒜 : Finset (Finset α)) :
     #(uvCompression u v 𝒜) = #𝒜 := by
@@ -53,6 +58,23 @@ theorem swapCoord_of_mem_left {i j : α} {s : Finset α} (hi : i ∈ s) (hj : j 
 theorem swapCoord_of_mem_right {i j : α} {s : Finset α} (hj : j ∈ s) (hi : i ∉ s) :
     swapCoord i j s = insert i (s.erase j) := by
   simp [swapCoord, hi, hj]
+
+theorem setIndexWeight_swapCoord_lt_of_mem_right
+    {n : ℕ} {i j : Fin n} {s : Finset (Fin n)}
+    (hij : i < j) (hi : i ∉ s) (hj : j ∈ s) :
+    setIndexWeight (swapCoord i j s) < setIndexWeight s := by
+  have hiErase : i ∉ s.erase j := by
+    intro hiErase
+    exact hi (Finset.mem_of_mem_erase hiErase)
+  calc
+    setIndexWeight (swapCoord i j s)
+      = (i : ℕ) + Finset.sum (s.erase j) (fun a => (a : ℕ)) := by
+          rw [setIndexWeight, swapCoord_of_mem_right hj hi, Finset.sum_insert hiErase]
+    _ < (j : ℕ) + Finset.sum (s.erase j) (fun a => (a : ℕ)) :=
+          Nat.add_lt_add_right hij _
+    _ = setIndexWeight s := by
+          simpa [setIndexWeight, add_comm, add_left_comm, add_assoc] using
+            (Finset.sum_erase_add (s := s) (f := fun a => (a : ℕ)) hj)
 
 theorem swapCoord_of_same_side {i j : α} {s : Finset α}
     (h : (i ∈ s ∧ j ∈ s) ∨ (i ∉ s ∧ j ∉ s)) :
