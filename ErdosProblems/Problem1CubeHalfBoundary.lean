@@ -2194,6 +2194,19 @@ def OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossibleStateme
       0 < #((((Finset.univ.powerset) \ 𝒟) # (r + 1))) →
       False
 
+/-- Closest local-LYM/weighted-drop formulation of the live odd frontier: on a genuine odd
+half-cube global minimizer, a first positive outside slice below the middle should already force
+the weighted-drop functional strictly above the middle binomial coefficient. Since weightedDrop is
+always bounded above by the positive boundary, this immediately yields a contradiction. -/
+def OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDropStatement :
+    Prop :=
+  ∀ {m r : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 →
+      r < m →
+      (∀ s ∈ Finset.range (r + 1), #((((Finset.univ.powerset) \ 𝒟) # s)) = 0) →
+      0 < #((((Finset.univ.powerset) \ 𝒟) # (r + 1))) →
+      Nat.choose (2 * m + 1) m < weightedDrop (2 * m + 1) (sliceDensity 𝒟)
+
 /-- Intermediate local surface for the direct odd route: once one isolates the first nonzero lower
 boundary slice, that first bad slice alone should force the global upper-shadow gap to be
 strictly above the middle binomial coefficient. -/
@@ -3753,6 +3766,42 @@ theorem oddHalfCubeBoundaryLower_of_globalMinimizerFirstPositiveOutsideSliceImpo
     oddHalfCubeBoundaryLower_of_globalMinimizerLowerBoundarySlicesVanish
       (oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanish_of_globalMinimizerFirstPositiveOutsideSliceImpossible
         hImpossible)
+
+theorem oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossible_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop
+    (hDrop :
+      OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDropStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossibleStatement := by
+  intro m r 𝒟 hmin hrm houtZero houtPos
+  have hstrict :
+      Nat.choose (2 * m + 1) m < weightedDrop (2 * m + 1) (sliceDensity 𝒟) :=
+    hDrop hmin hrm houtZero houtPos
+  have hle :
+      weightedDrop (2 * m + 1) (sliceDensity 𝒟) ≤ Nat.choose (2 * m + 1) m := by
+    calc
+      weightedDrop (2 * m + 1) (sliceDensity 𝒟) ≤ #(positiveBoundary 𝒟) := by
+        simpa [Fintype.card_fin] using weightedDrop_le_card_positiveBoundary (𝒟 := 𝒟)
+      _ ≤ Nat.choose (2 * m + 1) m := by
+        exact_mod_cast
+          card_positiveBoundary_le_choose_middle_of_isOddHalfCubeBoundaryGlobalMinimizer hmin
+  exact (not_le_of_gt hstrict) hle
+
+theorem oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanish_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop
+    (hDrop :
+      OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDropStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanishStatement := by
+  exact
+    oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanish_of_globalMinimizerFirstPositiveOutsideSliceImpossible
+      (oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossible_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop
+        hDrop)
+
+theorem oddHalfCubeBoundaryLower_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop
+    (hDrop :
+      OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDropStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_globalMinimizerFirstPositiveOutsideSliceImpossible
+      (oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossible_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop
+        hDrop)
 
 theorem oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanish_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictUpperShadowGap
     (hOut :
