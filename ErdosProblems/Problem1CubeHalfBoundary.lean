@@ -2159,6 +2159,19 @@ def OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGapStat
       #(𝒟 # (r + 1)) < Nat.choose (2 * m + 1) (r + 1) →
       Nat.choose (2 * m + 1) m < upperShadowGap 𝒟
 
+/-- Outside-slice form of the remaining local odd frontier: if the outside slices up to rank `r`
+all vanish and the next outside slice is nonempty, then the upper-shadow gap is already strictly
+above the middle binomial layer. This is the same local geometry as the current live route, but in
+the exact language of the outside-slice/local-LYM machinery. -/
+def OddHalfCubeFirstPositiveOutsideSliceForcesStrictUpperShadowGapStatement : Prop :=
+  ∀ {m r : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+      IsDownSetFamily 𝒟 →
+      𝒟.card = 2 ^ (2 * m) →
+      r < m →
+      (∀ s ∈ Finset.range (r + 1), #((((Finset.univ.powerset) \ 𝒟) # s)) = 0) →
+      0 < #((((Finset.univ.powerset) \ 𝒟) # (r + 1))) →
+      Nat.choose (2 * m + 1) m < upperShadowGap 𝒟
+
 /-- Intermediate local surface for the direct odd route: once one isolates the first nonzero lower
 boundary slice, that first bad slice alone should force the global upper-shadow gap to be
 strictly above the middle binomial coefficient. -/
@@ -3107,6 +3120,31 @@ theorem oddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGap
     totalSize_oddLowerHalfFamily_lt_of_card_eq_half_cube_of_lower_slice_deficit hcard hrm hdeficit
   exact hSize h𝒟 hcard hsizeStrict
 
+theorem oddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGap_of_firstPositiveOutsideSliceForcesStrictUpperShadowGap
+    (hOut :
+      OddHalfCubeFirstPositiveOutsideSliceForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGapStatement := by
+  intro m r 𝒟 h𝒟 hcard hrm hfull hdeficit
+  have houtZero : ∀ s ∈ Finset.range (r + 1), #((((Finset.univ.powerset) \ 𝒟) # s)) = 0 := by
+    intro s hs
+    have hsle : s ≤ r := Nat.le_of_lt_succ (Finset.mem_range.mp hs)
+    have hslice :
+        𝒟 # s = (Finset.univ : Finset (Fin (2 * m + 1))).powersetCard s := hfull s hsle
+    have hOutside :
+        #((((Finset.univ.powerset) \ 𝒟) # s)) =
+          Nat.choose (2 * m + 1) s - #(𝒟 # s) := by
+      simpa using card_outside_slice_eq_choose_sub_card_slice (𝒟 := 𝒟) s
+    have hsliceCard : #(𝒟 # s) = Nat.choose (2 * m + 1) s := by
+      simpa [hslice] using congrArg Finset.card hslice
+    omega
+  have houtPos : 0 < #((((Finset.univ.powerset) \ 𝒟) # (r + 1))) := by
+    have hOutside :
+        #((((Finset.univ.powerset) \ 𝒟) # (r + 1))) =
+          Nat.choose (2 * m + 1) (r + 1) - #(𝒟 # (r + 1)) := by
+      simpa using card_outside_slice_eq_choose_sub_card_slice (𝒟 := 𝒟) (r + 1)
+    omega
+  exact hOut (m := m) (r := r) (𝒟 := 𝒟) h𝒟 hcard hrm houtZero houtPos
+
 theorem oddHalfCubeFirstBadBoundarySliceForcesStrictUpperShadowGap_of_initialFullSlicesStrictSliceDeficit
     (hDef :
       OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGapStatement) :
@@ -3461,6 +3499,15 @@ theorem oddHalfCubeBoundaryLower_of_initialFullSlicesStrictSliceDeficit_via_wide
     oddHalfCubeBoundaryLower_of_wideMiddleTransitionWindowForcesStrictUpperShadowGap
       (oddHalfCubeWideMiddleTransitionWindowForcesStrictUpperShadowGap_of_initialFullSlicesStrictSliceDeficit
         hDef)
+
+theorem oddHalfCubeBoundaryLower_of_firstPositiveOutsideSliceForcesStrictUpperShadowGap
+    (hOut :
+      OddHalfCubeFirstPositiveOutsideSliceForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_initialFullSlicesStrictSliceDeficit_via_wideMiddleTransitionWindow
+      (oddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGap_of_firstPositiveOutsideSliceForcesStrictUpperShadowGap
+        hOut)
 
 theorem oddHalfCubeWideMiddleTransitionWindowForcesStrictUpperShadowGap_of_firstBadBoundarySliceForcesStrictUpperShadowGap
     (hFirstBad :
