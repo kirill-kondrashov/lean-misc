@@ -956,6 +956,99 @@ theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_sliceCandidateData
   intro r
   exact shadow_slice_succ_subset_slice_of_isDownSetFamily hmin.1 r
 
+/-- For a family with monotone normalized slice profile, a full `(r+1)`-slice forces the `r`-slice
+to be full as well. This is the first genuine slice-rigidity lemma extracted from the compression
+route. -/
+theorem card_slice_eq_choose_of_monotoneProfile_of_card_slice_succ_eq_choose
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmono :
+      ∀ r : ℕ,
+        ((#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 1) (r + 1)) ≤
+          (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 1) r)
+    {r : ℕ} (hr : r ≤ 2 * m)
+    (hfullSucc : #(𝒟 # (r + 1)) = Nat.choose (2 * m + 1) (r + 1)) :
+    #(𝒟 # r) = Nat.choose (2 * m + 1) r := by
+  have hchoose_succ_pos : 0 < (Nat.choose (2 * m + 1) (r + 1) : ℚ) := by
+    exact_mod_cast Nat.choose_pos (by omega)
+  have hchoose_pos : 0 < (Nat.choose (2 * m + 1) r : ℚ) := by
+    exact_mod_cast Nat.choose_pos (by omega)
+  have hlower :
+      (1 : ℚ) ≤ (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 1) r := by
+    simpa [hfullSucc, hchoose_succ_pos.ne'] using hmono r
+  have hslice_le :
+      (#(𝒟 # r) : ℚ) ≤ Nat.choose (2 * m + 1) r := by
+    exact_mod_cast card_slice_le_choose (𝒟 := 𝒟) (r := r)
+  have hupper :
+      (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 1) r ≤ 1 := by
+    have hratio :
+        (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 1) r ≤
+          (Nat.choose (2 * m + 1) r : ℚ) / Nat.choose (2 * m + 1) r := by
+      exact div_le_div_of_nonneg_right hslice_le (by positivity)
+    simpa [hchoose_pos.ne'] using hratio
+  have hEqRatio :
+      (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 1) r = 1 :=
+    le_antisymm hupper hlower
+  have hEqQ :
+      (#(𝒟 # r) : ℚ) = Nat.choose (2 * m + 1) r := by
+    have := (div_eq_iff hchoose_pos.ne').mp hEqRatio
+    simpa using this
+  exact_mod_cast hEqQ
+
+/-- For a family with monotone normalized slice profile, a vanishing `r`-slice forces the
+`(r+1)`-slice to vanish as well. -/
+theorem card_slice_succ_eq_zero_of_monotoneProfile_of_card_slice_eq_zero
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
+    (hmono :
+      ∀ r : ℕ,
+        ((#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 1) (r + 1)) ≤
+          (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 1) r)
+    {r : ℕ} (hr : r ≤ 2 * m)
+    (hzero : #(𝒟 # r) = 0) :
+    #(𝒟 # (r + 1)) = 0 := by
+  have hchoose_succ_pos : 0 < (Nat.choose (2 * m + 1) (r + 1) : ℚ) := by
+    exact_mod_cast Nat.choose_pos (by omega)
+  have hratio_le_zero :
+      (#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 1) (r + 1) ≤ 0 := by
+    simpa [hzero] using hmono r
+  have hratio_nonneg :
+      0 ≤ (#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 1) (r + 1) := by
+    positivity
+  have hratio_eq :
+      (#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 1) (r + 1) = 0 :=
+    le_antisymm hratio_le_zero hratio_nonneg
+  have hEqQ :
+      (#(𝒟 # (r + 1)) : ℚ) = 0 := by
+    have := (div_eq_iff hchoose_succ_pos.ne').mp hratio_eq
+    simpa using this
+  exact_mod_cast hEqQ
+
+/-- The odd minimizer selected by the compression route can be chosen with the first concrete
+slice-rigidity consequences already bundled: full slices propagate downward and zero slices
+propagate upward. -/
+theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_sliceCandidateData_propagation
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 1))),
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      (∀ r : ℕ, ∂ (𝒟 # (r + 1)) ⊆ 𝒟 # r) ∧
+      (∀ ⦃r : ℕ⦄ ⦃i j : Fin (2 * m + 1)⦄, i < j →
+        ∀ ⦃s : Finset (Fin (2 * m + 1))⦄,
+          s ∈ (𝒟 # r) → i ∉ s → j ∈ s → swapCoord i j s ∈ (𝒟 # r)) ∧
+      (∀ r : ℕ,
+        ((#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 1) (r + 1)) ≤
+          (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 1) r) ∧
+      (∀ ⦃r : ℕ⦄, r ≤ 2 * m →
+        #(𝒟 # (r + 1)) = Nat.choose (2 * m + 1) (r + 1) →
+          #(𝒟 # r) = Nat.choose (2 * m + 1) r) ∧
+      (∀ ⦃r : ℕ⦄, r ≤ 2 * m →
+        #(𝒟 # r) = 0 → #(𝒟 # (r + 1)) = 0) := by
+  obtain ⟨𝒟, hmin, hshadow, hshift, hmono⟩ :=
+    exists_isOddHalfCubeBoundaryGlobalMinimizer_sliceCandidateData m
+  refine ⟨𝒟, hmin, hshadow, hshift, hmono, ?_, ?_⟩
+  · intro r hr hfullSucc
+    exact card_slice_eq_choose_of_monotoneProfile_of_card_slice_succ_eq_choose hmono hr hfullSucc
+  · intro r hr hzero
+    exact card_slice_succ_eq_zero_of_monotoneProfile_of_card_slice_eq_zero hmono hr hzero
+
 /-- A boundary slice lies in the corresponding outside slice. -/
 theorem positiveBoundary_slice_subset_outside_slice
     {𝒟 : Finset (Finset α)} (r : ℕ) :
