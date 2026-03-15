@@ -311,6 +311,20 @@ theorem isOddHalfCubeBoundaryGlobalMinimizer_coordCompression
             ⟨h𝒟down, h𝒟card, hmin'⟩ i j
       _ ≤ #(positiveBoundary 𝒜) := hmin' h𝒜 h𝒜card
 
+/-- For any fixed coordinate pair `(i,j)`, there exists an odd half-cube global boundary minimizer
+already normalized by that compression. This is the first genuine existence theorem in the
+compression-based normalization program. -/
+theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_fixed_coordCompression
+    (m : ℕ) (i j : Fin (2 * m + 1)) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 1))),
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      coordCompression i j 𝒟 = 𝒟 := by
+  obtain ⟨𝒟, hmin⟩ := exists_isOddHalfCubeBoundaryGlobalMinimizer m
+  refine ⟨coordCompression i j 𝒟, isOddHalfCubeBoundaryGlobalMinimizer_coordCompression hmin i j,
+    ?_⟩
+  simpa [coordCompression, uvCompression] using
+    (UV.compression_idem ({i} : Finset (Fin (2 * m + 1))) ({j} : Finset (Fin (2 * m + 1))) 𝒟)
+
 theorem oddLowerHalfFamily_realizes_oddHalfCubeSliceThresholdTarget (m : ℕ) :
     IsDownSetFamily (oddLowerHalfFamily m) ∧
       (oddLowerHalfFamily m).card = 2 ^ (2 * m) ∧
