@@ -85,6 +85,10 @@ theorem coordCompress_of_mem_left {i j : α} {s : Finset α} (hi : i ∈ s) (hj 
     UV.compress ({i} : Finset α) ({j} : Finset α) s = s := by
   simp [UV.compress, hi, hj]
 
+theorem coordCompress_of_mem_both {i j : α} {s : Finset α} (hi : i ∈ s) (hj : j ∈ s) :
+    UV.compress ({i} : Finset α) ({j} : Finset α) s = s := by
+  simp [UV.compress, hi, hj]
+
 theorem swapCoord_eq_union_sdiff_singleton_of_mem_left {i j : α} {s : Finset α}
     (hi : i ∈ s) (hj : j ∉ s) :
     swapCoord i j s = (s ∪ ({j} : Finset α)) \ ({i} : Finset α) := by
@@ -139,6 +143,10 @@ theorem coordCompress_of_mem_right {i j : α} {s : Finset α} (hi : i ∉ s) (hj
   · subst x
     exact by simp [Ne.symm hij]
   · simp [hxi, hxj]
+
+theorem coordCompress_of_mem_neither {i j : α} {s : Finset α} (hi : i ∉ s) (hj : j ∉ s) :
+    UV.compress ({i} : Finset α) ({j} : Finset α) s = s := by
+  simp [UV.compress, hi, hj]
 
 theorem swapCoord_eq_union_sdiff_singleton_of_mem_right {i j : α} {s : Finset α}
     (hi : i ∉ s) (hj : j ∈ s) :
@@ -306,6 +314,16 @@ theorem coordCompression_mem_right_iff {i j : α} {𝒜 : Finset (Finset α)} {s
   · rintro ⟨hsA, hswapA⟩
     rw [coordCompression, uvCompression, UV.mem_compression]
     exact Or.inl ⟨hsA, by simpa [coordCompress_of_mem_right hi hj] using hswapA⟩
+
+/-- Coordinate compression is the union of the sets kept in place and the images of the sets that
+actually move. This is the exact family decomposition used by the minimizer-normalization route for
+the Prism theorem. -/
+theorem coordCompression_eq_filter_union_image_moved (i j : α) (𝒜 : Finset (Finset α)) :
+    coordCompression i j 𝒜 =
+      {A ∈ 𝒜 | UV.compress ({i} : Finset α) ({j} : Finset α) A ∈ 𝒜} ∪
+        ({A ∈ 𝒜 | UV.compress ({i} : Finset α) ({j} : Finset α) A ∉ 𝒜}).image
+          (UV.compress ({i} : Finset α) ({j} : Finset α)) := by
+  rw [coordCompression, uvCompression, UV.compression, filter_image]
 
 theorem swapCoord_subset_swapCoord_of_subset {i j : α} {t s : Finset α}
     (hts : t ⊆ s) :
