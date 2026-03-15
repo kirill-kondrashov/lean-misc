@@ -306,6 +306,16 @@ theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_minTotalIndexWeight
       simpa [s, h𝒜]
     exact hmin 𝒜 h𝒜s
 
+/-- Ordered coordinate compression strictly decreases the total index weight whenever it changes a
+family. This is the family-level strict descent needed to force minimum-weight global minimizers to
+already be compressed. -/
+theorem totalIndexWeight_coordCompression_lt_of_ne
+    {n : ℕ} {i j : Fin n} {𝒜 : Finset (Finset (Fin n))}
+    (hij : i < j) (hne : coordCompression i j 𝒜 ≠ 𝒜) :
+    totalIndexWeight (coordCompression i j 𝒜) < totalIndexWeight 𝒜 := by
+  simpa [totalIndexWeight, setIndexWeight] using
+    sum_setIndexWeight_coordCompression_lt_of_ne (𝒜 := 𝒜) hij hne
+
 /-- Coordinate compression preserves the boundary value of a genuine odd half-cube global
 minimizer. This is the first normalization step toward a compression-based extremizer proof of the
 Prism Theorem. -/
@@ -409,6 +419,30 @@ theorem coordCompression_eq_of_isOddHalfCubeBoundaryGlobalMinimizer_of_minRightS
       #(((coordCompression i j 𝒟).filter fun s => i ∉ s ∧ j ∈ s))
         < #((𝒟.filter fun s => i ∉ s ∧ j ∈ s)) :=
     card_rightSector_coordCompression_lt_of_ne i j 𝒟 hne
+  exact (not_lt_of_ge hle) hlt
+
+/-- A global odd half-cube minimizer with least total index weight is fixed by every ordered
+coordinate compression. This is the first normalization theorem that is naturally compatible with
+simultaneous compression along many pairs. -/
+theorem coordCompression_eq_of_isOddHalfCubeBoundaryGlobalMinimizer_of_minTotalIndexWeight
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))} {i j : Fin (2 * m + 1)}
+    (hij : i < j)
+    (hmin : IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hWeightMin :
+      ∀ {𝒜 : Finset (Finset (Fin (2 * m + 1)))},
+        IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒜 →
+        totalIndexWeight 𝒟 ≤ totalIndexWeight 𝒜) :
+    coordCompression i j 𝒟 = 𝒟 := by
+  by_contra hne
+  have hcompMin :
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) (coordCompression i j 𝒟) :=
+    isOddHalfCubeBoundaryGlobalMinimizer_coordCompression hmin i j
+  have hle :
+      totalIndexWeight 𝒟 ≤ totalIndexWeight (coordCompression i j 𝒟) :=
+    hWeightMin hcompMin
+  have hlt :
+      totalIndexWeight (coordCompression i j 𝒟) < totalIndexWeight 𝒟 :=
+    totalIndexWeight_coordCompression_lt_of_ne hij hne
   exact (not_lt_of_ge hle) hlt
 
 theorem oddLowerHalfFamily_realizes_oddHalfCubeSliceThresholdTarget (m : ℕ) :

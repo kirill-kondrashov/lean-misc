@@ -325,6 +325,97 @@ theorem coordCompression_eq_filter_union_image_moved (i j : α) (𝒜 : Finset (
           (UV.compress ({i} : Finset α) ({j} : Finset α)) := by
   rw [coordCompression, uvCompression, UV.compression, filter_image]
 
+theorem sum_setIndexWeight_image_moved_lt_sum_setIndexWeight_moved_of_lt
+    {n : ℕ} {i j : Fin n} {𝒜 : Finset (Finset (Fin n))}
+    (hij : i < j)
+    (hmoved :
+      ({A ∈ 𝒜 | UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A ∉ 𝒜} :
+        Finset (Finset (Fin n))).Nonempty) :
+    Finset.sum
+        (({A ∈ 𝒜 | UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A ∉ 𝒜} :
+          Finset (Finset (Fin n))).image (UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n))))
+        setIndexWeight
+      <
+      Finset.sum
+        ({A ∈ 𝒜 | UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A ∉ 𝒜} :
+          Finset (Finset (Fin n)))
+        setIndexWeight := by
+  rw [Finset.sum_image UV.compress_injOn]
+  refine Finset.sum_lt_sum_of_nonempty hmoved ?_
+  intro A hA
+  rcases Finset.mem_filter.mp hA with ⟨hA𝒜, hAout⟩
+  by_cases hi : i ∈ A <;> by_cases hj : j ∈ A
+  · have hEq :
+        UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A = A := by
+      exact coordCompress_of_mem_both hi hj
+    have hCompIn :
+        UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A ∈ 𝒜 := by
+      simpa [hEq] using hA𝒜
+    exact (hAout hCompIn).elim
+  · have hEq :
+        UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A = A := by
+      exact coordCompress_of_mem_left hi hj
+    have hCompIn :
+        UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A ∈ 𝒜 := by
+      simpa [hEq] using hA𝒜
+    exact (hAout hCompIn).elim
+  · have hEq :
+        UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A = swapCoord i j A := by
+      exact coordCompress_of_mem_right hi hj
+    calc
+      setIndexWeight (UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A)
+        = setIndexWeight (swapCoord i j A) := by rw [hEq]
+      _ < setIndexWeight A := setIndexWeight_swapCoord_lt_of_mem_right hij hi hj
+  · have hEq :
+        UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A = A := by
+      exact coordCompress_of_mem_neither hi hj
+    have hCompIn :
+        UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A ∈ 𝒜 := by
+      simpa [hEq] using hA𝒜
+    exact (hAout hCompIn).elim
+
+theorem sum_setIndexWeight_coordCompression_lt_of_ne
+    {n : ℕ} {i j : Fin n} {𝒜 : Finset (Finset (Fin n))}
+    (hij : i < j) (hne : coordCompression i j 𝒜 ≠ 𝒜) :
+    Finset.sum (coordCompression i j 𝒜) setIndexWeight < Finset.sum 𝒜 setIndexWeight := by
+  let comp := UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n))
+  let kept : Finset (Finset (Fin n)) := {A ∈ 𝒜 | comp A ∈ 𝒜}
+  let moved : Finset (Finset (Fin n)) := {A ∈ 𝒜 | comp A ∉ 𝒜}
+  have hu : kept ∪ moved = 𝒜 := by
+    exact filter_union_filter_not_eq _ _
+  have hmoved : moved.Nonempty := by
+    by_contra hmoved
+    have hmoved' : moved = ∅ := Finset.not_nonempty_iff_eq_empty.mp hmoved
+    have hcompEq : coordCompression i j 𝒜 = kept ∪ moved.image comp := by
+      simpa [kept, moved, comp] using
+        coordCompression_eq_filter_union_image_moved (i := i) (j := j) (𝒜 := 𝒜)
+    apply hne
+    rw [hcompEq, hmoved', Finset.image_empty, Finset.union_empty]
+    simpa [kept, moved, comp, hmoved'] using hu
+  have hlt :
+      Finset.sum (moved.image comp) setIndexWeight < Finset.sum moved setIndexWeight := by
+    simpa [moved, comp] using
+      sum_setIndexWeight_image_moved_lt_sum_setIndexWeight_moved_of_lt (𝒜 := 𝒜) hij hmoved
+  calc
+    Finset.sum (coordCompression i j 𝒜) setIndexWeight
+      = Finset.sum (kept ∪ moved.image comp) setIndexWeight := by
+          have hcompEq : coordCompression i j 𝒜 = kept ∪ moved.image comp := by
+            simpa [kept, moved, comp] using
+              coordCompression_eq_filter_union_image_moved (i := i) (j := j) (𝒜 := 𝒜)
+          rw [hcompEq]
+    _ = Finset.sum kept setIndexWeight + Finset.sum (moved.image comp) setIndexWeight := by
+          have hdisj : Disjoint kept (moved.image comp) := by
+            refine Finset.disjoint_left.2 ?_
+            intro x hxkept hximg
+            rcases Finset.mem_image.mp hximg with ⟨A, hAmoved, rfl⟩
+            exact (Finset.mem_filter.mp hAmoved).2 ((Finset.mem_filter.mp hxkept).1)
+          exact Finset.sum_union hdisj
+    _ < Finset.sum kept setIndexWeight + Finset.sum moved setIndexWeight := by
+          exact Nat.add_lt_add_left hlt _
+    _ = Finset.sum (kept ∪ moved) setIndexWeight := by
+          rw [Finset.sum_union (Finset.disjoint_filter_filter_not _ _ _)]
+    _ = Finset.sum 𝒜 setIndexWeight := by rw [hu]
+
 theorem swapCoord_subset_swapCoord_of_subset {i j : α} {t s : Finset α}
     (hts : t ⊆ s) :
     swapCoord i j t ⊆ swapCoord i j s := by
