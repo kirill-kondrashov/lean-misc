@@ -218,6 +218,23 @@ theorem swapCoord_swapCoord_of_mem_right {i j : α} {s : Finset α} (hi : i ∉ 
       (not_mem_swapCoord_right_of_mem_right hi hj)] at hcomp
   exact hcomp
 
+theorem swapCoord_mem_of_mem_of_coordCompression_eq
+    {n : ℕ} {i j : Fin n} {𝒜 : Finset (Finset (Fin n))} {s : Finset (Fin n)}
+    (hfix : coordCompression i j 𝒜 = 𝒜) (hi : i ∉ s) (hj : j ∈ s) (hs : s ∈ 𝒜) :
+    swapCoord i j s ∈ 𝒜 := by
+  have hmem : swapCoord i j s ∈ coordCompression i j 𝒜 := by
+    rw [coordCompression, uvCompression, UV.mem_compression]
+    by_cases hswap : swapCoord i j s ∈ 𝒜
+    · left
+      refine ⟨hswap, ?_⟩
+      simpa [coordCompress_of_mem_left
+        (mem_swapCoord_left_of_mem_right hi hj)
+        (not_mem_swapCoord_right_of_mem_right hi hj)] using hswap
+    · right
+      refine ⟨hswap, s, hs, ?_⟩
+      exact coordCompress_of_mem_right hi hj
+  simpa [hfix] using hmem
+
 theorem coordCompression_mem_both_iff {i j : α} {𝒜 : Finset (Finset α)} {s : Finset α}
     (hi : i ∈ s) (hj : j ∈ s) :
     s ∈ coordCompression i j 𝒜 ↔ s ∈ 𝒜 := by

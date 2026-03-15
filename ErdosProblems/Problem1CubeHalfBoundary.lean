@@ -460,6 +460,22 @@ theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_fully_coordCompressed
   exact coordCompression_eq_of_isOddHalfCubeBoundaryGlobalMinimizer_of_minTotalIndexWeight
     hij hmin hWeightMin
 
+/-- There exists an odd half-cube global boundary minimizer that is shifted: whenever an ordered
+coordinate swap moves a set downward, the moved set also lies in the family. This is the first
+structural consequence extracted from simultaneous compression normalization in the Prism route. -/
+theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_shifted
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 1))),
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      ∀ ⦃i j : Fin (2 * m + 1)⦄, i < j →
+        ∀ ⦃s : Finset (Fin (2 * m + 1))⦄,
+          s ∈ 𝒟 → i ∉ s → j ∈ s → swapCoord i j s ∈ 𝒟 := by
+  obtain ⟨𝒟, hmin, hcomp⟩ :=
+    exists_isOddHalfCubeBoundaryGlobalMinimizer_fully_coordCompressed m
+  refine ⟨𝒟, hmin, ?_⟩
+  intro i j hij s hs hi hj
+  exact swapCoord_mem_of_mem_of_coordCompression_eq (hcomp hij) hi hj hs
+
 theorem oddLowerHalfFamily_realizes_oddHalfCubeSliceThresholdTarget (m : ℕ) :
     IsDownSetFamily (oddLowerHalfFamily m) ∧
       (oddLowerHalfFamily m).card = 2 ^ (2 * m) ∧
