@@ -3970,6 +3970,15 @@ theorem oddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLower_of_globalMinimizer
       (oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanish_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictUpperShadowGap
         hOut)
 
+theorem oddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLower_of_globalMinimizerFirstPositiveOutsideSliceImpossible
+    (hImpossible :
+      OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossibleStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLowerStatement := by
+  exact
+    oddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLower_of_globalMinimizerLowerBoundarySlicesVanish
+      (oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanish_of_globalMinimizerFirstPositiveOutsideSliceImpossible
+        hImpossible)
+
 theorem ncard_upperClosure_minimalOutside_eq_two_pow_of_card_eq_half_cube
     {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
     (h𝒟 : IsDownSetFamily 𝒟)
@@ -4162,6 +4171,15 @@ theorem oddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichain_of_globalMin
     oddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichain_of_globalMinimizerLowerBoundarySlicesVanish
       (oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanish_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictUpperShadowGap
         hOut)
+
+theorem oddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichain_of_globalMinimizerFirstPositiveOutsideSliceImpossible
+    (hImpossible :
+      OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossibleStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichainStatement := by
+  exact
+    oddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichain_of_globalMinimizerLowerBoundarySlicesVanish
+      (oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanish_of_globalMinimizerFirstPositiveOutsideSliceImpossible
+        hImpossible)
 
 theorem oddHalfCubeUpperShadowGapLower_of_globalMinimizerMinimalOutsideLower
     (hMinOut : OddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLowerStatement) :
