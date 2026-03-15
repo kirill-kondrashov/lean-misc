@@ -3258,6 +3258,40 @@ theorem oddHalfCubeBoundaryLower_of_globalMinimizerLowerBoundarySliceForcesStric
       (oddHalfCubeUpperShadowGapLower_of_globalMinimizerLowerBoundarySliceForcesStrictUpperShadowGap
         hStrict)
 
+/-- Direct odd closure from the total-size route: if every odd half-cube family with larger
+`totalSize` than the lower-half witness already has strictly larger upper-shadow gap, then the
+odd half-cube boundary theorem follows. The new middle-window rigidity lets one apply this
+directly to a chosen global minimizer. -/
+theorem oddHalfCubeBoundaryLower_of_largerTotalSizeThanWitnessForcesStrictUpperShadowGap
+    (hSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  intro m 𝒜 h𝒜 hcard
+  obtain ⟨𝒟, t, u, hmin, htmid, humid, hu, hfull, hzero, hmid⟩ :=
+    exists_isOddHalfCubeBoundaryGlobalMinimizer_middleTransitionWindow m
+  have hsizeLe : totalSize 𝒟 ≤ totalSize (oddLowerHalfFamily m) := by
+    by_contra hgt
+    have hgt' : totalSize (oddLowerHalfFamily m) < totalSize 𝒟 := by
+      omega
+    have hgapStrict :
+        Nat.choose (2 * m + 1) m < upperShadowGap 𝒟 :=
+      hSize hmin.1 hmin.2.1 hgt'
+    have hgapLe :
+        upperShadowGap 𝒟 ≤ Nat.choose (2 * m + 1) m := by
+      simpa [upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily (𝒟 := 𝒟) hmin.1] using
+        card_positiveBoundary_le_choose_middle_of_isOddHalfCubeBoundaryGlobalMinimizer hmin
+    exact (not_lt_of_ge hgapLe) hgapStrict
+  have hEq : 𝒟 = oddLowerHalfFamily m :=
+    eq_oddLowerHalfFamily_of_middleTransitionWindow_of_totalSize_le_witness
+      hmin htmid humid hu hfull hzero hmid hsizeLe
+  have hminLe :
+      #(positiveBoundary 𝒟) ≤ #(positiveBoundary 𝒜) :=
+    hmin.2.2 (𝒜 := 𝒜) h𝒜 hcard
+  calc
+    Nat.choose (2 * m + 1) m = #(positiveBoundary 𝒟) := by
+      simpa [hEq, card_positiveBoundary_oddLowerHalfFamily]
+    _ ≤ #(positiveBoundary 𝒜) := hminLe
+
 theorem exact_slice_profile_of_isOddHalfCubeBoundaryMinimizer_of_lowerBoundarySlicesVanish
     {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
     (hmin : IsOddHalfCubeBoundaryMinimizer (m := m) 𝒟)
