@@ -1,5 +1,7 @@
 # Lean Experiments
 
+[![build](https://github.com/kirill-kondrashov/lean-misc/actions/workflows/lean_action_ci.yml/badge.svg)](https://github.com/kirill-kondrashov/lean-misc/actions/workflows/lean_action_ci.yml)
+
 Lean formalization experiments and problem-focused developments, using a project structure modeled
 after <https://github.com/kirill-kondrashov/yoccos-theorem>.
 

@@ -476,6 +476,23 @@ theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_shifted
   intro i j hij s hs hi hj
   exact swapCoord_mem_of_mem_of_coordCompression_eq (hcomp hij) hi hj hs
 
+/-- The shifted odd global minimizer can be chosen so that every fixed-rank slice is shifted as
+well. This is the first slice-level structural consequence in the Prism extremizer program. -/
+theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_shifted_slices
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 1))),
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      ∀ ⦃r : ℕ⦄ ⦃i j : Fin (2 * m + 1)⦄, i < j →
+        ∀ ⦃s : Finset (Fin (2 * m + 1))⦄,
+          s ∈ (𝒟 # r) → i ∉ s → j ∈ s → swapCoord i j s ∈ (𝒟 # r) := by
+  obtain ⟨𝒟, hmin, hshift⟩ := exists_isOddHalfCubeBoundaryGlobalMinimizer_shifted m
+  refine ⟨𝒟, hmin, ?_⟩
+  intro r i j hij s hs hi hj
+  refine Finset.mem_slice.mpr ?_
+  refine ⟨(Finset.mem_slice.mp hs).1 |> fun hs' => hshift hij hs' hi hj, ?_⟩
+  rw [card_swapCoord_of_mem_right hi hj]
+  exact (Finset.mem_slice.mp hs).2
+
 theorem oddLowerHalfFamily_realizes_oddHalfCubeSliceThresholdTarget (m : ℕ) :
     IsDownSetFamily (oddLowerHalfFamily m) ∧
       (oddLowerHalfFamily m).card = 2 ^ (2 * m) ∧

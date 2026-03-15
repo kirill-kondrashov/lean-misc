@@ -76,6 +76,18 @@ theorem setIndexWeight_swapCoord_lt_of_mem_right
           simpa [setIndexWeight, add_comm, add_left_comm, add_assoc] using
             (Finset.sum_erase_add (s := s) (f := fun a => (a : ℕ)) hj)
 
+theorem card_swapCoord_of_mem_right
+    {n : ℕ} {i j : Fin n} {s : Finset (Fin n)}
+    (hi : i ∉ s) (hj : j ∈ s) :
+    (swapCoord i j s).card = s.card := by
+  rw [swapCoord_of_mem_right hj hi, Finset.card_insert_of_notMem]
+  · simpa using Finset.card_erase_add_one hj
+  · exact hiErase
+    where
+      hiErase : i ∉ s.erase j := by
+        intro hiErase
+        exact hi (Finset.mem_of_mem_erase hiErase)
+
 theorem swapCoord_of_same_side {i j : α} {s : Finset α}
     (h : (i ∈ s ∧ j ∈ s) ∨ (i ∉ s ∧ j ∉ s)) :
     swapCoord i j s = s := by
