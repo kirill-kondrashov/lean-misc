@@ -3145,6 +3145,55 @@ theorem oddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGap
     omega
   exact hOut (m := m) (r := r) (𝒟 := 𝒟) h𝒟 hcard hrm houtZero houtPos
 
+theorem oddHalfCubeFirstPositiveOutsideSliceForcesStrictUpperShadowGap_of_firstBadBoundarySliceForcesStrictUpperShadowGap
+    (hFirstBad :
+      OddHalfCubeFirstBadBoundarySliceForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeFirstPositiveOutsideSliceForcesStrictUpperShadowGapStatement := by
+  intro m r 𝒟 h𝒟 hcard hrm houtZero houtPos
+  have hvanish : ∀ s ∈ Finset.Icc 1 r, #((positiveBoundary 𝒟) # s) = 0 := by
+    intro s hs
+    have hsRange : s ∈ Finset.range (r + 1) := by
+      exact Finset.mem_range.mpr <|
+        lt_of_le_of_lt (Finset.mem_Icc.mp hs).2 (Nat.lt_succ_self r)
+    have hsubset :
+        ((positiveBoundary 𝒟) # s) ⊆ (((Finset.univ.powerset) \ 𝒟) # s) :=
+      positiveBoundary_slice_subset_outside_slice (𝒟 := 𝒟) (r := s)
+    have hle :
+        #((positiveBoundary 𝒟) # s) ≤ #((((Finset.univ.powerset) \ 𝒟) # s)) :=
+      Finset.card_le_card hsubset
+    have hzero := houtZero s hsRange
+    omega
+  have hrlt : r < Fintype.card (Fin (2 * m + 1)) := by
+    simpa [Fintype.card_fin] using (show r < 2 * m + 1 by omega)
+  have houtZero_r : #((((Finset.univ.powerset) \ 𝒟) # r)) = 0 := by
+    exact houtZero r (by simpa using Nat.lt_succ_self r)
+  have hsdiffLe :
+      #((((Finset.univ.powerset) \ 𝒟) # (r + 1)) \ (((positiveBoundary 𝒟) # (r + 1)))) * (r + 1) ≤
+        #((((Finset.univ.powerset) \ 𝒟) # r)) * (2 * m + 1 - r) := by
+    simpa [Fintype.card_fin] using
+      (card_outside_slice_succ_sdiff_boundary_slice_mul_le_card_outside_slice_mul
+        (𝒟 := 𝒟) (r := r) hrlt)
+  have hsdiffMulZero :
+      #((((Finset.univ.powerset) \ 𝒟) # (r + 1)) \ (((positiveBoundary 𝒟) # (r + 1)))) * (r + 1) =
+        0 := by
+    have hle' := hsdiffLe
+    rw [houtZero_r, zero_mul] at hle'
+    exact Nat.eq_zero_of_le_zero hle'
+  have hsdiffZero :
+      #((((Finset.univ.powerset) \ 𝒟) # (r + 1)) \ (((positiveBoundary 𝒟) # (r + 1)))) = 0 := by
+    exact (Nat.mul_eq_zero.mp hsdiffMulZero).resolve_right (Nat.succ_ne_zero r)
+  have hsubset :
+      ((positiveBoundary 𝒟) # (r + 1)) ⊆ (((Finset.univ.powerset) \ 𝒟) # (r + 1)) :=
+    positiveBoundary_slice_subset_outside_slice (𝒟 := 𝒟) (r := r + 1)
+  have hdecomp :
+      #((((Finset.univ.powerset) \ 𝒟) # (r + 1)) \ (((positiveBoundary 𝒟) # (r + 1)))) +
+          #(((positiveBoundary 𝒟) # (r + 1))) =
+        #((((Finset.univ.powerset) \ 𝒟) # (r + 1))) := by
+    exact Finset.card_sdiff_add_card_eq_card hsubset
+  have hboundaryPos : 0 < #((positiveBoundary 𝒟) # (r + 1)) := by
+    omega
+  exact hFirstBad (m := m) (r := r) (𝒟 := 𝒟) h𝒟 hcard hrm hvanish hboundaryPos
+
 theorem oddHalfCubeFirstBadBoundarySliceForcesStrictUpperShadowGap_of_initialFullSlicesStrictSliceDeficit
     (hDef :
       OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGapStatement) :
