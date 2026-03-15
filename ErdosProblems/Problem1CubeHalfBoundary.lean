@@ -2083,6 +2083,22 @@ def OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement : P
       totalSize (oddLowerHalfFamily m) < totalSize 𝒟 →
       Nat.choose (2 * m + 1) m < upperShadowGap 𝒟
 
+/-- Narrowed odd direct-route surface: it is enough to prove strict upper-shadow-gap growth only
+for the specific odd half-cube global minimizers with middle transition-window data isolated by the
+compression/rigidity program. -/
+def OddHalfCubeMiddleTransitionWindowLargerTotalSizeForcesStrictUpperShadowGapStatement : Prop :=
+  ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))} {t u : ℕ},
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 →
+      t ≤ m + 1 →
+      m + 1 ≤ u →
+      u ≤ 2 * m + 1 →
+      (∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 1) r) →
+      (∀ ⦃r : ℕ⦄, u ≤ r → r ≤ 2 * m + 1 → #(𝒟 # r) = 0) →
+      (∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+        #(𝒟 # r) ≠ Nat.choose (2 * m + 1) r ∧ #(𝒟 # r) ≠ 0) →
+      totalSize (oddLowerHalfFamily m) < totalSize 𝒟 →
+      Nat.choose (2 * m + 1) m < upperShadowGap 𝒟
+
 theorem oddHalfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower
     (hGap : OddHalfCubeUpperShadowGapLowerStatement) :
     OddHalfCubeBoundaryLowerStatement := by
@@ -3276,6 +3292,45 @@ theorem oddHalfCubeBoundaryLower_of_largerTotalSizeThanWitnessForcesStrictUpperS
     have hgapStrict :
         Nat.choose (2 * m + 1) m < upperShadowGap 𝒟 :=
       hSize hmin.1 hmin.2.1 hgt'
+    have hgapLe :
+        upperShadowGap 𝒟 ≤ Nat.choose (2 * m + 1) m := by
+      simpa [upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily (𝒟 := 𝒟) hmin.1] using
+        card_positiveBoundary_le_choose_middle_of_isOddHalfCubeBoundaryGlobalMinimizer hmin
+    exact (not_lt_of_ge hgapLe) hgapStrict
+  have hEq : 𝒟 = oddLowerHalfFamily m :=
+    eq_oddLowerHalfFamily_of_middleTransitionWindow_of_totalSize_le_witness
+      hmin htmid humid hu hfull hzero hmid hsizeLe
+  have hminLe :
+      #(positiveBoundary 𝒟) ≤ #(positiveBoundary 𝒜) :=
+    hmin.2.2 (𝒜 := 𝒜) h𝒜 hcard
+  calc
+    Nat.choose (2 * m + 1) m = #(positiveBoundary 𝒟) := by
+      simpa [hEq, card_positiveBoundary_oddLowerHalfFamily]
+    _ ≤ #(positiveBoundary 𝒜) := hminLe
+
+theorem oddHalfCubeMiddleTransitionWindowLargerTotalSizeForcesStrictUpperShadowGap_of_largerTotalSizeThanWitnessForcesStrictUpperShadowGap
+    (hSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeMiddleTransitionWindowLargerTotalSizeForcesStrictUpperShadowGapStatement := by
+  intro m 𝒟 t u hmin htmid humid hu hfull hzero hmid hsize
+  exact hSize hmin.1 hmin.2.1 hsize
+
+/-- Further-localized odd closure: it is enough to prove strict upper-shadow-gap growth only for
+the chosen global minimizer carrying middle transition-window data. -/
+theorem oddHalfCubeBoundaryLower_of_middleTransitionWindowLargerTotalSizeForcesStrictUpperShadowGap
+    (hMid :
+      OddHalfCubeMiddleTransitionWindowLargerTotalSizeForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  intro m 𝒜 h𝒜 hcard
+  obtain ⟨𝒟, t, u, hmin, htmid, humid, hu, hfull, hzero, hmid⟩ :=
+    exists_isOddHalfCubeBoundaryGlobalMinimizer_middleTransitionWindow m
+  have hsizeLe : totalSize 𝒟 ≤ totalSize (oddLowerHalfFamily m) := by
+    by_contra hgt
+    have hgt' : totalSize (oddLowerHalfFamily m) < totalSize 𝒟 := by
+      omega
+    have hgapStrict :
+        Nat.choose (2 * m + 1) m < upperShadowGap 𝒟 :=
+      hMid hmin htmid humid hu hfull hzero hmid hgt'
     have hgapLe :
         upperShadowGap 𝒟 ≤ Nat.choose (2 * m + 1) m := by
       simpa [upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily (𝒟 := 𝒟) hmin.1] using
