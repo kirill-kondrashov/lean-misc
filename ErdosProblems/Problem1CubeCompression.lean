@@ -756,6 +756,76 @@ theorem coordCompression_preserves_downset_card_positiveBoundary
   refine ⟨isDownSetFamily_coordCompression h𝒜, card_coordCompression i j 𝒜, ?_⟩
   exact card_positiveBoundary_coordCompression_le i j 𝒜
 
+theorem mem_sdiff_coordCompression_implies_mem_right
+    {i j : α} {𝒜 : Finset (Finset α)} {s : Finset α}
+    (hs : s ∈ 𝒜 \ coordCompression i j 𝒜) :
+    i ∉ s ∧ j ∈ s := by
+  rcases Finset.mem_sdiff.mp hs with ⟨hsA, hsNotC⟩
+  by_cases hsi : i ∈ s <;> by_cases hsj : j ∈ s
+  · exfalso
+    exact hsNotC ((coordCompression_mem_both_iff hsi hsj).2 hsA)
+  · exfalso
+    exact hsNotC ((coordCompression_mem_left_iff hsi hsj).2 (Or.inl hsA))
+  · exact ⟨hsi, hsj⟩
+  · exfalso
+    exact hsNotC ((coordCompression_mem_neither_iff hsi hsj).2 hsA)
+
+theorem rightSector_coordCompression_subset
+    (i j : α) (𝒜 : Finset (Finset α)) :
+    ((coordCompression i j 𝒜).filter fun s => i ∉ s ∧ j ∈ s) ⊆
+      (𝒜.filter fun s => i ∉ s ∧ j ∈ s) := by
+  intro s hs
+  rw [Finset.mem_filter] at hs ⊢
+  rcases hs with ⟨hsC, hsi, hsj⟩
+  exact ⟨(coordCompression_mem_right_iff hsi hsj).mp hsC |>.1, hsi, hsj⟩
+
+theorem exists_mem_rightSector_sdiff_of_coordCompression_ne
+    (i j : α) (𝒜 : Finset (Finset α))
+    (hne : coordCompression i j 𝒜 ≠ 𝒜) :
+    ∃ s, s ∈ (𝒜.filter fun s => i ∉ s ∧ j ∈ s) ∧
+      s ∉ ((coordCompression i j 𝒜).filter fun s => i ∉ s ∧ j ∈ s) := by
+  have hnotSub : ¬ 𝒜 ⊆ coordCompression i j 𝒜 := by
+    intro hsub
+    have hEq : 𝒜 = coordCompression i j 𝒜 := by
+      exact Finset.eq_of_subset_of_card_le hsub (by simpa [card_coordCompression i j 𝒜] using le_rfl)
+    exact hne hEq.symm
+  have hWitness : ∃ s, s ∈ 𝒜 ∧ s ∉ coordCompression i j 𝒜 := by
+    classical
+    by_contra hNo
+    apply hnotSub
+    intro s hsA
+    by_contra hsNotC
+    exact hNo ⟨s, hsA, hsNotC⟩
+  rcases hWitness with ⟨s, hsA, hsNotC⟩
+  refine ⟨s, ?_, ?_⟩
+  · have hsector :
+        i ∉ s ∧ j ∈ s :=
+      mem_sdiff_coordCompression_implies_mem_right (i := i) (j := j)
+        (𝒜 := 𝒜) (Finset.mem_sdiff.mpr ⟨hsA, hsNotC⟩)
+    exact Finset.mem_filter.mpr ⟨hsA, hsector.1, hsector.2⟩
+  · intro hs
+    exact hsNotC ((Finset.mem_filter.mp hs).1)
+
+theorem card_rightSector_coordCompression_lt_of_ne
+    (i j : α) (𝒜 : Finset (Finset α))
+    (hne : coordCompression i j 𝒜 ≠ 𝒜) :
+    #(((coordCompression i j 𝒜).filter fun s => i ∉ s ∧ j ∈ s))
+      < #((𝒜.filter fun s => i ∉ s ∧ j ∈ s)) := by
+  let 𝒞 := ((coordCompression i j 𝒜).filter fun s => i ∉ s ∧ j ∈ s)
+  let ℛ := (𝒜.filter fun s => i ∉ s ∧ j ∈ s)
+  have hsub : 𝒞 ⊆ ℛ := by
+    simpa [𝒞, ℛ] using rightSector_coordCompression_subset i j 𝒜
+  have hle : #𝒞 ≤ #ℛ := Finset.card_le_card hsub
+  have hne_mem : ∃ s, s ∈ ℛ ∧ s ∉ 𝒞 := by
+    simpa [𝒞, ℛ] using exists_mem_rightSector_sdiff_of_coordCompression_ne i j 𝒜 hne
+  have hneq : #𝒞 ≠ #ℛ := by
+    intro hEq
+    have hEqSet : 𝒞 = ℛ := by
+      exact Finset.eq_of_subset_of_card_le hsub (by simpa [hEq] using le_rfl)
+    rcases hne_mem with ⟨s, hsR, hsNotC⟩
+    exact hsNotC (hEqSet.symm ▸ hsR)
+  exact lt_of_le_of_ne hle hneq
+
 theorem card_upShadow_coordCompression_le (i j : α) (𝒜 : Finset (Finset α)) :
     #(∂⁺ (coordCompression i j 𝒜)) ≤ #(∂⁺ 𝒜) := by
   calc
