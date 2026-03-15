@@ -1402,6 +1402,88 @@ theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_middleTransitionWindow
     omega
   refine ⟨𝒟, t, u, hmin, htmid, humid, hu, hfull, hzero, hmid⟩
 
+/-- If the zero tail of a middle transition window starts exactly at the middle layer, then the
+odd minimizer is the standard lower-half family. -/
+theorem eq_oddLowerHalfFamily_of_middleTransitionWindow_of_u_eq_middle
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))} {t u : ℕ}
+    (hmin : IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (htmid : t ≤ m + 1) (humid : m + 1 ≤ u) (hu : u ≤ 2 * m + 1)
+    (hfull : ∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 1) r)
+    (hzero : ∀ ⦃r : ℕ⦄, u ≤ r → r ≤ 2 * m + 1 → #(𝒟 # r) = 0)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 1) r ∧ #(𝒟 # r) ≠ 0)
+    (huEq : u = m + 1) :
+    𝒟 = oddLowerHalfFamily m := by
+  let n := 2 * m + 1
+  have hupper : ∀ r, m + 1 ≤ r → #(𝒟 # r) = 0 := by
+    intro r hr
+    by_cases hrn : r ≤ n
+    · exact hzero (huEq ▸ hr) (by simpa [n] using hrn)
+    · have hle := card_slice_le_choose (𝒟 := 𝒟) (r := r)
+      have hchoose0 : Nat.choose n r = 0 := Nat.choose_eq_zero_of_lt (lt_of_not_ge hrn)
+      rw [Finset.card_eq_zero]
+      ext s
+      constructor
+      · intro hs
+        have hsle : s.card ≤ n := by
+          simpa [n] using (Finset.card_le_univ (s := s))
+        rcases Finset.mem_slice.mp hs with ⟨_, hsCard⟩
+        have hrle : r ≤ n := by
+          simpa [hsCard] using hsle
+        exact (hrn hrle).elim
+      · intro hs
+        simpa using hs
+  have htEq : t = m + 1 := by
+    by_contra hneq
+    have hlt : t < m + 1 := lt_of_le_of_ne htmid hneq
+    let lowerMass : ℕ := Finset.sum (Finset.range (m + 1)) (fun k => #(𝒟 # k))
+    let upperMass : ℕ := Finset.sum (Finset.Ico (m + 1) (n + 1)) (fun k => #(𝒟 # k))
+    have hmle : m + 1 ≤ n + 1 := by
+      dsimp [n]
+      omega
+    have hsumSlices :
+        Finset.sum (Finset.range (n + 1)) (fun k => #(𝒟 # k)) = 2 ^ (2 * m) := by
+      simpa [Nat.range_succ_eq_Iic, hmin.2.1] using (Finset.sum_card_slice 𝒟)
+    have hupperMass : upperMass = 0 := by
+      apply Finset.sum_eq_zero
+      intro k hk
+      exact hupper k (Finset.mem_Ico.mp hk).1
+    have hchooseHalf :
+        Finset.sum (Finset.range (m + 1)) (fun k => Nat.choose n k) = 2 ^ (2 * m) := by
+      dsimp [n]
+      simpa [show 4 ^ m = 2 ^ (2 * m) by
+        rw [show 4 = 2 ^ 2 by norm_num, pow_mul]] using Nat.sum_range_choose_halfway m
+    have hlowerEq : lowerMass = 2 ^ (2 * m) := by
+      have hsplit :
+          lowerMass + upperMass = 2 ^ (2 * m) := by
+        have hsplit' :
+            lowerMass + upperMass =
+              Finset.sum (Finset.range (n + 1)) (fun k => #(𝒟 # k)) := by
+          simpa [lowerMass, upperMass] using
+            (Finset.sum_range_add_sum_Ico (fun k => #(𝒟 # k)) hmle)
+        exact hsplit'.trans hsumSlices
+      rw [hupperMass, add_zero] at hsplit
+      exact hsplit
+    have hlowerLt : lowerMass < 2 ^ (2 * m) := by
+      calc
+        lowerMass < Finset.sum (Finset.range (m + 1)) (fun k => Nat.choose n k) := by
+          refine Finset.sum_lt_sum (fun k hk => card_slice_le_choose (𝒟 := 𝒟) (r := k)) ?_
+          have htmem : t ∈ Finset.range (m + 1) := Finset.mem_range.mpr hlt
+          have hstrict : #(𝒟 # t) < Nat.choose n t := by
+            exact lt_of_le_of_ne
+              (card_slice_le_choose (𝒟 := 𝒟) (r := t))
+              (hmid le_rfl (huEq ▸ hlt)).1
+          exact ⟨t, htmem, hstrict⟩
+        _ = 2 ^ (2 * m) := hchooseHalf
+    omega
+  have hlower : ∀ r ∈ Finset.range (m + 1), #(𝒟 # r) = Nat.choose (2 * m + 1) r := by
+    intro r hr
+    have hrt : r < t := by
+      rw [htEq]
+      exact Finset.mem_range.mp hr
+    exact hfull hrt
+  exact eq_oddLowerHalfFamily_of_exact_slice_profile hlower hupper
+
 /-- A boundary slice lies in the corresponding outside slice. -/
 theorem positiveBoundary_slice_subset_outside_slice
     {𝒟 : Finset (Finset α)} (r : ℕ) :
