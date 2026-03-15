@@ -3659,6 +3659,15 @@ theorem oddHalfCubeBoundaryLower_of_globalMinimizerFirstPositiveOutsideSliceForc
       (oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySliceForcesStrictUpperShadowGap_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictUpperShadowGap
         hOut)
 
+theorem oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanish_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictUpperShadowGap
+    (hOut :
+      OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanishStatement := by
+  exact
+    oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanish_of_lowerBoundarySliceForcesStrictUpperShadowGap
+      (oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySliceForcesStrictUpperShadowGap_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictUpperShadowGap
+        hOut)
+
 theorem oddHalfCubeWideMiddleTransitionWindowForcesStrictUpperShadowGap_of_firstBadBoundarySliceForcesStrictUpperShadowGap
     (hFirstBad :
       OddHalfCubeFirstBadBoundarySliceForcesStrictUpperShadowGapStatement) :
@@ -3857,6 +3866,15 @@ theorem oddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLower_of_globalMinimizer
       hmin (hVanish hmin)]
   exact le_of_eq (card_oddMiddleLayer m).symm
 
+theorem oddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLower_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictUpperShadowGap
+    (hOut :
+      OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLowerStatement := by
+  exact
+    oddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLower_of_globalMinimizerLowerBoundarySlicesVanish
+      (oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanish_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictUpperShadowGap
+        hOut)
+
 theorem ncard_upperClosure_minimalOutside_eq_two_pow_of_card_eq_half_cube
     {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
     (h𝒟 : IsDownSetFamily 𝒟)
@@ -4040,6 +4058,15 @@ theorem oddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichain_of_globalMin
   · rw [hEq]
     exact isAntichain_oddMiddleLayer m
   · rw [hEq, card_oddMiddleLayer]
+
+theorem oddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichain_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictUpperShadowGap
+    (hOut :
+      OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichainStatement := by
+  exact
+    oddHalfCubeBoundaryGlobalMinimizerPositiveBoundaryAntichain_of_globalMinimizerLowerBoundarySlicesVanish
+      (oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanish_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictUpperShadowGap
+        hOut)
 
 theorem oddHalfCubeUpperShadowGapLower_of_globalMinimizerMinimalOutsideLower
     (hMinOut : OddHalfCubeBoundaryGlobalMinimizerMinimalOutsideLowerStatement) :
