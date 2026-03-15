@@ -2099,6 +2099,20 @@ def OddHalfCubeMiddleTransitionWindowLargerTotalSizeForcesStrictUpperShadowGapSt
       totalSize (oddLowerHalfFamily m) < totalSize 𝒟 →
       Nat.choose (2 * m + 1) m < upperShadowGap 𝒟
 
+/-- Further-localized odd direct-route surface: after the endpoint-collapse lemmas, it is enough to
+handle only genuinely wide middle transition windows `t < m+1 < u`. -/
+def OddHalfCubeWideMiddleTransitionWindowForcesStrictUpperShadowGapStatement : Prop :=
+  ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))} {t u : ℕ},
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 →
+      t < m + 1 →
+      m + 1 < u →
+      (∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 1) r) →
+      (∀ ⦃r : ℕ⦄, u ≤ r → r ≤ 2 * m + 1 → #(𝒟 # r) = 0) →
+      (∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+        #(𝒟 # r) ≠ Nat.choose (2 * m + 1) r ∧ #(𝒟 # r) ≠ 0) →
+      totalSize (oddLowerHalfFamily m) < totalSize 𝒟 →
+      Nat.choose (2 * m + 1) m < upperShadowGap 𝒟
+
 theorem oddHalfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower
     (hGap : OddHalfCubeUpperShadowGapLowerStatement) :
     OddHalfCubeBoundaryLowerStatement := by
@@ -3315,6 +3329,27 @@ theorem oddHalfCubeMiddleTransitionWindowLargerTotalSizeForcesStrictUpperShadowG
   intro m 𝒟 t u hmin htmid humid hu hfull hzero hmid hsize
   exact hSize hmin.1 hmin.2.1 hsize
 
+theorem oddHalfCubeMiddleTransitionWindowLargerTotalSizeForcesStrictUpperShadowGap_of_wideMiddleTransitionWindowForcesStrictUpperShadowGap
+    (hWide :
+      OddHalfCubeWideMiddleTransitionWindowForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeMiddleTransitionWindowLargerTotalSizeForcesStrictUpperShadowGapStatement := by
+  intro m 𝒟 t u hmin htmid humid hu hfull hzero hmid hsize
+  by_cases htEq : t = m + 1
+  · have hEq : 𝒟 = oddLowerHalfFamily m :=
+      eq_oddLowerHalfFamily_of_middleTransitionWindow_of_t_eq_middle
+        hmin htmid humid hu hfull hzero hmid htEq
+    exfalso
+    simpa [hEq] using hsize.ne'
+  · by_cases huEq : u = m + 1
+    · have hEq : 𝒟 = oddLowerHalfFamily m :=
+        eq_oddLowerHalfFamily_of_middleTransitionWindow_of_u_eq_middle
+          hmin htmid humid hu hfull hzero hmid huEq
+      exfalso
+      simpa [hEq] using hsize.ne'
+    · have htlt : t < m + 1 := lt_of_le_of_ne htmid htEq
+      have hltu : m + 1 < u := lt_of_le_of_ne humid (by simpa [eq_comm] using huEq)
+      exact hWide hmin htlt hltu hfull hzero hmid hsize
+
 /-- Further-localized odd closure: it is enough to prove strict upper-shadow-gap growth only for
 the chosen global minimizer carrying middle transition-window data. -/
 theorem oddHalfCubeBoundaryLower_of_middleTransitionWindowLargerTotalSizeForcesStrictUpperShadowGap
@@ -3346,6 +3381,15 @@ theorem oddHalfCubeBoundaryLower_of_middleTransitionWindowLargerTotalSizeForcesS
     Nat.choose (2 * m + 1) m = #(positiveBoundary 𝒟) := by
       simpa [hEq, card_positiveBoundary_oddLowerHalfFamily]
     _ ≤ #(positiveBoundary 𝒜) := hminLe
+
+theorem oddHalfCubeBoundaryLower_of_wideMiddleTransitionWindowForcesStrictUpperShadowGap
+    (hWide :
+      OddHalfCubeWideMiddleTransitionWindowForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_middleTransitionWindowLargerTotalSizeForcesStrictUpperShadowGap
+      (oddHalfCubeMiddleTransitionWindowLargerTotalSizeForcesStrictUpperShadowGap_of_wideMiddleTransitionWindowForcesStrictUpperShadowGap
+        hWide)
 
 theorem exact_slice_profile_of_isOddHalfCubeBoundaryMinimizer_of_lowerBoundarySlicesVanish
     {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
