@@ -1228,6 +1228,74 @@ theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_sliceTransitionEndpoints
       exact ⟨hempty, by simp⟩
   · exact card_top_slice_eq_zero_of_isOddHalfCubeBoundaryGlobalMinimizer hmin
 
+/-- The selected odd minimizer has a genuine transition window in its slice profile: a full
+prefix, then a transition region, then a zero tail. -/
+theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_sliceTransitionWindow
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 1))), ∃ t u : ℕ,
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      t ≤ u ∧ u ≤ 2 * m + 1 ∧
+      (∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 1) r) ∧
+      (∀ ⦃r : ℕ⦄, u ≤ r → r ≤ 2 * m + 1 → #(𝒟 # r) = 0) ∧
+      (∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+        #(𝒟 # r) ≠ Nat.choose (2 * m + 1) r ∧ #(𝒟 # r) ≠ 0) := by
+  obtain ⟨𝒟, hmin, hshadow, hshift, hmono, hfullPrefix, hzeroSuffix, h0, htop⟩ :=
+    exists_isOddHalfCubeBoundaryGlobalMinimizer_sliceTransitionEndpoints m
+  have htopNotFull : #(𝒟 # (2 * m + 1)) ≠ Nat.choose (2 * m + 1) (2 * m + 1) := by
+    simp [htop]
+  let t :=
+    Nat.find
+      (show ∃ r : ℕ, r ≤ 2 * m + 1 ∧ #(𝒟 # r) ≠ Nat.choose (2 * m + 1) r from
+        ⟨2 * m + 1, le_rfl, htopNotFull⟩)
+  let u :=
+    Nat.find
+      (show ∃ r : ℕ, r ≤ 2 * m + 1 ∧ #(𝒟 # r) = 0 from
+        ⟨2 * m + 1, le_rfl, htop⟩)
+  have htSpec : t ≤ 2 * m + 1 ∧ #(𝒟 # t) ≠ Nat.choose (2 * m + 1) t := by
+    exact Nat.find_spec
+      (show ∃ r : ℕ, r ≤ 2 * m + 1 ∧ #(𝒟 # r) ≠ Nat.choose (2 * m + 1) r from
+        ⟨2 * m + 1, le_rfl, htopNotFull⟩)
+  have huSpec : u ≤ 2 * m + 1 ∧ #(𝒟 # u) = 0 := by
+    exact Nat.find_spec
+      (show ∃ r : ℕ, r ≤ 2 * m + 1 ∧ #(𝒟 # r) = 0 from
+        ⟨2 * m + 1, le_rfl, htop⟩)
+  have huNotFull : #(𝒟 # u) ≠ Nat.choose (2 * m + 1) u := by
+    intro huFull
+    have hchoosePos : 0 < Nat.choose (2 * m + 1) u := Nat.choose_pos huSpec.1
+    omega
+  have htu : t ≤ u := by
+    exact Nat.find_min'
+      (show ∃ r : ℕ, r ≤ 2 * m + 1 ∧ #(𝒟 # r) ≠ Nat.choose (2 * m + 1) r from
+        ⟨2 * m + 1, le_rfl, htopNotFull⟩)
+      ⟨huSpec.1, huNotFull⟩
+  refine ⟨𝒟, t, u, hmin, htu, huSpec.1, ?_, ?_, ?_⟩
+  · intro r hrt
+    by_contra hnotFull
+    have hrle : r ≤ 2 * m + 1 := by omega
+    have htr : t ≤ r := by
+      exact Nat.find_min'
+        (show ∃ r : ℕ, r ≤ 2 * m + 1 ∧ #(𝒟 # r) ≠ Nat.choose (2 * m + 1) r from
+          ⟨2 * m + 1, le_rfl, htopNotFull⟩)
+        ⟨hrle, hnotFull⟩
+    omega
+  · intro r hur hrle
+    exact hzeroSuffix hur hrle huSpec.2
+  · intro r htr hru
+    constructor
+    · intro hrFull
+      have hrle : r ≤ 2 * m + 1 := by omega
+      have htFull : #(𝒟 # t) = Nat.choose (2 * m + 1) t :=
+        hfullPrefix htr hrle hrFull
+      exact htSpec.2 htFull
+    · intro hrZero
+      have hrle : r ≤ 2 * m + 1 := by omega
+      have hur' : u ≤ r := by
+        exact Nat.find_min'
+          (show ∃ r : ℕ, r ≤ 2 * m + 1 ∧ #(𝒟 # r) = 0 from
+            ⟨2 * m + 1, le_rfl, htop⟩)
+          ⟨hrle, hrZero⟩
+      omega
+
 /-- A boundary slice lies in the corresponding outside slice. -/
 theorem positiveBoundary_slice_subset_outside_slice
     {𝒟 : Finset (Finset α)} (r : ℕ) :
