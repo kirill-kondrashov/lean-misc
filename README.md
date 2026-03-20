@@ -395,10 +395,31 @@ This fails for the same $n = 3$, $e = 1$ family above, because it would force
 
 Current research program:
 
-1. Prove the Prism Theorem.
-2. Work on it through the prism family `twoSheetFamily M N` in the even cube.
-3. Use the exact section-boundary decomposition and a canonical-minimizer / compression route.
-4. Replace `halfCubeBoundaryLower` by the proved prism frontier.
+1. Keep `Prism Theorem` / `Two-Sheet Boundary Theorem` as the single live theorem target.
+2. Treat the prism packaging, exact section-boundary decomposition, and even minimizer
+   normalization as completed infrastructure:
+   - `twoSheetFamily M N` is already formalized.
+   - the exact identity `twoSheetOuterBoundaryCard M N = #(positiveBoundary (twoSheetFamily M N))`
+     is already proved.
+   - the even minimizer route already reaches a middle-transition-window normal form.
+3. Focus the proof program on the actual remaining bottleneck: two local odd strict-gap frontiers.
+   The even minimizer route has now been reduced to:
+   - an odd one-sheet local stability theorem: if an odd half-cube global minimizer has a first
+     positive outside slice below the middle, then its weighted-drop / upper-shadow gap is already
+     strictly above the middle binomial threshold;
+   - an odd two-sheet local stability theorem: if nested odd sheets `M ⊆ N` with positive excess
+     produce a prism family with larger `totalSize` than the diagonal witness, then the visible
+     pair-interface boundary is already strictly above the middle threshold.
+4. Use those odd strict-gap frontiers to force
+
+   ```math
+   \mathrm{totalSize}(\mathcal D) \le \mathrm{totalSize}(\mathrm{evenLowerHalfFamily}(m)),
+   ```
+
+   and then recover balanced `0`-sections and the collapse to the standard witness through the
+   already-formalized even minimizer reductions.
+5. Feed that extremizer identification back through `PrismHalfCubeBoundaryLowerStatement` and
+   replace `halfCubeBoundaryLower` by the proved prism frontier.
 
 The old odd-excess wrappers in
 [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean)

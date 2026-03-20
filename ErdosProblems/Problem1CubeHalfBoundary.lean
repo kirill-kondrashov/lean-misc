@@ -126,6 +126,18 @@ def IsOddHalfCubeBoundaryGlobalMinimizer {m : ℕ}
         𝒜.card = 2 ^ (2 * m) →
         #(positiveBoundary 𝒟) ≤ #(positiveBoundary 𝒜)
 
+/-- A global minimizer of the even half-cube boundary functional: among all even-cube down-sets of
+half-cube size, `𝒟` has minimum positive-boundary size. This is the natural extremizer object for
+the prism reformulation of the live frontier. -/
+def IsEvenHalfCubeBoundaryGlobalMinimizer {m : ℕ}
+    (𝒟 : Finset (Finset (Fin (2 * m + 2)))) : Prop :=
+  IsDownSetFamily 𝒟 ∧
+    𝒟.card = 2 ^ (2 * m + 1) ∧
+    ∀ {𝒜 : Finset (Finset (Fin (2 * m + 2)))},
+      IsDownSetFamily 𝒜 →
+        𝒜.card = 2 ^ (2 * m + 1) →
+        #(positiveBoundary 𝒟) ≤ #(positiveBoundary 𝒜)
+
 /-- Secondary potential for compressed-extremizer arguments: total coordinate weight of a cube
 family, measured by summing the natural indices of all coordinates appearing in all sets. -/
 def totalIndexWeight {n : ℕ} (𝒜 : Finset (Finset (Fin n))) : ℕ :=
@@ -493,6 +505,174 @@ theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_shifted_slices
   rw [card_swapCoord_of_mem_right hi hj]
   exact (Finset.mem_slice.mp hs).2
 
+/-- There exists an even half-cube global boundary minimizer. The witness family
+`evenLowerHalfFamily` makes the finite search space nonempty. -/
+theorem exists_isEvenHalfCubeBoundaryGlobalMinimizer
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 2))), IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 := by
+  classical
+  let s : Finset (Finset (Finset (Fin (2 * m + 2)))) :=
+    (Finset.univ : Finset (Finset (Finset (Fin (2 * m + 2))))).filter
+      (fun 𝒟 => IsDownSetFamily 𝒟 ∧ 𝒟.card = 2 ^ (2 * m + 1))
+  have hs_nonempty : s.Nonempty := by
+    refine ⟨evenLowerHalfFamily m, ?_⟩
+    simp [s, isDownSetFamily_evenLowerHalfFamily m, card_evenLowerHalfFamily_eq_half_cube m]
+  obtain ⟨𝒟, h𝒟s, hmin⟩ :=
+    Finset.exists_min_image s (fun 𝒜 => #(positiveBoundary 𝒜)) hs_nonempty
+  refine ⟨𝒟, ?_⟩
+  have h𝒟s' : IsDownSetFamily 𝒟 ∧ 𝒟.card = 2 ^ (2 * m + 1) := by
+    simpa [s] using h𝒟s
+  rcases h𝒟s' with ⟨h𝒟down, h𝒟card⟩
+  refine ⟨h𝒟down, h𝒟card, ?_⟩
+  intro 𝒜 h𝒜 h𝒜card
+  have h𝒜s : 𝒜 ∈ s := by
+    simpa [s, h𝒜, h𝒜card]
+  exact hmin 𝒜 h𝒜s
+
+/-- One can choose an even half-cube global boundary minimizer with least total coordinate weight.
+This is the even-cube analogue of the odd normalization surface used by the prism route. -/
+theorem exists_isEvenHalfCubeBoundaryGlobalMinimizer_minTotalIndexWeight
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 2))),
+      IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      ∀ {𝒜 : Finset (Finset (Fin (2 * m + 2)))},
+        IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒜 →
+        totalIndexWeight 𝒟 ≤ totalIndexWeight 𝒜 := by
+  classical
+  let s : Finset (Finset (Finset (Fin (2 * m + 2)))) :=
+    (Finset.univ : Finset (Finset (Finset (Fin (2 * m + 2))))).filter
+      (fun 𝒟 => IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+  have hs_nonempty : s.Nonempty := by
+    obtain ⟨𝒟, h𝒟⟩ := exists_isEvenHalfCubeBoundaryGlobalMinimizer m
+    refine ⟨𝒟, ?_⟩
+    simpa [s, h𝒟]
+  obtain ⟨𝒟, h𝒟s, hmin⟩ :=
+    Finset.exists_min_image s totalIndexWeight hs_nonempty
+  refine ⟨𝒟, ?_, ?_⟩
+  · simpa [s] using h𝒟s
+  · intro 𝒜 h𝒜
+    have h𝒜s : 𝒜 ∈ s := by
+      simpa [s, h𝒜]
+    exact hmin 𝒜 h𝒜s
+
+/-- Coordinate compression preserves the boundary value of a genuine even half-cube global
+minimizer. This is the first normalization step for the even-cube extremizer problem behind the
+prism theorem. -/
+theorem card_positiveBoundary_coordCompression_eq_of_isEvenHalfCubeBoundaryGlobalMinimizer
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (i j : Fin (2 * m + 2)) :
+    #(positiveBoundary (coordCompression i j 𝒟)) = #(positiveBoundary 𝒟) := by
+  rcases hmin with ⟨h𝒟down, h𝒟card, hmin⟩
+  have hcomp :=
+    coordCompression_preserves_downset_card_positiveBoundary i j 𝒟 h𝒟down
+  have hmin_le :
+      #(positiveBoundary 𝒟) ≤ #(positiveBoundary (coordCompression i j 𝒟)) := by
+    exact hmin hcomp.1 (by simpa [h𝒟card] using hcomp.2.1)
+  exact Nat.le_antisymm hcomp.2.2 hmin_le
+
+/-- Coordinate compression keeps an even half-cube global boundary minimizer inside the same
+minimizing class. -/
+theorem isEvenHalfCubeBoundaryGlobalMinimizer_coordCompression
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (i j : Fin (2 * m + 2)) :
+    IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) (coordCompression i j 𝒟) := by
+  rcases hmin with ⟨h𝒟down, h𝒟card, hmin'⟩
+  have hcomp :=
+    coordCompression_preserves_downset_card_positiveBoundary i j 𝒟 h𝒟down
+  refine ⟨hcomp.1, ?_, ?_⟩
+  · simpa [h𝒟card] using hcomp.2.1
+  · intro 𝒜 h𝒜 h𝒜card
+    calc
+      #(positiveBoundary (coordCompression i j 𝒟))
+        = #(positiveBoundary 𝒟) :=
+          card_positiveBoundary_coordCompression_eq_of_isEvenHalfCubeBoundaryGlobalMinimizer
+            ⟨h𝒟down, h𝒟card, hmin'⟩ i j
+      _ ≤ #(positiveBoundary 𝒜) := hmin' h𝒜 h𝒜card
+
+/-- A global even half-cube minimizer with least total index weight is fixed by every ordered
+coordinate compression. This is the simultaneous-normalization theorem needed before any canonical
+extremizer identification. -/
+theorem coordCompression_eq_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_minTotalIndexWeight
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {i j : Fin (2 * m + 2)}
+    (hij : i < j)
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hWeightMin :
+      ∀ {𝒜 : Finset (Finset (Fin (2 * m + 2)))},
+        IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒜 →
+        totalIndexWeight 𝒟 ≤ totalIndexWeight 𝒜) :
+    coordCompression i j 𝒟 = 𝒟 := by
+  by_contra hne
+  have hcompMin :
+      IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) (coordCompression i j 𝒟) :=
+    isEvenHalfCubeBoundaryGlobalMinimizer_coordCompression hmin i j
+  have hle :
+      totalIndexWeight 𝒟 ≤ totalIndexWeight (coordCompression i j 𝒟) :=
+    hWeightMin hcompMin
+  have hlt :
+      totalIndexWeight (coordCompression i j 𝒟) < totalIndexWeight 𝒟 :=
+    totalIndexWeight_coordCompression_lt_of_ne hij hne
+  exact (not_lt_of_ge hle) hlt
+
+/-- There exists an even half-cube global boundary minimizer that is fixed by every ordered
+coordinate compression. -/
+theorem exists_isEvenHalfCubeBoundaryGlobalMinimizer_fully_coordCompressed
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 2))),
+      IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      ∀ ⦃i j : Fin (2 * m + 2)⦄, i < j → coordCompression i j 𝒟 = 𝒟 := by
+  obtain ⟨𝒟, hmin, hWeightMin⟩ :=
+    exists_isEvenHalfCubeBoundaryGlobalMinimizer_minTotalIndexWeight m
+  refine ⟨𝒟, hmin, ?_⟩
+  intro i j hij
+  exact coordCompression_eq_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_minTotalIndexWeight
+    hij hmin hWeightMin
+
+/-- There exists an even half-cube global boundary minimizer that is shifted. This is the first
+structural consequence extracted from even-cube simultaneous compression normalization. -/
+theorem exists_isEvenHalfCubeBoundaryGlobalMinimizer_shifted
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 2))),
+      IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      ∀ ⦃i j : Fin (2 * m + 2)⦄, i < j →
+        ∀ ⦃s : Finset (Fin (2 * m + 2))⦄,
+          s ∈ 𝒟 → i ∉ s → j ∈ s → swapCoord i j s ∈ 𝒟 := by
+  obtain ⟨𝒟, hmin, hcomp⟩ :=
+    exists_isEvenHalfCubeBoundaryGlobalMinimizer_fully_coordCompressed m
+  refine ⟨𝒟, hmin, ?_⟩
+  intro i j hij s hs hi hj
+  exact swapCoord_mem_of_mem_of_coordCompression_eq (hcomp hij) hi hj hs
+
+/-- The shifted even global minimizer can be chosen so that every fixed-rank slice is shifted as
+well. This is the first slice-level structural consequence for the even-cube extremizer program. -/
+theorem exists_isEvenHalfCubeBoundaryGlobalMinimizer_shifted_slices
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 2))),
+      IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      ∀ ⦃r : ℕ⦄ ⦃i j : Fin (2 * m + 2)⦄, i < j →
+        ∀ ⦃s : Finset (Fin (2 * m + 2))⦄,
+          s ∈ (𝒟 # r) → i ∉ s → j ∈ s → swapCoord i j s ∈ (𝒟 # r) := by
+  obtain ⟨𝒟, hmin, hshift⟩ := exists_isEvenHalfCubeBoundaryGlobalMinimizer_shifted m
+  refine ⟨𝒟, hmin, ?_⟩
+  intro r i j hij s hs hi hj
+  refine Finset.mem_slice.mpr ?_
+  refine ⟨(Finset.mem_slice.mp hs).1 |> fun hs' => hshift hij hs' hi hj, ?_⟩
+  rw [card_swapCoord_of_mem_right hi hj]
+  exact (Finset.mem_slice.mp hs).2
+
+/-- Every even half-cube global boundary minimizer is no worse than the standard lower-half prism
+witness `evenLowerHalfFamily`. -/
+theorem card_positiveBoundary_le_choose_middle_of_isEvenHalfCubeBoundaryGlobalMinimizer
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟) :
+    #(positiveBoundary 𝒟) ≤ Nat.choose (2 * m + 2) (m + 1) := by
+  have hle :
+      #(positiveBoundary 𝒟) ≤ #(positiveBoundary (evenLowerHalfFamily m)) :=
+    hmin.2.2 (𝒜 := evenLowerHalfFamily m)
+      (isDownSetFamily_evenLowerHalfFamily m) (card_evenLowerHalfFamily_eq_half_cube m)
+  simpa [card_positiveBoundary_evenLowerHalfFamily] using hle
+
 theorem oddLowerHalfFamily_realizes_oddHalfCubeSliceThresholdTarget (m : ℕ) :
     IsDownSetFamily (oddLowerHalfFamily m) ∧
       (oddLowerHalfFamily m).card = 2 ^ (2 * m) ∧
@@ -839,6 +1019,187 @@ theorem totalSize_eq_sum_range_mul_card_slice (𝒟 : Finset (Finset α)) :
         rw [Finset.sum_const_nat (s := 𝒟 # r) (m := r) (fun s hs => (Finset.mem_slice.mp hs).2),
           Nat.mul_comm]
 
+/-- Shifting every set away from `0` preserves total size: `succFamily` changes coordinates but
+not cardinalities. -/
+theorem totalSize_succFamily {n : ℕ} (𝒜 : Finset (Finset (Fin n))) :
+    totalSize (succFamily 𝒜) = totalSize 𝒜 := by
+  have hsucc :
+      totalSize (succFamily 𝒜) =
+        Finset.sum (Finset.range (n + 2)) (fun r => r * #((succFamily 𝒜) # r)) := by
+    simpa using totalSize_eq_sum_range_mul_card_slice (succFamily 𝒜)
+  have hbase :
+      totalSize 𝒜 =
+        Finset.sum (Finset.range (n + 1)) (fun r => r * #(𝒜 # r)) := by
+    simpa using totalSize_eq_sum_range_mul_card_slice 𝒜
+  have hsplit :
+      Finset.sum (Finset.range (n + 2)) (fun r => r * #(𝒜 # r)) =
+        Finset.sum (Finset.range (n + 1)) (fun r => r * #(𝒜 # r)) +
+          Finset.sum (Finset.Ico (n + 1) (n + 2)) (fun r => r * #(𝒜 # r)) := by
+    symm
+    exact Finset.sum_range_add_sum_Ico (fun r => r * #(𝒜 # r)) (by omega)
+  have htopZero :
+      Finset.sum (Finset.Ico (n + 1) (n + 2)) (fun r => r * #(𝒜 # r)) = 0 := by
+    apply Finset.sum_eq_zero
+    intro r hr
+    have hrEq : r = n + 1 := by
+      rcases Finset.mem_Ico.mp hr with ⟨hr1, hr2⟩
+      omega
+    subst hrEq
+    have hslice :
+        #(𝒜 # (n + 1)) = 0 := by
+      exact Nat.eq_zero_of_le_zero (by
+        simpa using (card_slice_le_choose (𝒟 := 𝒜) (r := n + 1)))
+    simp [hslice]
+  calc
+    totalSize (succFamily 𝒜)
+      = Finset.sum (Finset.range (n + 2)) (fun r => r * #((succFamily 𝒜) # r)) := hsucc
+    _ = Finset.sum (Finset.range (n + 2)) (fun r => r * #(𝒜 # r)) := by
+          refine Finset.sum_congr rfl ?_
+          intro r hr
+          rw [card_slice_succFamily]
+    _ = Finset.sum (Finset.range (n + 1)) (fun r => r * #(𝒜 # r)) +
+          Finset.sum (Finset.Ico (n + 1) (n + 2)) (fun r => r * #(𝒜 # r)) := hsplit
+    _ = Finset.sum (Finset.range (n + 1)) (fun r => r * #(𝒜 # r)) := by
+          rw [htopZero, add_zero]
+    _ = totalSize 𝒜 := hbase.symm
+
+/-- The standard even lower-half witness has explicit total size. In particular, it sits strictly
+below the crude uniform upper bound `(2 * m + 2) * 2^(2 * m)`, so that bound cannot be the
+correct witness-comparison target for the prism program. -/
+theorem totalSize_evenLowerHalfFamily (m : ℕ) :
+    totalSize (evenLowerHalfFamily m) =
+      (2 * m + 2) * 2 ^ (2 * m) - (m + 1) * Nat.choose (2 * m + 1) m := by
+  have hsumAll :
+      totalSize (evenLowerHalfFamily m) =
+        Finset.sum (Finset.range (2 * m + 3))
+          (fun r => r * #((evenLowerHalfFamily m) # r)) := by
+    simpa using totalSize_eq_sum_range_mul_card_slice (evenLowerHalfFamily m)
+  have hsplit :
+      Finset.sum (Finset.range (2 * m + 3))
+          (fun r => r * #((evenLowerHalfFamily m) # r)) =
+        Finset.sum (Finset.range (m + 2))
+            (fun r => r * #((evenLowerHalfFamily m) # r)) +
+          Finset.sum (Finset.Ico (m + 2) (2 * m + 3))
+            (fun r => r * #((evenLowerHalfFamily m) # r)) := by
+    symm
+    exact Finset.sum_range_add_sum_Ico
+      (fun r => r * #((evenLowerHalfFamily m) # r)) (by omega)
+  have hupperZero :
+      Finset.sum (Finset.Ico (m + 2) (2 * m + 3))
+          (fun r => r * #((evenLowerHalfFamily m) # r)) = 0 := by
+    apply Finset.sum_eq_zero
+    intro r hr
+    rw [card_slice_evenLowerHalfFamily_eq_zero (Finset.mem_Ico.mp hr).1, Nat.mul_zero]
+  have hlowerSplit :
+      Finset.sum (Finset.range (m + 2))
+          (fun r => r * #((evenLowerHalfFamily m) # r)) =
+        Finset.sum (Finset.range (m + 1))
+            (fun r => r * #((evenLowerHalfFamily m) # r)) +
+          (m + 1) * #((evenLowerHalfFamily m) # (m + 1)) := by
+    rw [Finset.sum_range_succ]
+  have hweightedLowerShift :
+      Finset.sum (Finset.range (m + 1))
+          (fun r => r * #((evenLowerHalfFamily m) # r)) =
+        Finset.sum (Finset.range m)
+          (fun r => (r + 1) * #((evenLowerHalfFamily m) # (r + 1))) := by
+    have hshift :=
+      (Finset.sum_range_succ'
+        (f := fun r => r * #((evenLowerHalfFamily m) # r)) (n := m))
+    simpa using hshift
+  have hweightedLowerChoose :
+      Finset.sum (Finset.range (m + 1))
+          (fun r => r * #((evenLowerHalfFamily m) # r)) =
+        (2 * m + 2) *
+          Finset.sum (Finset.range m) (fun r => Nat.choose (2 * m + 1) r) := by
+    rw [hweightedLowerShift]
+    calc
+      Finset.sum (Finset.range m)
+          (fun r => (r + 1) * #((evenLowerHalfFamily m) # (r + 1)))
+        =
+          Finset.sum (Finset.range m)
+            (fun r => (2 * m + 2) * Nat.choose (2 * m + 1) r) := by
+              refine Finset.sum_congr rfl ?_
+              intro r hr
+              rw [card_slice_evenLowerHalfFamily_eq_choose
+                (Nat.succ_le_of_lt (Finset.mem_range.mp hr))]
+              simpa [Nat.mul_comm] using
+                (Nat.add_one_mul_choose_eq (2 * m + 1) r).symm
+      _ =
+          (2 * m + 2) *
+            Finset.sum (Finset.range m) (fun r => Nat.choose (2 * m + 1) r) := by
+              rw [Finset.mul_sum]
+  have hhalf :
+      Finset.sum (Finset.range (m + 1)) (fun r => Nat.choose (2 * m + 1) r) =
+        2 ^ (2 * m) := by
+    simpa [show 4 ^ m = 2 ^ (2 * m) by rw [show 4 = 2 ^ 2 by norm_num, pow_mul]] using
+      Nat.sum_range_choose_halfway m
+  have hlowerChoose :
+      Finset.sum (Finset.range m) (fun r => Nat.choose (2 * m + 1) r) =
+        2 ^ (2 * m) - Nat.choose (2 * m + 1) m := by
+    have hsucc :
+        Finset.sum (Finset.range (m + 1)) (fun r => Nat.choose (2 * m + 1) r) =
+          Finset.sum (Finset.range m) (fun r => Nat.choose (2 * m + 1) r) +
+            Nat.choose (2 * m + 1) m := by
+      rw [Finset.sum_range_succ]
+    omega
+  have hmiddleLePow : Nat.choose (2 * m + 1) m ≤ 2 ^ (2 * m) := by
+    have hle :
+        Nat.choose (2 * m + 1) m ≤
+          Finset.sum (Finset.range (m + 1)) (fun r => Nat.choose (2 * m + 1) r) := by
+      exact Finset.single_le_sum
+        (fun _ _ => Nat.zero_le _) (Finset.mem_range.mpr (by omega))
+    omega
+  have hdoubleMiddle :
+      (2 * m + 2) * Nat.choose (2 * m + 1) m =
+        2 * ((m + 1) * Nat.choose (2 * m + 1) m) := by
+    ring
+  have hdoubleMiddleLe :
+      2 * ((m + 1) * Nat.choose (2 * m + 1) m) ≤ (2 * m + 2) * 2 ^ (2 * m) := by
+    have hmul := Nat.mul_le_mul_left (m + 1) hmiddleLePow
+    calc
+      2 * ((m + 1) * Nat.choose (2 * m + 1) m) ≤ 2 * ((m + 1) * 2 ^ (2 * m)) :=
+        Nat.mul_le_mul_left 2 hmul
+      _ = (2 * m + 2) * 2 ^ (2 * m) := by ring
+  calc
+    totalSize (evenLowerHalfFamily m)
+      =
+        Finset.sum (Finset.range (2 * m + 3))
+          (fun r => r * #((evenLowerHalfFamily m) # r)) := hsumAll
+    _ =
+        Finset.sum (Finset.range (m + 2))
+            (fun r => r * #((evenLowerHalfFamily m) # r)) +
+          Finset.sum (Finset.Ico (m + 2) (2 * m + 3))
+            (fun r => r * #((evenLowerHalfFamily m) # r)) := hsplit
+    _ =
+        Finset.sum (Finset.range (m + 2))
+          (fun r => r * #((evenLowerHalfFamily m) # r)) := by
+            rw [hupperZero, add_zero]
+    _ =
+        Finset.sum (Finset.range (m + 1))
+            (fun r => r * #((evenLowerHalfFamily m) # r)) +
+          (m + 1) * #((evenLowerHalfFamily m) # (m + 1)) := hlowerSplit
+    _ =
+        (2 * m + 2) * Finset.sum (Finset.range m) (fun r => Nat.choose (2 * m + 1) r) +
+          (m + 1) * Nat.choose (2 * m + 1) m := by
+            rw [hweightedLowerChoose, card_slice_evenLowerHalfFamily_eq_middle]
+    _ =
+        (2 * m + 2) * (2 ^ (2 * m) - Nat.choose (2 * m + 1) m) +
+          (m + 1) * Nat.choose (2 * m + 1) m := by
+            rw [hlowerChoose]
+    _ =
+        (2 * m + 2) * 2 ^ (2 * m) - (m + 1) * Nat.choose (2 * m + 1) m := by
+            rw [Nat.mul_sub_left_distrib, hdoubleMiddle]
+            omega
+
+theorem totalSize_evenLowerHalfFamily_lt_max (m : ℕ) :
+    totalSize (evenLowerHalfFamily m) < (2 * m + 2) * 2 ^ (2 * m) := by
+  rw [totalSize_evenLowerHalfFamily]
+  have hchoosePos : 0 < Nat.choose (2 * m + 1) m := by
+    exact Nat.choose_pos (by omega)
+  have hsubPos : 0 < (m + 1) * Nat.choose (2 * m + 1) m := by
+    exact Nat.mul_pos (Nat.succ_pos _) hchoosePos
+  exact Nat.sub_lt (by positivity) hsubPos
+
 /-- The weighted drop functional on a profile `a : ℕ → ℚ` across the first `n` layers. -/
 def weightedDrop (n : ℕ) (a : ℕ → ℚ) : ℚ :=
   Finset.sum (Finset.range n) fun r =>
@@ -952,6 +1313,44 @@ theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_sliceCandidateData
           (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 1) r) := by
   obtain ⟨𝒟, hmin, hshift, hmono⟩ :=
     exists_isOddHalfCubeBoundaryGlobalMinimizer_shifted_slices_monotoneProfile m
+  refine ⟨𝒟, hmin, ?_, hshift, hmono⟩
+  intro r
+  exact shadow_slice_succ_subset_slice_of_isDownSetFamily hmin.1 r
+
+/-- The shifted even global minimizer can be chosen with a monotone normalized slice profile. This
+is the first quantitative slice-structure consequence on the even-cube side of the prism route. -/
+theorem exists_isEvenHalfCubeBoundaryGlobalMinimizer_shifted_slices_monotoneProfile
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 2))),
+      IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      (∀ ⦃r : ℕ⦄ ⦃i j : Fin (2 * m + 2)⦄, i < j →
+        ∀ ⦃s : Finset (Fin (2 * m + 2))⦄,
+          s ∈ (𝒟 # r) → i ∉ s → j ∈ s → swapCoord i j s ∈ (𝒟 # r)) ∧
+      ∀ r : ℕ,
+        ((#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 2) (r + 1)) ≤
+          (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 2) r := by
+  obtain ⟨𝒟, hmin, hshift⟩ := exists_isEvenHalfCubeBoundaryGlobalMinimizer_shifted_slices m
+  refine ⟨𝒟, hmin, hshift, ?_⟩
+  intro r
+  simpa [Fintype.card_fin] using
+    (card_slice_succ_div_choose_le_card_slice_div_choose_of_isDownSetFamily hmin.1 r)
+
+/-- A single packaged slice-data theorem for the even half-cube global minimizer selected by the
+compression route: shifted slices, adjacent shadow containment, and monotone normalized slice
+profile. -/
+theorem exists_isEvenHalfCubeBoundaryGlobalMinimizer_sliceCandidateData
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 2))),
+      IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      (∀ r : ℕ, ∂ (𝒟 # (r + 1)) ⊆ 𝒟 # r) ∧
+      (∀ ⦃r : ℕ⦄ ⦃i j : Fin (2 * m + 2)⦄, i < j →
+        ∀ ⦃s : Finset (Fin (2 * m + 2))⦄,
+          s ∈ (𝒟 # r) → i ∉ s → j ∈ s → swapCoord i j s ∈ (𝒟 # r)) ∧
+      (∀ r : ℕ,
+        ((#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 2) (r + 1)) ≤
+          (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 2) r) := by
+  obtain ⟨𝒟, hmin, hshift, hmono⟩ :=
+    exists_isEvenHalfCubeBoundaryGlobalMinimizer_shifted_slices_monotoneProfile m
   refine ⟨𝒟, hmin, ?_, hshift, hmono⟩
   intro r
   exact shadow_slice_succ_subset_slice_of_isDownSetFamily hmin.1 r
@@ -1144,6 +1543,197 @@ theorem exists_isOddHalfCubeBoundaryGlobalMinimizer_sliceCandidateData_intervalP
     exact card_slice_eq_zero_of_monotoneProfile_of_card_slice_eq_zero_suffix
       hmono hrs hs hzero
 
+/-- Even-cube version: for a family with monotone normalized slice profile, a full `(r+1)`-slice
+forces the `r`-slice to be full as well. -/
+theorem card_slice_eq_choose_of_monotoneProfile_of_card_slice_succ_eq_choose_even
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmono :
+      ∀ r : ℕ,
+        ((#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 2) (r + 1)) ≤
+          (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 2) r)
+    {r : ℕ} (hr : r ≤ 2 * m + 1)
+    (hfullSucc : #(𝒟 # (r + 1)) = Nat.choose (2 * m + 2) (r + 1)) :
+    #(𝒟 # r) = Nat.choose (2 * m + 2) r := by
+  have hchoose_succ_pos : 0 < (Nat.choose (2 * m + 2) (r + 1) : ℚ) := by
+    exact_mod_cast Nat.choose_pos (by omega)
+  have hchoose_pos : 0 < (Nat.choose (2 * m + 2) r : ℚ) := by
+    exact_mod_cast Nat.choose_pos (by omega)
+  have hlower :
+      (1 : ℚ) ≤ (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 2) r := by
+    simpa [hfullSucc, hchoose_succ_pos.ne'] using hmono r
+  have hslice_le :
+      (#(𝒟 # r) : ℚ) ≤ Nat.choose (2 * m + 2) r := by
+    exact_mod_cast card_slice_le_choose (𝒟 := 𝒟) (r := r)
+  have hupper :
+      (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 2) r ≤ 1 := by
+    have hratio :
+        (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 2) r ≤
+          (Nat.choose (2 * m + 2) r : ℚ) / Nat.choose (2 * m + 2) r := by
+      exact div_le_div_of_nonneg_right hslice_le (by positivity)
+    simpa [hchoose_pos.ne'] using hratio
+  have hEqRatio :
+      (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 2) r = 1 :=
+    le_antisymm hupper hlower
+  have hEqQ :
+      (#(𝒟 # r) : ℚ) = Nat.choose (2 * m + 2) r := by
+    have := (div_eq_iff hchoose_pos.ne').mp hEqRatio
+    simpa using this
+  exact_mod_cast hEqQ
+
+/-- Even-cube version: for a family with monotone normalized slice profile, a vanishing `r`-slice
+forces the `(r+1)`-slice to vanish as well. -/
+theorem card_slice_succ_eq_zero_of_monotoneProfile_of_card_slice_eq_zero_even
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmono :
+      ∀ r : ℕ,
+        ((#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 2) (r + 1)) ≤
+          (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 2) r)
+    {r : ℕ} (hr : r ≤ 2 * m + 1)
+    (hzero : #(𝒟 # r) = 0) :
+    #(𝒟 # (r + 1)) = 0 := by
+  have hchoose_succ_pos : 0 < (Nat.choose (2 * m + 2) (r + 1) : ℚ) := by
+    exact_mod_cast Nat.choose_pos (by omega)
+  have hratio_le_zero :
+      (#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 2) (r + 1) ≤ 0 := by
+    simpa [hzero] using hmono r
+  have hratio_nonneg :
+      0 ≤ (#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 2) (r + 1) := by
+    positivity
+  have hratio_eq :
+      (#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 2) (r + 1) = 0 :=
+    le_antisymm hratio_le_zero hratio_nonneg
+  have hEqQ :
+      (#(𝒟 # (r + 1)) : ℚ) = 0 := by
+    have := (div_eq_iff hchoose_succ_pos.ne').mp hratio_eq
+    simpa using this
+  exact_mod_cast hEqQ
+
+/-- The even minimizer selected by the compression route can be chosen with the first concrete
+slice-rigidity consequences already bundled: full slices propagate downward and zero slices
+propagate upward. -/
+theorem exists_isEvenHalfCubeBoundaryGlobalMinimizer_sliceCandidateData_propagation
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 2))),
+      IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      (∀ r : ℕ, ∂ (𝒟 # (r + 1)) ⊆ 𝒟 # r) ∧
+      (∀ ⦃r : ℕ⦄ ⦃i j : Fin (2 * m + 2)⦄, i < j →
+        ∀ ⦃s : Finset (Fin (2 * m + 2))⦄,
+          s ∈ (𝒟 # r) → i ∉ s → j ∈ s → swapCoord i j s ∈ (𝒟 # r)) ∧
+      (∀ r : ℕ,
+        ((#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 2) (r + 1)) ≤
+          (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 2) r) ∧
+      (∀ ⦃r : ℕ⦄, r ≤ 2 * m + 1 →
+        #(𝒟 # (r + 1)) = Nat.choose (2 * m + 2) (r + 1) →
+          #(𝒟 # r) = Nat.choose (2 * m + 2) r) ∧
+      (∀ ⦃r : ℕ⦄, r ≤ 2 * m + 1 →
+        #(𝒟 # r) = 0 → #(𝒟 # (r + 1)) = 0) := by
+  obtain ⟨𝒟, hmin, hshadow, hshift, hmono⟩ :=
+    exists_isEvenHalfCubeBoundaryGlobalMinimizer_sliceCandidateData m
+  refine ⟨𝒟, hmin, hshadow, hshift, hmono, ?_, ?_⟩
+  · intro r hr hfullSucc
+    exact card_slice_eq_choose_of_monotoneProfile_of_card_slice_succ_eq_choose_even
+      hmono hr hfullSucc
+  · intro r hr hzero
+    exact card_slice_succ_eq_zero_of_monotoneProfile_of_card_slice_eq_zero_even
+      hmono hr hzero
+
+/-- Even-cube version: under a monotone normalized slice profile, a full slice forces every lower
+slice to be full. -/
+theorem card_slice_eq_choose_of_monotoneProfile_of_card_slice_eq_choose_prefix_even
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmono :
+      ∀ r : ℕ,
+        ((#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 2) (r + 1)) ≤
+          (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 2) r) :
+    ∀ r : ℕ, r ≤ 2 * m + 1 →
+      #(𝒟 # (r + 1)) = Nat.choose (2 * m + 2) (r + 1) →
+      ∀ s : ℕ, s ≤ r + 1 → #(𝒟 # s) = Nat.choose (2 * m + 2) s
+  | 0, hr, hfull, s, hs => by
+      have hs' : s = 0 ∨ s = 1 := by omega
+      rcases hs' with rfl | rfl
+      · exact card_slice_eq_choose_of_monotoneProfile_of_card_slice_succ_eq_choose_even
+          hmono (by omega) hfull
+      · exact hfull
+  | r + 1, hr, hfull, s, hs => by
+      have hprev :
+          #(𝒟 # (r + 1)) = Nat.choose (2 * m + 2) (r + 1) :=
+        card_slice_eq_choose_of_monotoneProfile_of_card_slice_succ_eq_choose_even
+          hmono (by omega) hfull
+      by_cases hsTop : s = r + 2
+      · subst hsTop
+        exact hfull
+      · have hsle : s ≤ r + 1 := by omega
+        exact card_slice_eq_choose_of_monotoneProfile_of_card_slice_eq_choose_prefix_even
+          hmono r (by omega) hprev s hsle
+
+/-- Even-cube version: under a monotone normalized slice profile, a zero slice forces every higher
+slice to vanish. -/
+theorem card_slice_eq_zero_of_monotoneProfile_of_card_slice_eq_zero_suffix_even
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmono :
+      ∀ r : ℕ,
+        ((#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 2) (r + 1)) ≤
+          (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 2) r)
+    {r s : ℕ} (hrs : r ≤ s) (hs : s ≤ 2 * m + 2)
+    (hzero : #(𝒟 # r) = 0) :
+    #(𝒟 # s) = 0 := by
+  have haux :
+      ∀ t : ℕ, r + t ≤ 2 * m + 2 → #(𝒟 # (r + t)) = 0 := by
+    intro t
+    induction t with
+    | zero =>
+        intro _
+        simpa using hzero
+    | succ t iht =>
+        intro hbound
+        have hcurr : #(𝒟 # (r + t)) = 0 := iht (by omega)
+        have hcurrBound : r + t ≤ 2 * m + 1 := by omega
+        have hnext :
+            #(𝒟 # ((r + t) + 1)) = 0 :=
+          card_slice_succ_eq_zero_of_monotoneProfile_of_card_slice_eq_zero_even
+            hmono hcurrBound hcurr
+        simpa [Nat.add_assoc] using hnext
+  have hsub : r + (s - r) = s := Nat.add_sub_of_le hrs
+  simpa [hsub] using haux (s - r) (by omega)
+
+/-- The even minimizer selected by the compression route can be chosen with full-prefix and zero-tail
+slice propagation. This is the first interval-structure theorem for the even-cube extremizer
+profile. -/
+theorem exists_isEvenHalfCubeBoundaryGlobalMinimizer_sliceCandidateData_intervalPropagation
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 2))),
+      IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      (∀ r : ℕ, ∂ (𝒟 # (r + 1)) ⊆ 𝒟 # r) ∧
+      (∀ ⦃r : ℕ⦄ ⦃i j : Fin (2 * m + 2)⦄, i < j →
+        ∀ ⦃s : Finset (Fin (2 * m + 2))⦄,
+          s ∈ (𝒟 # r) → i ∉ s → j ∈ s → swapCoord i j s ∈ (𝒟 # r)) ∧
+      (∀ r : ℕ,
+        ((#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 2) (r + 1)) ≤
+          (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 2) r) ∧
+      (∀ ⦃r s : ℕ⦄, s ≤ r → r ≤ 2 * m + 2 →
+        #(𝒟 # r) = Nat.choose (2 * m + 2) r →
+          #(𝒟 # s) = Nat.choose (2 * m + 2) s) ∧
+      (∀ ⦃r s : ℕ⦄, r ≤ s → s ≤ 2 * m + 2 →
+        #(𝒟 # r) = 0 → #(𝒟 # s) = 0) := by
+  obtain ⟨𝒟, hmin, hshadow, hshift, hmono, hfullStep, hzeroStep⟩ :=
+    exists_isEvenHalfCubeBoundaryGlobalMinimizer_sliceCandidateData_propagation m
+  refine ⟨𝒟, hmin, hshadow, hshift, hmono, ?_, ?_⟩
+  · intro r s hsr hr hfull
+    cases r with
+    | zero =>
+        have hs0 : s = 0 := by omega
+        subst hs0
+        simpa using hfull
+    | succ r' =>
+        have hr' : r' ≤ 2 * m + 1 := by omega
+        have hfullTop : #(𝒟 # (r' + 1)) = Nat.choose (2 * m + 2) (r' + 1) := by
+          simpa using hfull
+        exact card_slice_eq_choose_of_monotoneProfile_of_card_slice_eq_choose_prefix_even
+          hmono r' hr' hfullTop s hsr
+  · intro r s hrs hs hzero
+    exact card_slice_eq_zero_of_monotoneProfile_of_card_slice_eq_zero_suffix_even
+      hmono hrs hs hzero
+
 /-- A down-set in `P([n])` with cardinality strictly below the full cube has empty top slice. -/
 theorem card_top_slice_eq_zero_of_isDownSetFamily_of_card_lt_pow
     {n : ℕ} {𝒟 : Finset (Finset (Fin n))}
@@ -1184,6 +1774,411 @@ theorem card_top_slice_eq_zero_of_isOddHalfCubeBoundaryGlobalMinimizer
   have hlt : 𝒟.card < 2 ^ (2 * m + 1) := by
     simpa [hcard] using hltNat
   exact card_top_slice_eq_zero_of_isDownSetFamily_of_card_lt_pow h𝒟 hlt
+
+/-- The selected even half-cube global minimizer has empty top slice. -/
+theorem card_top_slice_eq_zero_of_isEvenHalfCubeBoundaryGlobalMinimizer
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟) :
+    #(𝒟 # (2 * m + 2)) = 0 := by
+  rcases hmin with ⟨h𝒟, hcard, -⟩
+  have hltNat : 2 ^ (2 * m + 1) < 2 ^ (2 * m + 2) := by
+    rw [show 2 * m + 2 = (2 * m + 1) + 1 by omega, Nat.pow_succ]
+    have hpos : 0 < 2 ^ (2 * m + 1) := by
+      exact pow_pos (by decide : 0 < 2) _
+    omega
+  have hlt : 𝒟.card < 2 ^ (2 * m + 2) := by
+    simpa [hcard] using hltNat
+  exact card_top_slice_eq_zero_of_isDownSetFamily_of_card_lt_pow h𝒟 hlt
+
+/-- The selected even minimizer has concrete endpoint data already: its `0`-slice is full and its
+top slice is empty. This is the first actual endpoint anchoring for the even-cube extremizer
+program. -/
+theorem exists_isEvenHalfCubeBoundaryGlobalMinimizer_sliceEndpoints
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 2))),
+      IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      (∀ r : ℕ, ∂ (𝒟 # (r + 1)) ⊆ 𝒟 # r) ∧
+      (∀ ⦃r : ℕ⦄ ⦃i j : Fin (2 * m + 2)⦄, i < j →
+        ∀ ⦃s : Finset (Fin (2 * m + 2))⦄,
+          s ∈ (𝒟 # r) → i ∉ s → j ∈ s → swapCoord i j s ∈ (𝒟 # r)) ∧
+      (∀ r : ℕ,
+        ((#(𝒟 # (r + 1)) : ℚ) / Nat.choose (2 * m + 2) (r + 1)) ≤
+          (#(𝒟 # r) : ℚ) / Nat.choose (2 * m + 2) r) ∧
+      #(𝒟 # 0) = 1 ∧
+      #(𝒟 # (2 * m + 2)) = 0 := by
+  obtain ⟨𝒟, hmin, hshadow, hshift, hmono⟩ :=
+    exists_isEvenHalfCubeBoundaryGlobalMinimizer_sliceCandidateData m
+  have hne : 𝒟.Nonempty := by
+    refine Finset.card_pos.mp ?_
+    simpa [hmin.2.1] using (pow_pos (by decide : 0 < 2) (2 * m + 1))
+  refine ⟨𝒟, hmin, hshadow, hshift, hmono, ?_, ?_⟩
+  · have hempty : (∅ : Finset (Fin (2 * m + 2))) ∈ 𝒟 :=
+      empty_mem_of_nonempty_isDownSetFamily hmin.1 hne
+    refine Finset.card_eq_one.mpr ?_
+    refine ⟨∅, ?_⟩
+    ext s
+    rw [Finset.mem_slice]
+    constructor
+    · rintro ⟨hs𝒟, hsCard⟩
+      have hsEmpty : s = ∅ := Finset.card_eq_zero.mp hsCard
+      simpa [hsEmpty] using hs𝒟
+    · intro hs
+      have hsEmpty : s = ∅ := by simpa using hs
+      subst hsEmpty
+      exact ⟨hempty, by simp⟩
+  · exact card_top_slice_eq_zero_of_isEvenHalfCubeBoundaryGlobalMinimizer hmin
+
+/-- The selected even minimizer has a genuine transition window in its slice profile: a full
+prefix, then a transition region, then a zero tail. -/
+theorem exists_isEvenHalfCubeBoundaryGlobalMinimizer_sliceTransitionWindow
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 2))), ∃ t u : ℕ,
+      IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      t ≤ u ∧ u ≤ 2 * m + 2 ∧
+      (∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 2) r) ∧
+      (∀ ⦃r : ℕ⦄, u ≤ r → r ≤ 2 * m + 2 → #(𝒟 # r) = 0) ∧
+      (∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+        #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0) := by
+  obtain ⟨𝒟, hmin, hshadow, hshift, hmono, hfullPrefix, hzeroSuffix⟩ :=
+    exists_isEvenHalfCubeBoundaryGlobalMinimizer_sliceCandidateData_intervalPropagation m
+  have htop := card_top_slice_eq_zero_of_isEvenHalfCubeBoundaryGlobalMinimizer hmin
+  have htopNotFull : #(𝒟 # (2 * m + 2)) ≠ Nat.choose (2 * m + 2) (2 * m + 2) := by
+    simp [htop]
+  let t :=
+    Nat.find
+      (show ∃ r : ℕ, r ≤ 2 * m + 2 ∧ #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r from
+        ⟨2 * m + 2, le_rfl, htopNotFull⟩)
+  let u :=
+    Nat.find
+      (show ∃ r : ℕ, r ≤ 2 * m + 2 ∧ #(𝒟 # r) = 0 from
+        ⟨2 * m + 2, le_rfl, htop⟩)
+  have htSpec : t ≤ 2 * m + 2 ∧ #(𝒟 # t) ≠ Nat.choose (2 * m + 2) t := by
+    exact Nat.find_spec
+      (show ∃ r : ℕ, r ≤ 2 * m + 2 ∧ #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r from
+        ⟨2 * m + 2, le_rfl, htopNotFull⟩)
+  have huSpec : u ≤ 2 * m + 2 ∧ #(𝒟 # u) = 0 := by
+    exact Nat.find_spec
+      (show ∃ r : ℕ, r ≤ 2 * m + 2 ∧ #(𝒟 # r) = 0 from
+        ⟨2 * m + 2, le_rfl, htop⟩)
+  have huNotFull : #(𝒟 # u) ≠ Nat.choose (2 * m + 2) u := by
+    intro huFull
+    have hchoosePos : 0 < Nat.choose (2 * m + 2) u := Nat.choose_pos huSpec.1
+    omega
+  have htu : t ≤ u := by
+    exact Nat.find_min'
+      (show ∃ r : ℕ, r ≤ 2 * m + 2 ∧ #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r from
+        ⟨2 * m + 2, le_rfl, htopNotFull⟩)
+      ⟨huSpec.1, huNotFull⟩
+  refine ⟨𝒟, t, u, hmin, htu, huSpec.1, ?_, ?_, ?_⟩
+  · intro r hrt
+    by_contra hnotFull
+    have hrle : r ≤ 2 * m + 2 := by omega
+    have htr : t ≤ r := by
+      exact Nat.find_min'
+        (show ∃ r : ℕ, r ≤ 2 * m + 2 ∧ #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r from
+          ⟨2 * m + 2, le_rfl, htopNotFull⟩)
+        ⟨hrle, hnotFull⟩
+    omega
+  · intro r hur hrle
+    exact hzeroSuffix hur hrle huSpec.2
+  · intro r htr hru
+    constructor
+    · intro hrFull
+      have hrle : r ≤ 2 * m + 2 := by omega
+      have htFull : #(𝒟 # t) = Nat.choose (2 * m + 2) t :=
+        hfullPrefix htr hrle hrFull
+      exact htSpec.2 htFull
+    · intro hrZero
+      have hrle : r ≤ 2 * m + 2 := by omega
+      have hur' : u ≤ r := by
+        exact Nat.find_min'
+          (show ∃ r : ℕ, r ≤ 2 * m + 2 ∧ #(𝒟 # r) = 0 from
+            ⟨2 * m + 2, le_rfl, htop⟩)
+          ⟨hrle, hrZero⟩
+      omega
+
+/-- The transition window of the selected even minimizer must contain the middle rank `m + 1`. -/
+theorem exists_isEvenHalfCubeBoundaryGlobalMinimizer_middleTransitionWindow
+    (m : ℕ) :
+    ∃ 𝒟 : Finset (Finset (Fin (2 * m + 2))), ∃ t u : ℕ,
+      IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 ∧
+      t ≤ m + 1 ∧ m + 1 < u ∧ u ≤ 2 * m + 2 ∧
+      (∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 2) r) ∧
+      (∀ ⦃r : ℕ⦄, u ≤ r → r ≤ 2 * m + 2 → #(𝒟 # r) = 0) ∧
+      (∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+        #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0) := by
+  obtain ⟨𝒟, t, u, hmin, htu, hu, hfull, hzero, hmid⟩ :=
+    exists_isEvenHalfCubeBoundaryGlobalMinimizer_sliceTransitionWindow m
+  let n := 2 * m + 2
+  let lowerMass : ℕ := Finset.sum (Finset.range (m + 2)) (fun k => #(𝒟 # k))
+  let upperMass : ℕ := Finset.sum (Finset.Ico (m + 2) (n + 1)) (fun k => #(𝒟 # k))
+  have hmle : m + 2 ≤ n + 1 := by
+    dsimp [n]
+    omega
+  have hsumSlices :
+      Finset.sum (Finset.range (n + 1)) (fun k => #(𝒟 # k)) = 2 ^ (2 * m + 1) := by
+    simpa [Nat.range_succ_eq_Iic, hmin.2.1] using (Finset.sum_card_slice 𝒟)
+  have hsplitMass :
+      lowerMass + upperMass = 2 ^ (2 * m + 1) := by
+    have hsplit :
+        lowerMass + upperMass =
+          Finset.sum (Finset.range (n + 1)) (fun k => #(𝒟 # k)) := by
+      simpa [lowerMass, upperMass] using
+        (Finset.sum_range_add_sum_Ico (fun k => #(𝒟 # k)) hmle)
+    exact hsplit.trans hsumSlices
+  have hchoosePrefixTwice :
+      2 * Finset.sum (Finset.range (m + 2)) (fun k => Nat.choose n k) =
+        2 ^ (2 * m + 2) + Nat.choose n (m + 1) := by
+    let q := m + 1
+    have hreflect :
+        Finset.sum (Finset.Ico (q + 1) (2 * q + 1)) (fun r => Nat.choose (2 * q) r) =
+          Finset.sum (Finset.range q) (fun r => Nat.choose (2 * q) r) := by
+      calc
+        Finset.sum (Finset.Ico (q + 1) (2 * q + 1)) (fun r => Nat.choose (2 * q) r) =
+          Finset.sum (Finset.Ico (q + 1) (2 * q + 1)) (fun r => Nat.choose (2 * q) (2 * q - r)) := by
+            refine Finset.sum_congr rfl ?_
+            intro r hr
+            have hrle : r ≤ 2 * q := Nat.le_of_lt_succ (Finset.mem_Ico.mp hr).2
+            symm
+            exact Nat.choose_symm hrle
+        _ = Finset.sum (Finset.range (2 * q - q)) (fun r => Nat.choose (2 * q) r) := by
+            simpa [Nat.Ico_zero_eq_range] using
+              (Finset.sum_Ico_reflect (f := fun r => Nat.choose (2 * q) r) (k := q + 1)
+                (m := 2 * q + 1) (n := 2 * q) le_rfl)
+        _ = Finset.sum (Finset.range q) (fun r => Nat.choose (2 * q) r) := by
+            rw [show 2 * q - q = q by omega]
+    have hsum :
+        Finset.sum (Finset.range (q + 1)) (fun r => Nat.choose (2 * q) r) +
+          Finset.sum (Finset.range q) (fun r => Nat.choose (2 * q) r) =
+            2 ^ (2 * q) := by
+      have hq : q + 1 ≤ 2 * q + 1 := by
+        omega
+      calc
+        Finset.sum (Finset.range (q + 1)) (fun r => Nat.choose (2 * q) r) +
+            Finset.sum (Finset.range q) (fun r => Nat.choose (2 * q) r) =
+          Finset.sum (Finset.range (q + 1)) (fun r => Nat.choose (2 * q) r) +
+            Finset.sum (Finset.Ico (q + 1) (2 * q + 1)) (fun r => Nat.choose (2 * q) r) := by
+              rw [hreflect]
+        _ = Finset.sum (Finset.range (2 * q + 1)) (fun r => Nat.choose (2 * q) r) := by
+              exact Finset.sum_range_add_sum_Ico (fun r => Nat.choose (2 * q) r) hq
+        _ = 2 ^ (2 * q) := by
+              simpa using Nat.sum_range_choose (2 * q)
+    have hsucc :
+        Finset.sum (Finset.range (q + 1)) (fun r => Nat.choose (2 * q) r) =
+          Finset.sum (Finset.range q) (fun r => Nat.choose (2 * q) r) + Nat.choose (2 * q) q := by
+      rw [Finset.sum_range_succ]
+    have hq1 : q + 1 = m + 2 := by
+      simpa [q]
+    have hnq : 2 * q = 2 * m + 2 := by
+      dsimp [q]
+      ring
+    calc
+      2 * Finset.sum (Finset.range (m + 2)) (fun k => Nat.choose n k) =
+        2 * Finset.sum (Finset.range (q + 1)) (fun r => Nat.choose (2 * q) r) := by
+          simp [hq1, hnq, n]
+      _ =
+        Finset.sum (Finset.range (q + 1)) (fun r => Nat.choose (2 * q) r) +
+          Finset.sum (Finset.range (q + 1)) (fun r => Nat.choose (2 * q) r) := by
+            rw [two_mul]
+      _ =
+        Finset.sum (Finset.range (q + 1)) (fun r => Nat.choose (2 * q) r) +
+          (Finset.sum (Finset.range q) (fun r => Nat.choose (2 * q) r) +
+            Nat.choose (2 * q) q) := by
+              rw [hsucc]
+      _ = 2 ^ (2 * q) + Nat.choose (2 * q) q := by
+            rw [← add_assoc, hsum]
+      _ = 2 ^ (2 * m + 2) + Nat.choose n (m + 1) := by
+            simp [hnq, q, n]
+  have hmiddleChoosePos : 0 < Nat.choose n (m + 1) := by
+    have hm1le : m + 1 ≤ n := by
+      dsimp [n]
+      omega
+    exact Nat.choose_pos hm1le
+  have hpow : 2 ^ (2 * m + 2) = 2 * 2 ^ (2 * m + 1) := by
+    rw [show 2 * m + 2 = (2 * m + 1) + 1 by omega, Nat.pow_succ]
+    ring
+  have htmid : t ≤ m + 1 := by
+    by_contra hgt
+    have hlt : m + 1 < t := by
+      omega
+    have hlowerFull :
+        lowerMass = Finset.sum (Finset.range (m + 2)) (fun k => Nat.choose n k) := by
+      dsimp [lowerMass]
+      apply Finset.sum_congr rfl
+      intro k hk
+      have hkle : k ≤ m + 1 := Nat.lt_succ_iff.mp (Finset.mem_range.mp hk)
+      exact hfull (lt_of_le_of_lt hkle hlt)
+    have hlowerLe : lowerMass ≤ 2 ^ (2 * m + 1) := by
+      omega
+    have htwice :
+        2 * lowerMass = 2 ^ (2 * m + 2) + Nat.choose n (m + 1) := by
+      rw [hlowerFull]
+      exact hchoosePrefixTwice
+    omega
+  have humid : m + 1 < u := by
+    by_contra hle
+    have hule : u ≤ m + 1 := by
+      omega
+    let coreMass : ℕ := Finset.sum (Finset.range (m + 1)) (fun k => #(𝒟 # k))
+    have hmidZero : #(𝒟 # (m + 1)) = 0 := by
+      have hm1le : m + 1 ≤ n := by
+        dsimp [n]
+        omega
+      exact hzero hule (by simpa [n] using hm1le)
+    have hupperZero : upperMass = 0 := by
+      dsimp [upperMass]
+      apply Finset.sum_eq_zero
+      intro k hk
+      have hklo : m + 2 ≤ k := (Finset.mem_Ico.mp hk).1
+      have huk : u ≤ k := by
+        omega
+      have hkhi : k ≤ n := by
+        exact Nat.lt_succ_iff.mp (Finset.mem_Ico.mp hk).2
+      exact hzero huk hkhi
+    have hcoreEq : coreMass = 2 ^ (2 * m + 1) := by
+      have hlowerEq : lowerMass = 2 ^ (2 * m + 1) := by
+        omega
+      dsimp [lowerMass] at hlowerEq
+      rw [Finset.sum_range_succ, hmidZero, add_zero] at hlowerEq
+      simpa [coreMass] using hlowerEq
+    have hcoreLe :
+        coreMass ≤ Finset.sum (Finset.range (m + 1)) (fun k => Nat.choose n k) := by
+      dsimp [coreMass]
+      apply Finset.sum_le_sum
+      intro k hk
+      exact card_slice_le_choose (𝒟 := 𝒟) (r := k)
+    have hchooseCoreLt :
+        Finset.sum (Finset.range (m + 1)) (fun k => Nat.choose n k) < 2 ^ (2 * m + 1) := by
+      have hrange :
+          Finset.sum (Finset.range (m + 2)) (fun k => Nat.choose n k) =
+            Finset.sum (Finset.range (m + 1)) (fun k => Nat.choose n k) +
+              Nat.choose n (m + 1) := by
+        rw [Finset.sum_range_succ]
+      omega
+    have hcoreLt : coreMass < 2 ^ (2 * m + 1) :=
+      lt_of_le_of_lt hcoreLe hchooseCoreLt
+    omega
+  refine ⟨𝒟, t, u, hmin, htmid, humid, hu, hfull, hzero, hmid⟩
+
+/-- If all lower slices of an even half-cube family are full, then its `0`-free section already
+contains the canonical odd lower half. -/
+theorem succFamily_oddLowerHalfFamily_subset_nonMemberSubfamily_of_fullLowerSlices_even
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hlower : ∀ r ∈ Finset.range (m + 1), #(𝒟 # r) = Nat.choose (2 * m + 2) r) :
+    succFamily (oddLowerHalfFamily m) ⊆ 𝒟.nonMemberSubfamily 0 := by
+  intro s hs
+  rcases mem_succFamily_iff.mp hs with ⟨hs0, hsOdd⟩
+  have hsCard : s.card ≤ m := by
+    have hsOddCard :
+        #(s.preimage Fin.succ (Fin.succ_injective (2 * m + 1)).injOn) ≤ m :=
+      mem_oddLowerHalfFamily.mp hsOdd
+    simpa [card_preimage_succ hs0] using hsOddCard
+  have hsRange : s.card ∈ Finset.range (m + 1) := by
+    exact Finset.mem_range.mpr (Nat.lt_succ_of_le hsCard)
+  have hslice :
+      𝒟 # s.card =
+        (Finset.univ : Finset (Fin (2 * m + 2))).powersetCard s.card :=
+    slice_eq_powersetCard_of_card_eq_choose (hlower _ hsRange)
+  have hsPow :
+      s ∈ (Finset.univ : Finset (Fin (2 * m + 2))).powersetCard s.card := by
+    exact Finset.mem_powersetCard.mpr ⟨Finset.subset_univ _, rfl⟩
+  have hsSlice : s ∈ 𝒟 # s.card := by
+    simpa [hslice] using hsPow
+  exact mem_nonMemberSubfamily.mpr ⟨(Finset.mem_slice.mp hsSlice).1, hs0⟩
+
+/-- Full lower slices plus balanced `0`-sections force the canonical even lower-half witness. The
+remaining free parameter after the even middle-transition analysis is exactly the section balance. -/
+theorem eq_evenLowerHalfFamily_of_fullLowerSlices_of_balancedZeroSections
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (2 * m + 1))
+    (hlower : ∀ r ∈ Finset.range (m + 1), #(𝒟 # r) = Nat.choose (2 * m + 2) r)
+    (hbal : #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m)) :
+    𝒟 = evenLowerHalfFamily m := by
+  have hnonSub :
+      succFamily (oddLowerHalfFamily m) ⊆ 𝒟.nonMemberSubfamily 0 :=
+    succFamily_oddLowerHalfFamily_subset_nonMemberSubfamily_of_fullLowerSlices_even hlower
+  have hnonEq :
+      succFamily (oddLowerHalfFamily m) = 𝒟.nonMemberSubfamily 0 := by
+    apply Finset.eq_of_subset_of_card_le hnonSub
+    simpa [hbal, card_succFamily, card_oddLowerHalfFamily_eq_half_cube]
+  have hsplit :
+      #(𝒟.memberSubfamily 0) + #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m + 1) := by
+    simpa [hcard] using
+      (Finset.card_memberSubfamily_add_card_nonMemberSubfamily (a := 0) (𝒜 := 𝒟))
+  have hpow : 2 ^ (2 * m + 1) = 2 ^ (2 * m) + 2 ^ (2 * m) := by
+    rw [show 2 * m + 1 = (2 * m) + 1 by omega, Nat.pow_succ]
+    ring
+  have hmemberCard : #(𝒟.memberSubfamily 0) = 2 ^ (2 * m) := by
+    rw [hbal, hpow] at hsplit
+    omega
+  have hmemberSub :
+      𝒟.memberSubfamily 0 ⊆ 𝒟.nonMemberSubfamily 0 :=
+    h𝒟.memberSubfamily_subset_nonMemberSubfamily (a := 0)
+  have hmemberEq :
+      𝒟.memberSubfamily 0 = 𝒟.nonMemberSubfamily 0 := by
+    apply Finset.eq_of_subset_of_card_le hmemberSub
+    simpa [hmemberCard, hbal]
+  have hnonEq' :
+      𝒟.nonMemberSubfamily 0 = (evenLowerHalfFamily m).nonMemberSubfamily 0 := by
+    rw [nonMemberSubfamily_evenLowerHalfFamily]
+    exact hnonEq.symm
+  have hmemberEq' :
+      𝒟.memberSubfamily 0 = (evenLowerHalfFamily m).memberSubfamily 0 := by
+    rw [memberSubfamily_evenLowerHalfFamily]
+    calc
+      𝒟.memberSubfamily 0 = 𝒟.nonMemberSubfamily 0 := hmemberEq
+      _ = succFamily (oddLowerHalfFamily m) := hnonEq.symm
+  ext s
+  by_cases hs0 : (0 : Fin (2 * m + 2)) ∈ s
+  · constructor
+    · intro hs
+      have hsMem : s.erase 0 ∈ 𝒟.memberSubfamily 0 := by
+        refine mem_memberSubfamily.mpr ⟨?_, notMem_erase 0 s⟩
+        simpa [Finset.insert_erase hs0] using hs
+      have hsMem' : s.erase 0 ∈ (evenLowerHalfFamily m).memberSubfamily 0 := by
+        simpa [hmemberEq'] using hsMem
+      have hsIns := (mem_memberSubfamily.mp hsMem').1
+      simpa [Finset.insert_erase hs0] using hsIns
+    · intro hs
+      have hsMem : s.erase 0 ∈ (evenLowerHalfFamily m).memberSubfamily 0 := by
+        refine mem_memberSubfamily.mpr ⟨?_, notMem_erase 0 s⟩
+        simpa [Finset.insert_erase hs0] using hs
+      have hsMem' : s.erase 0 ∈ 𝒟.memberSubfamily 0 := by
+        simpa [hmemberEq'] using hsMem
+      have hsIns := (mem_memberSubfamily.mp hsMem').1
+      simpa [Finset.insert_erase hs0] using hsIns
+  · constructor
+    · intro hs
+      have hsNon : s ∈ 𝒟.nonMemberSubfamily 0 := mem_nonMemberSubfamily.mpr ⟨hs, hs0⟩
+      have hsNon' : s ∈ (evenLowerHalfFamily m).nonMemberSubfamily 0 := by
+        simpa [hnonEq'] using hsNon
+      exact (mem_nonMemberSubfamily.mp hsNon').1
+    · intro hs
+      have hsNon : s ∈ (evenLowerHalfFamily m).nonMemberSubfamily 0 :=
+        mem_nonMemberSubfamily.mpr ⟨hs, hs0⟩
+      have hsNon' : s ∈ 𝒟.nonMemberSubfamily 0 := by
+        simpa [hnonEq'] using hsNon
+      exact (mem_nonMemberSubfamily.mp hsNon').1
+
+/-- Canonical even transition shape collapses to `evenLowerHalfFamily` as soon as the `0`-sections
+are balanced. This isolates the remaining prism bottleneck to proving that balance. -/
+theorem eq_evenLowerHalfFamily_of_middleTransitionWindow_of_t_eq_middle_of_balancedZeroSections
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {t : ℕ}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hfull : ∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 2) r)
+    (htEq : t = m + 1)
+    (hbal : #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m)) :
+    𝒟 = evenLowerHalfFamily m := by
+  have hlower : ∀ r ∈ Finset.range (m + 1), #(𝒟 # r) = Nat.choose (2 * m + 2) r := by
+    intro r hr
+    have hrt : r < t := by
+      rw [htEq]
+      exact Finset.mem_range.mp hr
+    exact hfull hrt
+  exact
+    eq_evenLowerHalfFamily_of_fullLowerSlices_of_balancedZeroSections
+      hmin.1 hmin.2.1 hlower hbal
 
 /-- The odd minimizer selected by the compression route can be chosen with concrete endpoint data:
 its `0`-slice is full and its top slice is empty. This is the first actual transition anchoring for
@@ -2082,6 +3077,34 @@ def OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement : P
       𝒟.card = 2 ^ (2 * m) →
       totalSize (oddLowerHalfFamily m) < totalSize 𝒟 →
       Nat.choose (2 * m + 1) m < upperShadowGap 𝒟
+
+/-- Local remaining even-cube frontier after the balanced branch has been reduced to the odd
+larger-`totalSize` route: on an even half-cube global boundary minimizer, strict excess in the
+coordinate-`0` free section together with larger `totalSize` than the witness should already force
+strictly larger boundary than the middle binomial coefficient. -/
+def EvenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundaryStatement :
+    Prop :=
+  ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))},
+      IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 →
+      totalSize (evenLowerHalfFamily m) < totalSize 𝒟 →
+      2 ^ (2 * m) < #(𝒟.nonMemberSubfamily 0) →
+      Nat.choose (2 * m + 2) (m + 1) < #(positiveBoundary 𝒟)
+
+/-- Odd two-sheet strict route for the remaining even local obstruction: if nested odd sheets with
+positive excess package into a prism family with larger `totalSize` than the diagonal witness,
+their visible pair-interface boundary should already beat the even middle binomial threshold. -/
+def OddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement :
+    Prop :=
+  ∀ {m e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
+      0 < e →
+      IsDownSetFamily 𝒩 →
+      IsDownSetFamily ℳ →
+      ℳ ⊆ 𝒩 →
+      𝒩.card = 2 ^ (2 * m) + e →
+      ℳ.card = 2 ^ (2 * m) - e →
+      totalSize (evenLowerHalfFamily m) < totalSize 𝒩 + totalSize ℳ + ℳ.card →
+      Nat.choose (2 * m + 2) (m + 1) <
+        #(positiveBoundary 𝒩) + #((𝒩 \ ℳ) ∪ positiveBoundary ℳ)
 
 /-- Narrowed odd direct-route surface: it is enough to prove strict upper-shadow-gap growth only
 for the specific odd half-cube global minimizers with middle transition-window data isolated by the
@@ -3144,6 +4167,342 @@ theorem eq_oddLowerHalfFamily_of_middleTransitionWindow_of_totalSize_le_witness
           totalSize (oddLowerHalfFamily m) < totalSize 𝒟 :=
         totalSize_oddLowerHalfFamily_lt_of_middleTransitionWindow_strict hmin hmid htlt hltu
       exact (not_lt_of_ge hsize) hstrict
+
+theorem sum_range_choose_even_without_middle (m : ℕ) :
+    Finset.sum (Finset.range (m + 1)) (fun r => Nat.choose (2 * m + 2) r) =
+      2 ^ (2 * m + 1) - Nat.choose (2 * m + 1) m := by
+  have hprefixTwice :
+      2 * Finset.sum (Finset.range (m + 2)) (fun r => Nat.choose (2 * m + 2) r) =
+        2 ^ (2 * m + 2) + Nat.choose (2 * m + 2) (m + 1) := by
+    simpa using two_mul_sum_range_choose_halfway_even (m + 1)
+  have hsplit :
+      Finset.sum (Finset.range (m + 2)) (fun r => Nat.choose (2 * m + 2) r) =
+        Finset.sum (Finset.range (m + 1)) (fun r => Nat.choose (2 * m + 2) r) +
+          Nat.choose (2 * m + 2) (m + 1) := by
+    rw [Finset.sum_range_succ]
+  have hmiddle :
+      Nat.choose (2 * m + 2) (m + 1) = 2 * Nat.choose (2 * m + 1) m := by
+    rw [Nat.choose_succ_succ', Nat.choose_symm_half]
+    ring
+  have hpow :
+      2 ^ (2 * m + 2) = 2 * 2 ^ (2 * m + 1) := by
+    rw [show 2 * m + 2 = (2 * m + 1) + 1 by omega, Nat.pow_succ]
+    ring
+  rw [hsplit, hmiddle] at hprefixTwice
+  rw [hpow] at hprefixTwice
+  omega
+
+theorem totalSize_evenLowerHalfFamily_eq_weighted_lower_choose_add_middle (m : ℕ) :
+    totalSize (evenLowerHalfFamily m) =
+      Finset.sum (Finset.range (m + 1)) (fun k => k * Nat.choose (2 * m + 2) k) +
+        (m + 1) * Nat.choose (2 * m + 1) m := by
+  have hsumAll :
+      totalSize (evenLowerHalfFamily m) =
+        Finset.sum (Finset.range (2 * m + 3))
+          (fun r => r * #((evenLowerHalfFamily m) # r)) := by
+    simpa using totalSize_eq_sum_range_mul_card_slice (evenLowerHalfFamily m)
+  have hsplit :
+      Finset.sum (Finset.range (2 * m + 3))
+          (fun r => r * #((evenLowerHalfFamily m) # r)) =
+        Finset.sum (Finset.range (m + 2))
+            (fun r => r * #((evenLowerHalfFamily m) # r)) +
+          Finset.sum (Finset.Ico (m + 2) (2 * m + 3))
+            (fun r => r * #((evenLowerHalfFamily m) # r)) := by
+    symm
+    exact Finset.sum_range_add_sum_Ico
+      (fun r => r * #((evenLowerHalfFamily m) # r)) (by omega)
+  have hupperZero :
+      Finset.sum (Finset.Ico (m + 2) (2 * m + 3))
+          (fun r => r * #((evenLowerHalfFamily m) # r)) = 0 := by
+    apply Finset.sum_eq_zero
+    intro r hr
+    rw [card_slice_evenLowerHalfFamily_eq_zero (Finset.mem_Ico.mp hr).1, Nat.mul_zero]
+  have hlowerSplit :
+      Finset.sum (Finset.range (m + 2))
+          (fun r => r * #((evenLowerHalfFamily m) # r)) =
+        Finset.sum (Finset.range (m + 1))
+            (fun r => r * #((evenLowerHalfFamily m) # r)) +
+          (m + 1) * #((evenLowerHalfFamily m) # (m + 1)) := by
+    rw [Finset.sum_range_succ]
+  have hweightedLowerShift :
+      Finset.sum (Finset.range (m + 1))
+          (fun r => r * #((evenLowerHalfFamily m) # r)) =
+        Finset.sum (Finset.range m)
+          (fun r => (r + 1) * #((evenLowerHalfFamily m) # (r + 1))) := by
+    have hshift :=
+      (Finset.sum_range_succ'
+        (f := fun r => r * #((evenLowerHalfFamily m) # r)) (n := m))
+    simpa using hshift
+  have hweightedLowerChoose :
+      Finset.sum (Finset.range (m + 1))
+          (fun r => r * #((evenLowerHalfFamily m) # r)) =
+        (2 * m + 2) *
+          Finset.sum (Finset.range m) (fun r => Nat.choose (2 * m + 1) r) := by
+    rw [hweightedLowerShift]
+    calc
+      Finset.sum (Finset.range m)
+          (fun r => (r + 1) * #((evenLowerHalfFamily m) # (r + 1)))
+        =
+          Finset.sum (Finset.range m)
+            (fun r => (2 * m + 2) * Nat.choose (2 * m + 1) r) := by
+              refine Finset.sum_congr rfl ?_
+              intro r hr
+              rw [card_slice_evenLowerHalfFamily_eq_choose
+                (Nat.succ_le_of_lt (Finset.mem_range.mp hr))]
+              simpa [Nat.mul_comm] using
+                (Nat.add_one_mul_choose_eq (2 * m + 1) r).symm
+      _ =
+          (2 * m + 2) *
+            Finset.sum (Finset.range m) (fun r => Nat.choose (2 * m + 1) r) := by
+              rw [Finset.mul_sum]
+  have hweightedChoose :
+      (2 * m + 2) * Finset.sum (Finset.range m) (fun r => Nat.choose (2 * m + 1) r) =
+        Finset.sum (Finset.range (m + 1)) (fun k => k * Nat.choose (2 * m + 2) k) := by
+    calc
+      (2 * m + 2) * Finset.sum (Finset.range m) (fun r => Nat.choose (2 * m + 1) r)
+        = Finset.sum (Finset.range (m + 1))
+            (fun r => r * #((evenLowerHalfFamily m) # r)) := hweightedLowerChoose.symm
+      _ =
+          Finset.sum (Finset.range (m + 1)) (fun k => k * Nat.choose (2 * m + 2) k) := by
+            refine Finset.sum_congr rfl ?_
+            intro k hk
+            rw [card_slice_evenLowerHalfFamily_eq_choose
+              (Nat.le_of_lt_succ (Finset.mem_range.mp hk))]
+  calc
+    totalSize (evenLowerHalfFamily m)
+      =
+        Finset.sum (Finset.range (2 * m + 3))
+          (fun r => r * #((evenLowerHalfFamily m) # r)) := hsumAll
+    _ =
+        Finset.sum (Finset.range (m + 2))
+            (fun r => r * #((evenLowerHalfFamily m) # r)) +
+          Finset.sum (Finset.Ico (m + 2) (2 * m + 3))
+            (fun r => r * #((evenLowerHalfFamily m) # r)) := hsplit
+    _ =
+        Finset.sum (Finset.range (m + 2))
+          (fun r => r * #((evenLowerHalfFamily m) # r)) := by
+            rw [hupperZero, add_zero]
+    _ =
+        Finset.sum (Finset.range (m + 1))
+            (fun r => r * #((evenLowerHalfFamily m) # r)) +
+          (m + 1) * #((evenLowerHalfFamily m) # (m + 1)) := hlowerSplit
+    _ =
+        (2 * m + 2) * Finset.sum (Finset.range m) (fun r => Nat.choose (2 * m + 1) r) +
+          (m + 1) * Nat.choose (2 * m + 1) m := by
+            rw [hweightedLowerChoose, card_slice_evenLowerHalfFamily_eq_middle]
+    _ =
+        Finset.sum (Finset.range (m + 1)) (fun k => k * Nat.choose (2 * m + 2) k) +
+          (m + 1) * Nat.choose (2 * m + 1) m := by
+            rw [hweightedChoose]
+
+theorem totalSize_evenLowerHalfFamily_lt_of_card_eq_half_cube_of_lower_slice_deficit
+    {m s : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hcard : 𝒟.card = 2 ^ (2 * m + 1))
+    (hspos : 0 < s)
+    (hsm : s ≤ m)
+    (hdeficit : #(𝒟 # s) < Nat.choose (2 * m + 2) s) :
+    totalSize (evenLowerHalfFamily m) < totalSize 𝒟 := by
+  let n := 2 * m + 2
+  let middleMass : ℕ := Nat.choose (2 * m + 1) m
+  let lowerMass : ℕ := Finset.sum (Finset.range (m + 1)) (fun k => #(𝒟 # k))
+  let upperMass : ℕ := Finset.sum (Finset.Ico (m + 1) (n + 1)) (fun k => #(𝒟 # k))
+  let lowerDeficit : ℕ :=
+    Finset.sum (Finset.range (m + 1)) (fun k => Nat.choose n k - #(𝒟 # k))
+  let lowerWeightD : ℕ := Finset.sum (Finset.range (m + 1)) (fun k => k * #(𝒟 # k))
+  let upperWeightD : ℕ := Finset.sum (Finset.Ico (m + 1) (n + 1)) (fun k => k * #(𝒟 # k))
+  have hmle : m + 1 ≤ n + 1 := by
+    dsimp [n]
+    omega
+  have hsumSlices :
+      Finset.sum (Finset.range (n + 1)) (fun k => #(𝒟 # k)) = 2 ^ (2 * m + 1) := by
+    simpa [Nat.range_succ_eq_Iic, hcard] using (Finset.sum_card_slice 𝒟)
+  have hsplitMass :
+      lowerMass + upperMass = 2 ^ (2 * m + 1) := by
+    have hsplit :
+        lowerMass + upperMass =
+          Finset.sum (Finset.range (n + 1)) (fun k => #(𝒟 # k)) := by
+            simpa [lowerMass, upperMass] using
+              (Finset.sum_range_add_sum_Ico (fun k => #(𝒟 # k)) hmle)
+    exact hsplit.trans hsumSlices
+  have hchoosePrefix :
+      Finset.sum (Finset.range (m + 1)) (fun k => Nat.choose n k) =
+        2 ^ (2 * m + 1) - middleMass := by
+    dsimp [n, middleMass]
+    simpa using sum_range_choose_even_without_middle m
+  have hsumTsub :
+      lowerDeficit =
+        Finset.sum (Finset.range (m + 1)) (fun k => Nat.choose n k) - lowerMass := by
+    dsimp [lowerDeficit, lowerMass]
+    rw [Finset.sum_tsub_distrib]
+    intro k hk
+    exact card_slice_le_choose (𝒟 := 𝒟) (r := k)
+  have hlowerDeficit_eq_upperExcess : lowerDeficit = upperMass - middleMass := by
+    rw [hsumTsub, hchoosePrefix]
+    omega
+  have hsliceDeficitPos :
+      0 < Nat.choose n s - #(𝒟 # s) := by
+    dsimp [n] at hdeficit ⊢
+    omega
+  have hsliceDeficit_le_lowerDeficit :
+      Nat.choose n s - #(𝒟 # s) ≤ lowerDeficit := by
+    dsimp [lowerDeficit]
+    simpa using
+      (Finset.single_le_sum
+        (f := fun k => Nat.choose n k - #(𝒟 # k))
+        (fun _ _ => Nat.zero_le _)
+        (Finset.mem_range.mpr (Nat.lt_succ_of_le hsm)))
+  have hlowerDeficitPos : 0 < lowerDeficit := by
+    exact lt_of_lt_of_le hsliceDeficitPos hsliceDeficit_le_lowerDeficit
+  have hsplitTotalSize :
+      totalSize 𝒟 = lowerWeightD + upperWeightD := by
+    have hsumWeightAll :
+        totalSize 𝒟 = Finset.sum (Finset.range (n + 1)) (fun k => k * #(𝒟 # k)) := by
+          simpa [n] using totalSize_eq_sum_range_mul_card_slice 𝒟
+    have hsplitWeight :
+        lowerWeightD + upperWeightD =
+          Finset.sum (Finset.range (n + 1)) (fun k => k * #(𝒟 # k)) := by
+            simpa [lowerWeightD, upperWeightD] using
+              (Finset.sum_range_add_sum_Ico (fun k => k * #(𝒟 # k)) hmle)
+    exact hsumWeightAll.trans hsplitWeight.symm
+  have hupperWeight_lower :
+      (m + 1) * upperMass ≤ upperWeightD := by
+    have hconst :
+        (m + 1) * upperMass =
+          Finset.sum (Finset.Ico (m + 1) (n + 1)) (fun k => (m + 1) * #(𝒟 # k)) := by
+            dsimp [upperMass]
+            rw [Finset.mul_sum]
+    calc
+      (m + 1) * upperMass =
+          Finset.sum (Finset.Ico (m + 1) (n + 1)) (fun k => (m + 1) * #(𝒟 # k)) := hconst
+      _ ≤ upperWeightD := by
+            dsimp [upperWeightD]
+            exact Finset.sum_le_sum fun k hk => by
+              have hkge : m + 1 ≤ k := (Finset.mem_Ico.mp hk).1
+              exact Nat.mul_le_mul_right #(𝒟 # k) hkge
+  have hlowerWeight_upper :
+      Finset.sum (Finset.range (m + 1)) (fun k => k * Nat.choose n k) ≤
+        lowerWeightD + m * lowerDeficit := by
+    calc
+      Finset.sum (Finset.range (m + 1)) (fun k => k * Nat.choose n k)
+          =
+        Finset.sum (Finset.range (m + 1))
+          (fun k => k * #(𝒟 # k) + k * (Nat.choose n k - #(𝒟 # k))) := by
+            refine Finset.sum_congr rfl ?_
+            intro k hk
+            have hle : #(𝒟 # k) ≤ Nat.choose n k := card_slice_le_choose (𝒟 := 𝒟) (r := k)
+            have hmul : k * #(𝒟 # k) ≤ k * Nat.choose n k := Nat.mul_le_mul_left k hle
+            calc
+              k * Nat.choose n k = k * #(𝒟 # k) + (k * Nat.choose n k - k * #(𝒟 # k)) := by
+                exact (Nat.add_sub_of_le hmul).symm
+              _ = k * #(𝒟 # k) + k * (Nat.choose n k - #(𝒟 # k)) := by
+                rw [Nat.mul_sub_left_distrib]
+      _ ≤
+        Finset.sum (Finset.range (m + 1))
+          (fun k => k * #(𝒟 # k) + m * (Nat.choose n k - #(𝒟 # k))) := by
+            exact Finset.sum_le_sum fun k hk => by
+              have hkle : k ≤ m := Nat.le_of_lt_succ (Finset.mem_range.mp hk)
+              simpa [add_assoc, add_left_comm, add_comm] using
+                add_le_add_left
+                  (Nat.mul_le_mul_right (Nat.choose n k - #(𝒟 # k)) hkle)
+                  (k * #(𝒟 # k))
+      _ =
+        lowerWeightD + m * lowerDeficit := by
+          dsimp [lowerWeightD, lowerDeficit]
+          rw [Finset.sum_add_distrib, ← Finset.mul_sum]
+  have htsWitness :
+      totalSize (evenLowerHalfFamily m) =
+        Finset.sum (Finset.range (m + 1)) (fun k => k * Nat.choose n k) +
+          (m + 1) * middleMass := by
+    dsimp [n, middleMass]
+    simpa using totalSize_evenLowerHalfFamily_eq_weighted_lower_choose_add_middle m
+  have hmainLower :
+      totalSize (evenLowerHalfFamily m) + lowerDeficit ≤ totalSize 𝒟 := by
+    rw [htsWitness, hsplitTotalSize]
+    have hcompare :
+        Finset.sum (Finset.range (m + 1)) (fun k => k * Nat.choose n k) +
+            (m + 1) * middleMass + lowerDeficit ≤
+          lowerWeightD + ((m + 1) * middleMass + (m + 1) * lowerDeficit) := by
+      calc
+        Finset.sum (Finset.range (m + 1)) (fun k => k * Nat.choose n k) +
+            (m + 1) * middleMass + lowerDeficit
+            ≤ (lowerWeightD + m * lowerDeficit) + ((m + 1) * middleMass + lowerDeficit) := by
+                simpa [add_assoc, add_left_comm, add_comm] using
+                  add_le_add_right hlowerWeight_upper ((m + 1) * middleMass + lowerDeficit)
+        _ = lowerWeightD + ((m + 1) * middleMass + (m + 1) * lowerDeficit) := by
+              ring
+    have hupperMassEq : upperMass = middleMass + lowerDeficit := by
+      rw [hlowerDeficit_eq_upperExcess]
+      omega
+    have hupperWeight' :
+        lowerWeightD + ((m + 1) * middleMass + (m + 1) * lowerDeficit) ≤
+          lowerWeightD + upperWeightD := by
+      calc
+        lowerWeightD + ((m + 1) * middleMass + (m + 1) * lowerDeficit)
+            = lowerWeightD + (m + 1) * upperMass := by rw [hupperMassEq]; ring
+        _ ≤ lowerWeightD + upperWeightD := by
+              simpa [add_assoc, add_left_comm, add_comm] using
+                add_le_add_left hupperWeight_lower lowerWeightD
+    exact hcompare.trans hupperWeight'
+  exact lt_of_lt_of_le (Nat.lt_add_of_pos_right hlowerDeficitPos) hmainLower
+
+theorem totalSize_evenLowerHalfFamily_lt_of_middleTransitionWindow_strict
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {t u : ℕ}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0)
+    (htlt : t < m + 1) (hltu : m + 1 < u) :
+    totalSize (evenLowerHalfFamily m) < totalSize 𝒟 := by
+  have hne : 𝒟.Nonempty := by
+    refine Finset.card_pos.mp ?_
+    simpa [hmin.2.1] using (pow_pos (by decide : 0 < 2) (2 * m + 1))
+  have hslice0 : #(𝒟 # 0) = 1 := by
+    exact card_slice_zero_eq_one_of_nonempty_isDownSetFamily hne hmin.1
+  have htpos : 0 < t := by
+    by_contra htz
+    have ht0 : t = 0 := by omega
+    have hnotFull0 : #(𝒟 # 0) ≠ Nat.choose (2 * m + 2) 0 := by
+      exact (hmid (ht0 ▸ le_rfl) (ht0 ▸ lt_trans htlt hltu)).1
+    simp [hslice0] at hnotFull0
+  have hdeficit :
+      #(𝒟 # t) < Nat.choose (2 * m + 2) t := by
+    exact lt_of_le_of_ne (card_slice_le_choose (𝒟 := 𝒟) (r := t))
+      (hmid le_rfl (lt_trans htlt hltu)).1
+  exact
+    totalSize_evenLowerHalfFamily_lt_of_card_eq_half_cube_of_lower_slice_deficit
+      hmin.2.1 htpos (Nat.le_of_lt_succ htlt) hdeficit
+
+theorem t_eq_middle_of_middleTransitionWindow_of_totalSize_le_evenWitness
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {t u : ℕ}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (htmid : t ≤ m + 1) (humid : m + 1 < u)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0)
+    (hsize : totalSize 𝒟 ≤ totalSize (evenLowerHalfFamily m)) :
+    t = m + 1 := by
+  by_contra htNe
+  have htlt : t < m + 1 := lt_of_le_of_ne htmid htNe
+  have hstrict :
+      totalSize (evenLowerHalfFamily m) < totalSize 𝒟 :=
+    totalSize_evenLowerHalfFamily_lt_of_middleTransitionWindow_strict hmin hmid htlt humid
+  exact (not_lt_of_ge hsize) hstrict
+
+theorem eq_evenLowerHalfFamily_of_middleTransitionWindow_of_totalSize_le_witness_of_balancedZeroSections
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {t u : ℕ}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (htmid : t ≤ m + 1) (humid : m + 1 < u)
+    (hfull : ∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 2) r)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0)
+    (hsize : totalSize 𝒟 ≤ totalSize (evenLowerHalfFamily m))
+    (hbal : #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m)) :
+    𝒟 = evenLowerHalfFamily m := by
+  have htEq :
+      t = m + 1 :=
+    t_eq_middle_of_middleTransitionWindow_of_totalSize_le_evenWitness
+      hmin htmid humid hmid hsize
+  exact
+    eq_evenLowerHalfFamily_of_middleTransitionWindow_of_t_eq_middle_of_balancedZeroSections
+      hmin hfull htEq hbal
 
 theorem oddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGap_of_largerTotalSizeThanWitness
     (hSize :
@@ -4782,6 +6141,61 @@ theorem predFamily_memberSubfamily_twoSheetFamily {n : ℕ} (ℳ 𝒩 : Finset (
     predFamily ((twoSheetFamily ℳ 𝒩).memberSubfamily 0) = ℳ := by
   rw [memberSubfamily_twoSheetFamily, predFamily_succFamily]
 
+/-- Any family in the prism cube is determined exactly by its `0`-free and `0`-present sections. -/
+theorem eq_twoSheetFamily_predFamily_sections {n : ℕ}
+    (𝒟 : Finset (Finset (Fin (n + 1)))) :
+    𝒟 =
+      twoSheetFamily (predFamily (𝒟.memberSubfamily 0)) (predFamily (𝒟.nonMemberSubfamily 0)) := by
+  have hnon :
+      succFamily (predFamily (𝒟.nonMemberSubfamily 0)) = 𝒟.nonMemberSubfamily 0 := by
+    apply succFamily_predFamily
+    intro s hs
+    exact (mem_nonMemberSubfamily.mp hs).2
+  have hmem :
+      succFamily (predFamily (𝒟.memberSubfamily 0)) = 𝒟.memberSubfamily 0 := by
+    apply succFamily_predFamily
+    intro s hs
+    exact (mem_memberSubfamily.mp hs).2
+  ext s
+  by_cases hs0 : (0 : Fin (n + 1)) ∈ s
+  · constructor
+    · intro hs
+      rw [twoSheetFamily, mem_union]
+      right
+      refine Finset.mem_image.mpr ?_
+      refine ⟨s.erase 0, ?_, insert_erase hs0⟩
+      have hsMem : s.erase 0 ∈ 𝒟.memberSubfamily 0 := by
+        refine mem_memberSubfamily.mpr ⟨?_, notMem_erase 0 s⟩
+        simpa [Finset.insert_erase hs0] using hs
+      simpa [hmem] using hsMem
+    · intro hs
+      rw [twoSheetFamily, mem_union] at hs
+      rcases hs with hsLower | hsUpper
+      · have hsNon : s ∈ 𝒟.nonMemberSubfamily 0 := by
+          simpa [hnon] using hsLower
+        exact False.elim ((mem_nonMemberSubfamily.mp hsNon).2 hs0)
+      · rcases Finset.mem_image.mp hsUpper with ⟨u, hu, rfl⟩
+        have huMem : u ∈ 𝒟.memberSubfamily 0 := by
+          simpa [hmem] using hu
+        simpa using (mem_memberSubfamily.mp huMem).1
+  · constructor
+    · intro hs
+      rw [twoSheetFamily, mem_union]
+      left
+      have hsNon : s ∈ 𝒟.nonMemberSubfamily 0 := mem_nonMemberSubfamily.mpr ⟨hs, hs0⟩
+      simpa [hnon] using hsNon
+    · intro hs
+      rw [twoSheetFamily, mem_union] at hs
+      rcases hs with hsLower | hsUpper
+      · have hsNon : s ∈ 𝒟.nonMemberSubfamily 0 := by
+          simpa [hnon] using hsLower
+        exact (mem_nonMemberSubfamily.mp hsNon).1
+      · rcases Finset.mem_image.mp hsUpper with ⟨u, hu, hsu⟩
+        have hs0' : (0 : Fin (n + 1)) ∈ s := by
+          rw [← hsu]
+          exact mem_insert_self 0 u
+        exact (hs0 hs0').elim
+
 theorem card_twoSheetFamily {n : ℕ} (ℳ 𝒩 : Finset (Finset (Fin n))) :
     (twoSheetFamily ℳ 𝒩).card = 𝒩.card + ℳ.card := by
   calc
@@ -4810,6 +6224,46 @@ theorem card_twoSheetFamily_of_symmetric {m e : ℕ}
     _ = 2 ^ (2 * m) * 2 := by ring
     _ = 2 ^ (2 * m + 1) := by
           rw [show 2 * m + 1 = (2 * m) + 1 by omega, Nat.pow_succ]
+
+/-- The prism realization records the lower-sheet mass, the upper-sheet mass, and one extra point
+for each set on the upper sheet where `0` is inserted. -/
+theorem totalSize_twoSheetFamily {n : ℕ} (ℳ 𝒩 : Finset (Finset (Fin n))) :
+    totalSize (twoSheetFamily ℳ 𝒩) = totalSize 𝒩 + totalSize ℳ + ℳ.card := by
+  calc
+    totalSize (twoSheetFamily ℳ 𝒩)
+      =
+        totalSize ((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0) +
+          totalSize ((twoSheetFamily ℳ 𝒩).memberSubfamily 0) +
+          #((twoSheetFamily ℳ 𝒩).memberSubfamily 0) := by
+            simpa using
+              (totalSize_eq_totalSize_nonMemberSubfamily_add_totalSize_memberSubfamily_add_card_memberSubfamily
+                (𝒜 := twoSheetFamily ℳ 𝒩) (a := (0 : Fin (n + 1))))
+    _ = totalSize (succFamily 𝒩) + totalSize (succFamily ℳ) + #(succFamily ℳ) := by
+          rw [nonMemberSubfamily_twoSheetFamily, memberSubfamily_twoSheetFamily]
+    _ = totalSize 𝒩 + totalSize ℳ + ℳ.card := by
+          rw [totalSize_succFamily, totalSize_succFamily, card_succFamily]
+
+theorem evenLowerHalfFamily_eq_twoSheetFamily_oddLowerHalfFamily (m : ℕ) :
+    evenLowerHalfFamily m =
+      twoSheetFamily (oddLowerHalfFamily m) (oddLowerHalfFamily m) := by
+  simp [evenLowerHalfFamily, twoSheetFamily]
+
+theorem totalSize_evenLowerHalfFamily_eq_two_mul_totalSize_oddLowerHalfFamily_add_halfCube
+    (m : ℕ) :
+    totalSize (evenLowerHalfFamily m) =
+      2 * totalSize (oddLowerHalfFamily m) + 2 ^ (2 * m) := by
+  calc
+    totalSize (evenLowerHalfFamily m)
+      = totalSize (twoSheetFamily (oddLowerHalfFamily m) (oddLowerHalfFamily m)) := by
+          rw [evenLowerHalfFamily_eq_twoSheetFamily_oddLowerHalfFamily]
+    _ =
+        totalSize (oddLowerHalfFamily m) + totalSize (oddLowerHalfFamily m) +
+          (oddLowerHalfFamily m).card := by
+            simpa using
+              totalSize_twoSheetFamily (ℳ := oddLowerHalfFamily m) (𝒩 := oddLowerHalfFamily m)
+    _ = 2 * totalSize (oddLowerHalfFamily m) + 2 ^ (2 * m) := by
+          rw [card_oddLowerHalfFamily_eq_half_cube]
+          ring
 
 theorem isDownSetFamily_twoSheetFamily {n : ℕ} {ℳ 𝒩 : Finset (Finset (Fin n))}
     (hℳ : IsDownSetFamily ℳ) (h𝒩 : IsDownSetFamily 𝒩) (hsub : ℳ ⊆ 𝒩) :
@@ -4890,6 +6344,441 @@ theorem twoSheetOuterBoundaryCard_eq_card_positiveBoundary_twoSheetFamily
             rw [h𝒩term, hℳterm]
     _ = #(positiveBoundary (twoSheetFamily ℳ 𝒩)) := by
           rw [add_comm, Finset.card_memberSubfamily_add_card_nonMemberSubfamily]
+
+/-- Balanced `0`-sections force an even global minimizer to be a diagonal prism
+`twoSheetFamily 𝒜 𝒜`, where the common odd section `𝒜` is itself an odd global minimizer. This
+packages the remaining even-cube obstruction as an odd-cube extremizer problem on one shared
+section. -/
+theorem
+    isOddHalfCubeBoundaryGlobalMinimizer_predFamily_nonMemberSubfamily_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_balancedZeroSections
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hbal : #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m)) :
+    IsOddHalfCubeBoundaryGlobalMinimizer (m := m) (predFamily (𝒟.nonMemberSubfamily 0)) ∧
+      𝒟 =
+        twoSheetFamily (predFamily (𝒟.nonMemberSubfamily 0))
+          (predFamily (𝒟.nonMemberSubfamily 0)) := by
+  let 𝒜 : Finset (Finset (Fin (2 * m + 1))) := predFamily (𝒟.nonMemberSubfamily 0)
+  have hsplit :
+      #(𝒟.memberSubfamily 0) + #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m + 1) := by
+    simpa [hmin.2.1] using
+      (Finset.card_memberSubfamily_add_card_nonMemberSubfamily (a := 0) (𝒜 := 𝒟))
+  have hpow : 2 ^ (2 * m + 1) = 2 ^ (2 * m) + 2 ^ (2 * m) := by
+    rw [show 2 * m + 1 = (2 * m) + 1 by omega, Nat.pow_succ]
+    ring
+  have hmbal : #(𝒟.memberSubfamily 0) = 2 ^ (2 * m) := by
+    rw [hbal, hpow] at hsplit
+    omega
+  have hsub :
+      𝒟.memberSubfamily 0 ⊆ 𝒟.nonMemberSubfamily 0 :=
+    hmin.1.memberSubfamily_subset_nonMemberSubfamily (a := 0)
+  have hsecEq :
+      𝒟.memberSubfamily 0 = 𝒟.nonMemberSubfamily 0 := by
+    apply Finset.eq_of_subset_of_card_le hsub
+    simpa [hmbal, hbal]
+  have h𝒜down : IsDownSetFamily 𝒜 := by
+    simpa [𝒜] using isDownSetFamily_predFamily_nonMemberSubfamily hmin.1
+  have h𝒜card : 𝒜.card = 2 ^ (2 * m) := by
+    simpa [𝒜, hbal] using card_predFamily_nonMemberSubfamily (𝒜 := 𝒟)
+  have hdiag :
+      𝒟 = twoSheetFamily 𝒜 𝒜 := by
+    calc
+      𝒟 =
+          twoSheetFamily (predFamily (𝒟.memberSubfamily 0))
+            (predFamily (𝒟.nonMemberSubfamily 0)) :=
+        eq_twoSheetFamily_predFamily_sections 𝒟
+      _ = twoSheetFamily 𝒜 𝒜 := by
+        dsimp [𝒜]
+        rw [hsecEq]
+  refine ⟨⟨h𝒜down, h𝒜card, ?_⟩, hdiag⟩
+  intro ℬ hℬdown hℬcard
+  have hdiagDown : IsDownSetFamily (twoSheetFamily ℬ ℬ) := by
+    exact isDownSetFamily_twoSheetFamily hℬdown hℬdown (by intro s hs; exact hs)
+  have hdiagCard : (twoSheetFamily ℬ ℬ).card = 2 ^ (2 * m + 1) := by
+    simpa [hℬcard] using
+      (card_twoSheetFamily_of_symmetric (m := m) (e := 0) (by omega)
+        (𝒩 := ℬ) (ℳ := ℬ) (by simpa using hℬcard) (by simpa using hℬcard))
+  have hleEven :
+      #(positiveBoundary 𝒟) ≤ #(positiveBoundary (twoSheetFamily ℬ ℬ)) :=
+    hmin.2.2 hdiagDown hdiagCard
+  have h𝒜bdry :
+      #(positiveBoundary 𝒟) = 2 * #(positiveBoundary 𝒜) := by
+    calc
+      #(positiveBoundary 𝒟) = #(positiveBoundary (twoSheetFamily 𝒜 𝒜)) := by
+        simpa [hdiag]
+      _ = twoSheetOuterBoundaryCard 𝒜 𝒜 := by
+        symm
+        exact twoSheetOuterBoundaryCard_eq_card_positiveBoundary_twoSheetFamily (ℳ := 𝒜) (𝒩 := 𝒜)
+      _ = #(positiveBoundary 𝒜) + #(twoSheetInterfaceBoundary 𝒜 𝒜) := rfl
+      _ = #(positiveBoundary 𝒜) + #(positiveBoundary 𝒜) := by
+        simp [twoSheetInterfaceBoundary]
+      _ = 2 * #(positiveBoundary 𝒜) := by
+        omega
+  have hℬbdry :
+      #(positiveBoundary (twoSheetFamily ℬ ℬ)) = 2 * #(positiveBoundary ℬ) := by
+    calc
+      #(positiveBoundary (twoSheetFamily ℬ ℬ)) = twoSheetOuterBoundaryCard ℬ ℬ := by
+        symm
+        exact twoSheetOuterBoundaryCard_eq_card_positiveBoundary_twoSheetFamily (ℳ := ℬ) (𝒩 := ℬ)
+      _ = #(positiveBoundary ℬ) + #(twoSheetInterfaceBoundary ℬ ℬ) := rfl
+      _ = #(positiveBoundary ℬ) + #(positiveBoundary ℬ) := by
+        simp [twoSheetInterfaceBoundary]
+      _ = 2 * #(positiveBoundary ℬ) := by
+        omega
+  rw [h𝒜bdry, hℬbdry] at hleEven
+  dsimp [𝒜] at hleEven
+  omega
+
+theorem card_positiveBoundary_twoSheetFamily_diag {n : ℕ} (𝒜 : Finset (Finset (Fin n))) :
+    #(positiveBoundary (twoSheetFamily 𝒜 𝒜)) = 2 * #(positiveBoundary 𝒜) := by
+  calc
+    #(positiveBoundary (twoSheetFamily 𝒜 𝒜)) = twoSheetOuterBoundaryCard 𝒜 𝒜 := by
+      symm
+      exact twoSheetOuterBoundaryCard_eq_card_positiveBoundary_twoSheetFamily (ℳ := 𝒜) (𝒩 := 𝒜)
+    _ = #(positiveBoundary 𝒜) + #(twoSheetInterfaceBoundary 𝒜 𝒜) := rfl
+    _ = #(positiveBoundary 𝒜) + #(positiveBoundary 𝒜) := by
+          simp [twoSheetInterfaceBoundary]
+    _ = 2 * #(positiveBoundary 𝒜) := by
+          omega
+
+theorem
+    totalSize_oddLowerHalfFamily_lt_predFamily_nonMemberSubfamily_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_balancedZeroSections_of_totalSize_gt_evenWitness
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hbal : #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m))
+    (hsize : totalSize (evenLowerHalfFamily m) < totalSize 𝒟) :
+    totalSize (oddLowerHalfFamily m) < totalSize (predFamily (𝒟.nonMemberSubfamily 0)) := by
+  let 𝒜 : Finset (Finset (Fin (2 * m + 1))) := predFamily (𝒟.nonMemberSubfamily 0)
+  have hodd :
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒜 ∧
+        𝒟 = twoSheetFamily 𝒜 𝒜 := by
+    simpa [𝒜] using
+      isOddHalfCubeBoundaryGlobalMinimizer_predFamily_nonMemberSubfamily_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_balancedZeroSections
+        hmin hbal
+  have h𝒜card : 𝒜.card = 2 ^ (2 * m) := by
+    simpa [𝒜, hbal] using card_predFamily_nonMemberSubfamily (𝒜 := 𝒟)
+  have h𝒜total :
+      totalSize 𝒟 = 2 * totalSize 𝒜 + 2 ^ (2 * m) := by
+    calc
+      totalSize 𝒟 = totalSize (twoSheetFamily 𝒜 𝒜) := by rw [hodd.2]
+      _ = totalSize 𝒜 + totalSize 𝒜 + 𝒜.card := by
+            simpa using totalSize_twoSheetFamily (ℳ := 𝒜) (𝒩 := 𝒜)
+      _ = 2 * totalSize 𝒜 + 2 ^ (2 * m) := by
+            rw [h𝒜card]
+            ring
+  have hwitness :
+      totalSize (evenLowerHalfFamily m) =
+        2 * totalSize (oddLowerHalfFamily m) + 2 ^ (2 * m) :=
+    totalSize_evenLowerHalfFamily_eq_two_mul_totalSize_oddLowerHalfFamily_add_halfCube m
+  change totalSize (oddLowerHalfFamily m) < totalSize 𝒜
+  omega
+
+theorem
+    exists_isOddHalfCubeBoundaryGlobalMinimizer_largerTotalSizeThanWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_balancedZeroSections_of_totalSize_gt_evenWitness
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hbal : #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m))
+    (hsize : totalSize (evenLowerHalfFamily m) < totalSize 𝒟) :
+    ∃ 𝒜 : Finset (Finset (Fin (2 * m + 1))),
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒜 ∧
+      totalSize (oddLowerHalfFamily m) < totalSize 𝒜 := by
+  let 𝒜 : Finset (Finset (Fin (2 * m + 1))) := predFamily (𝒟.nonMemberSubfamily 0)
+  have hodd :
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒜 ∧
+        𝒟 = twoSheetFamily 𝒜 𝒜 := by
+    simpa [𝒜] using
+      isOddHalfCubeBoundaryGlobalMinimizer_predFamily_nonMemberSubfamily_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_balancedZeroSections
+        hmin hbal
+  have h𝒜card : 𝒜.card = 2 ^ (2 * m) := by
+    simpa [𝒜, hbal] using card_predFamily_nonMemberSubfamily (𝒜 := 𝒟)
+  have h𝒜total :
+      totalSize 𝒟 = 2 * totalSize 𝒜 + 2 ^ (2 * m) := by
+    calc
+      totalSize 𝒟 = totalSize (twoSheetFamily 𝒜 𝒜) := by rw [hodd.2]
+      _ = totalSize 𝒜 + totalSize 𝒜 + 𝒜.card := by
+            simpa using totalSize_twoSheetFamily (ℳ := 𝒜) (𝒩 := 𝒜)
+      _ = 2 * totalSize 𝒜 + 2 ^ (2 * m) := by
+            rw [h𝒜card]
+            ring
+  have hwitness :
+      totalSize (evenLowerHalfFamily m) =
+        2 * totalSize (oddLowerHalfFamily m) + 2 ^ (2 * m) :=
+    totalSize_evenLowerHalfFamily_eq_two_mul_totalSize_oddLowerHalfFamily_add_halfCube m
+  refine ⟨𝒜, hodd.1, ?_⟩
+  exact
+    totalSize_oddLowerHalfFamily_lt_predFamily_nonMemberSubfamily_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_balancedZeroSections_of_totalSize_gt_evenWitness
+      hmin hbal hsize
+
+theorem
+    choose_middle_lt_card_positiveBoundary_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_balancedZeroSections_of_totalSize_gt_evenWitness_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+    (hOddSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hbal : #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m))
+    (hsize : totalSize (evenLowerHalfFamily m) < totalSize 𝒟) :
+    Nat.choose (2 * m + 2) (m + 1) < #(positiveBoundary 𝒟) := by
+  let 𝒜 : Finset (Finset (Fin (2 * m + 1))) := predFamily (𝒟.nonMemberSubfamily 0)
+  have h𝒜data :
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒜 ∧
+        𝒟 = twoSheetFamily 𝒜 𝒜 := by
+    simpa [𝒜] using
+      isOddHalfCubeBoundaryGlobalMinimizer_predFamily_nonMemberSubfamily_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_balancedZeroSections
+        hmin hbal
+  have h𝒜size :
+      totalSize (oddLowerHalfFamily m) < totalSize 𝒜 := by
+    simpa [𝒜] using
+      totalSize_oddLowerHalfFamily_lt_predFamily_nonMemberSubfamily_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_balancedZeroSections_of_totalSize_gt_evenWitness
+        hmin hbal hsize
+  have hdiag :
+      𝒟 = twoSheetFamily 𝒜 𝒜 := by
+    exact h𝒜data.2
+  have hgap :
+      Nat.choose (2 * m + 1) m < upperShadowGap 𝒜 :=
+    hOddSize h𝒜data.1.1 h𝒜data.1.2.1 h𝒜size
+  have hbdryA :
+      Nat.choose (2 * m + 1) m < #(positiveBoundary 𝒜) := by
+    simpa [upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily (𝒟 := 𝒜) h𝒜data.1.1] using hgap
+  have hdouble :
+      Nat.choose (2 * m + 2) (m + 1) < 2 * #(positiveBoundary 𝒜) := by
+    rw [choose_middle_even_eq_two_mul_choose_middle_odd]
+    exact Nat.mul_lt_mul_of_pos_left hbdryA (by decide : 0 < 2)
+  calc
+    Nat.choose (2 * m + 2) (m + 1) < 2 * #(positiveBoundary 𝒜) := hdouble
+    _ = #(positiveBoundary (twoSheetFamily 𝒜 𝒜)) := by
+          rw [card_positiveBoundary_twoSheetFamily_diag]
+    _ = #(positiveBoundary 𝒟) := by rw [← hdiag]
+
+theorem
+    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_balancedZeroSections_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+    (hOddSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hbal : #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m)) :
+    totalSize 𝒟 ≤ totalSize (evenLowerHalfFamily m) := by
+  by_contra hgt
+  have hgt' : totalSize (evenLowerHalfFamily m) < totalSize 𝒟 := by
+    omega
+  have hstrict :
+      Nat.choose (2 * m + 2) (m + 1) < #(positiveBoundary 𝒟) :=
+    choose_middle_lt_card_positiveBoundary_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_balancedZeroSections_of_totalSize_gt_evenWitness_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      hOddSize hmin hbal hgt'
+  have hupper :
+      #(positiveBoundary 𝒟) ≤ Nat.choose (2 * m + 2) (m + 1) :=
+    card_positiveBoundary_le_choose_middle_of_isEvenHalfCubeBoundaryGlobalMinimizer hmin
+  exact (not_lt_of_ge hupper) hstrict
+
+theorem
+    zeroSectionExcess_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_totalSize_gt_evenWitness_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+    (hOddSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (hsize : totalSize (evenLowerHalfFamily m) < totalSize 𝒟) :
+    2 ^ (2 * m) < #(𝒟.nonMemberSubfamily 0) := by
+  have hcard' : 𝒟.card = 2 * 2 ^ (2 * m) := by
+    simpa [pow_succ', mul_comm, mul_left_comm, mul_assoc] using hmin.2.1
+  have hhalf :
+      2 ^ (2 * m) ≤ #(𝒟.nonMemberSubfamily 0) :=
+    half_card_le_card_nonMemberSubfamily_of_card_eq_two_mul hmin.1 0 (2 ^ (2 * m)) hcard'
+  by_cases hbal : #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m)
+  · have hle :
+        totalSize 𝒟 ≤ totalSize (evenLowerHalfFamily m) :=
+      totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_balancedZeroSections_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+        hOddSize hmin hbal
+    exact False.elim ((not_lt_of_ge hle) hsize)
+  · exact lt_of_le_of_ne hhalf (by simpa [eq_comm] using hbal)
+
+theorem
+    evenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary
+    (hPairSize :
+      OddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement) :
+    EvenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundaryStatement := by
+  intro m 𝒟 hmin hsize hexcess
+  let e := #(𝒟.nonMemberSubfamily 0) - 2 ^ (2 * m)
+  let 𝒩 : Finset (Finset (Fin (2 * m + 1))) := predFamily (𝒟.nonMemberSubfamily 0)
+  let ℳ : Finset (Finset (Fin (2 * m + 1))) := predFamily (𝒟.memberSubfamily 0)
+  have hepos : 0 < e := by
+    dsimp [e]
+    exact Nat.sub_pos_of_lt hexcess
+  have h𝒩down : IsDownSetFamily 𝒩 := by
+    simpa [𝒩] using isDownSetFamily_predFamily_nonMemberSubfamily hmin.1
+  have hℳdown : IsDownSetFamily ℳ := by
+    simpa [ℳ] using isDownSetFamily_predFamily_memberSubfamily hmin.1
+  have hsub : ℳ ⊆ 𝒩 := by
+    simpa [𝒩, ℳ] using predFamily_memberSubfamily_subset_predFamily_nonMemberSubfamily hmin.1
+  have hNcardSec : #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m) + e := by
+    dsimp [e]
+    omega
+  have hcard : 𝒟.card = 2 ^ (2 * m + 1) := hmin.2.1
+  have hsplit := Finset.card_memberSubfamily_add_card_nonMemberSubfamily 0 𝒟
+  have hpow : 2 ^ (2 * m + 1) = 2 ^ (2 * m) + 2 ^ (2 * m) := by
+    rw [show 2 * m + 1 = (2 * m) + 1 by omega, Nat.pow_succ]
+    ring
+  have hMcardSec : #(𝒟.memberSubfamily 0) = 2 ^ (2 * m) - e := by
+    rw [hcard, hpow] at hsplit
+    dsimp [e] at *
+    omega
+  have h𝒩card : 𝒩.card = 2 ^ (2 * m) + e := by
+    simpa [𝒩, hNcardSec] using card_predFamily_nonMemberSubfamily (𝒜 := 𝒟)
+  have hℳcard : ℳ.card = 2 ^ (2 * m) - e := by
+    simpa [ℳ, hMcardSec] using card_predFamily_memberSubfamily (𝒜 := 𝒟)
+  have hdiag : 𝒟 = twoSheetFamily ℳ 𝒩 := by
+    simpa [𝒩, ℳ] using eq_twoSheetFamily_predFamily_sections 𝒟
+  have hsize' :
+      totalSize (evenLowerHalfFamily m) < totalSize 𝒩 + totalSize ℳ + ℳ.card := by
+    calc
+      totalSize (evenLowerHalfFamily m) < totalSize 𝒟 := hsize
+      _ = totalSize (twoSheetFamily ℳ 𝒩) := by rw [hdiag]
+      _ = totalSize 𝒩 + totalSize ℳ + ℳ.card := by
+            simpa using totalSize_twoSheetFamily (ℳ := ℳ) (𝒩 := 𝒩)
+  have hstrict :
+      Nat.choose (2 * m + 2) (m + 1) <
+        #(positiveBoundary 𝒩) + #((𝒩 \ ℳ) ∪ positiveBoundary ℳ) :=
+    hPairSize hepos h𝒩down hℳdown hsub h𝒩card hℳcard hsize'
+  have hNterm : #(positiveBoundary 𝒩) = #((positiveBoundary 𝒟).nonMemberSubfamily 0) := by
+    calc
+      #(positiveBoundary 𝒩)
+        = #((positiveBoundary (𝒟.nonMemberSubfamily 0)).nonMemberSubfamily 0) := by
+            simpa [𝒩] using card_positiveBoundary_predFamily_nonMemberSubfamily (𝒜 := 𝒟)
+      _ = #((positiveBoundary 𝒟).nonMemberSubfamily 0) := by
+            rw [← nonMemberSubfamily_positiveBoundary (a := 0) (𝒜 := 𝒟)]
+  have hMterm :
+      #((𝒩 \ ℳ) ∪ positiveBoundary ℳ) =
+        #((positiveBoundary 𝒟).memberSubfamily 0) := by
+    symm
+    simpa [𝒩, ℳ] using
+      card_memberSubfamily_positiveBoundary_eq_card_pairInterface_zero_sections (𝒟 := 𝒟)
+  calc
+    Nat.choose (2 * m + 2) (m + 1)
+      < #(positiveBoundary 𝒩) + #((𝒩 \ ℳ) ∪ positiveBoundary ℳ) := hstrict
+    _ = #((positiveBoundary 𝒟).nonMemberSubfamily 0) +
+          #((positiveBoundary 𝒟).memberSubfamily 0) := by
+            rw [hNterm, hMterm]
+    _ = #(positiveBoundary 𝒟) := by
+          simpa [add_comm] using
+            (Finset.card_memberSubfamily_add_card_nonMemberSubfamily
+              (a := 0) (𝒜 := positiveBoundary 𝒟))
+
+theorem
+    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_zeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+    (hZero :
+      EvenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundaryStatement)
+    (hOddSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟) :
+    totalSize 𝒟 ≤ totalSize (evenLowerHalfFamily m) := by
+  by_contra hgt
+  have hsize : totalSize (evenLowerHalfFamily m) < totalSize 𝒟 := by
+    omega
+  have hexcess :
+      2 ^ (2 * m) < #(𝒟.nonMemberSubfamily 0) :=
+    zeroSectionExcess_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_totalSize_gt_evenWitness_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      hOddSize hmin hsize
+  have hstrict :
+      Nat.choose (2 * m + 2) (m + 1) < #(positiveBoundary 𝒟) :=
+    hZero hmin hsize hexcess
+  have hupper :
+      #(positiveBoundary 𝒟) ≤ Nat.choose (2 * m + 2) (m + 1) :=
+    card_positiveBoundary_le_choose_middle_of_isEvenHalfCubeBoundaryGlobalMinimizer hmin
+  exact (not_lt_of_ge hupper) hstrict
+
+theorem
+    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+    (hPairSize :
+      OddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement)
+    (hOddSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟) :
+    totalSize 𝒟 ≤ totalSize (evenLowerHalfFamily m) := by
+  exact
+    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_zeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      (evenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary
+        hPairSize)
+      hOddSize hmin
+
+theorem
+    t_eq_middle_of_middleTransitionWindow_of_zeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+    (hZero :
+      EvenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundaryStatement)
+    (hOddSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {t u : ℕ}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (htmid : t ≤ m + 1) (humid : m + 1 < u)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0) :
+    t = m + 1 := by
+  have hsize :
+      totalSize 𝒟 ≤ totalSize (evenLowerHalfFamily m) :=
+    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_zeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      hZero hOddSize hmin
+  exact
+    t_eq_middle_of_middleTransitionWindow_of_totalSize_le_evenWitness
+      hmin htmid humid hmid hsize
+
+theorem
+    t_eq_middle_of_middleTransitionWindow_of_oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+    (hPairSize :
+      OddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement)
+    (hOddSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {t u : ℕ}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (htmid : t ≤ m + 1) (humid : m + 1 < u)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0) :
+    t = m + 1 := by
+  exact
+    t_eq_middle_of_middleTransitionWindow_of_zeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      (evenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary
+        hPairSize)
+      hOddSize hmin htmid humid hmid
+
+theorem
+    eq_evenLowerHalfFamily_of_middleTransitionWindow_of_zeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_balancedZeroSections
+    (hZero :
+      EvenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundaryStatement)
+    (hOddSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {t u : ℕ}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (htmid : t ≤ m + 1) (humid : m + 1 < u)
+    (hfull : ∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 2) r)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0)
+    (hbal : #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m)) :
+    𝒟 = evenLowerHalfFamily m := by
+  have hsize :
+      totalSize 𝒟 ≤ totalSize (evenLowerHalfFamily m) :=
+    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_zeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      hZero hOddSize hmin
+  exact
+    eq_evenLowerHalfFamily_of_middleTransitionWindow_of_totalSize_le_witness_of_balancedZeroSections
+      hmin htmid humid hfull hmid hsize hbal
+
+theorem
+    eq_evenLowerHalfFamily_of_middleTransitionWindow_of_oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_balancedZeroSections
+    (hPairSize :
+      OddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement)
+    (hOddSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {t u : ℕ}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (htmid : t ≤ m + 1) (humid : m + 1 < u)
+    (hfull : ∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 2) r)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0)
+    (hbal : #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m)) :
+    𝒟 = evenLowerHalfFamily m := by
+  exact
+    eq_evenLowerHalfFamily_of_middleTransitionWindow_of_zeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_balancedZeroSections
+      (evenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary
+        hPairSize)
+      hOddSize hmin htmid humid hfull hmid hbal
 
 /-- Topological/two-sheet formulation of the current odd-dimensional frontier.
 
@@ -5874,6 +7763,103 @@ theorem card_image_map_equiv (e : α ≃ β) (𝒜 : Finset (Finset α)) :
   exact Finset.card_image_of_injOn (by
     intro s hs t ht hEq
     exact (Finset.map_injective e.toEmbedding) hEq)
+
+theorem totalSize_image_equiv (e : α ≃ β) (𝒜 : Finset (Finset α)) :
+    totalSize (𝒜.image fun s => s.map e.toEmbedding) = totalSize 𝒜 := by
+  unfold totalSize
+  rw [Finset.sum_image]
+  · refine Finset.sum_congr rfl ?_
+    intro s hs
+    simp
+  · intro s hs t ht hEq
+    exact (Finset.map_injective e.toEmbedding) hEq
+
+theorem nonMemberSubfamily_image_equiv (e : α ≃ β) (a : α) (𝒜 : Finset (Finset α)) :
+    (𝒜.image fun s => s.map e.toEmbedding).nonMemberSubfamily (e a) =
+      (𝒜.nonMemberSubfamily a).image fun s => s.map e.toEmbedding := by
+  ext t
+  constructor
+  · intro ht
+    rcases mem_nonMemberSubfamily.mp ht with ⟨htImg, hta⟩
+    rcases Finset.mem_image.mp htImg with ⟨s, hsA, rfl⟩
+    refine Finset.mem_image.mpr ⟨s, ?_, rfl⟩
+    refine mem_nonMemberSubfamily.mpr ⟨hsA, ?_⟩
+    intro ha
+    exact hta (Finset.mem_map.mpr ⟨a, ha, rfl⟩)
+  · intro ht
+    rcases Finset.mem_image.mp ht with ⟨s, hsNon, rfl⟩
+    refine mem_nonMemberSubfamily.mpr ⟨?_, ?_⟩
+    · exact Finset.mem_image.mpr ⟨s, (mem_nonMemberSubfamily.mp hsNon).1, rfl⟩
+    · intro hea
+      rcases Finset.mem_map.mp hea with ⟨x, hx, hxe⟩
+      have hxa : x = a := e.injective hxe
+      exact (mem_nonMemberSubfamily.mp hsNon).2 (hxa ▸ hx)
+
+theorem card_positiveBoundary_image_equiv (e : α ≃ β) (𝒜 : Finset (Finset α)) :
+    #(positiveBoundary (𝒜.image fun s => s.map e.toEmbedding)) = #(positiveBoundary 𝒜) := by
+  calc
+    #(positiveBoundary (𝒜.image fun s => s.map e.toEmbedding))
+      = #((positiveBoundary 𝒜).image fun s => s.map e.toEmbedding) := by
+          rw [← image_positiveBoundary_map_equiv (β := β) e 𝒜]
+    _ = #(positiveBoundary 𝒜) := by
+          simpa using card_image_map_equiv (β := β) e (positiveBoundary 𝒜)
+
+theorem isEvenHalfCubeBoundaryGlobalMinimizer_image_equiv
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (e : Fin (2 * m + 2) ≃ Fin (2 * m + 2))
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟) :
+    IsEvenHalfCubeBoundaryGlobalMinimizer (m := m)
+      (𝒟.image fun s => s.map e.toEmbedding) := by
+  refine ⟨?_, ?_, ?_⟩
+  · simpa using isDownSetFamily_image_equiv e hmin.1
+  · calc
+      #(𝒟.image fun s => s.map e.toEmbedding) = #𝒟 := by
+        simpa using card_image_map_equiv e 𝒟
+      _ = 2 ^ (2 * m + 1) := hmin.2.1
+  · intro 𝒜 h𝒜 h𝒜card
+    let 𝒜' : Finset (Finset (Fin (2 * m + 2))) :=
+      𝒜.image fun s => s.map e.symm.toEmbedding
+    have h𝒜'down : IsDownSetFamily 𝒜' := by
+      simpa [𝒜'] using isDownSetFamily_image_equiv e.symm h𝒜
+    have h𝒜'card : 𝒜'.card = 2 ^ (2 * m + 1) := by
+      calc
+        𝒜'.card = 𝒜.card := by
+          simpa [𝒜'] using card_image_map_equiv e.symm 𝒜
+        _ = 2 ^ (2 * m + 1) := h𝒜card
+    have hle := hmin.2.2 h𝒜'down h𝒜'card
+    calc
+      #(positiveBoundary (𝒟.image fun s => s.map e.toEmbedding)) = #(positiveBoundary 𝒟) := by
+        simpa using card_positiveBoundary_image_equiv e 𝒟
+      _ ≤ #(positiveBoundary 𝒜') := hle
+      _ = #(positiveBoundary 𝒜) := by
+        dsimp [𝒜']
+        simpa using card_positiveBoundary_image_equiv e.symm 𝒜
+
+theorem exists_isEvenHalfCubeBoundaryGlobalMinimizer_zeroSectionExcess_of_totalSize_lt_max_up_to_relabel
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (htotal : totalSize 𝒟 < (2 * m + 2) * 2 ^ (2 * m)) :
+    ∃ 𝒟' : Finset (Finset (Fin (2 * m + 2))),
+      IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟' ∧
+      totalSize 𝒟' = totalSize 𝒟 ∧
+      2 ^ (2 * m) < #(𝒟'.nonMemberSubfamily 0) := by
+  rcases exists_coordinate_excess_of_halfCube_of_totalSize_lt_max
+      (n := 2 * m + 1) (by positivity) hmin.2.1 htotal with ⟨a, hexcess⟩
+  let e : Fin (2 * m + 2) ≃ Fin (2 * m + 2) := Equiv.swap a 0
+  let 𝒟' : Finset (Finset (Fin (2 * m + 2))) := 𝒟.image fun s => s.map e.toEmbedding
+  refine ⟨𝒟', isEvenHalfCubeBoundaryGlobalMinimizer_image_equiv e hmin, ?_, ?_⟩
+  · dsimp [𝒟']
+    simpa using totalSize_image_equiv e 𝒟
+  · have he0 : e a = 0 := by
+      simp [e]
+    have hsec :
+        #(𝒟'.nonMemberSubfamily 0) = #(𝒟.nonMemberSubfamily a) := by
+      rw [← he0]
+      dsimp [𝒟']
+      rw [nonMemberSubfamily_image_equiv]
+      simpa using card_image_map_equiv e (𝒟.nonMemberSubfamily a)
+    rw [hsec]
+    exact hexcess
 
 theorem halfCubeBoundaryLower_of_finHalfCubeBoundaryLower
     (hFin :
