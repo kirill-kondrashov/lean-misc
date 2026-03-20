@@ -996,6 +996,41 @@ theorem card_slice_le_choose {n r : ℕ} {𝒟 : Finset (Finset (Fin n))} :
     #(𝒟 # r) ≤ #((Finset.univ : Finset (Fin n)).powersetCard r) := Finset.card_le_card hsubset
     _ = Nat.choose n r := by simp
 
+/-- Taking a slice is monotone under inclusion of families. -/
+theorem card_slice_le_card_slice_of_subset {n r : ℕ}
+    {𝒜 ℬ : Finset (Finset (Fin n))} (hsub : 𝒜 ⊆ ℬ) :
+    #(𝒜 # r) ≤ #(ℬ # r) := by
+  exact Finset.card_le_card <| by
+    intro s hs
+    exact Finset.mem_slice.mpr ⟨hsub (Finset.mem_slice.mp hs).1, (Finset.mem_slice.mp hs).2⟩
+
+/-- Taking a slice commutes with set difference. -/
+theorem slice_sdiff_eq_sdiff_slice {n r : ℕ}
+    {𝒜 ℬ : Finset (Finset (Fin n))} :
+    (𝒜 \ ℬ) # r = (𝒜 # r) \ (ℬ # r) := by
+  ext s
+  constructor
+  · intro hs
+    rcases Finset.mem_slice.mp hs with ⟨hsAB, hsCard⟩
+    rcases Finset.mem_sdiff.mp hsAB with ⟨hs𝒜, hsℬ⟩
+    refine Finset.mem_sdiff.mpr ⟨Finset.mem_slice.mpr ⟨hs𝒜, hsCard⟩, ?_⟩
+    intro hsB
+    exact hsℬ (Finset.mem_slice.mp hsB).1
+  · intro hs
+    rcases Finset.mem_sdiff.mp hs with ⟨hs𝒜, hsℬ⟩
+    rcases Finset.mem_slice.mp hs𝒜 with ⟨hsA, hsCard⟩
+    refine Finset.mem_slice.mpr ⟨Finset.mem_sdiff.mpr ⟨hsA, ?_⟩, hsCard⟩
+    intro hsB
+    exact hsℬ (Finset.mem_slice.mpr ⟨hsB, hsCard⟩)
+
+/-- For nested families, the gap slice cardinality is the difference of the slice cardinalities. -/
+theorem card_slice_sdiff_eq_card_slice_sub_card_slice_of_subset {n r : ℕ}
+    {𝒜 ℬ : Finset (Finset (Fin n))} (hsub : ℬ ⊆ 𝒜) :
+    #((𝒜 \ ℬ) # r) = #(𝒜 # r) - #(ℬ # r) := by
+  rw [slice_sdiff_eq_sdiff_slice, Finset.card_sdiff_of_subset]
+  intro s hs
+  exact Finset.mem_slice.mpr ⟨hsub (Finset.mem_slice.mp hs).1, (Finset.mem_slice.mp hs).2⟩
+
 /-- Total size is the weighted sum of the slice cardinalities. -/
 theorem totalSize_eq_sum_range_mul_card_slice (𝒟 : Finset (Finset α)) :
     totalSize 𝒟 =
@@ -3102,6 +3137,42 @@ def OddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterf
       ℳ ⊆ 𝒩 →
       𝒩.card = 2 ^ (2 * m) + e →
       ℳ.card = 2 ^ (2 * m) - e →
+      totalSize (evenLowerHalfFamily m) < totalSize 𝒩 + totalSize ℳ + ℳ.card →
+      Nat.choose (2 * m + 2) (m + 1) <
+        #(positiveBoundary 𝒩) + #((𝒩 \ ℳ) ∪ positiveBoundary ℳ)
+
+/-- Localized odd two-sheet strict route: it is enough to understand the first rank where the two
+odd sheets genuinely separate. Before that rank, the sheets agree slice-by-slice; at that rank,
+the upper sheet has strictly fewer sets than the lower sheet. -/
+def OddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement :
+    Prop :=
+  ∀ {m q e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
+      0 < e →
+      IsDownSetFamily 𝒩 →
+      IsDownSetFamily ℳ →
+      ℳ ⊆ 𝒩 →
+      𝒩.card = 2 ^ (2 * m) + e →
+      ℳ.card = 2 ^ (2 * m) - e →
+      (∀ ⦃r : ℕ⦄, r < q → #(ℳ # r) = #(𝒩 # r)) →
+      #(ℳ # q) < #(𝒩 # q) →
+      totalSize (evenLowerHalfFamily m) < totalSize 𝒩 + totalSize ℳ + ℳ.card →
+      Nat.choose (2 * m + 2) (m + 1) <
+        #(positiveBoundary 𝒩) + #((𝒩 \ ℳ) ∪ positiveBoundary ℳ)
+
+/-- Further-localized odd two-sheet strict route: it is enough to understand the first positive
+slice of the gap family `𝒩 \ ℳ`. Equivalently, the sheets coincide on all lower ranks, and then
+the first nonzero gap slice already forces strict pair-interface growth. -/
+def OddSectionFirstPositiveGapSliceLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement :
+    Prop :=
+  ∀ {m q e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
+      0 < e →
+      IsDownSetFamily 𝒩 →
+      IsDownSetFamily ℳ →
+      ℳ ⊆ 𝒩 →
+      𝒩.card = 2 ^ (2 * m) + e →
+      ℳ.card = 2 ^ (2 * m) - e →
+      (∀ s ∈ Finset.range q, #(((𝒩 \ ℳ) # s)) = 0) →
+      0 < #(((𝒩 \ ℳ) # q)) →
       totalSize (evenLowerHalfFamily m) < totalSize 𝒩 + totalSize ℳ + ℳ.card →
       Nat.choose (2 * m + 2) (m + 1) <
         #(positiveBoundary 𝒩) + #((𝒩 \ ℳ) ∪ positiveBoundary ℳ)
@@ -6591,6 +6662,83 @@ theorem
   · exact lt_of_le_of_ne hhalf (by simpa [eq_comm] using hbal)
 
 theorem
+    oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_firstSeparation
+    (hFirst :
+      OddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement) :
+    OddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement := by
+  intro m e 𝒩 ℳ he h𝒩 hℳ hsub h𝒩card hℳcard hsize
+  have hsum𝒩 :
+      Finset.sum (Finset.range (2 * m + 2)) (fun r => #(𝒩 # r)) = 𝒩.card := by
+    simpa [Nat.range_succ_eq_Iic, Fintype.card_fin] using (Finset.sum_card_slice 𝒩)
+  have hsumℳ :
+      Finset.sum (Finset.range (2 * m + 2)) (fun r => #(ℳ # r)) = ℳ.card := by
+    simpa [Nat.range_succ_eq_Iic, Fintype.card_fin] using (Finset.sum_card_slice ℳ)
+  have hsep :
+      ∃ q, q ∈ Finset.range (2 * m + 2) ∧ #(ℳ # q) < #(𝒩 # q) := by
+    by_contra hno
+    have hslices :
+        ∀ q ∈ Finset.range (2 * m + 2), #(ℳ # q) = #(𝒩 # q) := by
+      intro q hq
+      have hle : #(ℳ # q) ≤ #(𝒩 # q) :=
+        card_slice_le_card_slice_of_subset hsub
+      have hnotlt : ¬ #(ℳ # q) < #(𝒩 # q) := by
+        intro hlt
+        exact hno ⟨q, hq, hlt⟩
+      exact Nat.le_antisymm hle (Nat.not_lt.mp hnotlt)
+    have hcardEq : ℳ.card = 𝒩.card := by
+      calc
+        ℳ.card = Finset.sum (Finset.range (2 * m + 2)) (fun r => #(ℳ # r)) := by
+          symm
+          exact hsumℳ
+        _ = Finset.sum (Finset.range (2 * m + 2)) (fun r => #(𝒩 # r)) := by
+          refine Finset.sum_congr rfl ?_
+          intro r hr
+          exact hslices r hr
+        _ = 𝒩.card := hsum𝒩
+    have hcardNe : ℳ.card ≠ 𝒩.card := by
+      intro hEq
+      rw [hℳcard, h𝒩card] at hEq
+      have hlt :
+          2 ^ (2 * m) - e < 2 ^ (2 * m) + e := by
+        calc
+          2 ^ (2 * m) - e < 2 ^ (2 * m) := by
+            exact Nat.sub_lt (pow_pos (by decide : 0 < 2) (2 * m)) he
+          _ < 2 ^ (2 * m) + e := Nat.lt_add_of_pos_right he
+      exact (ne_of_lt hlt) hEq
+    exact (hcardNe hcardEq).elim
+  let q : ℕ := Nat.find hsep
+  have hqRange : q ∈ Finset.range (2 * m + 2) := (Nat.find_spec hsep).1
+  have hqStrict : #(ℳ # q) < #(𝒩 # q) := (Nat.find_spec hsep).2
+  have hbefore : ∀ ⦃r : ℕ⦄, r < q → #(ℳ # r) = #(𝒩 # r) := by
+    intro r hr
+    have hrRange : r ∈ Finset.range (2 * m + 2) := by
+      exact Finset.mem_range.mpr (lt_trans hr (Finset.mem_range.mp hqRange))
+    have hle : #(ℳ # r) ≤ #(𝒩 # r) :=
+      card_slice_le_card_slice_of_subset hsub
+    have hnotlt : ¬ #(ℳ # r) < #(𝒩 # r) := by
+      intro hlt
+      have hqle : q ≤ r := Nat.find_min' hsep ⟨hrRange, hlt⟩
+      exact (Nat.not_le_of_gt hr) hqle
+    exact Nat.le_antisymm hle (Nat.not_lt.mp hnotlt)
+  exact hFirst he h𝒩 hℳ hsub h𝒩card hℳcard hbefore hqStrict hsize
+
+theorem
+    oddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_firstPositiveGapSlice
+    (hGap :
+      OddSectionFirstPositiveGapSliceLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement) :
+    OddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement := by
+  intro m q e 𝒩 ℳ he h𝒩 hℳ hsub h𝒩card hℳcard hbefore hqStrict hsize
+  have hzero :
+      ∀ s ∈ Finset.range q, #(((𝒩 \ ℳ) # s)) = 0 := by
+    intro s hs
+    have hsEq : #(ℳ # s) = #(𝒩 # s) := hbefore (Finset.mem_range.mp hs)
+    rw [card_slice_sdiff_eq_card_slice_sub_card_slice_of_subset hsub, hsEq, Nat.sub_self]
+  have hpos : 0 < #(((𝒩 \ ℳ) # q)) := by
+    rw [card_slice_sdiff_eq_card_slice_sub_card_slice_of_subset hsub]
+    exact Nat.sub_pos_of_lt hqStrict
+  exact hGap he h𝒩 hℳ hsub h𝒩card hℳcard hzero hpos hsize
+
+theorem
     evenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary
     (hPairSize :
       OddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement) :
@@ -6701,6 +6849,36 @@ theorem
       hOddSize hmin
 
 theorem
+    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_oddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+    (hFirst :
+      OddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement)
+    (hOddSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟) :
+    totalSize 𝒟 ≤ totalSize (evenLowerHalfFamily m) := by
+  exact
+    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      (oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_firstSeparation
+        hFirst)
+      hOddSize hmin
+
+theorem
+    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_oddSectionFirstPositiveGapSliceLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+    (hGap :
+      OddSectionFirstPositiveGapSliceLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement)
+    (hOddSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟) :
+    totalSize 𝒟 ≤ totalSize (evenLowerHalfFamily m) := by
+  exact
+    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_oddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      (oddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_firstPositiveGapSlice
+        hGap)
+      hOddSize hmin
+
+theorem
     t_eq_middle_of_middleTransitionWindow_of_zeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
     (hZero :
       EvenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundaryStatement)
@@ -6736,6 +6914,42 @@ theorem
     t_eq_middle_of_middleTransitionWindow_of_zeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
       (evenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary
         hPairSize)
+      hOddSize hmin htmid humid hmid
+
+theorem
+    t_eq_middle_of_middleTransitionWindow_of_oddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+    (hFirst :
+      OddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement)
+    (hOddSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {t u : ℕ}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (htmid : t ≤ m + 1) (humid : m + 1 < u)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0) :
+    t = m + 1 := by
+  exact
+    t_eq_middle_of_middleTransitionWindow_of_oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      (oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_firstSeparation
+        hFirst)
+      hOddSize hmin htmid humid hmid
+
+theorem
+    t_eq_middle_of_middleTransitionWindow_of_oddSectionFirstPositiveGapSliceLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+    (hGap :
+      OddSectionFirstPositiveGapSliceLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement)
+    (hOddSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {t u : ℕ}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (htmid : t ≤ m + 1) (humid : m + 1 < u)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0) :
+    t = m + 1 := by
+  exact
+    t_eq_middle_of_middleTransitionWindow_of_oddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      (oddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_firstPositiveGapSlice
+        hGap)
       hOddSize hmin htmid humid hmid
 
 theorem
@@ -6778,6 +6992,46 @@ theorem
     eq_evenLowerHalfFamily_of_middleTransitionWindow_of_zeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_balancedZeroSections
       (evenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary
         hPairSize)
+      hOddSize hmin htmid humid hfull hmid hbal
+
+theorem
+    eq_evenLowerHalfFamily_of_middleTransitionWindow_of_oddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_balancedZeroSections
+    (hFirst :
+      OddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement)
+    (hOddSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {t u : ℕ}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (htmid : t ≤ m + 1) (humid : m + 1 < u)
+    (hfull : ∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 2) r)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0)
+    (hbal : #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m)) :
+    𝒟 = evenLowerHalfFamily m := by
+  exact
+    eq_evenLowerHalfFamily_of_middleTransitionWindow_of_oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_balancedZeroSections
+      (oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_firstSeparation
+        hFirst)
+      hOddSize hmin htmid humid hfull hmid hbal
+
+theorem
+    eq_evenLowerHalfFamily_of_middleTransitionWindow_of_oddSectionFirstPositiveGapSliceLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_balancedZeroSections
+    (hGap :
+      OddSectionFirstPositiveGapSliceLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement)
+    (hOddSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {t u : ℕ}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (htmid : t ≤ m + 1) (humid : m + 1 < u)
+    (hfull : ∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 2) r)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0)
+    (hbal : #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m)) :
+    𝒟 = evenLowerHalfFamily m := by
+  exact
+    eq_evenLowerHalfFamily_of_middleTransitionWindow_of_oddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_balancedZeroSections
+      (oddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_firstPositiveGapSlice
+        hGap)
       hOddSize hmin htmid humid hfull hmid hbal
 
 /-- Topological/two-sheet formulation of the current odd-dimensional frontier.
