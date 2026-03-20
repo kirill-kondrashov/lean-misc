@@ -6040,6 +6040,33 @@ theorem predFamily_nonMemberSubfamily_positiveBoundary_eq_positiveBoundary_predF
     _ = positiveBoundary (predFamily 𝒜) := by
           rw [predFamily_succFamily]
 
+theorem predFamily_memberSubfamily_positiveBoundary_eq_pairInterface_zero_sections
+    {n : ℕ} {𝒟 : Finset (Finset (Fin (n + 1)))} :
+    predFamily ((positiveBoundary 𝒟).memberSubfamily 0) =
+      (predFamily (𝒟.nonMemberSubfamily 0) \ predFamily (𝒟.memberSubfamily 0)) ∪
+        positiveBoundary (predFamily (𝒟.memberSubfamily 0)) := by
+  have h0non : ∀ s ∈ 𝒟.nonMemberSubfamily 0, (0 : Fin (n + 1)) ∉ s := by
+    intro s hs
+    exact (mem_nonMemberSubfamily.mp hs).2
+  have h0mem : ∀ s ∈ 𝒟.memberSubfamily 0, (0 : Fin (n + 1)) ∉ s := by
+    intro s hs
+    exact (mem_memberSubfamily.mp hs).2
+  calc
+    predFamily ((positiveBoundary 𝒟).memberSubfamily 0)
+      = predFamily
+          ((𝒟.nonMemberSubfamily 0 \ 𝒟.memberSubfamily 0) ∪
+            (positiveBoundary (𝒟.memberSubfamily 0)).nonMemberSubfamily 0) := by
+              rw [memberSubfamily_positiveBoundary]
+    _ = predFamily (𝒟.nonMemberSubfamily 0 \ 𝒟.memberSubfamily 0) ∪
+          predFamily ((positiveBoundary (𝒟.memberSubfamily 0)).nonMemberSubfamily 0) := by
+            rw [predFamily_union]
+    _ = (predFamily (𝒟.nonMemberSubfamily 0) \ predFamily (𝒟.memberSubfamily 0)) ∪
+          predFamily ((positiveBoundary (𝒟.memberSubfamily 0)).nonMemberSubfamily 0) := by
+            rw [predFamily_sdiff_zeroFree h0non h0mem]
+    _ = (predFamily (𝒟.nonMemberSubfamily 0) \ predFamily (𝒟.memberSubfamily 0)) ∪
+          positiveBoundary (predFamily (𝒟.memberSubfamily 0)) := by
+            rw [predFamily_nonMemberSubfamily_positiveBoundary_eq_positiveBoundary_predFamily h0mem]
+
 theorem card_memberSubfamily_positiveBoundary_eq_card_pairInterface_zero_sections
     {n : ℕ} {𝒟 : Finset (Finset (Fin (n + 1)))} :
     #((positiveBoundary 𝒟).memberSubfamily 0) =
@@ -6048,34 +6075,14 @@ theorem card_memberSubfamily_positiveBoundary_eq_card_pairInterface_zero_section
   have h0member : ∀ s ∈ (positiveBoundary 𝒟).memberSubfamily 0, (0 : Fin (n + 1)) ∉ s := by
     intro s hs
     exact (mem_memberSubfamily.mp hs).2
-  have h0non : ∀ s ∈ 𝒟.nonMemberSubfamily 0, (0 : Fin (n + 1)) ∉ s := by
-    intro s hs
-    exact (mem_nonMemberSubfamily.mp hs).2
-  have h0mem : ∀ s ∈ 𝒟.memberSubfamily 0, (0 : Fin (n + 1)) ∉ s := by
-    intro s hs
-    exact (mem_memberSubfamily.mp hs).2
-  have h0pbmem : ∀ s ∈ (positiveBoundary (𝒟.memberSubfamily 0)).nonMemberSubfamily 0,
-      (0 : Fin (n + 1)) ∉ s := by
-    intro s hs
-    exact (mem_nonMemberSubfamily.mp hs).2
   calc
     #((positiveBoundary 𝒟).memberSubfamily 0)
       = #(predFamily ((positiveBoundary 𝒟).memberSubfamily 0)) := by
           symm
           exact card_predFamily h0member
-    _ = #(predFamily
-          ((𝒟.nonMemberSubfamily 0 \ 𝒟.memberSubfamily 0) ∪
-            (positiveBoundary (𝒟.memberSubfamily 0)).nonMemberSubfamily 0)) := by
-          rw [memberSubfamily_positiveBoundary]
-    _ = #(predFamily (𝒟.nonMemberSubfamily 0 \ 𝒟.memberSubfamily 0) ∪
-          predFamily ((positiveBoundary (𝒟.memberSubfamily 0)).nonMemberSubfamily 0)) := by
-          rw [predFamily_union]
-    _ = #((predFamily (𝒟.nonMemberSubfamily 0) \ predFamily (𝒟.memberSubfamily 0)) ∪
-          predFamily ((positiveBoundary (𝒟.memberSubfamily 0)).nonMemberSubfamily 0)) := by
-          rw [predFamily_sdiff_zeroFree h0non h0mem]
     _ = #((predFamily (𝒟.nonMemberSubfamily 0) \ predFamily (𝒟.memberSubfamily 0)) ∪
           positiveBoundary (predFamily (𝒟.memberSubfamily 0))) := by
-          rw [predFamily_nonMemberSubfamily_positiveBoundary_eq_positiveBoundary_predFamily h0mem]
+          rw [predFamily_memberSubfamily_positiveBoundary_eq_pairInterface_zero_sections]
 
 theorem choose_middle_le_card_positiveBoundary_even_of_zero_section_pairInterfaceBoundaryLower
     (hPair : OddSectionPairInterfaceBoundaryLowerStatement)
@@ -6281,6 +6288,67 @@ theorem card_twoSheetFamily {n : ℕ} (ℳ 𝒩 : Finset (Finset (Fin n))) :
     _ = ℳ.card + 𝒩.card := by rw [card_succFamily, card_succFamily]
     _ = 𝒩.card + ℳ.card := by omega
 
+theorem card_slice_succ_twoSheetFamily {n r : ℕ} (ℳ 𝒩 : Finset (Finset (Fin n))) :
+    #((twoSheetFamily ℳ 𝒩) # (r + 1)) = #(𝒩 # (r + 1)) + #(ℳ # r) := by
+  calc
+    #((twoSheetFamily ℳ 𝒩) # (r + 1))
+      = #(((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0) # (r + 1)) +
+          #(((twoSheetFamily ℳ 𝒩).memberSubfamily 0) # r) := by
+            exact card_slice_succ_eq_card_nonMemberSubfamily_slice_succ_add_card_memberSubfamily_slice
+    _ = #((succFamily 𝒩) # (r + 1)) + #((succFamily ℳ) # r) := by
+          rw [nonMemberSubfamily_twoSheetFamily, memberSubfamily_twoSheetFamily]
+    _ = #(𝒩 # (r + 1)) + #(ℳ # r) := by
+          rw [card_slice_succFamily, card_slice_succFamily]
+
+theorem card_slice_succ_twoSheetFamily_diag_eq_add_card_gap_slice
+    {n r : ℕ} {ℳ 𝒩 : Finset (Finset (Fin n))} (hsub : ℳ ⊆ 𝒩) :
+    #((twoSheetFamily 𝒩 𝒩) # (r + 1)) =
+      #((twoSheetFamily ℳ 𝒩) # (r + 1)) + #((𝒩 \ ℳ) # r) := by
+  have hgap :
+      #(ℳ # r) + #((𝒩 \ ℳ) # r) = #(𝒩 # r) := by
+    rw [slice_sdiff_eq_sdiff_slice]
+    have hsliceSub : ℳ # r ⊆ 𝒩 # r := by
+      intro s hs
+      exact Finset.mem_slice.mpr ⟨hsub (Finset.mem_slice.mp hs).1, (Finset.mem_slice.mp hs).2⟩
+    simpa [add_comm, add_left_comm, add_assoc] using
+      (Finset.card_sdiff_add_card_eq_card hsliceSub)
+  calc
+    #((twoSheetFamily 𝒩 𝒩) # (r + 1))
+      = #(𝒩 # (r + 1)) + #(𝒩 # r) := by
+          rw [card_slice_succ_twoSheetFamily]
+    _ = #(𝒩 # (r + 1)) + (#(ℳ # r) + #((𝒩 \ ℳ) # r)) := by
+          rw [hgap]
+    _ = #((twoSheetFamily ℳ 𝒩) # (r + 1)) + #((𝒩 \ ℳ) # r) := by
+          rw [card_slice_succ_twoSheetFamily]
+          omega
+
+theorem card_slice_succ_twoSheetFamily_lt_diag_of_gap_slice_pos
+    {n r : ℕ} {ℳ 𝒩 : Finset (Finset (Fin n))} (hsub : ℳ ⊆ 𝒩)
+    (hgap : 0 < #((𝒩 \ ℳ) # r)) :
+    #((twoSheetFamily ℳ 𝒩) # (r + 1)) < #((twoSheetFamily 𝒩 𝒩) # (r + 1)) := by
+  have hEq :
+      #((twoSheetFamily 𝒩 𝒩) # (r + 1)) =
+        #((twoSheetFamily ℳ 𝒩) # (r + 1)) + #((𝒩 \ ℳ) # r) :=
+    card_slice_succ_twoSheetFamily_diag_eq_add_card_gap_slice hsub
+  omega
+
+theorem twoSheetFamily_slice_profile_matches_upper_diag_before_first_gap_and_drops_at_gap
+    {n q : ℕ} {ℳ 𝒩 : Finset (Finset (Fin n))} (hsub : ℳ ⊆ 𝒩)
+    (hzero : ∀ s ∈ Finset.range q, #((𝒩 \ ℳ) # s) = 0)
+    (hpos : 0 < #((𝒩 \ ℳ) # q)) :
+    (∀ s ∈ Finset.range q,
+      #((twoSheetFamily ℳ 𝒩) # (s + 1)) = #((twoSheetFamily 𝒩 𝒩) # (s + 1))) ∧
+      #((twoSheetFamily ℳ 𝒩) # (q + 1)) < #((twoSheetFamily 𝒩 𝒩) # (q + 1)) := by
+  refine ⟨?_, card_slice_succ_twoSheetFamily_lt_diag_of_gap_slice_pos hsub hpos⟩
+  intro s hs
+  have hsZero : #((𝒩 \ ℳ) # s) = 0 := hzero s hs
+  have hEq :
+      #((twoSheetFamily 𝒩 𝒩) # (s + 1)) =
+        #((twoSheetFamily ℳ 𝒩) # (s + 1)) + #((𝒩 \ ℳ) # s) :=
+    card_slice_succ_twoSheetFamily_diag_eq_add_card_gap_slice hsub
+  rw [hsZero, add_zero] at hEq
+  exact hEq.symm
+
 theorem card_twoSheetFamily_of_symmetric {m e : ℕ}
     {ℳ 𝒩 : Finset (Finset (Fin (2 * m + 1)))}
     (he : e ≤ 2 ^ (2 * m))
@@ -6415,6 +6483,20 @@ theorem twoSheetOuterBoundaryCard_eq_card_positiveBoundary_twoSheetFamily
             rw [h𝒩term, hℳterm]
     _ = #(positiveBoundary (twoSheetFamily ℳ 𝒩)) := by
           rw [add_comm, Finset.card_memberSubfamily_add_card_nonMemberSubfamily]
+
+theorem predFamily_memberSubfamily_positiveBoundary_twoSheetFamily_eq_interface
+    {n : ℕ} (ℳ 𝒩 : Finset (Finset (Fin n))) :
+    predFamily ((positiveBoundary (twoSheetFamily ℳ 𝒩)).memberSubfamily 0) =
+      (𝒩 \ ℳ) ∪ positiveBoundary ℳ := by
+  calc
+    predFamily ((positiveBoundary (twoSheetFamily ℳ 𝒩)).memberSubfamily 0)
+      =
+        (predFamily ((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0) \
+            predFamily ((twoSheetFamily ℳ 𝒩).memberSubfamily 0)) ∪
+          positiveBoundary (predFamily ((twoSheetFamily ℳ 𝒩).memberSubfamily 0)) := by
+            exact predFamily_memberSubfamily_positiveBoundary_eq_pairInterface_zero_sections
+    _ = (𝒩 \ ℳ) ∪ positiveBoundary ℳ := by
+          rw [predFamily_nonMemberSubfamily_twoSheetFamily, predFamily_memberSubfamily_twoSheetFamily]
 
 /-- The first-positive-gap frontier in direct prism language: if nested odd sheets first separate
 at the gap slice `q` and their prism realization has larger total size than the diagonal witness,
