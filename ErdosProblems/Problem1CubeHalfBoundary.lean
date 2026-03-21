@@ -5647,6 +5647,15 @@ theorem oddHalfCubeBoundaryLower_of_firstBadBoundarySliceForcesStrictUpperShadow
       (oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySliceForcesStrictUpperShadowGap_of_firstBadBoundarySliceForcesStrictUpperShadowGap
         hFirstBad)
 
+theorem oddHalfCubeBoundaryLower_of_initialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGap
+    (hDef :
+      OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_firstBadBoundarySliceForcesStrictUpperShadowGap
+      (oddHalfCubeFirstBadBoundarySliceForcesStrictUpperShadowGap_of_initialFullSlicesStrictSliceDeficit
+        hDef)
+
 theorem oddHalfCubeWideMiddleTransitionWindowForcesStrictWeightedDrop_of_firstBadBoundarySliceForcesStrictWeightedDrop
     (hFirstBad :
       OddHalfCubeFirstBadBoundarySliceForcesStrictWeightedDropStatement) :
