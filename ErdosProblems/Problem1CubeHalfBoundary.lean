@@ -6801,6 +6801,23 @@ def OddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEven
       totalSize (evenLowerHalfFamily m) < totalSize (twoSheetFamily ℳ 𝒩) →
       Nat.choose (2 * m + 2) (m + 1) < #(positiveBoundary (twoSheetFamily ℳ 𝒩))
 
+/-- Interface-side reduction of the exterior-support frontier: it is enough to force the same
+strict excess target `#(positiveBoundary 𝒩) + 2 * e`, since the prism boundary dominates it by the
+generic even excess bound. -/
+def OddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcessStatement :
+    Prop :=
+  ∀ {m q e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
+      (q < m ∨ m + 2 ≤ q) →
+      0 < e →
+      IsDownSetFamily 𝒩 →
+      IsDownSetFamily ℳ →
+      ℳ ⊆ 𝒩 →
+      𝒩.card = 2 ^ (2 * m) + e →
+      ℳ.card = 2 ^ (2 * m) - e →
+      0 < #((((𝒩 \ ℳ) ∪ positiveBoundary ℳ) # q)) →
+      totalSize (evenLowerHalfFamily m) < totalSize (twoSheetFamily ℳ 𝒩) →
+      2 * Nat.choose (2 * m + 1) m < #(positiveBoundary 𝒩) + 2 * e
+
 /-- Balanced `0`-sections force an even global minimizer to be a diagonal prism
 `twoSheetFamily 𝒜 𝒜`, where the common odd section `𝒜` is itself an odd global minimizer. This
 packages the remaining even-cube obstruction as an odd-cube extremizer problem on one shared
@@ -7305,6 +7322,58 @@ theorem
   exact lt_of_lt_of_le hstrictExcess hambient
 
 theorem
+    oddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_strictExcess
+    (hExcess :
+      OddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcessStatement) :
+    OddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundaryStatement := by
+  intro m q e 𝒩 ℳ houtside he h𝒩 hℳ hsub h𝒩card hℳcard hpos hsize
+  have hele : e ≤ 2 ^ (2 * m) := by
+    have hcard_le :
+        𝒩.card ≤ 2 ^ (2 * m + 1) := by
+      calc
+        𝒩.card ≤ Fintype.card (Finset (Fin (2 * m + 1))) := Finset.card_le_univ 𝒩
+        _ = 2 ^ (2 * m + 1) := by simp
+    rw [h𝒩card, pow_succ'] at hcard_le
+    omega
+  have hprismDown : IsDownSetFamily (twoSheetFamily ℳ 𝒩) :=
+    isDownSetFamily_twoSheetFamily hℳ h𝒩 hsub
+  have hprismCard : (twoSheetFamily ℳ 𝒩).card = 2 ^ (2 * m + 1) := by
+    exact card_twoSheetFamily_of_symmetric hele h𝒩card hℳcard
+  have hambient :
+      #((positiveBoundary ((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0)).nonMemberSubfamily 0) +
+          2 * (#((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0) - 2 ^ (2 * m)) ≤
+        #(positiveBoundary (twoSheetFamily ℳ 𝒩)) := by
+    simpa [hprismCard] using
+      (card_positiveBoundary_ge_card_nonMemberSubfamily_positiveBoundary_add_two_mul_excess_of_card_eq_pow
+        (α := Fin (2 * m + 2)) (𝒜 := twoSheetFamily ℳ 𝒩) hprismDown
+        (a := (0 : Fin (2 * m + 2))) (k := 2 * m) hprismCard)
+  have h𝒩bdry :
+      #((positiveBoundary ((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0)).nonMemberSubfamily 0) =
+        #(positiveBoundary 𝒩) := by
+    rw [nonMemberSubfamily_twoSheetFamily, nonMemberSubfamily_positiveBoundary_succFamily,
+      card_succFamily]
+  have h𝒩sec :
+      #((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0) = 2 ^ (2 * m) + e := by
+    rw [nonMemberSubfamily_twoSheetFamily, card_succFamily, h𝒩card]
+  have hrewrite :
+      #(positiveBoundary 𝒩) + 2 * e =
+        #((positiveBoundary ((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0)).nonMemberSubfamily 0) +
+          2 * (#((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0) - 2 ^ (2 * m)) := by
+    rw [← h𝒩bdry, h𝒩sec, Nat.add_sub_cancel_left]
+  have hstrictExcess :
+      2 * Nat.choose (2 * m + 1) m <
+        #((positiveBoundary ((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0)).nonMemberSubfamily 0) +
+          2 * (#((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0) - 2 ^ (2 * m)) := by
+    calc
+      2 * Nat.choose (2 * m + 1) m < #(positiveBoundary 𝒩) + 2 * e :=
+        hExcess houtside he h𝒩 hℳ hsub h𝒩card hℳcard hpos hsize
+      _ =
+          #((positiveBoundary ((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0)).nonMemberSubfamily 0) +
+            2 * (#((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0) - 2 ^ (2 * m)) := hrewrite
+  rw [choose_middle_even_eq_two_mul_choose_middle_odd]
+  exact lt_of_lt_of_le hstrictExcess hambient
+
+theorem
     oddSectionPositivePrismBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveUpperBoundarySliceOutsideEvenWitnessSupport_of_positiveInterfaceSliceOutsideEvenWitnessSupport
     (hUpper :
       OddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
@@ -7625,6 +7694,29 @@ theorem
       hLower hUpper hOddSize hmin
 
 theorem
+    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_oddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcess_of_oddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcess_of_oddSectionFirstStrictPrismBoundarySliceAtLowerEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionFirstStrictPrismBoundarySliceAtUpperEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+    (hUpperOutside :
+      OddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcessStatement)
+    (hInterfaceOutside :
+      OddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcessStatement)
+    (hLower :
+      OddSectionFirstStrictPrismBoundarySliceAtLowerEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
+    (hUpper :
+      OddSectionFirstStrictPrismBoundarySliceAtUpperEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
+    (hOddSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟) :
+    totalSize 𝒟 ≤ totalSize (evenLowerHalfFamily m) := by
+  exact
+    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_oddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionFirstStrictPrismBoundarySliceAtLowerEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionFirstStrictPrismBoundarySliceAtUpperEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      (oddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_strictExcess
+        hUpperOutside)
+      (oddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_strictExcess
+        hInterfaceOutside)
+      hLower hUpper hOddSize hmin
+
+theorem
     t_eq_middle_of_middleTransitionWindow_of_zeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
     (hZero :
       EvenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundaryStatement)
@@ -7838,6 +7930,32 @@ theorem
     t_eq_middle_of_middleTransitionWindow_of_oddSectionPositivePrismBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionFirstStrictPrismBoundarySliceAtLowerEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionFirstStrictPrismBoundarySliceAtUpperEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
       (oddSectionPositivePrismBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveUpperBoundarySliceOutsideEvenWitnessSupport_of_positiveInterfaceSliceOutsideEvenWitnessSupport
         hUpperOutside hInterfaceOutside)
+      hLower hUpper hOddSize hmin htmid humid hmid
+
+theorem
+    t_eq_middle_of_middleTransitionWindow_of_oddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcess_of_oddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcess_of_oddSectionFirstStrictPrismBoundarySliceAtLowerEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionFirstStrictPrismBoundarySliceAtUpperEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+    (hUpperOutside :
+      OddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcessStatement)
+    (hInterfaceOutside :
+      OddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcessStatement)
+    (hLower :
+      OddSectionFirstStrictPrismBoundarySliceAtLowerEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
+    (hUpper :
+      OddSectionFirstStrictPrismBoundarySliceAtUpperEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
+    (hOddSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {t u : ℕ}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (htmid : t ≤ m + 1) (humid : m + 1 < u)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0) :
+    t = m + 1 := by
+  exact
+    t_eq_middle_of_middleTransitionWindow_of_oddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionFirstStrictPrismBoundarySliceAtLowerEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionFirstStrictPrismBoundarySliceAtUpperEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      (oddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_strictExcess
+        hUpperOutside)
+      (oddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_strictExcess
+        hInterfaceOutside)
       hLower hUpper hOddSize hmin htmid humid hmid
 
 theorem
@@ -8076,6 +8194,34 @@ theorem
     eq_evenLowerHalfFamily_of_middleTransitionWindow_of_oddSectionPositivePrismBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionFirstStrictPrismBoundarySliceAtLowerEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionFirstStrictPrismBoundarySliceAtUpperEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_balancedZeroSections
       (oddSectionPositivePrismBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveUpperBoundarySliceOutsideEvenWitnessSupport_of_positiveInterfaceSliceOutsideEvenWitnessSupport
         hUpperOutside hInterfaceOutside)
+      hLower hUpper hOddSize hmin htmid humid hfull hmid hbal
+
+theorem
+    eq_evenLowerHalfFamily_of_middleTransitionWindow_of_oddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcess_of_oddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcess_of_oddSectionFirstStrictPrismBoundarySliceAtLowerEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionFirstStrictPrismBoundarySliceAtUpperEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_balancedZeroSections
+    (hUpperOutside :
+      OddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcessStatement)
+    (hInterfaceOutside :
+      OddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcessStatement)
+    (hLower :
+      OddSectionFirstStrictPrismBoundarySliceAtLowerEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
+    (hUpper :
+      OddSectionFirstStrictPrismBoundarySliceAtUpperEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
+    (hOddSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {t u : ℕ}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (htmid : t ≤ m + 1) (humid : m + 1 < u)
+    (hfull : ∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 2) r)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0)
+    (hbal : #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m)) :
+    𝒟 = evenLowerHalfFamily m := by
+  exact
+    eq_evenLowerHalfFamily_of_middleTransitionWindow_of_oddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionFirstStrictPrismBoundarySliceAtLowerEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionFirstStrictPrismBoundarySliceAtUpperEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_balancedZeroSections
+      (oddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_strictExcess
+        hUpperOutside)
+      (oddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_strictExcess
+        hInterfaceOutside)
       hLower hUpper hOddSize hmin htmid humid hfull hmid hbal
 
 /-- Topological/two-sheet formulation of the current odd-dimensional frontier.
