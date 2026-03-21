@@ -3368,6 +3368,60 @@ def OddHalfCubeFirstBadBoundarySliceForcesStrictWeightedDropStatement : Prop :=
       0 < #((positiveBoundary 𝒟) # (r + 1)) →
       Nat.choose (2 * m + 1) m < weightedDrop (2 * m + 1) (sliceDensity 𝒟)
 
+theorem slice_zero_eq_powersetCard_zero_oddHalfCubeMinimalOutsideCounterexample :
+    oddHalfCubeMinimalOutsideCounterexample # 0 =
+      (Finset.univ : Finset (Fin 3)).powersetCard 0 := by
+  decide
+
+theorem card_slice_one_oddHalfCubeMinimalOutsideCounterexample :
+    #(oddHalfCubeMinimalOutsideCounterexample # 1) = 2 := by
+  decide
+
+theorem not_OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictWeightedDropStatement :
+    ¬ OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictWeightedDropStatement := by
+  intro h
+  have hstrict :
+      Nat.choose 3 1 <
+        weightedDrop (Fintype.card (Fin 3))
+          (sliceDensity oddHalfCubeMinimalOutsideCounterexample) := by
+    exact
+      h (m := 1) (r := 0) (𝒟 := oddHalfCubeMinimalOutsideCounterexample)
+        isDownSetFamily_oddHalfCubeMinimalOutsideCounterexample
+        card_oddHalfCubeMinimalOutsideCounterexample
+        (by omega)
+        (by
+          intro s hs
+          have hs0 : s = 0 := by omega
+          subst hs0
+          simpa using slice_zero_eq_powersetCard_zero_oddHalfCubeMinimalOutsideCounterexample)
+        (by
+          rw [card_slice_one_oddHalfCubeMinimalOutsideCounterexample]
+          decide)
+  exact
+    (not_lt_of_ge (le_of_lt hstrict))
+      weightedDrop_lt_choose_middle_oddHalfCubeMinimalOutsideCounterexample
+
+theorem not_OddHalfCubeFirstBadBoundarySliceForcesStrictWeightedDropStatement :
+    ¬ OddHalfCubeFirstBadBoundarySliceForcesStrictWeightedDropStatement := by
+  intro h
+  have hstrict :
+      Nat.choose 3 1 <
+        weightedDrop (Fintype.card (Fin 3))
+          (sliceDensity oddHalfCubeMinimalOutsideCounterexample) := by
+    exact
+      h (m := 1) (r := 0) (𝒟 := oddHalfCubeMinimalOutsideCounterexample)
+        isDownSetFamily_oddHalfCubeMinimalOutsideCounterexample
+        card_oddHalfCubeMinimalOutsideCounterexample
+        (by omega)
+        (by
+          intro s hs
+          exfalso
+          simpa using hs)
+        (by simpa using lower_boundary_slice_pos_oddHalfCubeMinimalOutsideCounterexample)
+  exact
+    (not_lt_of_ge (le_of_lt hstrict))
+      weightedDrop_lt_choose_middle_oddHalfCubeMinimalOutsideCounterexample
+
 /-- Intermediate local surface for the direct odd route: once one isolates the first nonzero lower
 boundary slice, that first bad slice alone should force the global upper-shadow gap to be
 strictly above the middle binomial coefficient. -/
