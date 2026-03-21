@@ -6768,6 +6768,23 @@ def OddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThan
       totalSize (evenLowerHalfFamily m) < totalSize (twoSheetFamily ℳ 𝒩) →
       Nat.choose (2 * m + 2) (m + 1) < #(positiveBoundary (twoSheetFamily ℳ 𝒩))
 
+/-- One-sheet reduction of the upper-sheet exterior-support frontier: it is enough to show that
+the upper odd section already beats the strict excess target `#(positiveBoundary 𝒩) + 2 * e`,
+because the prism boundary always dominates that quantity by the generic even excess bound. -/
+def OddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcessStatement :
+    Prop :=
+  ∀ {m r e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
+      (r ≤ m ∨ m + 3 ≤ r) →
+      0 < e →
+      IsDownSetFamily 𝒩 →
+      IsDownSetFamily ℳ →
+      ℳ ⊆ 𝒩 →
+      𝒩.card = 2 ^ (2 * m) + e →
+      ℳ.card = 2 ^ (2 * m) - e →
+      0 < #((positiveBoundary 𝒩) # r) →
+      totalSize (evenLowerHalfFamily m) < totalSize (twoSheetFamily ℳ 𝒩) →
+      2 * Nat.choose (2 * m + 1) m < #(positiveBoundary 𝒩) + 2 * e
+
 /-- Complementary source-specific version of the exterior-support prism frontier: the positive
 prism-boundary mass outside the witness support comes from the visible interface term. -/
 def OddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundaryStatement :
@@ -7234,6 +7251,58 @@ theorem
       · exact hUpper hqeq' he h𝒩 hℳ hsub h𝒩card hℳcard hprof hstrict hsize
       · have hqge : m + 2 ≤ q := by omega
         exact hAbove hqge he h𝒩 hℳ hsub h𝒩card hℳcard hprof hstrict hsize
+
+theorem
+    oddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_strictExcess
+    (hExcess :
+      OddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcessStatement) :
+    OddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundaryStatement := by
+  intro m r e 𝒩 ℳ houtside he h𝒩 hℳ hsub h𝒩card hℳcard hpos hsize
+  have hele : e ≤ 2 ^ (2 * m) := by
+    have hcard_le :
+        𝒩.card ≤ 2 ^ (2 * m + 1) := by
+      calc
+        𝒩.card ≤ Fintype.card (Finset (Fin (2 * m + 1))) := Finset.card_le_univ 𝒩
+        _ = 2 ^ (2 * m + 1) := by simp
+    rw [h𝒩card, pow_succ'] at hcard_le
+    omega
+  have hprismDown : IsDownSetFamily (twoSheetFamily ℳ 𝒩) :=
+    isDownSetFamily_twoSheetFamily hℳ h𝒩 hsub
+  have hprismCard : (twoSheetFamily ℳ 𝒩).card = 2 ^ (2 * m + 1) := by
+    exact card_twoSheetFamily_of_symmetric hele h𝒩card hℳcard
+  have hambient :
+      #((positiveBoundary ((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0)).nonMemberSubfamily 0) +
+          2 * (#((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0) - 2 ^ (2 * m)) ≤
+        #(positiveBoundary (twoSheetFamily ℳ 𝒩)) := by
+    simpa [hprismCard] using
+      (card_positiveBoundary_ge_card_nonMemberSubfamily_positiveBoundary_add_two_mul_excess_of_card_eq_pow
+        (α := Fin (2 * m + 2)) (𝒜 := twoSheetFamily ℳ 𝒩) hprismDown
+        (a := (0 : Fin (2 * m + 2))) (k := 2 * m) hprismCard)
+  have h𝒩bdry :
+      #((positiveBoundary ((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0)).nonMemberSubfamily 0) =
+        #(positiveBoundary 𝒩) := by
+    rw [nonMemberSubfamily_twoSheetFamily, nonMemberSubfamily_positiveBoundary_succFamily,
+      card_succFamily]
+  have h𝒩sec :
+      #((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0) = 2 ^ (2 * m) + e := by
+    rw [nonMemberSubfamily_twoSheetFamily, card_succFamily, h𝒩card]
+  have hrewrite :
+      #(positiveBoundary 𝒩) + 2 * e =
+        #((positiveBoundary ((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0)).nonMemberSubfamily 0) +
+          2 * (#((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0) - 2 ^ (2 * m)) := by
+    rw [← h𝒩bdry, h𝒩sec, Nat.add_sub_cancel_left]
+  have hstrictExcess :
+      2 * Nat.choose (2 * m + 1) m <
+        #((positiveBoundary ((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0)).nonMemberSubfamily 0) +
+          2 * (#((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0) - 2 ^ (2 * m)) := by
+    calc
+      2 * Nat.choose (2 * m + 1) m < #(positiveBoundary 𝒩) + 2 * e :=
+        hExcess houtside he h𝒩 hℳ hsub h𝒩card hℳcard hpos hsize
+      _ =
+          #((positiveBoundary ((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0)).nonMemberSubfamily 0) +
+            2 * (#((twoSheetFamily ℳ 𝒩).nonMemberSubfamily 0) - 2 ^ (2 * m)) := hrewrite
+  rw [choose_middle_even_eq_two_mul_choose_middle_odd]
+  exact lt_of_lt_of_le hstrictExcess hambient
 
 theorem
     oddSectionPositivePrismBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveUpperBoundarySliceOutsideEvenWitnessSupport_of_positiveInterfaceSliceOutsideEvenWitnessSupport
