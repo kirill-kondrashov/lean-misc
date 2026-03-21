@@ -5651,6 +5651,15 @@ theorem oddHalfCubeBoundaryLower_of_firstBadBoundarySliceForcesStrictWeightedDro
       (oddHalfCubeWideMiddleTransitionWindowForcesStrictWeightedDrop_of_firstBadBoundarySliceForcesStrictWeightedDrop
         hFirstBad)
 
+theorem oddHalfCubeBoundaryLower_of_firstBadBoundarySliceForcesStrictWeightedDrop
+    (hFirstBad :
+      OddHalfCubeFirstBadBoundarySliceForcesStrictWeightedDropStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop
+      (oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop_of_firstBadBoundarySliceForcesStrictWeightedDrop
+        hFirstBad)
+
 theorem exact_slice_profile_of_isOddHalfCubeBoundaryMinimizer_of_lowerBoundarySlicesVanish
     {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))}
     (hmin : IsOddHalfCubeBoundaryMinimizer (m := m) 𝒟)
