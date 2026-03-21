@@ -3113,6 +3113,17 @@ def OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement : P
       totalSize (oddLowerHalfFamily m) < totalSize 𝒟 →
       Nat.choose (2 * m + 1) m < upperShadowGap 𝒟
 
+/-- Weighted-drop analogue of the odd larger-`totalSize` frontier: if an odd half-cube down-set
+has larger `totalSize` than the lower-half witness, then the weighted-drop functional should
+already be strictly above the middle binomial coefficient. This is the cleanest current
+weighted-drop surface after reducing away the explicit slice-geometry hypotheses. -/
+def OddHalfCubeLargerTotalSizeThanWitnessForcesStrictWeightedDropStatement : Prop :=
+  ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+      IsDownSetFamily 𝒟 →
+      𝒟.card = 2 ^ (2 * m) →
+      totalSize (oddLowerHalfFamily m) < totalSize 𝒟 →
+      Nat.choose (2 * m + 1) m < weightedDrop (2 * m + 1) (sliceDensity 𝒟)
+
 /-- Local remaining even-cube frontier after the balanced branch has been reduced to the odd
 larger-`totalSize` route: on an even half-cube global boundary minimizer, strict excess in the
 coordinate-`0` free section together with larger `totalSize` than the witness should already force
@@ -4611,6 +4622,16 @@ theorem oddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGap
     totalSize_oddLowerHalfFamily_lt_of_card_eq_half_cube_of_lower_slice_deficit hcard hrm hdeficit
   exact hSize h𝒟 hcard hsizeStrict
 
+theorem oddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictWeightedDrop_of_largerTotalSizeThanWitness
+    (hSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictWeightedDropStatement) :
+    OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictWeightedDropStatement := by
+  intro m r 𝒟 h𝒟 hcard hrm hfull hdeficit
+  have hsizeStrict :
+      totalSize (oddLowerHalfFamily m) < totalSize 𝒟 :=
+    totalSize_oddLowerHalfFamily_lt_of_card_eq_half_cube_of_lower_slice_deficit hcard hrm hdeficit
+  exact hSize h𝒟 hcard hsizeStrict
+
 theorem oddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGap_of_firstPositiveOutsideSliceForcesStrictUpperShadowGap
     (hOut :
       OddHalfCubeFirstPositiveOutsideSliceForcesStrictUpperShadowGapStatement) :
@@ -5342,6 +5363,15 @@ theorem oddHalfCubeBoundaryLower_of_initialFullSlicesStrictSliceDeficitForcesStr
     oddHalfCubeBoundaryLower_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop
       (oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop_of_initialFullSlicesStrictSliceDeficit
         hDef)
+
+theorem oddHalfCubeBoundaryLower_of_largerTotalSizeThanWitnessForcesStrictWeightedDrop
+    (hSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictWeightedDropStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_initialFullSlicesStrictSliceDeficitForcesStrictWeightedDrop
+      (oddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictWeightedDrop_of_largerTotalSizeThanWitness
+        hSize)
 
 theorem oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanish_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictUpperShadowGap
     (hOut :
