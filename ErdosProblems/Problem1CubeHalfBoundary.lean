@@ -5695,6 +5695,29 @@ theorem oddHalfCubeBoundaryLower_of_initialFullSlicesStrictSliceDeficitForcesStr
       (oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossible_of_initialFullSlicesStrictSliceDeficitForcesStrictUpperShadowGap
         hDef)
 
+theorem oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossible_of_firstPositiveOutsideSliceForcesStrictUpperShadowGap
+    (hOut :
+      OddHalfCubeFirstPositiveOutsideSliceForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossibleStatement := by
+  intro m r 𝒟 hmin hrm houtZero houtPos
+  have hstrict :
+      Nat.choose (2 * m + 1) m < upperShadowGap 𝒟 :=
+    hOut hmin.1 hmin.2.1 hrm houtZero houtPos
+  have hle :
+      upperShadowGap 𝒟 ≤ Nat.choose (2 * m + 1) m := by
+    simpa [upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily (𝒟 := 𝒟) hmin.1] using
+      card_positiveBoundary_le_choose_middle_of_isOddHalfCubeBoundaryGlobalMinimizer hmin
+  exact (not_lt_of_ge hle) hstrict
+
+theorem oddHalfCubeBoundaryLower_of_firstPositiveOutsideSliceForcesStrictUpperShadowGap_via_globalMinimizerFirstPositiveOutsideSliceImpossible
+    (hOut :
+      OddHalfCubeFirstPositiveOutsideSliceForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_globalMinimizerFirstPositiveOutsideSliceImpossible
+      (oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossible_of_firstPositiveOutsideSliceForcesStrictUpperShadowGap
+        hOut)
+
 theorem oddHalfCubeWideMiddleTransitionWindowForcesStrictWeightedDrop_of_firstBadBoundarySliceForcesStrictWeightedDrop
     (hFirstBad :
       OddHalfCubeFirstBadBoundarySliceForcesStrictWeightedDropStatement) :
