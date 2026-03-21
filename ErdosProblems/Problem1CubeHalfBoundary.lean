@@ -3301,6 +3301,32 @@ def OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceForcesStrictWeigh
       0 < #((((Finset.univ.powerset) \ 𝒟) # (r + 1))) →
       Nat.choose (2 * m + 1) m < weightedDrop (2 * m + 1) (sliceDensity 𝒟)
 
+/-- Weighted-drop version of the local odd slice-deficit frontier: if the initial segment of
+slices is full and the next slice is strictly deficient, then the weighted-drop functional should
+already jump strictly above the middle binomial coefficient. This is the cleanest remaining
+weighted-drop target after the outside-slice and transition-window reductions. -/
+def OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictWeightedDropStatement : Prop :=
+  ∀ {m r : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+      IsDownSetFamily 𝒟 →
+      𝒟.card = 2 ^ (2 * m) →
+      r < m →
+      (∀ s, s ≤ r →
+        𝒟 # s = (Finset.univ : Finset (Fin (2 * m + 1))).powersetCard s) →
+      #(𝒟 # (r + 1)) < Nat.choose (2 * m + 1) (r + 1) →
+      Nat.choose (2 * m + 1) m < weightedDrop (2 * m + 1) (sliceDensity 𝒟)
+
+/-- Weighted-drop version of the first-bad-boundary-slice frontier. This is the direct bridge
+from vanishing lower boundary slices plus a first positive boundary slice to the remaining
+weighted-drop contradiction target. -/
+def OddHalfCubeFirstBadBoundarySliceForcesStrictWeightedDropStatement : Prop :=
+  ∀ {m r : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+      IsDownSetFamily 𝒟 →
+      𝒟.card = 2 ^ (2 * m) →
+      r < m →
+      (∀ s ∈ Finset.Icc 1 r, #((positiveBoundary 𝒟) # s) = 0) →
+      0 < #((positiveBoundary 𝒟) # (r + 1)) →
+      Nat.choose (2 * m + 1) m < weightedDrop (2 * m + 1) (sliceDensity 𝒟)
+
 /-- Intermediate local surface for the direct odd route: once one isolates the first nonzero lower
 boundary slice, that first bad slice alone should force the global upper-shadow gap to be
 strictly above the middle binomial coefficient. -/
@@ -5232,6 +5258,90 @@ theorem oddHalfCubeBoundaryLower_of_globalMinimizerFirstPositiveOutsideSliceForc
     oddHalfCubeBoundaryLower_of_globalMinimizerFirstPositiveOutsideSliceImpossible
       (oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossible_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop
         hDrop)
+
+theorem oddHalfCubeFirstBadBoundarySliceForcesStrictWeightedDrop_of_initialFullSlicesStrictSliceDeficit
+    (hDef :
+      OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictWeightedDropStatement) :
+    OddHalfCubeFirstBadBoundarySliceForcesStrictWeightedDropStatement := by
+  intro m r 𝒟 h𝒟 hcard hrm hvanish hboundaryPos
+  have hpow : 0 < 2 ^ (2 * m) := by
+    positivity
+  have hne : 𝒟.Nonempty := by
+    exact Finset.card_pos.mp (by simpa [hcard] using hpow)
+  have hfull :=
+    odd_initial_slices_eq_powersetCard_of_lower_boundary_slices_vanish_upto
+      hne h𝒟 (Nat.le_of_lt hrm) hvanish
+  have hdeficit :=
+    odd_card_slice_succ_lt_choose_of_lower_boundary_slices_vanish_upto_and_boundary_slice_succ_pos
+      hne h𝒟 (Nat.le_of_lt hrm) hvanish hboundaryPos
+  exact hDef h𝒟 hcard hrm hfull hdeficit
+
+theorem oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop_of_firstBadBoundarySliceForcesStrictWeightedDrop
+    (hFirstBad :
+      OddHalfCubeFirstBadBoundarySliceForcesStrictWeightedDropStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDropStatement := by
+  intro m r 𝒟 hmin hrm houtZero houtPos
+  have hvanish : ∀ s ∈ Finset.Icc 1 r, #((positiveBoundary 𝒟) # s) = 0 := by
+    intro s hs
+    have hsRange : s ∈ Finset.range (r + 1) := by
+      exact Finset.mem_range.mpr <|
+        lt_of_le_of_lt (Finset.mem_Icc.mp hs).2 (Nat.lt_succ_self r)
+    have hsubset :
+        ((positiveBoundary 𝒟) # s) ⊆ (((Finset.univ.powerset) \ 𝒟) # s) :=
+      positiveBoundary_slice_subset_outside_slice (𝒟 := 𝒟) (r := s)
+    have hle :
+        #((positiveBoundary 𝒟) # s) ≤ #((((Finset.univ.powerset) \ 𝒟) # s)) :=
+      Finset.card_le_card hsubset
+    have hzero := houtZero s hsRange
+    omega
+  have hrlt : r < Fintype.card (Fin (2 * m + 1)) := by
+    simpa [Fintype.card_fin] using (show r < 2 * m + 1 by omega)
+  have houtZero_r : #((((Finset.univ.powerset) \ 𝒟) # r)) = 0 := by
+    exact houtZero r (by simpa using Nat.lt_succ_self r)
+  have hsdiffLe :
+      #((((Finset.univ.powerset) \ 𝒟) # (r + 1)) \ (((positiveBoundary 𝒟) # (r + 1)))) * (r + 1) ≤
+        #((((Finset.univ.powerset) \ 𝒟) # r)) * (2 * m + 1 - r) := by
+    simpa [Fintype.card_fin] using
+      (card_outside_slice_succ_sdiff_boundary_slice_mul_le_card_outside_slice_mul
+        (𝒟 := 𝒟) (r := r) hrlt)
+  have hsdiffMulZero :
+      #((((Finset.univ.powerset) \ 𝒟) # (r + 1)) \ (((positiveBoundary 𝒟) # (r + 1)))) * (r + 1) =
+        0 := by
+    have hle' := hsdiffLe
+    rw [houtZero_r, zero_mul] at hle'
+    exact Nat.eq_zero_of_le_zero hle'
+  have hsdiffZero :
+      #((((Finset.univ.powerset) \ 𝒟) # (r + 1)) \ (((positiveBoundary 𝒟) # (r + 1)))) = 0 := by
+    exact (Nat.mul_eq_zero.mp hsdiffMulZero).resolve_right (Nat.succ_ne_zero r)
+  have hsubset :
+      ((positiveBoundary 𝒟) # (r + 1)) ⊆ (((Finset.univ.powerset) \ 𝒟) # (r + 1)) :=
+    positiveBoundary_slice_subset_outside_slice (𝒟 := 𝒟) (r := r + 1)
+  have hdecomp :
+      #((((Finset.univ.powerset) \ 𝒟) # (r + 1)) \ (((positiveBoundary 𝒟) # (r + 1)))) +
+          #(((positiveBoundary 𝒟) # (r + 1))) =
+        #((((Finset.univ.powerset) \ 𝒟) # (r + 1))) := by
+    exact Finset.card_sdiff_add_card_eq_card hsubset
+  have hboundaryPos : 0 < #((positiveBoundary 𝒟) # (r + 1)) := by
+    omega
+  exact hFirstBad (m := m) (r := r) (𝒟 := 𝒟) hmin.1 hmin.2.1 hrm hvanish hboundaryPos
+
+theorem oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop_of_initialFullSlicesStrictSliceDeficit
+    (hDef :
+      OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictWeightedDropStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDropStatement := by
+  exact
+    oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop_of_firstBadBoundarySliceForcesStrictWeightedDrop
+      (oddHalfCubeFirstBadBoundarySliceForcesStrictWeightedDrop_of_initialFullSlicesStrictSliceDeficit
+        hDef)
+
+theorem oddHalfCubeBoundaryLower_of_initialFullSlicesStrictSliceDeficitForcesStrictWeightedDrop
+    (hDef :
+      OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictWeightedDropStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop
+      (oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop_of_initialFullSlicesStrictSliceDeficit
+        hDef)
 
 theorem oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanish_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictUpperShadowGap
     (hOut :
