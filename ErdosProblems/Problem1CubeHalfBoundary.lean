@@ -3329,6 +3329,24 @@ def OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossibleStateme
       0 < #((((Finset.univ.powerset) \ 𝒟) # (r + 1))) →
       False
 
+/-- Further localization of the live odd-side contradiction route: it is enough to rule out a
+first positive outside slice only for the specific middle-transition-window global minimizers
+produced by the compression/rigidity program. -/
+def OddHalfCubeMiddleTransitionWindowFirstPositiveOutsideSliceImpossibleStatement : Prop :=
+  ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))} {t u : ℕ},
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 →
+      t ≤ m + 1 →
+      m + 1 ≤ u →
+      u ≤ 2 * m + 1 →
+      (∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 1) r) →
+      (∀ ⦃r : ℕ⦄, u ≤ r → r ≤ 2 * m + 1 → #(𝒟 # r) = 0) →
+      (∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+        #(𝒟 # r) ≠ Nat.choose (2 * m + 1) r ∧ #(𝒟 # r) ≠ 0) →
+      ∀ {r : ℕ}, r < m →
+        (∀ s ∈ Finset.range (r + 1), #((((Finset.univ.powerset) \ 𝒟) # s)) = 0) →
+        0 < #((((Finset.univ.powerset) \ 𝒟) # (r + 1))) →
+        False
+
 /-- Closest local-LYM/weighted-drop formulation of the live odd frontier: on a genuine odd
 half-cube global minimizer, a first positive outside slice below the middle should already force
 the weighted-drop functional strictly above the middle binomial coefficient. Since weightedDrop is
@@ -5358,6 +5376,106 @@ theorem oddHalfCubeBoundaryLower_of_globalMinimizerFirstPositiveOutsideSliceImpo
   exact
     oddHalfCubeBoundaryLower_of_globalMinimizerLowerBoundarySlicesVanish
       (oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanish_of_globalMinimizerFirstPositiveOutsideSliceImpossible
+        hImpossible)
+
+theorem oddHalfCubeMiddleTransitionWindowLowerBoundarySlicesVanish_of_middleTransitionWindowFirstPositiveOutsideSliceImpossible
+    (hImpossible :
+      OddHalfCubeMiddleTransitionWindowFirstPositiveOutsideSliceImpossibleStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))} {t u : ℕ}
+    (hmin : IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (htmid : t ≤ m + 1) (humid : m + 1 ≤ u) (hu : u ≤ 2 * m + 1)
+    (hfull : ∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 1) r)
+    (hzero : ∀ ⦃r : ℕ⦄, u ≤ r → r ≤ 2 * m + 1 → #(𝒟 # r) = 0)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 1) r ∧ #(𝒟 # r) ≠ 0) :
+    ∀ r ∈ Finset.Icc 1 m, #((positiveBoundary 𝒟) # r) = 0 := by
+  intro r hr
+  by_contra hnonzero
+  let p : ℕ → Prop :=
+    fun t0 => t0 ∈ Finset.Icc 1 m ∧ 0 < #((positiveBoundary 𝒟) # t0)
+  have hp : ∃ t0, p t0 := by
+    exact ⟨r, hr, Nat.pos_of_ne_zero hnonzero⟩
+  let rmin := Nat.find hp
+  have hrmin : p rmin := Nat.find_spec hp
+  have hrmin_mem : rmin ∈ Finset.Icc 1 m := hrmin.1
+  have hrmin_pos : 0 < #((positiveBoundary 𝒟) # rmin) := hrmin.2
+  have hrmin_pos' : 1 ≤ rmin := (Finset.mem_Icc.mp hrmin_mem).1
+  have hrmin_le_m : rmin ≤ m := (Finset.mem_Icc.mp hrmin_mem).2
+  have hvanish : ∀ s ∈ Finset.Icc 1 (rmin - 1), #((positiveBoundary 𝒟) # s) = 0 := by
+    intro s hs
+    by_contra hsne
+    have hspos : 0 < #((positiveBoundary 𝒟) # s) := Nat.pos_of_ne_zero hsne
+    have hs_mem : s ∈ Finset.Icc 1 m := by
+      rw [Finset.mem_Icc] at hs ⊢
+      omega
+    have hsP : p s := ⟨hs_mem, hspos⟩
+    have hmin_le_s : rmin ≤ s := Nat.find_min' hp hsP
+    rw [Finset.mem_Icc] at hs
+    omega
+  have hrpred_lt_m : rmin - 1 < m := by
+    omega
+  have hpow : 0 < 2 ^ (2 * m) := by
+    positivity
+  have hne : 𝒟.Nonempty := by
+    exact Finset.card_pos.mp (by simpa [hmin.2.1] using hpow)
+  have hfullSlices :=
+    odd_initial_slices_eq_powersetCard_of_lower_boundary_slices_vanish_upto
+      hne hmin.1 (Nat.le_of_lt hrpred_lt_m) hvanish
+  have houtZero :
+      ∀ s ∈ Finset.range ((rmin - 1) + 1), #((((Finset.univ.powerset) \ 𝒟) # s)) = 0 := by
+    intro s hs
+    have hsle : s ≤ rmin - 1 := Nat.le_of_lt_succ (Finset.mem_range.mp hs)
+    have hslice :
+        𝒟 # s = (Finset.univ : Finset (Fin (2 * m + 1))).powersetCard s := hfullSlices s hsle
+    have hOutside :
+        #((((Finset.univ.powerset) \ 𝒟) # s)) =
+          Nat.choose (2 * m + 1) s - #(𝒟 # s) := by
+      simpa using card_outside_slice_eq_choose_sub_card_slice (𝒟 := 𝒟) s
+    have hsliceCard : #(𝒟 # s) = Nat.choose (2 * m + 1) s := by
+      simpa [hslice] using congrArg Finset.card hslice
+    omega
+  have houtPos : 0 < #((((Finset.univ.powerset) \ 𝒟) # ((rmin - 1) + 1))) := by
+    have hOutside :
+        #((((Finset.univ.powerset) \ 𝒟) # ((rmin - 1) + 1))) =
+          Nat.choose (2 * m + 1) ((rmin - 1) + 1) - #(𝒟 # ((rmin - 1) + 1)) := by
+      simpa using card_outside_slice_eq_choose_sub_card_slice (𝒟 := 𝒟) ((rmin - 1) + 1)
+    have hdeficit :=
+      odd_card_slice_succ_lt_choose_of_lower_boundary_slices_vanish_upto_and_boundary_slice_succ_pos
+        hne hmin.1 (Nat.le_of_lt hrpred_lt_m) hvanish
+        (by simpa [Nat.sub_add_cancel hrmin_pos'] using hrmin_pos)
+    omega
+  exact
+    hImpossible hmin htmid humid hu hfull hzero hmid hrpred_lt_m houtZero houtPos
+
+theorem oddHalfCubeUpperShadowGapLower_of_middleTransitionWindowFirstPositiveOutsideSliceImpossible
+    (hImpossible :
+      OddHalfCubeMiddleTransitionWindowFirstPositiveOutsideSliceImpossibleStatement) :
+    OddHalfCubeUpperShadowGapLowerStatement := by
+  intro m 𝒜 h𝒜 hcard
+  obtain ⟨𝒟, t, u, hmin, htmid, humid, hu, hfull, hzero, hmid⟩ :=
+    exists_isOddHalfCubeBoundaryGlobalMinimizer_middleTransitionWindow m
+  have hgapMin :
+      Nat.choose (2 * m + 1) m ≤ upperShadowGap 𝒟 := by
+    exact
+      choose_middle_le_upperShadowGap_of_lower_boundary_slices_vanish hmin.1 hmin.2.1
+        (oddHalfCubeMiddleTransitionWindowLowerBoundarySlicesVanish_of_middleTransitionWindowFirstPositiveOutsideSliceImpossible
+          hImpossible hmin htmid humid hu hfull hzero hmid)
+  have hgapLe :
+      upperShadowGap 𝒟 ≤ upperShadowGap 𝒜 := by
+    have hbdryLe :
+        #(positiveBoundary 𝒟) ≤ #(positiveBoundary 𝒜) :=
+      hmin.2.2 (𝒜 := 𝒜) h𝒜 hcard
+    simpa [upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily (𝒟 := 𝒟) hmin.1,
+      upperShadowGap_eq_card_positiveBoundary_of_isDownSetFamily (𝒟 := 𝒜) h𝒜] using hbdryLe
+  exact hgapMin.trans hgapLe
+
+theorem oddHalfCubeBoundaryLower_of_middleTransitionWindowFirstPositiveOutsideSliceImpossible
+    (hImpossible :
+      OddHalfCubeMiddleTransitionWindowFirstPositiveOutsideSliceImpossibleStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower
+      (oddHalfCubeUpperShadowGapLower_of_middleTransitionWindowFirstPositiveOutsideSliceImpossible
         hImpossible)
 
 theorem oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossible_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop
