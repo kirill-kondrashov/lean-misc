@@ -5656,6 +5656,27 @@ theorem oddHalfCubeBoundaryLower_of_initialFullSlicesStrictSliceDeficitForcesStr
       (oddHalfCubeFirstBadBoundarySliceForcesStrictUpperShadowGap_of_initialFullSlicesStrictSliceDeficit
         hDef)
 
+theorem oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossible_of_firstBadBoundarySliceForcesStrictUpperShadowGap
+    (hFirstBad :
+      OddHalfCubeFirstBadBoundarySliceForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossibleStatement := by
+  exact
+    oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossible_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictUpperShadowGap
+      (by
+        intro m r 𝒟 hmin hrm houtZero houtPos
+        exact
+          (oddHalfCubeFirstPositiveOutsideSliceForcesStrictUpperShadowGap_of_firstBadBoundarySliceForcesStrictUpperShadowGap
+            hFirstBad) hmin.1 hmin.2.1 hrm houtZero houtPos)
+
+theorem oddHalfCubeBoundaryLower_of_firstBadBoundarySliceForcesStrictUpperShadowGap_via_globalMinimizerFirstPositiveOutsideSliceImpossible
+    (hFirstBad :
+      OddHalfCubeFirstBadBoundarySliceForcesStrictUpperShadowGapStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_globalMinimizerFirstPositiveOutsideSliceImpossible
+      (oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossible_of_firstBadBoundarySliceForcesStrictUpperShadowGap
+        hFirstBad)
+
 theorem oddHalfCubeWideMiddleTransitionWindowForcesStrictWeightedDrop_of_firstBadBoundarySliceForcesStrictWeightedDrop
     (hFirstBad :
       OddHalfCubeFirstBadBoundarySliceForcesStrictWeightedDropStatement) :
