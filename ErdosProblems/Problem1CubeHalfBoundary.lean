@@ -3218,6 +3218,36 @@ def OddHalfCubeWideMiddleTransitionWindowForcesStrictUpperShadowGapStatement : P
       totalSize (oddLowerHalfFamily m) < totalSize 𝒟 →
       Nat.choose (2 * m + 1) m < upperShadowGap 𝒟
 
+/-- Weighted-drop localization of the odd direct route: it is enough to prove strict weighted-drop
+growth only for the specific odd half-cube global minimizers with middle transition-window data
+isolated by the compression/rigidity program. -/
+def OddHalfCubeMiddleTransitionWindowLargerTotalSizeForcesStrictWeightedDropStatement : Prop :=
+  ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))} {t u : ℕ},
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 →
+      t ≤ m + 1 →
+      m + 1 ≤ u →
+      u ≤ 2 * m + 1 →
+      (∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 1) r) →
+      (∀ ⦃r : ℕ⦄, u ≤ r → r ≤ 2 * m + 1 → #(𝒟 # r) = 0) →
+      (∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+        #(𝒟 # r) ≠ Nat.choose (2 * m + 1) r ∧ #(𝒟 # r) ≠ 0) →
+      totalSize (oddLowerHalfFamily m) < totalSize 𝒟 →
+      Nat.choose (2 * m + 1) m < weightedDrop (2 * m + 1) (sliceDensity 𝒟)
+
+/-- Further-localized weighted-drop odd route: after the endpoint-collapse lemmas, it is enough to
+handle only genuinely wide middle transition windows `t < m+1 < u`. -/
+def OddHalfCubeWideMiddleTransitionWindowForcesStrictWeightedDropStatement : Prop :=
+  ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))} {t u : ℕ},
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 →
+      t < m + 1 →
+      m + 1 < u →
+      (∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 1) r) →
+      (∀ ⦃r : ℕ⦄, u ≤ r → r ≤ 2 * m + 1 → #(𝒟 # r) = 0) →
+      (∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+        #(𝒟 # r) ≠ Nat.choose (2 * m + 1) r ∧ #(𝒟 # r) ≠ 0) →
+      totalSize (oddLowerHalfFamily m) < totalSize 𝒟 →
+      Nat.choose (2 * m + 1) m < weightedDrop (2 * m + 1) (sliceDensity 𝒟)
+
 theorem oddHalfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower
     (hGap : OddHalfCubeUpperShadowGapLowerStatement) :
     OddHalfCubeBoundaryLowerStatement := by
@@ -5372,6 +5402,34 @@ theorem oddHalfCubeBoundaryLower_of_largerTotalSizeThanWitnessForcesStrictWeight
     oddHalfCubeBoundaryLower_of_initialFullSlicesStrictSliceDeficitForcesStrictWeightedDrop
       (oddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictWeightedDrop_of_largerTotalSizeThanWitness
         hSize)
+
+theorem oddHalfCubeMiddleTransitionWindowLargerTotalSizeForcesStrictWeightedDrop_of_largerTotalSizeThanWitnessForcesStrictWeightedDrop
+    (hSize :
+      OddHalfCubeLargerTotalSizeThanWitnessForcesStrictWeightedDropStatement) :
+    OddHalfCubeMiddleTransitionWindowLargerTotalSizeForcesStrictWeightedDropStatement := by
+  intro m 𝒟 t u hmin htmid humid hu hfull hzero hmid hsize
+  exact hSize hmin.1 hmin.2.1 hsize
+
+theorem oddHalfCubeMiddleTransitionWindowLargerTotalSizeForcesStrictWeightedDrop_of_wideMiddleTransitionWindowForcesStrictWeightedDrop
+    (hWide :
+      OddHalfCubeWideMiddleTransitionWindowForcesStrictWeightedDropStatement) :
+    OddHalfCubeMiddleTransitionWindowLargerTotalSizeForcesStrictWeightedDropStatement := by
+  intro m 𝒟 t u hmin htmid humid hu hfull hzero hmid hsize
+  by_cases htEq : t = m + 1
+  · have hEq : 𝒟 = oddLowerHalfFamily m :=
+      eq_oddLowerHalfFamily_of_middleTransitionWindow_of_t_eq_middle
+        hmin htmid humid hu hfull hzero hmid htEq
+    exfalso
+    simpa [hEq] using hsize.ne'
+  · by_cases huEq : u = m + 1
+    · have hEq : 𝒟 = oddLowerHalfFamily m :=
+        eq_oddLowerHalfFamily_of_middleTransitionWindow_of_u_eq_middle
+          hmin htmid humid hu hfull hzero hmid huEq
+      exfalso
+      simpa [hEq] using hsize.ne'
+    · have htlt : t < m + 1 := lt_of_le_of_ne htmid htEq
+      have hltu : m + 1 < u := lt_of_le_of_ne humid (by simpa [eq_comm] using huEq)
+      exact hWide hmin htlt hltu hfull hzero hmid hsize
 
 theorem oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanish_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictUpperShadowGap
     (hOut :
