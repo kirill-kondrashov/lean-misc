@@ -5463,6 +5463,51 @@ theorem oddHalfCubeMiddleTransitionWindowLargerTotalSizeForcesStrictWeightedDrop
       have hltu : m + 1 < u := lt_of_le_of_ne humid (by simpa [eq_comm] using huEq)
       exact hWide hmin htlt hltu hfull hzero hmid hsize
 
+/-- Weighted-drop analogue of the middle-window odd closure: it is enough to prove strict
+weighted-drop growth only for the chosen global minimizer carrying middle transition-window data. -/
+theorem oddHalfCubeBoundaryLower_of_middleTransitionWindowLargerTotalSizeForcesStrictWeightedDrop
+    (hMid :
+      OddHalfCubeMiddleTransitionWindowLargerTotalSizeForcesStrictWeightedDropStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  intro m 𝒜 h𝒜 hcard
+  obtain ⟨𝒟, t, u, hmin, htmid, humid, hu, hfull, hzero, hmid⟩ :=
+    exists_isOddHalfCubeBoundaryGlobalMinimizer_middleTransitionWindow m
+  have hsizeLe : totalSize 𝒟 ≤ totalSize (oddLowerHalfFamily m) := by
+    by_contra hgt
+    have hgt' : totalSize (oddLowerHalfFamily m) < totalSize 𝒟 := by
+      omega
+    have hdropStrict :
+        Nat.choose (2 * m + 1) m < weightedDrop (2 * m + 1) (sliceDensity 𝒟) :=
+      hMid hmin htmid humid hu hfull hzero hmid hgt'
+    have hdropLe :
+        weightedDrop (2 * m + 1) (sliceDensity 𝒟) ≤ Nat.choose (2 * m + 1) m := by
+      calc
+        weightedDrop (2 * m + 1) (sliceDensity 𝒟) ≤ #(positiveBoundary 𝒟) := by
+          simpa [Fintype.card_fin] using weightedDrop_le_card_positiveBoundary (𝒟 := 𝒟)
+        _ ≤ Nat.choose (2 * m + 1) m := by
+          exact_mod_cast
+            card_positiveBoundary_le_choose_middle_of_isOddHalfCubeBoundaryGlobalMinimizer hmin
+    exact (not_lt_of_ge hdropLe) hdropStrict
+  have hEq : 𝒟 = oddLowerHalfFamily m :=
+    eq_oddLowerHalfFamily_of_middleTransitionWindow_of_totalSize_le_witness
+      hmin htmid humid hu hfull hzero hmid hsizeLe
+  have hminLe :
+      #(positiveBoundary 𝒟) ≤ #(positiveBoundary 𝒜) :=
+    hmin.2.2 (𝒜 := 𝒜) h𝒜 hcard
+  calc
+    Nat.choose (2 * m + 1) m = #(positiveBoundary 𝒟) := by
+      simpa [hEq, card_positiveBoundary_oddLowerHalfFamily]
+    _ ≤ #(positiveBoundary 𝒜) := hminLe
+
+theorem oddHalfCubeBoundaryLower_of_wideMiddleTransitionWindowForcesStrictWeightedDrop
+    (hWide :
+      OddHalfCubeWideMiddleTransitionWindowForcesStrictWeightedDropStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_middleTransitionWindowLargerTotalSizeForcesStrictWeightedDrop
+      (oddHalfCubeMiddleTransitionWindowLargerTotalSizeForcesStrictWeightedDrop_of_wideMiddleTransitionWindowForcesStrictWeightedDrop
+        hWide)
+
 theorem oddHalfCubeBoundaryGlobalMinimizerLowerBoundarySlicesVanish_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictUpperShadowGap
     (hOut :
       OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceForcesStrictUpperShadowGapStatement) :
