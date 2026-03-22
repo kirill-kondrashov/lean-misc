@@ -8311,6 +8311,35 @@ theorem
           hInterface (q := r') houtside' he h𝒩 hℳ hsub h𝒩card hℳcard hInterfacePos hsize
 
 theorem
+    oddSectionPositiveGapSliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_firstPositiveGapSlice
+    (hGap :
+      OddSectionFirstPositiveGapSliceLargerPrismThanEvenWitnessForcesStrictBoundaryStatement) :
+    OddSectionPositiveGapSliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement := by
+  intro m q e 𝒩 ℳ hq he h𝒩 hℳ hsub h𝒩card hℳcard hsilent hpos hsize
+  have hzero : ∀ s ∈ Finset.range q, #(((𝒩 \ ℳ) # s)) = 0 := by
+    intro s hs
+    have hslt : s < m := by
+      rw [hq] at hs
+      exact Finset.mem_range.mp hs
+    exact hsilent s (Or.inl hslt)
+  exact hGap he h𝒩 hℳ hsub h𝒩card hℳcard hzero hpos hsize
+
+theorem
+    oddSectionPositiveGapSliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_firstPositiveGapSlice
+    (hGap :
+      OddSectionFirstPositiveGapSliceLargerPrismThanEvenWitnessForcesStrictBoundaryStatement) :
+    OddSectionPositiveGapSliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement := by
+  intro m q e 𝒩 ℳ hq he h𝒩 hℳ hsub h𝒩card hℳcard hsilent hpos hsize
+  have hzero : ∀ s ∈ Finset.range q, #(((𝒩 \ ℳ) # s)) = 0 := by
+    intro s hs
+    have hsltq : s < q := Finset.mem_range.mp hs
+    have hsle : s ≤ m := by
+      rw [hq] at hsltq
+      omega
+    exact hsilent s (Or.inl hsle)
+  exact hGap he h𝒩 hℳ hsub h𝒩card hℳcard hzero hpos hsize
+
+theorem
     oddSectionFirstPositiveInterfaceSliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveGapSliceAtLowerEvenWitnessSupportWithOutsideSupportSilent_of_positiveUpperSheetBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilent
     (hGap :
       OddSectionPositiveGapSliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
@@ -8349,6 +8378,19 @@ theorem
     exact hBoundary hq he h𝒩 hℳ hsub h𝒩card hℳcard hBoundarySilent hBoundaryPos hsize
 
 theorem
+    oddSectionFirstPositiveInterfaceSliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_firstPositiveGapSlice_of_positiveUpperSheetBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilent
+    (hGap :
+      OddSectionFirstPositiveGapSliceLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
+    (hBoundary :
+      OddSectionPositiveUpperSheetBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement) :
+    OddSectionFirstPositiveInterfaceSliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement := by
+  exact
+    oddSectionFirstPositiveInterfaceSliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveGapSliceAtLowerEvenWitnessSupportWithOutsideSupportSilent_of_positiveUpperSheetBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilent
+      (oddSectionPositiveGapSliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_firstPositiveGapSlice
+        hGap)
+      hBoundary
+
+theorem
     oddSectionFirstPositiveInterfaceSliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveGapSliceAtUpperEvenWitnessSupportWithOutsideSupportSilent_of_positiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilent
     (hGap :
       OddSectionPositiveGapSliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
@@ -8385,6 +8427,19 @@ theorem
   · have hBoundaryPos : 0 < #((positiveBoundary ℳ) # q) := by
       exact Finset.card_pos.mpr ⟨s, Finset.mem_slice.mpr ⟨hsBoundary, hsCard⟩⟩
     exact hBoundary hq he h𝒩 hℳ hsub h𝒩card hℳcard hBoundarySilent hBoundaryPos hsize
+
+theorem
+    oddSectionFirstPositiveInterfaceSliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_firstPositiveGapSlice_of_positiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilent
+    (hGap :
+      OddSectionFirstPositiveGapSliceLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
+    (hBoundary :
+      OddSectionPositiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement) :
+    OddSectionFirstPositiveInterfaceSliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement := by
+  exact
+    oddSectionFirstPositiveInterfaceSliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveGapSliceAtUpperEvenWitnessSupportWithOutsideSupportSilent_of_positiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilent
+      (oddSectionPositiveGapSliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_firstPositiveGapSlice
+        hGap)
+      hBoundary
 
 theorem
     oddSectionFirstPositiveInterfaceSliceLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveInterfaceSliceOutsideEvenWitnessSupport_of_middleSupportOutsideSilent
@@ -8449,6 +8504,25 @@ theorem
         hGapLower hBoundaryLower)
       (oddSectionFirstPositiveInterfaceSliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveGapSliceAtUpperEvenWitnessSupportWithOutsideSupportSilent_of_positiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilent
         hGapUpper hBoundaryUpper)
+
+theorem
+    oddSectionFirstPositiveInterfaceSliceLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveInterfaceSliceOutsideEvenWitnessSupport_of_firstPositiveGapSlice_of_positiveUpperSheetBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilent_of_positiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilent
+    (hOutside :
+      OddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
+    (hGap :
+      OddSectionFirstPositiveGapSliceLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
+    (hBoundaryLower :
+      OddSectionPositiveUpperSheetBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
+    (hBoundaryUpper :
+      OddSectionPositiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement) :
+    OddSectionFirstPositiveInterfaceSliceLargerPrismThanEvenWitnessForcesStrictBoundaryStatement := by
+  exact
+    oddSectionFirstPositiveInterfaceSliceLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveInterfaceSliceOutsideEvenWitnessSupport_of_middleSupportOutsideSilent
+      hOutside
+      (oddSectionFirstPositiveInterfaceSliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_firstPositiveGapSlice_of_positiveUpperSheetBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilent
+        hGap hBoundaryLower)
+      (oddSectionFirstPositiveInterfaceSliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_firstPositiveGapSlice_of_positiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilent
+        hGap hBoundaryUpper)
 
 theorem
     oddSectionFirstStrictPrismBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_firstPositiveInterfaceSliceAtLowerEvenWitnessSupportWithOutsideSupportSilent
