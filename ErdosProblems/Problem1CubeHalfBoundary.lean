@@ -11644,6 +11644,43 @@ theorem halfCubeBoundaryLower_of_section_pairInterfaceBoundaryLower
     choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_section_pairInterfaceBoundaryLower
       hPair hn h𝒟 hcard
 
+theorem oddSectionPairInterfaceBoundaryLower_of_halfCubeBoundaryLower
+    (hCube : HalfCubeBoundaryLowerStatement) :
+    OddSectionPairInterfaceBoundaryLowerStatement := by
+  intro m e 𝒩 ℳ h𝒩 hℳ hsub h𝒩card hℳcard
+  have he : e ≤ 2 ^ (2 * m) := by
+    have hcard_le :
+        𝒩.card ≤ 2 ^ (2 * m + 1) := by
+      calc
+        𝒩.card ≤ Fintype.card (Finset (Fin (2 * m + 1))) := Finset.card_le_univ 𝒩
+        _ = 2 ^ (2 * m + 1) := by simp
+    rw [h𝒩card, pow_succ'] at hcard_le
+    omega
+  have hdata :=
+    twoSheetFamily_halfCube_data (m := m) (e := e) h𝒩 hℳ hsub he h𝒩card hℳcard
+  have hne : (twoSheetFamily ℳ 𝒩).Nonempty := by
+    apply Finset.card_pos.mp
+    rw [hdata.2]
+    positivity
+  have hbound :
+      Nat.choose (2 * m + 2) ((2 * m + 2) / 2) ≤
+        #(positiveBoundary (twoSheetFamily ℳ 𝒩)) :=
+    by
+      simpa using
+        (hCube (α := Fin (2 * m + 2)) (𝒟 := twoSheetFamily ℳ 𝒩)
+          (by positivity) hne hdata.1 (by simpa using hdata.2))
+  have hdiv : (2 * m + 2) / 2 = m + 1 := by
+    omega
+  rw [← twoSheetOuterBoundaryCard_eq_card_positiveBoundary_twoSheetFamily (ℳ := ℳ) (𝒩 := 𝒩)] at hbound
+  simpa [hdiv, choose_middle_even_eq_two_mul_choose_middle_odd,
+    twoSheetOuterBoundaryCard, twoSheetInterfaceBoundary] using hbound
+
+theorem oddSectionPairInterfaceBoundaryLower_iff_halfCubeBoundaryLower :
+    OddSectionPairInterfaceBoundaryLowerStatement ↔ HalfCubeBoundaryLowerStatement := by
+  constructor
+  · exact halfCubeBoundaryLower_of_section_pairInterfaceBoundaryLower
+  · exact oddSectionPairInterfaceBoundaryLower_of_halfCubeBoundaryLower
+
 theorem halfCubeBoundaryLower_of_topologicalOddSectionBoundaryLower
     (hTop : TopologicalOddSectionBoundaryLowerStatement) :
     HalfCubeBoundaryLowerStatement := by
@@ -11654,6 +11691,24 @@ theorem halfCubeBoundaryLower_of_twoSheetBoundaryTheorem
     (hTwo : TwoSheetBoundaryTheorem) :
     HalfCubeBoundaryLowerStatement := by
   exact halfCubeBoundaryLower_of_topologicalOddSectionBoundaryLower hTwo
+
+theorem twoSheetBoundaryTheorem_of_halfCubeBoundaryLower
+    (hCube : HalfCubeBoundaryLowerStatement) :
+    TwoSheetBoundaryTheorem := by
+  exact
+    (topologicalOddSectionBoundaryLowerStatement_iff_pairInterface).mpr
+      (oddSectionPairInterfaceBoundaryLower_of_halfCubeBoundaryLower hCube)
+
+theorem twoSheetBoundaryTheorem_iff_halfCubeBoundaryLower :
+    TwoSheetBoundaryTheorem ↔ HalfCubeBoundaryLowerStatement := by
+  constructor
+  · exact halfCubeBoundaryLower_of_twoSheetBoundaryTheorem
+  · exact twoSheetBoundaryTheorem_of_halfCubeBoundaryLower
+
+theorem prismHalfCubeBoundaryLowerStatement_iff_halfCubeBoundaryLower :
+    PrismHalfCubeBoundaryLowerStatement ↔ HalfCubeBoundaryLowerStatement := by
+  rw [prismHalfCubeBoundaryLowerStatement_iff_twoSheetBoundaryTheorem]
+  exact twoSheetBoundaryTheorem_iff_halfCubeBoundaryLower
 
 theorem halfCubeBoundaryLower_of_oddHalfCubeBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
     (hOdd : OddHalfCubeBoundaryLowerStatement)
@@ -11699,6 +11754,13 @@ theorem halfCubeUpperShadowGapLower_of_oddHalfCubeUpperShadowGapLower_of_positiv
       (halfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower_of_positiveExcessPairInterfaceBoundaryLower
         hOdd hPair)
 
+theorem oddSectionPositiveExcessPairInterfaceBoundaryLower_of_halfCubeBoundaryLower
+    (hCube : HalfCubeBoundaryLowerStatement) :
+    OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement := by
+  exact
+    oddSectionPositiveExcessPairInterfaceBoundaryLower_of_section_pairInterfaceBoundaryLower
+      (oddSectionPairInterfaceBoundaryLower_of_halfCubeBoundaryLower hCube)
+
 theorem
     choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower
     (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
@@ -11732,6 +11794,14 @@ theorem
   exact
     halfCubeUpperShadowGapLower_of_oddHalfCubeUpperShadowGapLower_of_positiveExcessPairInterfaceBoundaryLower
       (oddHalfCubeUpperShadowGapLower_of_prismTheoremCurrentLeafFrontier hFrontier) hPair
+
+theorem
+    oddSectionPositiveExcessPairInterfaceBoundaryLower_iff_halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement ↔ HalfCubeBoundaryLowerStatement := by
+  constructor
+  · exact halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower hFrontier
+  · exact oddSectionPositiveExcessPairInterfaceBoundaryLower_of_halfCubeBoundaryLower
 
 theorem subcubeHalfCubeBoundaryLower_of_halfCubeBoundaryLower
     (hCube : HalfCubeBoundaryLowerStatement)
