@@ -1004,6 +1004,14 @@ theorem card_slice_le_card_slice_of_subset {n r : ℕ}
     intro s hs
     exact Finset.mem_slice.mpr ⟨hsub (Finset.mem_slice.mp hs).1, (Finset.mem_slice.mp hs).2⟩
 
+/-- If a larger slice is empty, every smaller slice under inclusion is empty as well. -/
+theorem card_slice_eq_zero_of_subset_of_card_slice_eq_zero {n r : ℕ}
+    {𝒜 ℬ : Finset (Finset (Fin n))} (hsub : 𝒜 ⊆ ℬ)
+    (hzero : #(ℬ # r) = 0) :
+    #(𝒜 # r) = 0 := by
+  have hle : #(𝒜 # r) ≤ #(ℬ # r) := card_slice_le_card_slice_of_subset hsub
+  omega
+
 /-- Taking a slice commutes with set difference. -/
 theorem slice_sdiff_eq_sdiff_slice {n r : ℕ}
     {𝒜 ℬ : Finset (Finset (Fin n))} :
@@ -7389,6 +7397,78 @@ def OddSectionFirstPositiveInterfaceSliceAtUpperEvenWitnessSupportWithOutsideSup
       totalSize (evenLowerHalfFamily m) < totalSize (twoSheetFamily ℳ 𝒩) →
       Nat.choose (2 * m + 2) (m + 1) < #(positiveBoundary (twoSheetFamily ℳ 𝒩))
 
+/-- Gap-source version of the lower support-silent interface frontier: after peeling off every
+outside-support interface slice, it is enough that the first middle interface mass at rank `m`
+comes from the missing-roof term `𝒩 \ ℳ`. -/
+def OddSectionPositiveGapSliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement :
+    Prop :=
+  ∀ {m q e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
+      q = m →
+      0 < e →
+      IsDownSetFamily 𝒩 →
+      IsDownSetFamily ℳ →
+      ℳ ⊆ 𝒩 →
+      𝒩.card = 2 ^ (2 * m) + e →
+      ℳ.card = 2 ^ (2 * m) - e →
+      (∀ r, (r < m ∨ m + 2 ≤ r) → #(((𝒩 \ ℳ) # r)) = 0) →
+      0 < #(((𝒩 \ ℳ) # q)) →
+      totalSize (evenLowerHalfFamily m) < totalSize (twoSheetFamily ℳ 𝒩) →
+      Nat.choose (2 * m + 2) (m + 1) < #(positiveBoundary (twoSheetFamily ℳ 𝒩))
+
+/-- Upper-sheet-boundary version of the lower support-silent interface frontier: after peeling off
+every outside-support interface slice, it is enough that the first middle interface mass at rank
+`m` comes from `positiveBoundary ℳ`. -/
+def OddSectionPositiveUpperSheetBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement :
+    Prop :=
+  ∀ {m q e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
+      q = m →
+      0 < e →
+      IsDownSetFamily 𝒩 →
+      IsDownSetFamily ℳ →
+      ℳ ⊆ 𝒩 →
+      𝒩.card = 2 ^ (2 * m) + e →
+      ℳ.card = 2 ^ (2 * m) - e →
+      (∀ r, (r < m ∨ m + 2 ≤ r) → #((positiveBoundary ℳ) # r) = 0) →
+      0 < #((positiveBoundary ℳ) # q) →
+      totalSize (evenLowerHalfFamily m) < totalSize (twoSheetFamily ℳ 𝒩) →
+      Nat.choose (2 * m + 2) (m + 1) < #(positiveBoundary (twoSheetFamily ℳ 𝒩))
+
+/-- Gap-source version of the upper support-silent interface frontier: after peeling off every
+outside-support interface slice, it is enough that the first middle interface mass at rank
+`m + 1` comes from the missing-roof term `𝒩 \ ℳ`. -/
+def OddSectionPositiveGapSliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement :
+    Prop :=
+  ∀ {m q e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
+      q = m + 1 →
+      0 < e →
+      IsDownSetFamily 𝒩 →
+      IsDownSetFamily ℳ →
+      ℳ ⊆ 𝒩 →
+      𝒩.card = 2 ^ (2 * m) + e →
+      ℳ.card = 2 ^ (2 * m) - e →
+      (∀ r, (r ≤ m ∨ m + 2 ≤ r) → #(((𝒩 \ ℳ) # r)) = 0) →
+      0 < #(((𝒩 \ ℳ) # q)) →
+      totalSize (evenLowerHalfFamily m) < totalSize (twoSheetFamily ℳ 𝒩) →
+      Nat.choose (2 * m + 2) (m + 1) < #(positiveBoundary (twoSheetFamily ℳ 𝒩))
+
+/-- Upper-sheet-boundary version of the upper support-silent interface frontier: after peeling off
+every outside-support interface slice, it is enough that the first middle interface mass at rank
+`m + 1` comes from `positiveBoundary ℳ`. -/
+def OddSectionPositiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement :
+    Prop :=
+  ∀ {m q e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
+      q = m + 1 →
+      0 < e →
+      IsDownSetFamily 𝒩 →
+      IsDownSetFamily ℳ →
+      ℳ ⊆ 𝒩 →
+      𝒩.card = 2 ^ (2 * m) + e →
+      ℳ.card = 2 ^ (2 * m) - e →
+      (∀ r, (r ≤ m ∨ m + 2 ≤ r) → #((positiveBoundary ℳ) # r) = 0) →
+      0 < #((positiveBoundary ℳ) # q) →
+      totalSize (evenLowerHalfFamily m) < totalSize (twoSheetFamily ℳ 𝒩) →
+      Nat.choose (2 * m + 2) (m + 1) < #(positiveBoundary (twoSheetFamily ℳ 𝒩))
+
 /-- Boundary-language version of the same frontier: it is enough to understand the first positive
 slice of the `0`-member section of the prism boundary itself. This is the interface-family
 statement written directly on the boundary section after erasing the pivot coordinate. -/
@@ -8231,6 +8311,82 @@ theorem
           hInterface (q := r') houtside' he h𝒩 hℳ hsub h𝒩card hℳcard hInterfacePos hsize
 
 theorem
+    oddSectionFirstPositiveInterfaceSliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveGapSliceAtLowerEvenWitnessSupportWithOutsideSupportSilent_of_positiveUpperSheetBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilent
+    (hGap :
+      OddSectionPositiveGapSliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
+    (hBoundary :
+      OddSectionPositiveUpperSheetBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement) :
+    OddSectionFirstPositiveInterfaceSliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement := by
+  intro m q e 𝒩 ℳ hq he h𝒩 hℳ hsub h𝒩card hℳcard hsilent hpos hsize
+  have hGapSilent :
+      ∀ r, (r < m ∨ m + 2 ≤ r) → #(((𝒩 \ ℳ) # r)) = 0 := by
+    intro r hout
+    exact
+      card_slice_eq_zero_of_subset_of_card_slice_eq_zero
+        (𝒜 := 𝒩 \ ℳ) (ℬ := (𝒩 \ ℳ) ∪ positiveBoundary ℳ)
+        (by
+          intro s hs
+          exact Finset.mem_union.mpr (Or.inl hs))
+        (hsilent r hout)
+  have hBoundarySilent :
+      ∀ r, (r < m ∨ m + 2 ≤ r) → #((positiveBoundary ℳ) # r) = 0 := by
+    intro r hout
+    exact
+      card_slice_eq_zero_of_subset_of_card_slice_eq_zero
+        (𝒜 := positiveBoundary ℳ) (ℬ := (𝒩 \ ℳ) ∪ positiveBoundary ℳ)
+        (by
+          intro s hs
+          exact Finset.mem_union.mpr (Or.inr hs))
+        (hsilent r hout)
+  rcases Finset.card_pos.mp hpos with ⟨s, hs⟩
+  rcases Finset.mem_slice.mp hs with ⟨hsUnion, hsCard⟩
+  rcases Finset.mem_union.mp hsUnion with hsGap | hsBoundary
+  · have hGapPos : 0 < #(((𝒩 \ ℳ) # q)) := by
+      exact Finset.card_pos.mpr ⟨s, Finset.mem_slice.mpr ⟨hsGap, hsCard⟩⟩
+    exact hGap hq he h𝒩 hℳ hsub h𝒩card hℳcard hGapSilent hGapPos hsize
+  · have hBoundaryPos : 0 < #((positiveBoundary ℳ) # q) := by
+      exact Finset.card_pos.mpr ⟨s, Finset.mem_slice.mpr ⟨hsBoundary, hsCard⟩⟩
+    exact hBoundary hq he h𝒩 hℳ hsub h𝒩card hℳcard hBoundarySilent hBoundaryPos hsize
+
+theorem
+    oddSectionFirstPositiveInterfaceSliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveGapSliceAtUpperEvenWitnessSupportWithOutsideSupportSilent_of_positiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilent
+    (hGap :
+      OddSectionPositiveGapSliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
+    (hBoundary :
+      OddSectionPositiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement) :
+    OddSectionFirstPositiveInterfaceSliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement := by
+  intro m q e 𝒩 ℳ hq he h𝒩 hℳ hsub h𝒩card hℳcard hsilent hpos hsize
+  have hGapSilent :
+      ∀ r, (r ≤ m ∨ m + 2 ≤ r) → #(((𝒩 \ ℳ) # r)) = 0 := by
+    intro r hout
+    exact
+      card_slice_eq_zero_of_subset_of_card_slice_eq_zero
+        (𝒜 := 𝒩 \ ℳ) (ℬ := (𝒩 \ ℳ) ∪ positiveBoundary ℳ)
+        (by
+          intro s hs
+          exact Finset.mem_union.mpr (Or.inl hs))
+        (hsilent r hout)
+  have hBoundarySilent :
+      ∀ r, (r ≤ m ∨ m + 2 ≤ r) → #((positiveBoundary ℳ) # r) = 0 := by
+    intro r hout
+    exact
+      card_slice_eq_zero_of_subset_of_card_slice_eq_zero
+        (𝒜 := positiveBoundary ℳ) (ℬ := (𝒩 \ ℳ) ∪ positiveBoundary ℳ)
+        (by
+          intro s hs
+          exact Finset.mem_union.mpr (Or.inr hs))
+        (hsilent r hout)
+  rcases Finset.card_pos.mp hpos with ⟨s, hs⟩
+  rcases Finset.mem_slice.mp hs with ⟨hsUnion, hsCard⟩
+  rcases Finset.mem_union.mp hsUnion with hsGap | hsBoundary
+  · have hGapPos : 0 < #(((𝒩 \ ℳ) # q)) := by
+      exact Finset.card_pos.mpr ⟨s, Finset.mem_slice.mpr ⟨hsGap, hsCard⟩⟩
+    exact hGap hq he h𝒩 hℳ hsub h𝒩card hℳcard hGapSilent hGapPos hsize
+  · have hBoundaryPos : 0 < #((positiveBoundary ℳ) # q) := by
+      exact Finset.card_pos.mpr ⟨s, Finset.mem_slice.mpr ⟨hsBoundary, hsCard⟩⟩
+    exact hBoundary hq he h𝒩 hℳ hsub h𝒩card hℳcard hBoundarySilent hBoundaryPos hsize
+
+theorem
     oddSectionFirstPositiveInterfaceSliceLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveInterfaceSliceOutsideEvenWitnessSupport_of_middleSupportOutsideSilent
     (hOutside :
       OddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
@@ -8272,6 +8428,27 @@ theorem
           exact hUpper hqeq' he h𝒩 hℳ hsub h𝒩card hℳcard hsilent hpos hsize
       · have hqge : m + 2 ≤ q := by omega
         exact hOutside (Or.inr hqge) he h𝒩 hℳ hsub h𝒩card hℳcard hpos hsize
+
+theorem
+    oddSectionFirstPositiveInterfaceSliceLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveInterfaceSliceOutsideEvenWitnessSupport_of_positiveGapSliceAtLowerEvenWitnessSupportWithOutsideSupportSilent_of_positiveUpperSheetBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilent_of_positiveGapSliceAtUpperEvenWitnessSupportWithOutsideSupportSilent_of_positiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilent
+    (hOutside :
+      OddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
+    (hGapLower :
+      OddSectionPositiveGapSliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
+    (hBoundaryLower :
+      OddSectionPositiveUpperSheetBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
+    (hGapUpper :
+      OddSectionPositiveGapSliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
+    (hBoundaryUpper :
+      OddSectionPositiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement) :
+    OddSectionFirstPositiveInterfaceSliceLargerPrismThanEvenWitnessForcesStrictBoundaryStatement := by
+  exact
+    oddSectionFirstPositiveInterfaceSliceLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveInterfaceSliceOutsideEvenWitnessSupport_of_middleSupportOutsideSilent
+      hOutside
+      (oddSectionFirstPositiveInterfaceSliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveGapSliceAtLowerEvenWitnessSupportWithOutsideSupportSilent_of_positiveUpperSheetBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilent
+        hGapLower hBoundaryLower)
+      (oddSectionFirstPositiveInterfaceSliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveGapSliceAtUpperEvenWitnessSupportWithOutsideSupportSilent_of_positiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilent
+        hGapUpper hBoundaryUpper)
 
 theorem
     oddSectionFirstStrictPrismBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_firstPositiveInterfaceSliceAtLowerEvenWitnessSupportWithOutsideSupportSilent
