@@ -11699,6 +11699,40 @@ theorem halfCubeUpperShadowGapLower_of_oddHalfCubeUpperShadowGapLower_of_positiv
       (halfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower_of_positiveExcessPairInterfaceBoundaryLower
         hOdd hPair)
 
+theorem
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hPair :
+      OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_oddHalfCubeUpperShadowGapLower_of_positiveExcessPairInterfaceBoundaryLower
+      (oddHalfCubeUpperShadowGapLower_of_prismTheoremCurrentLeafFrontier hFrontier)
+      hPair hn h𝒟 hcard
+
+theorem
+    halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hPair :
+      OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement) :
+    HalfCubeBoundaryLowerStatement := by
+  exact
+    halfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower_of_positiveExcessPairInterfaceBoundaryLower
+      (oddHalfCubeUpperShadowGapLower_of_prismTheoremCurrentLeafFrontier hFrontier) hPair
+
+theorem
+    halfCubeUpperShadowGapLower_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hPair :
+      OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement) :
+    HalfCubeUpperShadowGapLowerStatement := by
+  exact
+    halfCubeUpperShadowGapLower_of_oddHalfCubeUpperShadowGapLower_of_positiveExcessPairInterfaceBoundaryLower
+      (oddHalfCubeUpperShadowGapLower_of_prismTheoremCurrentLeafFrontier hFrontier) hPair
+
 theorem subcubeHalfCubeBoundaryLower_of_halfCubeBoundaryLower
     (hCube : HalfCubeBoundaryLowerStatement)
     {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
