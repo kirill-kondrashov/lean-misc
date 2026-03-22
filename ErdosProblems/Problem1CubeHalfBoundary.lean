@@ -5592,6 +5592,24 @@ theorem oddHalfCubeBoundaryLower_of_globalMinimizerInitialFullSlicesStrictSliceD
       (oddHalfCubeWideMiddleTransitionWindowFirstPositiveOutsideSliceImpossible_of_globalMinimizerInitialFullSlicesStrictSliceDeficitImpossible
         hLocal)
 
+theorem oddHalfCubeBoundaryGlobalMinimizerInitialFullSlicesStrictSliceDeficitImpossible_of_initialFullSlicesStrictSliceDeficitForcesStrictWeightedDrop
+    (hDef :
+      OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictWeightedDropStatement) :
+    OddHalfCubeBoundaryGlobalMinimizerInitialFullSlicesStrictSliceDeficitImpossibleStatement := by
+  intro m r 𝒟 hmin hrm hfull hdeficit
+  have hstrict :
+      Nat.choose (2 * m + 1) m < weightedDrop (2 * m + 1) (sliceDensity 𝒟) :=
+    hDef hmin.1 hmin.2.1 hrm hfull hdeficit
+  have hle :
+      weightedDrop (2 * m + 1) (sliceDensity 𝒟) ≤ Nat.choose (2 * m + 1) m := by
+    calc
+      weightedDrop (2 * m + 1) (sliceDensity 𝒟) ≤ #(positiveBoundary 𝒟) := by
+        simpa [Fintype.card_fin] using weightedDrop_le_card_positiveBoundary (𝒟 := 𝒟)
+      _ ≤ Nat.choose (2 * m + 1) m := by
+        exact_mod_cast
+          card_positiveBoundary_le_choose_middle_of_isOddHalfCubeBoundaryGlobalMinimizer hmin
+  exact (not_le_of_gt hstrict) hle
+
 theorem oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossible_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop
     (hDrop :
       OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDropStatement) :
@@ -5708,8 +5726,8 @@ theorem oddHalfCubeBoundaryLower_of_initialFullSlicesStrictSliceDeficitForcesStr
       OddHalfCubeInitialFullSlicesStrictSliceDeficitForcesStrictWeightedDropStatement) :
     OddHalfCubeBoundaryLowerStatement := by
   exact
-    oddHalfCubeBoundaryLower_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop
-      (oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop_of_initialFullSlicesStrictSliceDeficit
+    oddHalfCubeBoundaryLower_of_globalMinimizerInitialFullSlicesStrictSliceDeficitImpossible
+      (oddHalfCubeBoundaryGlobalMinimizerInitialFullSlicesStrictSliceDeficitImpossible_of_initialFullSlicesStrictSliceDeficitForcesStrictWeightedDrop
         hDef)
 
 theorem oddHalfCubeBoundaryLower_of_largerTotalSizeThanWitnessForcesStrictWeightedDrop
