@@ -9505,6 +9505,18 @@ theorem
       hInterfaceOutside hLower hUpper hOddSize hmin
 
 theorem
+    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_prismTheoremCurrentLeafFrontier
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟) :
+    totalSize 𝒟 ≤ totalSize (evenLowerHalfFamily m) := by
+  rcases hFrontier with
+    ⟨hUpperOutside, hInterfaceOutside, hGap, hBoundaryLower, hBoundaryUpper, hOddSize⟩
+  exact
+    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_oddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcess_of_oddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcess_of_oddSectionFirstPositiveGapSliceLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionPositiveUpperSheetBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionPositiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      hUpperOutside hInterfaceOutside hGap hBoundaryLower hBoundaryUpper hOddSize hmin
+
+theorem
     t_eq_middle_of_middleTransitionWindow_of_zeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
     (hZero :
       EvenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundaryStatement)
@@ -9941,6 +9953,22 @@ theorem
   exact
     t_eq_middle_of_middleTransitionWindow_of_oddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcess_of_oddSectionFirstPositiveInterfaceSliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionFirstPositiveInterfaceSliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
       hInterfaceOutside hLower hUpper hOddSize hmin htmid humid hmid
+
+theorem
+    t_eq_middle_of_middleTransitionWindow_of_prismTheoremCurrentLeafFrontier
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {t u : ℕ}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (htmid : t ≤ m + 1) (humid : m + 1 < u)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0) :
+    t = m + 1 := by
+  rcases hFrontier with
+    ⟨hUpperOutside, hInterfaceOutside, hGap, hBoundaryLower, hBoundaryUpper, hOddSize⟩
+  exact
+    t_eq_middle_of_middleTransitionWindow_of_oddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcess_of_oddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcess_of_oddSectionFirstPositiveGapSliceLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionPositiveUpperSheetBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionPositiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      hUpperOutside hInterfaceOutside hGap hBoundaryLower hBoundaryUpper hOddSize
+      hmin htmid humid hmid
 
 theorem
     eq_evenLowerHalfFamily_of_middleTransitionWindow_of_zeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_balancedZeroSections
