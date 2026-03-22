@@ -11803,6 +11803,25 @@ theorem
   · exact halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower hFrontier
   · exact oddSectionPositiveExcessPairInterfaceBoundaryLower_of_halfCubeBoundaryLower
 
+theorem
+    twoSheetBoundaryTheorem_iff_positiveExcessPairInterfaceBoundaryLower_of_prismTheoremCurrentLeafFrontier
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    TwoSheetBoundaryTheorem ↔ OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement := by
+  exact
+    twoSheetBoundaryTheorem_iff_halfCubeBoundaryLower.trans
+      (oddSectionPositiveExcessPairInterfaceBoundaryLower_iff_halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier
+        hFrontier).symm
+
+theorem
+    prismHalfCubeBoundaryLowerStatement_iff_positiveExcessPairInterfaceBoundaryLower_of_prismTheoremCurrentLeafFrontier
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    PrismHalfCubeBoundaryLowerStatement ↔
+      OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement := by
+  exact
+    prismHalfCubeBoundaryLowerStatement_iff_halfCubeBoundaryLower.trans
+      (oddSectionPositiveExcessPairInterfaceBoundaryLower_iff_halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier
+        hFrontier).symm
+
 theorem subcubeHalfCubeBoundaryLower_of_halfCubeBoundaryLower
     (hCube : HalfCubeBoundaryLowerStatement)
     {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
