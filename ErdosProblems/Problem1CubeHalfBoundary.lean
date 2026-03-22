@@ -10551,6 +10551,48 @@ theorem prismHalfCubeBoundaryLowerStatement_iff_twoSheetBoundaryTheorem :
   simpa [PrismHalfCubeBoundaryLowerStatement] using
     twoSheetBoundaryTheorem_iff_prismHalfCubeBoundary.symm
 
+theorem oddHalfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  rcases hFrontier with
+    ⟨_hUpperOutside, _hInterfaceOutside, _hGap, _hBoundaryLower, _hBoundaryUpper, hOddSize⟩
+  exact oddHalfCubeBoundaryLower_of_largerTotalSizeThanWitnessForcesStrictUpperShadowGap hOddSize
+
+theorem oddHalfCubeUpperShadowGapLower_of_prismTheoremCurrentLeafFrontier
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    OddHalfCubeUpperShadowGapLowerStatement := by
+  exact oddHalfCubeUpperShadowGapLower_of_oddHalfCubeBoundaryLower
+    (oddHalfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier hFrontier)
+
+theorem
+    oddSectionPairInterfaceBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hPos : OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement) :
+    OddSectionPairInterfaceBoundaryLowerStatement := by
+  exact
+    (oddSectionPairInterfaceBoundaryLower_iff_oddHalfCubeUpperShadowGapLower_and_positiveExcessPairInterfaceBoundaryLower).mpr
+      ⟨oddHalfCubeUpperShadowGapLower_of_prismTheoremCurrentLeafFrontier hFrontier, hPos⟩
+
+theorem
+    twoSheetBoundaryTheorem_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hPos : OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement) :
+    TwoSheetBoundaryTheorem := by
+  exact
+    (topologicalOddSectionBoundaryLowerStatement_iff_pairInterface).mpr
+      (oddSectionPairInterfaceBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower
+        hFrontier hPos)
+
+theorem
+    prismHalfCubeBoundaryLowerStatement_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hPos : OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement) :
+    PrismHalfCubeBoundaryLowerStatement := by
+  exact
+    (prismHalfCubeBoundaryLowerStatement_iff_twoSheetBoundaryTheorem).mpr
+      (twoSheetBoundaryTheorem_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower
+        hFrontier hPos)
+
 /-- The prism family attached to two symmetric nested sheets is already a half-cube down-set.
 This isolates the exact input data needed for a compression/extremizer proof. -/
 theorem twoSheetFamily_halfCube_data
