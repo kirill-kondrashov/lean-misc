@@ -3329,6 +3329,20 @@ def OddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossibleStateme
       0 < #((((Finset.univ.powerset) \ 𝒟) # (r + 1))) →
       False
 
+/-- Local odd contradiction surface behind the outside-slice route: on a genuine odd half-cube
+global minimizer, one should not be able to have all slices up to `r` full and the next slice
+strictly deficient. The wide-window/outside-slice geometry is only a way of manufacturing this
+local configuration. -/
+def OddHalfCubeBoundaryGlobalMinimizerInitialFullSlicesStrictSliceDeficitImpossibleStatement :
+    Prop :=
+  ∀ {m r : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))},
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 →
+      r < m →
+      (∀ s, s ≤ r →
+        𝒟 # s = (Finset.univ : Finset (Fin (2 * m + 1))).powersetCard s) →
+      #(𝒟 # (r + 1)) < Nat.choose (2 * m + 1) (r + 1) →
+      False
+
 /-- Further localization of the live odd-side contradiction route: it is enough to rule out a
 first positive outside slice only for the specific middle-transition-window global minimizers
 produced by the compression/rigidity program. -/
@@ -5540,6 +5554,43 @@ theorem oddHalfCubeBoundaryLower_of_wideMiddleTransitionWindowFirstPositiveOutsi
     oddHalfCubeBoundaryLower_of_middleTransitionWindowFirstPositiveOutsideSliceImpossible
       (oddHalfCubeMiddleTransitionWindowFirstPositiveOutsideSliceImpossible_of_wideMiddleTransitionWindowFirstPositiveOutsideSliceImpossible
         hWide)
+
+theorem oddHalfCubeWideMiddleTransitionWindowFirstPositiveOutsideSliceImpossible_of_globalMinimizerInitialFullSlicesStrictSliceDeficitImpossible
+    (hLocal :
+      OddHalfCubeBoundaryGlobalMinimizerInitialFullSlicesStrictSliceDeficitImpossibleStatement) :
+    OddHalfCubeWideMiddleTransitionWindowFirstPositiveOutsideSliceImpossibleStatement := by
+  intro m 𝒟 t u hmin htlt hltu hfull hzero hmid r hrm houtZero houtPos
+  have hfullSlices :
+      ∀ s, s ≤ r →
+        𝒟 # s = (Finset.univ : Finset (Fin (2 * m + 1))).powersetCard s := by
+    intro s hsle
+    have hsZero : #((((Finset.univ.powerset) \ 𝒟) # s)) = 0 :=
+      houtZero s (Finset.mem_range.mpr (Nat.lt_succ_of_le hsle))
+    have hOutside :
+        #((((Finset.univ.powerset) \ 𝒟) # s)) =
+          Nat.choose (2 * m + 1) s - #(𝒟 # s) := by
+      simpa using card_outside_slice_eq_choose_sub_card_slice (𝒟 := 𝒟) s
+    have hsliceLe : #(𝒟 # s) ≤ Nat.choose (2 * m + 1) s := by
+      exact card_slice_le_choose (𝒟 := 𝒟) (r := s)
+    have hsliceCard : #(𝒟 # s) = Nat.choose (2 * m + 1) s := by
+      omega
+    exact slice_eq_powersetCard_of_card_eq_choose hsliceCard
+  have hdeficit : #(𝒟 # (r + 1)) < Nat.choose (2 * m + 1) (r + 1) := by
+    have hOutside :
+        #((((Finset.univ.powerset) \ 𝒟) # (r + 1))) =
+          Nat.choose (2 * m + 1) (r + 1) - #(𝒟 # (r + 1)) := by
+      simpa using card_outside_slice_eq_choose_sub_card_slice (𝒟 := 𝒟) (r + 1)
+    omega
+  exact hLocal hmin hrm hfullSlices hdeficit
+
+theorem oddHalfCubeBoundaryLower_of_globalMinimizerInitialFullSlicesStrictSliceDeficitImpossible
+    (hLocal :
+      OddHalfCubeBoundaryGlobalMinimizerInitialFullSlicesStrictSliceDeficitImpossibleStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_wideMiddleTransitionWindowFirstPositiveOutsideSliceImpossible
+      (oddHalfCubeWideMiddleTransitionWindowFirstPositiveOutsideSliceImpossible_of_globalMinimizerInitialFullSlicesStrictSliceDeficitImpossible
+        hLocal)
 
 theorem oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossible_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop
     (hDrop :
