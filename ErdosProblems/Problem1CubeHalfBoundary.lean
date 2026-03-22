@@ -1162,16 +1162,20 @@ theorem oddSectionFirstSeparationPairInterfaceBoundaryLower_of_firstPositiveGapS
     exact Nat.sub_pos_of_lt hqStrict
   exact hGap he h𝒩 hℳ hsub h𝒩card hℳcard hzero hpos
 
+theorem oddSectionPositiveExcessPairInterfaceBoundaryLower_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+    (hGap : OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement) :
+    OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement := by
+  exact
+    oddSectionPositiveExcessPairInterfaceBoundaryLower_of_firstSeparationPairInterfaceBoundaryLower
+      (oddSectionFirstSeparationPairInterfaceBoundaryLower_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+        hGap)
+
 theorem oddSectionPositiveExcessPairInterfaceBoundaryLower_iff_firstPositiveGapSlicePairInterfaceBoundaryLower :
     OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement ↔
       OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement := by
   constructor
   · exact oddSectionFirstPositiveGapSlicePairInterfaceBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
-  · intro hGap
-    exact
-      oddSectionPositiveExcessPairInterfaceBoundaryLower_of_firstSeparationPairInterfaceBoundaryLower
-        (oddSectionFirstSeparationPairInterfaceBoundaryLower_of_firstPositiveGapSlicePairInterfaceBoundaryLower
-          hGap)
+  · exact oddSectionPositiveExcessPairInterfaceBoundaryLower_of_firstPositiveGapSlicePairInterfaceBoundaryLower
 
 /-- Total size is the weighted sum of the slice cardinalities. -/
 theorem totalSize_eq_sum_range_mul_card_slice (𝒟 : Finset (Finset α)) :
@@ -10800,6 +10804,28 @@ theorem
       ⟨oddHalfCubeUpperShadowGapLower_of_prismTheoremCurrentLeafFrontier hFrontier, hPos⟩
 
 theorem
+    oddSectionPairInterfaceBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_firstSeparationPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hFirst : OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement) :
+    OddSectionPairInterfaceBoundaryLowerStatement := by
+  exact
+    oddSectionPairInterfaceBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower
+      hFrontier
+      (oddSectionPositiveExcessPairInterfaceBoundaryLower_of_firstSeparationPairInterfaceBoundaryLower
+        hFirst)
+
+theorem
+    oddSectionPairInterfaceBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hGap : OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement) :
+    OddSectionPairInterfaceBoundaryLowerStatement := by
+  exact
+    oddSectionPairInterfaceBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower
+      hFrontier
+      (oddSectionPositiveExcessPairInterfaceBoundaryLower_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+        hGap)
+
+theorem
     twoSheetBoundaryTheorem_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower
     (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
     (hPos : OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement) :
@@ -10810,6 +10836,26 @@ theorem
         hFrontier hPos)
 
 theorem
+    twoSheetBoundaryTheorem_of_prismTheoremCurrentLeafFrontier_of_firstSeparationPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hFirst : OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement) :
+    TwoSheetBoundaryTheorem := by
+  exact
+    (topologicalOddSectionBoundaryLowerStatement_iff_pairInterface).mpr
+      (oddSectionPairInterfaceBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_firstSeparationPairInterfaceBoundaryLower
+        hFrontier hFirst)
+
+theorem
+    twoSheetBoundaryTheorem_of_prismTheoremCurrentLeafFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hGap : OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement) :
+    TwoSheetBoundaryTheorem := by
+  exact
+    (topologicalOddSectionBoundaryLowerStatement_iff_pairInterface).mpr
+      (oddSectionPairInterfaceBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+        hFrontier hGap)
+
+theorem
     prismHalfCubeBoundaryLowerStatement_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower
     (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
     (hPos : OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement) :
@@ -10818,6 +10864,26 @@ theorem
     (prismHalfCubeBoundaryLowerStatement_iff_twoSheetBoundaryTheorem).mpr
       (twoSheetBoundaryTheorem_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower
         hFrontier hPos)
+
+theorem
+    prismHalfCubeBoundaryLowerStatement_of_prismTheoremCurrentLeafFrontier_of_firstSeparationPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hFirst : OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement) :
+    PrismHalfCubeBoundaryLowerStatement := by
+  exact
+    (prismHalfCubeBoundaryLowerStatement_iff_twoSheetBoundaryTheorem).mpr
+      (twoSheetBoundaryTheorem_of_prismTheoremCurrentLeafFrontier_of_firstSeparationPairInterfaceBoundaryLower
+        hFrontier hFirst)
+
+theorem
+    prismHalfCubeBoundaryLowerStatement_of_prismTheoremCurrentLeafFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hGap : OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement) :
+    PrismHalfCubeBoundaryLowerStatement := by
+  exact
+    (prismHalfCubeBoundaryLowerStatement_iff_twoSheetBoundaryTheorem).mpr
+      (twoSheetBoundaryTheorem_of_prismTheoremCurrentLeafFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+        hFrontier hGap)
 
 /-- The prism family attached to two symmetric nested sheets is already a half-cube down-set.
 This isolates the exact input data needed for a compression/extremizer proof. -/
@@ -12010,6 +12076,28 @@ theorem
   exact
     halfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower_of_positiveExcessPairInterfaceBoundaryLower
       (oddHalfCubeUpperShadowGapLower_of_prismTheoremCurrentLeafFrontier hFrontier) hPair
+
+theorem
+    halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_firstSeparationPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hFirst : OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement) :
+    HalfCubeBoundaryLowerStatement := by
+  exact
+    halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower
+      hFrontier
+      (oddSectionPositiveExcessPairInterfaceBoundaryLower_of_firstSeparationPairInterfaceBoundaryLower
+        hFirst)
+
+theorem
+    halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hGap : OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement) :
+    HalfCubeBoundaryLowerStatement := by
+  exact
+    halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower
+      hFrontier
+      (oddSectionPositiveExcessPairInterfaceBoundaryLower_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+        hGap)
 
 theorem
     halfCubeUpperShadowGapLower_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower
