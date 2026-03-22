@@ -8274,6 +8274,98 @@ theorem
         exact hOutside (Or.inr hqge) he h𝒩 hℳ hsub h𝒩card hℳcard hpos hsize
 
 theorem
+    oddSectionFirstStrictPrismBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_firstPositiveInterfaceSliceAtLowerEvenWitnessSupportWithOutsideSupportSilent
+    (hLower :
+      OddSectionFirstPositiveInterfaceSliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement) :
+    OddSectionFirstStrictPrismBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement := by
+  intro m q e 𝒩 ℳ hq he h𝒩 hℳ hsub h𝒩card hℳcard hsilent hprof hstrict hsize
+  have hsilentInterface :
+      ∀ r, (r < m ∨ m + 2 ≤ r) →
+        #((((𝒩 \ ℳ) ∪ positiveBoundary ℳ) # r)) = 0 := by
+    intro r hout
+    rcases hout with hr | hr
+    · have hrq : r ∈ Finset.range q := by
+        rw [hq]
+        exact Finset.mem_range.mpr hr
+      have hsliceEq :
+          #((positiveBoundary (twoSheetFamily ℳ 𝒩)) # (r + 1)) =
+            #(((positiveBoundary 𝒩) # (r + 1))) :=
+        hprof r hrq
+      have hsum :
+          #((positiveBoundary (twoSheetFamily ℳ 𝒩)) # (r + 1)) =
+            #(((positiveBoundary 𝒩) # (r + 1))) +
+              #((((𝒩 \ ℳ) ∪ positiveBoundary ℳ) # r)) :=
+        card_slice_succ_positiveBoundary_twoSheetFamily_eq_card_positiveBoundary_slice_succ_add_card_interface_slice
+          (ℳ := ℳ) (𝒩 := 𝒩)
+      omega
+    · have hprismZero :
+          #((positiveBoundary (twoSheetFamily ℳ 𝒩)) # (r + 1)) = 0 := by
+        exact hsilent (r + 1) (Or.inr (by omega))
+      have hsum :
+          #((positiveBoundary (twoSheetFamily ℳ 𝒩)) # (r + 1)) =
+            #(((positiveBoundary 𝒩) # (r + 1))) +
+              #((((𝒩 \ ℳ) ∪ positiveBoundary ℳ) # r)) :=
+        card_slice_succ_positiveBoundary_twoSheetFamily_eq_card_positiveBoundary_slice_succ_add_card_interface_slice
+          (ℳ := ℳ) (𝒩 := 𝒩)
+      omega
+  have hposInterface :
+      0 < #((((𝒩 \ ℳ) ∪ positiveBoundary ℳ) # q)) := by
+    have hsum :
+        #((positiveBoundary (twoSheetFamily ℳ 𝒩)) # (q + 1)) =
+          #(((positiveBoundary 𝒩) # (q + 1))) +
+            #((((𝒩 \ ℳ) ∪ positiveBoundary ℳ) # q)) :=
+      card_slice_succ_positiveBoundary_twoSheetFamily_eq_card_positiveBoundary_slice_succ_add_card_interface_slice
+        (ℳ := ℳ) (𝒩 := 𝒩)
+    omega
+  exact hLower hq he h𝒩 hℳ hsub h𝒩card hℳcard hsilentInterface hposInterface hsize
+
+theorem
+    oddSectionFirstStrictPrismBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_firstPositiveInterfaceSliceAtUpperEvenWitnessSupportWithOutsideSupportSilent
+    (hUpper :
+      OddSectionFirstPositiveInterfaceSliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement) :
+    OddSectionFirstStrictPrismBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement := by
+  intro m q e 𝒩 ℳ hq he h𝒩 hℳ hsub h𝒩card hℳcard hsilent hprof hstrict hsize
+  have hsilentInterface :
+      ∀ r, (r ≤ m ∨ m + 2 ≤ r) →
+        #((((𝒩 \ ℳ) ∪ positiveBoundary ℳ) # r)) = 0 := by
+    intro r hout
+    rcases hout with hr | hr
+    · have hrq : r ∈ Finset.range q := by
+        rw [hq]
+        exact Finset.mem_range.mpr (by omega)
+      have hsliceEq :
+          #((positiveBoundary (twoSheetFamily ℳ 𝒩)) # (r + 1)) =
+            #(((positiveBoundary 𝒩) # (r + 1))) :=
+        hprof r hrq
+      have hsum :
+          #((positiveBoundary (twoSheetFamily ℳ 𝒩)) # (r + 1)) =
+            #(((positiveBoundary 𝒩) # (r + 1))) +
+              #((((𝒩 \ ℳ) ∪ positiveBoundary ℳ) # r)) :=
+        card_slice_succ_positiveBoundary_twoSheetFamily_eq_card_positiveBoundary_slice_succ_add_card_interface_slice
+          (ℳ := ℳ) (𝒩 := 𝒩)
+      omega
+    · have hprismZero :
+          #((positiveBoundary (twoSheetFamily ℳ 𝒩)) # (r + 1)) = 0 := by
+        exact hsilent (r + 1) (Or.inr (by omega))
+      have hsum :
+          #((positiveBoundary (twoSheetFamily ℳ 𝒩)) # (r + 1)) =
+            #(((positiveBoundary 𝒩) # (r + 1))) +
+              #((((𝒩 \ ℳ) ∪ positiveBoundary ℳ) # r)) :=
+        card_slice_succ_positiveBoundary_twoSheetFamily_eq_card_positiveBoundary_slice_succ_add_card_interface_slice
+          (ℳ := ℳ) (𝒩 := 𝒩)
+      omega
+  have hposInterface :
+      0 < #((((𝒩 \ ℳ) ∪ positiveBoundary ℳ) # q)) := by
+    have hsum :
+        #((positiveBoundary (twoSheetFamily ℳ 𝒩)) # (q + 1)) =
+          #(((positiveBoundary 𝒩) # (q + 1))) +
+            #((((𝒩 \ ℳ) ∪ positiveBoundary ℳ) # q)) :=
+      card_slice_succ_positiveBoundary_twoSheetFamily_eq_card_positiveBoundary_slice_succ_add_card_interface_slice
+        (ℳ := ℳ) (𝒩 := 𝒩)
+    omega
+  exact hUpper hq he h𝒩 hℳ hsub h𝒩card hℳcard hsilentInterface hposInterface hsize
+
+theorem
     oddSectionFirstStrictPrismBoundarySliceAtLowerEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_positivePrismBoundarySliceOutsideEvenWitnessSupport_of_outsideSupportSilent
     (hOutside :
       OddSectionPositivePrismBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
@@ -8342,6 +8434,23 @@ theorem
     have hpos : 0 < #((positiveBoundary (twoSheetFamily ℳ 𝒩)) # (q + 1)) :=
       lt_of_le_of_lt (Nat.zero_le _) hstrict
     exact hOutside (r := q + 1) (Or.inr (by omega)) he h𝒩 hℳ hsub h𝒩card hℳcard hpos hsize
+
+theorem
+    oddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundary_of_positivePrismBoundarySliceOutsideEvenWitnessSupport_of_firstPositiveInterfaceSliceAtLowerEvenWitnessSupportWithOutsideSupportSilent_of_firstPositiveInterfaceSliceAtUpperEvenWitnessSupportWithOutsideSupportSilent
+    (hOutside :
+      OddSectionPositivePrismBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
+    (hLower :
+      OddSectionFirstPositiveInterfaceSliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
+    (hUpper :
+      OddSectionFirstPositiveInterfaceSliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement) :
+    OddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundaryStatement := by
+  exact
+    oddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundary_of_positivePrismBoundarySliceOutsideEvenWitnessSupport_of_middleSupportOutsideSilent
+      hOutside
+      (oddSectionFirstStrictPrismBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_firstPositiveInterfaceSliceAtLowerEvenWitnessSupportWithOutsideSupportSilent
+        hLower)
+      (oddSectionFirstStrictPrismBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_firstPositiveInterfaceSliceAtUpperEvenWitnessSupportWithOutsideSupportSilent
+        hUpper)
 
 theorem
     oddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundary_of_positivePrismBoundarySliceOutsideEvenWitnessSupport
