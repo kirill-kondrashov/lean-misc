@@ -3347,6 +3347,23 @@ def OddHalfCubeMiddleTransitionWindowFirstPositiveOutsideSliceImpossibleStatemen
         0 < #((((Finset.univ.powerset) \ 𝒟) # (r + 1))) →
         False
 
+/-- Further localization of the live odd-side contradiction route: after the endpoint-collapse
+lemmas, it is enough to rule out a first positive outside slice only for genuine wide middle
+windows `t < m+1 < u`. -/
+def OddHalfCubeWideMiddleTransitionWindowFirstPositiveOutsideSliceImpossibleStatement : Prop :=
+  ∀ {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 1)))} {t u : ℕ},
+      IsOddHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟 →
+      t < m + 1 →
+      m + 1 < u →
+      (∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 1) r) →
+      (∀ ⦃r : ℕ⦄, u ≤ r → r ≤ 2 * m + 1 → #(𝒟 # r) = 0) →
+      (∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+        #(𝒟 # r) ≠ Nat.choose (2 * m + 1) r ∧ #(𝒟 # r) ≠ 0) →
+      ∀ {r : ℕ}, r < m →
+        (∀ s ∈ Finset.range (r + 1), #((((Finset.univ.powerset) \ 𝒟) # s)) = 0) →
+        0 < #((((Finset.univ.powerset) \ 𝒟) # (r + 1))) →
+        False
+
 /-- Closest local-LYM/weighted-drop formulation of the live odd frontier: on a genuine odd
 half-cube global minimizer, a first positive outside slice below the middle should already force
 the weighted-drop functional strictly above the middle binomial coefficient. Since weightedDrop is
@@ -5477,6 +5494,52 @@ theorem oddHalfCubeBoundaryLower_of_middleTransitionWindowFirstPositiveOutsideSl
     oddHalfCubeBoundaryLower_of_oddHalfCubeUpperShadowGapLower
       (oddHalfCubeUpperShadowGapLower_of_middleTransitionWindowFirstPositiveOutsideSliceImpossible
         hImpossible)
+
+theorem oddHalfCubeMiddleTransitionWindowFirstPositiveOutsideSliceImpossible_of_wideMiddleTransitionWindowFirstPositiveOutsideSliceImpossible
+    (hWide :
+      OddHalfCubeWideMiddleTransitionWindowFirstPositiveOutsideSliceImpossibleStatement) :
+    OddHalfCubeMiddleTransitionWindowFirstPositiveOutsideSliceImpossibleStatement := by
+  intro m 𝒟 t u hmin htmid humid hu hfull hzero hmid r hrm houtZero houtPos
+  by_cases htEq : t = m + 1
+  · have hEq : 𝒟 = oddLowerHalfFamily m :=
+      eq_oddLowerHalfFamily_of_middleTransitionWindow_of_t_eq_middle
+        hmin htmid humid hu hfull hzero hmid htEq
+    have hsliceCard :
+        #(𝒟 # (r + 1)) = Nat.choose (2 * m + 1) (r + 1) := by
+      simpa [hEq] using
+        (oddLowerHalfFamily_has_exact_slice_profile m).1 (r + 1)
+          (Finset.mem_range.mpr (Nat.succ_lt_succ hrm))
+    have hOutside :
+        #((((Finset.univ.powerset) \ 𝒟) # (r + 1))) =
+          Nat.choose (2 * m + 1) (r + 1) - #(𝒟 # (r + 1)) := by
+      simpa using card_outside_slice_eq_choose_sub_card_slice (𝒟 := 𝒟) (r + 1)
+    omega
+  · by_cases huEq : u = m + 1
+    · have hEq : 𝒟 = oddLowerHalfFamily m :=
+        eq_oddLowerHalfFamily_of_middleTransitionWindow_of_u_eq_middle
+          hmin htmid humid hu hfull hzero hmid huEq
+      have hsliceCard :
+          #(𝒟 # (r + 1)) = Nat.choose (2 * m + 1) (r + 1) := by
+        simpa [hEq] using
+          (oddLowerHalfFamily_has_exact_slice_profile m).1 (r + 1)
+            (Finset.mem_range.mpr (Nat.succ_lt_succ hrm))
+      have hOutside :
+          #((((Finset.univ.powerset) \ 𝒟) # (r + 1))) =
+            Nat.choose (2 * m + 1) (r + 1) - #(𝒟 # (r + 1)) := by
+        simpa using card_outside_slice_eq_choose_sub_card_slice (𝒟 := 𝒟) (r + 1)
+      omega
+    · have htlt : t < m + 1 := lt_of_le_of_ne htmid htEq
+      have hltu : m + 1 < u := lt_of_le_of_ne humid (by simpa [eq_comm] using huEq)
+      exact hWide hmin htlt hltu hfull hzero hmid hrm houtZero houtPos
+
+theorem oddHalfCubeBoundaryLower_of_wideMiddleTransitionWindowFirstPositiveOutsideSliceImpossible
+    (hWide :
+      OddHalfCubeWideMiddleTransitionWindowFirstPositiveOutsideSliceImpossibleStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_middleTransitionWindowFirstPositiveOutsideSliceImpossible
+      (oddHalfCubeMiddleTransitionWindowFirstPositiveOutsideSliceImpossible_of_wideMiddleTransitionWindowFirstPositiveOutsideSliceImpossible
+        hWide)
 
 theorem oddHalfCubeBoundaryGlobalMinimizerFirstPositiveOutsideSliceImpossible_of_globalMinimizerFirstPositiveOutsideSliceForcesStrictWeightedDrop
     (hDrop :
