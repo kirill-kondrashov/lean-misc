@@ -8577,16 +8577,52 @@ theorem
         hOutside hGap hBoundaryLower hBoundaryUpper)
 
 theorem
-    oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_prismTheoremCurrentLeafFrontier
+    oddSectionFirstPositiveInterfaceSliceLargerPrismThanEvenWitnessForcesStrictBoundary_of_prismTheoremCurrentLeafFrontier
     (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
-    OddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement := by
+    OddSectionFirstPositiveInterfaceSliceLargerPrismThanEvenWitnessForcesStrictBoundaryStatement := by
   rcases hFrontier with
     ⟨_hUpperOutside, hInterfaceOutside, hGap, hBoundaryLower, hBoundaryUpper, _hOddSize⟩
   exact
-    oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_positiveInterfaceSliceOutsideEvenWitnessSupport_of_firstPositiveGapSlice_of_positiveUpperSheetBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilent_of_positiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilent
+    oddSectionFirstPositiveInterfaceSliceLargerPrismThanEvenWitnessForcesStrictBoundary_of_positiveInterfaceSliceOutsideEvenWitnessSupport_of_firstPositiveGapSlice_of_positiveUpperSheetBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilent_of_positiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilent
       (oddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundary_of_strictExcess
         hInterfaceOutside)
       hGap hBoundaryLower hBoundaryUpper
+
+theorem
+    oddSectionFirstPositiveGapSliceLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_prismTheoremCurrentLeafFrontier
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    OddSectionFirstPositiveGapSliceLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement := by
+  exact
+    oddSectionFirstPositiveGapSliceLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_largerPrism
+      (oddSectionFirstPositiveGapSliceLargerPrismThanEvenWitnessForcesStrictBoundary_of_firstPositiveInterfaceSlice
+        (oddSectionFirstPositiveInterfaceSliceLargerPrismThanEvenWitnessForcesStrictBoundary_of_prismTheoremCurrentLeafFrontier
+          hFrontier))
+
+theorem
+    oddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_prismTheoremCurrentLeafFrontier
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    OddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement := by
+  exact
+    oddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_firstPositiveGapSlice
+      (oddSectionFirstPositiveGapSliceLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_prismTheoremCurrentLeafFrontier
+        hFrontier)
+
+theorem
+    oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_prismTheoremCurrentLeafFrontier
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    OddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement := by
+  exact
+    oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_firstSeparation
+      (oddSectionFirstSeparationLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_prismTheoremCurrentLeafFrontier
+        hFrontier)
+
+theorem
+    oddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_prismTheoremCurrentLeafFrontier
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement := by
+  rcases hFrontier with
+    ⟨_hUpperOutside, _hInterfaceOutside, _hGap, _hBoundaryLower, _hBoundaryUpper, hOddSize⟩
+  exact hOddSize
 
 theorem
     oddSectionFirstStrictPrismBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_firstPositiveInterfaceSliceAtLowerEvenWitnessSupportWithOutsideSupportSilent
@@ -9068,8 +9104,8 @@ theorem
     (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
     EvenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundaryStatement := by
   exact
-    evenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary
-      (oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_prismTheoremCurrentLeafFrontier
+    evenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddSectionFirstPositiveInterfaceSliceLargerPrismThanEvenWitnessForcesStrictBoundary
+      (oddSectionFirstPositiveInterfaceSliceLargerPrismThanEvenWitnessForcesStrictBoundary_of_prismTheoremCurrentLeafFrontier
         hFrontier)
 
 theorem
@@ -9563,15 +9599,13 @@ theorem
     {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
     (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟) :
     totalSize 𝒟 ≤ totalSize (evenLowerHalfFamily m) := by
-  have hPairSize :
-      OddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement :=
-    oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_prismTheoremCurrentLeafFrontier
-      hFrontier
-  rcases hFrontier with
-    ⟨_hUpperOutside, _hInterfaceOutside, _hGap, _hBoundaryLower, _hBoundaryUpper, hOddSize⟩
   exact
-    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
-      hPairSize hOddSize hmin
+    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_oddSectionFirstPositiveInterfaceSliceLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      (oddSectionFirstPositiveInterfaceSliceLargerPrismThanEvenWitnessForcesStrictBoundary_of_prismTheoremCurrentLeafFrontier
+        hFrontier)
+      (oddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_prismTheoremCurrentLeafFrontier
+        hFrontier)
+      hmin
 
 theorem
     t_eq_middle_of_middleTransitionWindow_of_zeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
@@ -10020,15 +10054,13 @@ theorem
     (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
       #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0) :
     t = m + 1 := by
-  have hPairSize :
-      OddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundaryStatement :=
-    oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_prismTheoremCurrentLeafFrontier
-      hFrontier
-  rcases hFrontier with
-    ⟨_hUpperOutside, _hInterfaceOutside, _hGap, _hBoundaryLower, _hBoundaryUpper, hOddSize⟩
   exact
-    t_eq_middle_of_middleTransitionWindow_of_oddSectionPositiveExcessLargerTotalSizeThanEvenWitnessForcesStrictPairInterfaceBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
-      hPairSize hOddSize hmin htmid humid hmid
+    t_eq_middle_of_middleTransitionWindow_of_oddSectionFirstPositiveInterfaceSliceLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      (oddSectionFirstPositiveInterfaceSliceLargerPrismThanEvenWitnessForcesStrictBoundary_of_prismTheoremCurrentLeafFrontier
+        hFrontier)
+      (oddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_prismTheoremCurrentLeafFrontier
+        hFrontier)
+      hmin htmid humid hmid
 
 theorem
     eq_evenLowerHalfFamily_of_middleTransitionWindow_of_zeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_balancedZeroSections
