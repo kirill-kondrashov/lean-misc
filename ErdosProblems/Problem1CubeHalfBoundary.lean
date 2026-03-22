@@ -798,6 +798,37 @@ def OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement : Prop :=
         2 * Nat.choose (2 * m + 1) m ≤
           #(positiveBoundary 𝒩) + #((𝒩 \ ℳ) ∪ positiveBoundary ℳ)
 
+/-- Localized positive-excess pair-interface boundary lower statement: it is enough to understand
+the first rank where the two odd sheets genuinely separate. Before that rank the sheets agree
+slice-by-slice, and at that rank the upper sheet has strictly fewer sets than the lower one. -/
+def OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement : Prop :=
+  ∀ {m q e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
+      0 < e →
+      IsDownSetFamily 𝒩 →
+      IsDownSetFamily ℳ →
+      ℳ ⊆ 𝒩 →
+      𝒩.card = 2 ^ (2 * m) + e →
+      ℳ.card = 2 ^ (2 * m) - e →
+      (∀ ⦃r : ℕ⦄, r < q → #(ℳ # r) = #(𝒩 # r)) →
+      #(ℳ # q) < #(𝒩 # q) →
+      2 * Nat.choose (2 * m + 1) m ≤
+        #(positiveBoundary 𝒩) + #((𝒩 \ ℳ) ∪ positiveBoundary ℳ)
+
+/-- Further-localized positive-excess pair-interface boundary lower statement: it is enough to
+understand the first positive slice of the gap family `𝒩 \ ℳ`. -/
+def OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement : Prop :=
+  ∀ {m q e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
+      0 < e →
+      IsDownSetFamily 𝒩 →
+      IsDownSetFamily ℳ →
+      ℳ ⊆ 𝒩 →
+      𝒩.card = 2 ^ (2 * m) + e →
+      ℳ.card = 2 ^ (2 * m) - e →
+      (∀ s ∈ Finset.range q, #(((𝒩 \ ℳ) # s)) = 0) →
+      0 < #(((𝒩 \ ℳ) # q)) →
+      2 * Nat.choose (2 * m + 1) m ≤
+        #(positiveBoundary 𝒩) + #((𝒩 \ ℳ) ∪ positiveBoundary ℳ)
+
 theorem oddSectionPositiveExcessPairInterfaceBoundaryLower_of_section_pairInterfaceBoundaryLower
     (hPair : OddSectionPairInterfaceBoundaryLowerStatement) :
     OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement := by
@@ -1038,6 +1069,109 @@ theorem card_slice_sdiff_eq_card_slice_sub_card_slice_of_subset {n r : ℕ}
   rw [slice_sdiff_eq_sdiff_slice, Finset.card_sdiff_of_subset]
   intro s hs
   exact Finset.mem_slice.mpr ⟨hsub (Finset.mem_slice.mp hs).1, (Finset.mem_slice.mp hs).2⟩
+
+theorem oddSectionFirstSeparationPairInterfaceBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
+    (hPair : OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement) :
+    OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement := by
+  intro m q e 𝒩 ℳ he h𝒩 hℳ hsub h𝒩card hℳcard _hbefore _hqStrict
+  exact hPair he h𝒩 hℳ hsub h𝒩card hℳcard
+
+theorem oddSectionPositiveExcessPairInterfaceBoundaryLower_of_firstSeparationPairInterfaceBoundaryLower
+    (hFirst : OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement) :
+    OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement := by
+  intro m e 𝒩 ℳ he h𝒩 hℳ hsub h𝒩card hℳcard
+  have hsum𝒩 :
+      Finset.sum (Finset.range (2 * m + 2)) (fun r => #(𝒩 # r)) = 𝒩.card := by
+    simpa [Nat.range_succ_eq_Iic, Fintype.card_fin] using (Finset.sum_card_slice 𝒩)
+  have hsumℳ :
+      Finset.sum (Finset.range (2 * m + 2)) (fun r => #(ℳ # r)) = ℳ.card := by
+    simpa [Nat.range_succ_eq_Iic, Fintype.card_fin] using (Finset.sum_card_slice ℳ)
+  have hsep :
+      ∃ q, q ∈ Finset.range (2 * m + 2) ∧ #(ℳ # q) < #(𝒩 # q) := by
+    by_contra hno
+    have hslices :
+        ∀ q ∈ Finset.range (2 * m + 2), #(ℳ # q) = #(𝒩 # q) := by
+      intro q hq
+      have hle : #(ℳ # q) ≤ #(𝒩 # q) :=
+        card_slice_le_card_slice_of_subset hsub
+      have hnotlt : ¬ #(ℳ # q) < #(𝒩 # q) := by
+        intro hlt
+        exact hno ⟨q, hq, hlt⟩
+      exact Nat.le_antisymm hle (Nat.not_lt.mp hnotlt)
+    have hcardEq : ℳ.card = 𝒩.card := by
+      calc
+        ℳ.card = Finset.sum (Finset.range (2 * m + 2)) (fun r => #(ℳ # r)) := by
+          symm
+          exact hsumℳ
+        _ = Finset.sum (Finset.range (2 * m + 2)) (fun r => #(𝒩 # r)) := by
+          refine Finset.sum_congr rfl ?_
+          intro r hr
+          exact hslices r hr
+        _ = 𝒩.card := hsum𝒩
+    have hcardNe : ℳ.card ≠ 𝒩.card := by
+      intro hEq
+      rw [hℳcard, h𝒩card] at hEq
+      have hlt :
+          2 ^ (2 * m) - e < 2 ^ (2 * m) + e := by
+        calc
+          2 ^ (2 * m) - e < 2 ^ (2 * m) := by
+            exact Nat.sub_lt (pow_pos (by decide : 0 < 2) (2 * m)) he
+          _ < 2 ^ (2 * m) + e := Nat.lt_add_of_pos_right he
+      exact (ne_of_lt hlt) hEq
+    exact (hcardNe hcardEq).elim
+  let q : ℕ := Nat.find hsep
+  have hqRange : q ∈ Finset.range (2 * m + 2) := (Nat.find_spec hsep).1
+  have hqStrict : #(ℳ # q) < #(𝒩 # q) := (Nat.find_spec hsep).2
+  have hbefore : ∀ ⦃r : ℕ⦄, r < q → #(ℳ # r) = #(𝒩 # r) := by
+    intro r hr
+    have hrRange : r ∈ Finset.range (2 * m + 2) := by
+      exact Finset.mem_range.mpr (lt_trans hr (Finset.mem_range.mp hqRange))
+    have hle : #(ℳ # r) ≤ #(𝒩 # r) :=
+      card_slice_le_card_slice_of_subset hsub
+    have hnotlt : ¬ #(ℳ # r) < #(𝒩 # r) := by
+      intro hlt
+      have hqle : q ≤ r := Nat.find_min' hsep ⟨hrRange, hlt⟩
+      exact (Nat.not_le_of_gt hr) hqle
+    exact Nat.le_antisymm hle (Nat.not_lt.mp hnotlt)
+  exact hFirst he h𝒩 hℳ hsub h𝒩card hℳcard hbefore hqStrict
+
+theorem oddSectionPositiveExcessPairInterfaceBoundaryLower_iff_firstSeparationPairInterfaceBoundaryLower :
+    OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement ↔
+      OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement := by
+  constructor
+  · exact oddSectionFirstSeparationPairInterfaceBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
+  · exact oddSectionPositiveExcessPairInterfaceBoundaryLower_of_firstSeparationPairInterfaceBoundaryLower
+
+theorem oddSectionFirstPositiveGapSlicePairInterfaceBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
+    (hPair : OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement) :
+    OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement := by
+  intro m q e 𝒩 ℳ he h𝒩 hℳ hsub h𝒩card hℳcard _hzero _hpos
+  exact hPair he h𝒩 hℳ hsub h𝒩card hℳcard
+
+theorem oddSectionFirstSeparationPairInterfaceBoundaryLower_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+    (hGap : OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement) :
+    OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement := by
+  intro m q e 𝒩 ℳ he h𝒩 hℳ hsub h𝒩card hℳcard hbefore hqStrict
+  have hzero :
+      ∀ s ∈ Finset.range q, #(((𝒩 \ ℳ) # s)) = 0 := by
+    intro s hs
+    have hsEq : #(ℳ # s) = #(𝒩 # s) := hbefore (Finset.mem_range.mp hs)
+    rw [card_slice_sdiff_eq_card_slice_sub_card_slice_of_subset hsub, hsEq, Nat.sub_self]
+  have hpos : 0 < #(((𝒩 \ ℳ) # q)) := by
+    rw [card_slice_sdiff_eq_card_slice_sub_card_slice_of_subset hsub]
+    exact Nat.sub_pos_of_lt hqStrict
+  exact hGap he h𝒩 hℳ hsub h𝒩card hℳcard hzero hpos
+
+theorem oddSectionPositiveExcessPairInterfaceBoundaryLower_iff_firstPositiveGapSlicePairInterfaceBoundaryLower :
+    OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement ↔
+      OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement := by
+  constructor
+  · exact oddSectionFirstPositiveGapSlicePairInterfaceBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
+  · intro hGap
+    exact
+      oddSectionPositiveExcessPairInterfaceBoundaryLower_of_firstSeparationPairInterfaceBoundaryLower
+        (oddSectionFirstSeparationPairInterfaceBoundaryLower_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+          hGap)
 
 /-- Total size is the weighted sum of the slice cardinalities. -/
 theorem totalSize_eq_sum_range_mul_card_slice (𝒟 : Finset (Finset α)) :
@@ -11912,6 +12046,63 @@ theorem
   exact
     prismHalfCubeBoundaryLowerStatement_iff_halfCubeBoundaryLower.trans
       (oddSectionPositiveExcessPairInterfaceBoundaryLower_iff_halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier
+        hFrontier).symm
+
+theorem
+    oddSectionFirstSeparationPairInterfaceBoundaryLower_iff_halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement ↔ HalfCubeBoundaryLowerStatement := by
+  exact
+    oddSectionPositiveExcessPairInterfaceBoundaryLower_iff_firstSeparationPairInterfaceBoundaryLower.symm.trans
+      (oddSectionPositiveExcessPairInterfaceBoundaryLower_iff_halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier
+        hFrontier)
+
+theorem
+    oddSectionFirstPositiveGapSlicePairInterfaceBoundaryLower_iff_halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement ↔
+      HalfCubeBoundaryLowerStatement := by
+  exact
+    oddSectionPositiveExcessPairInterfaceBoundaryLower_iff_firstPositiveGapSlicePairInterfaceBoundaryLower.symm.trans
+      (oddSectionPositiveExcessPairInterfaceBoundaryLower_iff_halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier
+        hFrontier)
+
+theorem
+    twoSheetBoundaryTheorem_iff_firstSeparationPairInterfaceBoundaryLower_of_prismTheoremCurrentLeafFrontier
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    TwoSheetBoundaryTheorem ↔ OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement := by
+  exact
+    twoSheetBoundaryTheorem_iff_halfCubeBoundaryLower.trans
+      (oddSectionFirstSeparationPairInterfaceBoundaryLower_iff_halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier
+        hFrontier).symm
+
+theorem
+    twoSheetBoundaryTheorem_iff_firstPositiveGapSlicePairInterfaceBoundaryLower_of_prismTheoremCurrentLeafFrontier
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    TwoSheetBoundaryTheorem ↔ OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement := by
+  exact
+    twoSheetBoundaryTheorem_iff_halfCubeBoundaryLower.trans
+      (oddSectionFirstPositiveGapSlicePairInterfaceBoundaryLower_iff_halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier
+        hFrontier).symm
+
+theorem
+    prismHalfCubeBoundaryLowerStatement_iff_firstSeparationPairInterfaceBoundaryLower_of_prismTheoremCurrentLeafFrontier
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    PrismHalfCubeBoundaryLowerStatement ↔
+      OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement := by
+  exact
+    prismHalfCubeBoundaryLowerStatement_iff_halfCubeBoundaryLower.trans
+      (oddSectionFirstSeparationPairInterfaceBoundaryLower_iff_halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier
+        hFrontier).symm
+
+theorem
+    prismHalfCubeBoundaryLowerStatement_iff_firstPositiveGapSlicePairInterfaceBoundaryLower_of_prismTheoremCurrentLeafFrontier
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    PrismHalfCubeBoundaryLowerStatement ↔
+      OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement := by
+  exact
+    prismHalfCubeBoundaryLowerStatement_iff_halfCubeBoundaryLower.trans
+      (oddSectionFirstPositiveGapSlicePairInterfaceBoundaryLower_iff_halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier
         hFrontier).symm
 
 theorem subcubeHalfCubeBoundaryLower_of_halfCubeBoundaryLower
