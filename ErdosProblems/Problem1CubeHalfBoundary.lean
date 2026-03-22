@@ -10457,12 +10457,13 @@ theorem
       #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0)
     (hbal : #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m)) :
     𝒟 = evenLowerHalfFamily m := by
-  rcases hFrontier with
-    ⟨hUpperOutside, hInterfaceOutside, hGap, hBoundaryLower, hBoundaryUpper, hOddSize⟩
+  have htEq :
+      t = m + 1 :=
+    t_eq_middle_of_middleTransitionWindow_of_prismTheoremCurrentLeafFrontier
+      hFrontier hmin htmid humid hmid
   exact
-    eq_evenLowerHalfFamily_of_middleTransitionWindow_of_oddSectionPositiveUpperBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcess_of_oddSectionPositiveInterfaceSliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictExcess_of_oddSectionFirstPositiveGapSliceLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionPositiveUpperSheetBoundarySliceAtLowerEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddSectionPositiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_balancedZeroSections
-      hUpperOutside hInterfaceOutside hGap hBoundaryLower hBoundaryUpper hOddSize
-      hmin htmid humid hfull hmid hbal
+    eq_evenLowerHalfFamily_of_middleTransitionWindow_of_t_eq_middle_of_balancedZeroSections
+      hmin hfull htEq hbal
 
 /-- Topological/two-sheet formulation of the current odd-dimensional frontier.
 
