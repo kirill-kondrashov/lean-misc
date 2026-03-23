@@ -21,6 +21,7 @@ Completed program layers:
 - balanced-zero-section witness-collapse machinery
 - current leaf frontier bundled into `PrismTheoremCurrentLeafFrontierStatement`
 - direct prism-boundary-side extraction from the current leaf frontier to the first strict prism slice
+- combined prism-boundary-side strict-excess packaging for the exterior-support leaves
 
 Open leaf obligations:
 
@@ -43,3 +44,7 @@ Latest step:
 The current leaf bundle now also feeds the prism-boundary-side middle-window chain directly. This
 does not remove any of the six open leaves yet, but it shortens the route from those leaves to the
 final even-minimizer consequences.
+
+The exterior-support branch is now packaged one layer earlier as well: the two source-specific
+strict-excess leaves combine into a single prism-boundary strict-excess statement before the
+generic even excess comparison is applied.
