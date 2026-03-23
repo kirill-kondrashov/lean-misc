@@ -1,4 +1,4 @@
-# Prism Theorem Progress - 2026-03-22
+# Prism Theorem Progress - 2026-03-23
 
 Validation gate:
 
@@ -20,6 +20,7 @@ Completed program layers:
 - even witness `totalSize` reduction machinery
 - balanced-zero-section witness-collapse machinery
 - current leaf frontier bundled into `PrismTheoremCurrentLeafFrontierStatement`
+- direct prism-boundary-side extraction from the current leaf frontier to the first strict prism slice
 
 Open leaf obligations:
 
@@ -36,3 +37,9 @@ The exact remaining prism frontier is now a single named bundle in
 `ErdosProblems/Problem1CubeHalfBoundary.lean`. The next substantive proof work is to discharge
 those six leaves, starting with the interface-side support-silent middle branch and the exterior
 strict-excess reductions.
+
+Latest step:
+
+The current leaf bundle now also feeds the prism-boundary-side middle-window chain directly. This
+does not remove any of the six open leaves yet, but it shortens the route from those leaves to the
+final even-minimizer consequences.
