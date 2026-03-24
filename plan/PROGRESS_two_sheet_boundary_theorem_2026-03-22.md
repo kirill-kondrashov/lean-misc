@@ -25,6 +25,7 @@ Completed program layers:
 - support-silent middle-window branch packaged directly to the lower/upper strict prism-boundary slices
 - downstream even-minimizer and middle-window consequences rerouted through those strict prism-boundary slices
 - current six-leaf frontier repackaged into a five-leaf strict prism-boundary bundle for the downstream consequence chain
+- strict prism-boundary bundle further collapsed into a two-leaf even-consequence frontier
 
 Open leaf obligations:
 
@@ -44,9 +45,7 @@ strict-excess reductions.
 
 Latest step:
 
-The exterior-support upper-boundary/interface strict-excess pair is now bundled into a direct
-five-leaf strict prism-boundary frontier
-`PrismTheoremStrictPrismBoundaryLeafFrontierStatement`, and the above-upper, zero-section excess,
-total-size, middle-transition, balanced-zero-section collapse, and odd half-cube boundary
-consequences now route through that smaller bundle. The underlying six source leaves are
-unchanged, so the progress bar stays conservative at `8/10`.
+The remaining even-side minimizer and witness-collapse chain is now routed through a direct
+two-leaf frontier `PrismTheoremEvenConsequenceFrontierStatement`, bundling just the above-upper
+strict prism-boundary consequence with the odd-size upper-shadow-gap consequence. The underlying
+six source leaves are unchanged, so the progress bar stays conservative at `8/10`.

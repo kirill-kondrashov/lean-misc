@@ -7891,6 +7891,12 @@ def PrismTheoremStrictPrismBoundaryLeafFrontierStatement : Prop :=
     OddSectionPositiveUpperSheetBoundarySliceAtUpperEvenWitnessSupportWithOutsideSupportSilentLargerPrismThanEvenWitnessForcesStrictBoundaryStatement ∧
     OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement
 
+/-- Exact odd consequences needed to run the remaining even-side minimizer and witness-collapse
+chain once the exterior and middle-support leaves have been packaged. -/
+def PrismTheoremEvenConsequenceFrontierStatement : Prop :=
+  OddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundaryStatement ∧
+    OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement
+
 /-- Balanced `0`-sections force an even global minimizer to be a diagonal prism
 `twoSheetFamily 𝒜 𝒜`, where the common odd section `𝒜` is itself an odd global minimizer. This
 packages the remaining even-cube obstruction as an odd-cube extremizer problem on one shared
@@ -9224,6 +9230,35 @@ theorem
         hFrontier)
 
 theorem
+    oddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundary_of_prismTheoremEvenConsequenceFrontier
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement) :
+    OddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundaryStatement := by
+  exact hFrontier.1
+
+theorem
+    oddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_prismTheoremEvenConsequenceFrontier
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement) :
+    OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement := by
+  exact hFrontier.2
+
+theorem prismTheoremEvenConsequenceFrontier_of_prismTheoremStrictPrismBoundaryLeafFrontier
+    (hFrontier : PrismTheoremStrictPrismBoundaryLeafFrontierStatement) :
+    PrismTheoremEvenConsequenceFrontierStatement := by
+  exact
+    ⟨oddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundary_of_prismTheoremStrictPrismBoundaryLeafFrontier
+        hFrontier,
+      oddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_prismTheoremStrictPrismBoundaryLeafFrontier
+        hFrontier⟩
+
+theorem prismTheoremEvenConsequenceFrontier_of_prismTheoremCurrentLeafFrontier
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    PrismTheoremEvenConsequenceFrontierStatement := by
+  exact
+    prismTheoremEvenConsequenceFrontier_of_prismTheoremStrictPrismBoundaryLeafFrontier
+      (prismTheoremStrictPrismBoundaryLeafFrontier_of_prismTheoremCurrentLeafFrontier
+        hFrontier)
+
+theorem
     oddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundary_of_positivePrismBoundarySliceOutsideEvenWitnessSupport
     (hOutside :
       OddSectionPositivePrismBoundarySliceOutsideEvenWitnessSupportLargerPrismThanEvenWitnessForcesStrictBoundaryStatement)
@@ -9478,12 +9513,21 @@ theorem
       hGap hBoundaryLower hBoundaryUpper
 
 theorem
+    evenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_prismTheoremEvenConsequenceFrontier
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement) :
+    EvenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundaryStatement := by
+  exact
+    evenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundary
+      (oddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundary_of_prismTheoremEvenConsequenceFrontier
+        hFrontier)
+
+theorem
     evenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_prismTheoremStrictPrismBoundaryLeafFrontier
     (hFrontier : PrismTheoremStrictPrismBoundaryLeafFrontierStatement) :
     EvenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundaryStatement := by
   exact
-    evenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_oddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundary
-      (oddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundary_of_prismTheoremStrictPrismBoundaryLeafFrontier
+    evenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_prismTheoremEvenConsequenceFrontier
+      (prismTheoremEvenConsequenceFrontier_of_prismTheoremStrictPrismBoundaryLeafFrontier
         hFrontier)
 
 theorem
@@ -9491,8 +9535,8 @@ theorem
     (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
     EvenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundaryStatement := by
   exact
-    evenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_prismTheoremStrictPrismBoundaryLeafFrontier
-      (prismTheoremStrictPrismBoundaryLeafFrontier_of_prismTheoremCurrentLeafFrontier
+    evenHalfCubeGlobalMinimizerZeroSectionExcessLargerTotalSizeThanWitnessForcesStrictBoundary_of_prismTheoremEvenConsequenceFrontier
+      (prismTheoremEvenConsequenceFrontier_of_prismTheoremCurrentLeafFrontier
         hFrontier)
 
 theorem
@@ -9964,16 +10008,28 @@ theorem
       hGap hBoundaryLower hBoundaryUpper hOddSize hmin
 
 theorem
+    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_prismTheoremEvenConsequenceFrontier
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟) :
+    totalSize 𝒟 ≤ totalSize (evenLowerHalfFamily m) := by
+  exact
+    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_oddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      (oddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundary_of_prismTheoremEvenConsequenceFrontier
+        hFrontier)
+      (oddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_prismTheoremEvenConsequenceFrontier
+        hFrontier)
+      hmin
+
+theorem
     totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_prismTheoremStrictPrismBoundaryLeafFrontier
     (hFrontier : PrismTheoremStrictPrismBoundaryLeafFrontierStatement)
     {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))}
     (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟) :
     totalSize 𝒟 ≤ totalSize (evenLowerHalfFamily m) := by
   exact
-    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_oddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
-      (oddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundary_of_prismTheoremStrictPrismBoundaryLeafFrontier
-        hFrontier)
-      (oddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_prismTheoremStrictPrismBoundaryLeafFrontier
+    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_prismTheoremEvenConsequenceFrontier
+      (prismTheoremEvenConsequenceFrontier_of_prismTheoremStrictPrismBoundaryLeafFrontier
         hFrontier)
       hmin
 
@@ -9984,8 +10040,8 @@ theorem
     (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟) :
     totalSize 𝒟 ≤ totalSize (evenLowerHalfFamily m) := by
   exact
-    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_prismTheoremStrictPrismBoundaryLeafFrontier
-      (prismTheoremStrictPrismBoundaryLeafFrontier_of_prismTheoremCurrentLeafFrontier
+    totalSize_le_evenWitness_of_isEvenHalfCubeBoundaryGlobalMinimizer_of_prismTheoremEvenConsequenceFrontier
+      (prismTheoremEvenConsequenceFrontier_of_prismTheoremCurrentLeafFrontier
         hFrontier)
       hmin
 
@@ -10411,6 +10467,23 @@ theorem
       hGap hBoundaryLower hBoundaryUpper hOddSize hmin htmid humid hmid
 
 theorem
+    t_eq_middle_of_middleTransitionWindow_of_prismTheoremEvenConsequenceFrontier
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {t u : ℕ}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (htmid : t ≤ m + 1) (humid : m + 1 < u)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0) :
+    t = m + 1 := by
+  exact
+    t_eq_middle_of_middleTransitionWindow_of_oddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      (oddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundary_of_prismTheoremEvenConsequenceFrontier
+        hFrontier)
+      (oddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_prismTheoremEvenConsequenceFrontier
+        hFrontier)
+      hmin htmid humid hmid
+
+theorem
     t_eq_middle_of_middleTransitionWindow_of_prismTheoremStrictPrismBoundaryLeafFrontier
     (hFrontier : PrismTheoremStrictPrismBoundaryLeafFrontierStatement)
     {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {t u : ℕ}
@@ -10420,10 +10493,8 @@ theorem
       #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0) :
     t = m + 1 := by
   exact
-    t_eq_middle_of_middleTransitionWindow_of_oddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundary_of_oddLargerTotalSizeThanWitnessForcesStrictUpperShadowGap
-      (oddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundary_of_prismTheoremStrictPrismBoundaryLeafFrontier
-        hFrontier)
-      (oddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_prismTheoremStrictPrismBoundaryLeafFrontier
+    t_eq_middle_of_middleTransitionWindow_of_prismTheoremEvenConsequenceFrontier
+      (prismTheoremEvenConsequenceFrontier_of_prismTheoremStrictPrismBoundaryLeafFrontier
         hFrontier)
       hmin htmid humid hmid
 
@@ -10437,8 +10508,8 @@ theorem
       #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0) :
     t = m + 1 := by
   exact
-    t_eq_middle_of_middleTransitionWindow_of_prismTheoremStrictPrismBoundaryLeafFrontier
-      (prismTheoremStrictPrismBoundaryLeafFrontier_of_prismTheoremCurrentLeafFrontier
+    t_eq_middle_of_middleTransitionWindow_of_prismTheoremEvenConsequenceFrontier
+      (prismTheoremEvenConsequenceFrontier_of_prismTheoremCurrentLeafFrontier
         hFrontier)
       hmin htmid humid hmid
 
@@ -10902,8 +10973,8 @@ theorem
       hGap hBoundaryLower hBoundaryUpper hOddSize hmin htmid humid hfull hmid hbal
 
 theorem
-    eq_evenLowerHalfFamily_of_middleTransitionWindow_of_prismTheoremStrictPrismBoundaryLeafFrontier_of_balancedZeroSections
-    (hFrontier : PrismTheoremStrictPrismBoundaryLeafFrontierStatement)
+    eq_evenLowerHalfFamily_of_middleTransitionWindow_of_prismTheoremEvenConsequenceFrontier_of_balancedZeroSections
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement)
     {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {t u : ℕ}
     (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
     (htmid : t ≤ m + 1) (humid : m + 1 < u)
@@ -10914,11 +10985,28 @@ theorem
     𝒟 = evenLowerHalfFamily m := by
   have htEq :
       t = m + 1 :=
-    t_eq_middle_of_middleTransitionWindow_of_prismTheoremStrictPrismBoundaryLeafFrontier
+    t_eq_middle_of_middleTransitionWindow_of_prismTheoremEvenConsequenceFrontier
       hFrontier hmin htmid humid hmid
   exact
     eq_evenLowerHalfFamily_of_middleTransitionWindow_of_t_eq_middle_of_balancedZeroSections
       hmin hfull htEq hbal
+
+theorem
+    eq_evenLowerHalfFamily_of_middleTransitionWindow_of_prismTheoremStrictPrismBoundaryLeafFrontier_of_balancedZeroSections
+    (hFrontier : PrismTheoremStrictPrismBoundaryLeafFrontierStatement)
+    {m : ℕ} {𝒟 : Finset (Finset (Fin (2 * m + 2)))} {t u : ℕ}
+    (hmin : IsEvenHalfCubeBoundaryGlobalMinimizer (m := m) 𝒟)
+    (htmid : t ≤ m + 1) (humid : m + 1 < u)
+    (hfull : ∀ ⦃r : ℕ⦄, r < t → #(𝒟 # r) = Nat.choose (2 * m + 2) r)
+    (hmid : ∀ ⦃r : ℕ⦄, t ≤ r → r < u →
+      #(𝒟 # r) ≠ Nat.choose (2 * m + 2) r ∧ #(𝒟 # r) ≠ 0)
+    (hbal : #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m)) :
+    𝒟 = evenLowerHalfFamily m := by
+  exact
+    eq_evenLowerHalfFamily_of_middleTransitionWindow_of_prismTheoremEvenConsequenceFrontier_of_balancedZeroSections
+      (prismTheoremEvenConsequenceFrontier_of_prismTheoremStrictPrismBoundaryLeafFrontier
+        hFrontier)
+      hmin htmid humid hfull hmid hbal
 
 theorem
     eq_evenLowerHalfFamily_of_middleTransitionWindow_of_prismTheoremCurrentLeafFrontier_of_balancedZeroSections
@@ -10932,8 +11020,8 @@ theorem
     (hbal : #(𝒟.nonMemberSubfamily 0) = 2 ^ (2 * m)) :
     𝒟 = evenLowerHalfFamily m := by
   exact
-    eq_evenLowerHalfFamily_of_middleTransitionWindow_of_prismTheoremStrictPrismBoundaryLeafFrontier_of_balancedZeroSections
-      (prismTheoremStrictPrismBoundaryLeafFrontier_of_prismTheoremCurrentLeafFrontier
+    eq_evenLowerHalfFamily_of_middleTransitionWindow_of_prismTheoremEvenConsequenceFrontier_of_balancedZeroSections
+      (prismTheoremEvenConsequenceFrontier_of_prismTheoremCurrentLeafFrontier
         hFrontier)
       hmin htmid humid hfull hmid hbal
 
@@ -11023,20 +11111,28 @@ theorem prismHalfCubeBoundaryLowerStatement_iff_twoSheetBoundaryTheorem :
   simpa [PrismHalfCubeBoundaryLowerStatement] using
     twoSheetBoundaryTheorem_iff_prismHalfCubeBoundary.symm
 
+theorem oddHalfCubeBoundaryLower_of_prismTheoremEvenConsequenceFrontier
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_largerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      (oddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_prismTheoremEvenConsequenceFrontier
+        hFrontier)
+
 theorem oddHalfCubeBoundaryLower_of_prismTheoremStrictPrismBoundaryLeafFrontier
     (hFrontier : PrismTheoremStrictPrismBoundaryLeafFrontierStatement) :
     OddHalfCubeBoundaryLowerStatement := by
   exact
-    oddHalfCubeBoundaryLower_of_largerTotalSizeThanWitnessForcesStrictUpperShadowGap
-      (oddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_prismTheoremStrictPrismBoundaryLeafFrontier
+    oddHalfCubeBoundaryLower_of_prismTheoremEvenConsequenceFrontier
+      (prismTheoremEvenConsequenceFrontier_of_prismTheoremStrictPrismBoundaryLeafFrontier
         hFrontier)
 
 theorem oddHalfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier
     (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
     OddHalfCubeBoundaryLowerStatement := by
   exact
-    oddHalfCubeBoundaryLower_of_prismTheoremStrictPrismBoundaryLeafFrontier
-      (prismTheoremStrictPrismBoundaryLeafFrontier_of_prismTheoremCurrentLeafFrontier
+    oddHalfCubeBoundaryLower_of_prismTheoremEvenConsequenceFrontier
+      (prismTheoremEvenConsequenceFrontier_of_prismTheoremCurrentLeafFrontier
         hFrontier)
 
 theorem oddHalfCubeUpperShadowGapLower_of_prismTheoremCurrentLeafFrontier
