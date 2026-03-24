@@ -8,7 +8,7 @@ Validation gate:
 
 Progress bar:
 
-`[#######---] 7/10`
+`[########--] 8/10`
 
 This is a heuristic program-progress bar for the current formal route, not a probability claim.
 
@@ -22,6 +22,7 @@ Completed program layers:
 - current leaf frontier bundled into `PrismTheoremCurrentLeafFrontierStatement`
 - direct prism-boundary-side extraction from the current leaf frontier to the first strict prism slice
 - combined prism-boundary-side strict-excess packaging for the exterior-support leaves
+- support-silent middle-window branch packaged directly to the lower/upper strict prism-boundary slices
 
 Open leaf obligations:
 
@@ -41,10 +42,7 @@ strict-excess reductions.
 
 Latest step:
 
-The current leaf bundle now also feeds the prism-boundary-side middle-window chain directly. This
-does not remove any of the six open leaves yet, but it shortens the route from those leaves to the
-final even-minimizer consequences.
-
-The exterior-support branch is now packaged one layer earlier as well: the two source-specific
-strict-excess leaves combine into a single prism-boundary strict-excess statement before the
-generic even excess comparison is applied.
+The current leaf bundle now feeds the support-silent middle-window branch one layer deeper: the
+lower and upper witness-support cases are packaged directly as strict prism-boundary slices before
+the exterior-support split is reintroduced. This still leaves the same six open leaves, but it
+removes another layer of repeated reconstruction in the route to the even-minimizer consequences.
