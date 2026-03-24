@@ -23,6 +23,7 @@ Completed program layers:
 - direct prism-boundary-side extraction from the current leaf frontier to the first strict prism slice
 - combined prism-boundary-side strict-excess packaging for the exterior-support leaves
 - support-silent middle-window branch packaged directly to the lower/upper strict prism-boundary slices
+- downstream even-minimizer and middle-window consequences rerouted through those strict prism-boundary slices
 
 Open leaf obligations:
 
@@ -42,7 +43,8 @@ strict-excess reductions.
 
 Latest step:
 
-The current leaf bundle now feeds the support-silent middle-window branch one layer deeper: the
-lower and upper witness-support cases are packaged directly as strict prism-boundary slices before
-the exterior-support split is reintroduced. This still leaves the same six open leaves, but it
-removes another layer of repeated reconstruction in the route to the even-minimizer consequences.
+The strict prism-boundary wrappers from the support-silent middle branch now feed the downstream
+even-side consequence chain directly. The zero-section excess, total-size, middle-transition, and
+balanced-zero-section collapse theorems no longer rebuild those middle witness-support cases
+through the older interface layer. The six open leaves are unchanged, so the progress bar stays
+conservative at `8/10`.
