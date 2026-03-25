@@ -318,6 +318,112 @@ The live remaining target is the Prism Theorem above. In particular, the odd hal
 no longer treated as a separate frontier assumption in the active route: it is now a formal
 consequence of the prism frontier.
 
+### Prism theorem status
+
+As of March 25, 2026, the working estimate for the current formal route is:
+
+```text
+[########--] 8/10
+```
+
+This is a program-structure estimate, not a probability claim.
+
+Mathematically, this means that the reduction and packaging layer is mostly complete: everything
+downstream of six local odd-dimensional source statements is already formalized.
+
+Write
+
+```math
+\mathcal F_r := \{A \in \mathcal F : |A| = r\}.
+```
+
+In the nested-sheet branch, the standing hypotheses are
+
+```math
+\mathcal M \subseteq \mathcal N,
+\qquad
+|\mathcal N| = 2^{2m} + e,
+\qquad
+|\mathcal M| = 2^{2m} - e,
+\qquad
+\mathrm{totalSize}(\mathrm{evenLowerHalfFamily}(m))
+<
+\mathrm{totalSize}(\mathrm{twoSheetFamily}(\mathcal M,\mathcal N)).
+```
+
+The remaining source leaves are then:
+
+1. One odd one-sheet upper-shadow-gap leaf:
+
+   ```math
+   |\mathcal D| = 2^{2m},
+   \qquad
+   \mathrm{totalSize}(\mathrm{oddLowerHalfFamily}(m)) < \mathrm{totalSize}(\mathcal D)
+   \Longrightarrow
+   \binom{2m+1}{m} < \mathrm{upperShadowGap}(\mathcal D).
+   ```
+
+2. Two exterior-support strict-excess leaves:
+
+   ```math
+   (\partial^+\mathcal N)_r \ne \varnothing
+   \quad\text{for some } r \le m \text{ or } r \ge m+3
+   \Longrightarrow
+   2\binom{2m+1}{m} < |\partial^+\mathcal N| + 2e,
+   ```
+
+   and
+
+   ```math
+   I(\mathcal M,\mathcal N)_q \ne \varnothing
+   \quad\text{for some } q < m \text{ or } q \ge m+2
+   \Longrightarrow
+   2\binom{2m+1}{m} < |\partial^+\mathcal N| + 2e.
+   ```
+
+3. One first-gap prism leaf:
+
+   ```math
+   (\mathcal N \setminus \mathcal M)_s = \varnothing \text{ for } s < q,
+   \qquad
+   (\mathcal N \setminus \mathcal M)_q \ne \varnothing
+   \Longrightarrow
+   \binom{2m+2}{m+1} < |\partial^+(\mathrm{twoSheetFamily}(\mathcal M,\mathcal N))|.
+   ```
+
+4. Two support-silent middle leaves:
+
+   ```math
+   I(\mathcal M,\mathcal N)_r = \varnothing
+   \quad\text{for all } r < m \text{ or } r \ge m+2,
+   ```
+
+   together with either
+
+   ```math
+   (\partial^+\mathcal M)_m \ne \varnothing
+   ```
+
+   or
+
+   ```math
+   (\partial^+\mathcal M)_{m+1} \ne \varnothing,
+   ```
+
+   and in either case the conclusion is
+
+   ```math
+   \binom{2m+2}{m+1} < |\partial^+(\mathrm{twoSheetFamily}(\mathcal M,\mathcal N))|.
+   ```
+
+The theorem-level boundary route has already been detached from the strict prism-boundary branch:
+it now factors through the one-leaf odd-size source bundle
+`PrismTheoremOddSizeLeafFrontierStatement`, then the one-leaf theorem consequence bundle
+`PrismTheoremBoundaryLowerFrontierStatement`.
+
+For the current detailed progress log, see
+[plan/PROGRESS_two_sheet_boundary_theorem_2026-03-22.md](./plan/PROGRESS_two_sheet_boundary_theorem_2026-03-22.md).
+
 What is now ruled out:
 
 Paired odd-section frontier: false.
@@ -402,15 +508,13 @@ Current research program:
    - the exact identity `twoSheetOuterBoundaryCard M N = #(positiveBoundary (twoSheetFamily M N))`
      is already proved.
    - the even minimizer route already reaches a middle-transition-window normal form.
-3. Focus the proof program on the actual remaining bottleneck: two local odd strict-gap frontiers.
-   The even minimizer route has now been reduced to:
-   - an odd one-sheet local stability theorem: if an odd half-cube global minimizer has a first
-     positive outside slice below the middle, then its weighted-drop / upper-shadow gap is already
-     strictly above the middle binomial threshold;
-   - an odd two-sheet local stability theorem: if nested odd sheets `M ⊆ N` with positive excess
-     produce a prism family with larger `totalSize` than the diagonal witness, then the visible
-     pair-interface boundary is already strictly above the middle threshold.
-4. Use those odd strict-gap frontiers to force
+3. Focus the proof program on the actual remaining bottleneck: the six local odd source leaves
+   listed in the Prism theorem status block above. They split into:
+   - one odd one-sheet upper-shadow-gap leaf;
+   - two exterior-support strict-excess leaves;
+   - one first-gap prism leaf;
+   - two support-silent middle leaves at ranks `m` and `m + 1`.
+4. Use those six odd source leaves to force
 
    ```math
    \mathrm{totalSize}(\mathcal D) \le \mathrm{totalSize}(\mathrm{evenLowerHalfFamily}(m)),
