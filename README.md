@@ -341,9 +341,9 @@ In the nested-sheet branch, the standing hypotheses are
 
 ```math
 \begin{aligned}
-\mathcal M &\subseteq \mathcal N,\\
-|\mathcal N| &= 2^{2m} + e,\\
-|\mathcal M| &= 2^{2m} - e,\\
+\mathcal M &\subseteq \mathcal N,\\[2pt]
+|\mathcal N| &= 2^{2m}+e,\\
+|\mathcal M| &= 2^{2m}-e,\\[2pt]
 \mathrm{totalSize}(\mathrm{evenLowerHalfFamily}(m))
 &<
 \mathrm{totalSize}(\mathrm{twoSheetFamily}(\mathcal M,\mathcal N)).
