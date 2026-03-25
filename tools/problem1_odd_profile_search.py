@@ -45,6 +45,34 @@ class BoundaryAntichainFailure:
     boundary: Family
 
 
+@dataclass(frozen=True)
+class UpperTailPrismGapCounterexample:
+    n: int
+    e: int
+    target: int
+    boundary_size: int
+    witness_total_size: int
+    prism_total_size: int
+    outside_rank: int
+    family_n: Family
+    family_m: Family
+
+
+@dataclass(frozen=True)
+class StructuredUpperTailPrismGapResult:
+    name: str
+    n: int
+    e: int
+    target: int
+    exact_upper_downset_search: bool
+    best_upper_downset_size: int
+    upper_total_size_gain_over_simple_lower_budget: int
+    upper_boundary_size: int
+    outside_support_ranks: Tuple[int, ...]
+    best_destroyed_outside_rank4: int
+    min_prism_boundary: int
+
+
 def all_subsets(n: int) -> Tuple[int, ...]:
     subsets: List[int] = []
     for r in range(n + 1):
@@ -187,6 +215,248 @@ def profile_table(
     return table
 
 
+def total_size(family: Family) -> int:
+    return sum(subset_cardinality(subset) for subset in family)
+
+
+def slice_cardinality(family: Iterable[int], rank: int) -> int:
+    return sum(1 for subset in family if subset_cardinality(subset) == rank)
+
+
+def even_lower_half_total_size_in_prism_dimension(n: int) -> int:
+    m = n // 2
+    return (n + 1) * (2 ** (n - 1)) - (m + 1) * comb(n, m)
+
+
+def lower_half_family(n: int, subsets: Sequence[int]) -> Family:
+    midpoint = n // 2
+    return tuple(sorted(subset for subset in subsets if subset_cardinality(subset) <= midpoint))
+
+
+def downset_from_generators_above_lower_half(
+    n: int, subsets: Sequence[int], generators: Sequence[int]
+) -> Family:
+    midpoint = n // 2
+    generator_tuple = tuple(generators)
+    return tuple(
+        sorted(
+            subset
+            for subset in subsets
+            if subset_cardinality(subset) <= midpoint
+            or any((subset & generator) == subset for generator in generator_tuple)
+        )
+    )
+
+
+def max_destroyed_rank4_targets_by_available_rank3_sets(
+    target_rank4_sets: Sequence[int], available_rank3_sets: Sequence[int], budget: int
+) -> int:
+    triple_index = {subset: index for index, subset in enumerate(available_rank3_sets)}
+    target_masks: List[int] = []
+    for rank4_set in target_rank4_sets:
+        triple_mask = 0
+        valid_target = True
+        candidates = rank4_set
+        while candidates:
+            bit = candidates & -candidates
+            triple = rank4_set ^ bit
+            triple_position = triple_index.get(triple)
+            if triple_position is None:
+                valid_target = False
+                break
+            triple_mask |= 1 << triple_position
+            candidates ^= bit
+        if valid_target:
+            target_masks.append(triple_mask)
+    dp: Dict[int, int] = {0: 0}
+    for target_mask in target_masks:
+        updates: Dict[int, int] = {}
+        for union_mask, destroyed in dp.items():
+            new_union_mask = union_mask | target_mask
+            if new_union_mask.bit_count() > budget:
+                continue
+            current = updates.get(new_union_mask)
+            if current is None or current < destroyed + 1:
+                updates[new_union_mask] = destroyed + 1
+        for union_mask, destroyed in updates.items():
+            current = dp.get(union_mask)
+            if current is None or current < destroyed:
+                dp[union_mask] = destroyed
+    return max(dp.values())
+
+
+def max_destroyed_rank4_targets_by_rank3_budget(
+    n: int, subsets: Sequence[int], target_rank4_sets: Sequence[int], budget: int
+) -> int:
+    del n
+    available_rank3_sets = [subset for subset in subsets if subset_cardinality(subset) == 3]
+    return max_destroyed_rank4_targets_by_available_rank3_sets(
+        target_rank4_sets, available_rank3_sets, budget
+    )
+
+
+def upper_downsets(upper_part: Sequence[int]) -> List[Tuple[int, ...]]:
+    upper_tuple = tuple(upper_part)
+    lower_upper_elements = {
+        upper_element: tuple(
+            candidate
+            for candidate in upper_tuple
+            if candidate != upper_element and (candidate & upper_element) == candidate
+        )
+        for upper_element in upper_tuple
+    }
+    downsets: List[Tuple[int, ...]] = []
+    for chosen_mask in range(1 << len(upper_tuple)):
+        chosen = {
+            upper_tuple[index]
+            for index in range(len(upper_tuple))
+            if chosen_mask & (1 << index)
+        }
+        if all(all(candidate in chosen for candidate in lower_upper_elements[upper_element]) for upper_element in chosen):
+            downsets.append(tuple(sorted(chosen)))
+    return downsets
+
+
+def support_rank3_sets_of_upper_downset(upper_downset: Sequence[int]) -> Set[int]:
+    support: Set[int] = set()
+    for upper_element in upper_downset:
+        candidates = upper_element
+        while candidates:
+            bit = candidates & -candidates
+            rank3_subset = upper_element ^ bit
+            if subset_cardinality(rank3_subset) == 3:
+                support.add(rank3_subset)
+            candidates ^= bit
+    return support
+
+
+def outside_high_boundary_count_from_upper_downset(
+    upper_downset: Sequence[int], family_n_set: Set[int], subsets: Sequence[int]
+) -> int:
+    upper_downset_set = set(upper_downset)
+    count = 0
+    for subset in subsets:
+        if subset in family_n_set or subset_cardinality(subset) <= 4:
+            continue
+        candidates = subset
+        while candidates:
+            bit = candidates & -candidates
+            predecessor = subset ^ bit
+            if predecessor in upper_downset_set:
+                count += 1
+                break
+            candidates ^= bit
+    return count
+
+
+def exact_min_prism_boundary_in_rank3_removal_model(
+    family_n: Family, subsets: Sequence[int]
+) -> Tuple[int, int, int]:
+    ambient_dimension = max((subset.bit_length() for subset in subsets), default=0)
+    lower_half = set(lower_half_family(ambient_dimension, subsets))
+    family_n_set = set(family_n)
+    upper_part = tuple(sorted(family_n_set - lower_half))
+    excess = len(upper_part)
+    outside_rank4_sets = [
+        subset
+        for subset in subsets
+        if subset_cardinality(subset) == 4 and subset not in family_n_set
+    ]
+    all_rank3_sets = [subset for subset in subsets if subset_cardinality(subset) == 3]
+    best_boundary: int | None = None
+    best_upper_downset_size = 0
+    best_destroyed = 0
+    for upper_downset in upper_downsets(upper_part):
+        support_rank3 = support_rank3_sets_of_upper_downset(upper_downset)
+        removal_budget = excess + len(upper_downset)
+        available_rank3_sets = [
+            rank3_set for rank3_set in all_rank3_sets if rank3_set not in support_rank3
+        ]
+        if removal_budget > len(available_rank3_sets):
+            continue
+        killed_outside_rank4 = max_destroyed_rank4_targets_by_available_rank3_sets(
+            outside_rank4_sets, available_rank3_sets, removal_budget
+        )
+        min_boundary = (
+            len(upper_part) - len(upper_downset)
+            + removal_budget
+            + (len(outside_rank4_sets) - killed_outside_rank4)
+            + outside_high_boundary_count_from_upper_downset(upper_downset, family_n_set, subsets)
+        )
+        if best_boundary is None or min_boundary < best_boundary:
+            best_boundary = min_boundary
+            best_upper_downset_size = len(upper_downset)
+            best_destroyed = killed_outside_rank4
+    if best_boundary is None:
+        return (0, 0, 0)
+    return (best_boundary, best_upper_downset_size, best_destroyed)
+
+
+def structured_upper_tail_prism_gap_results_n7_simple_lower() -> List[StructuredUpperTailPrismGapResult]:
+    n = 7
+    m = n // 2
+    subsets = all_subsets(n)
+    lower_half = set(lower_half_family(n, subsets))
+    target = comb(n + 1, m + 1)
+    generator_classes = [
+        ("single-5", (31,)),
+        ("pair-5-int4", (31, 47)),
+        ("pair-5-int3", (31, 103)),
+        ("single-6", (63,)),
+    ]
+    results: List[StructuredUpperTailPrismGapResult] = []
+    for name, generators in generator_classes:
+        family_n = downset_from_generators_above_lower_half(n, subsets, generators)
+        upper_part = set(family_n) - lower_half
+        excess = len(upper_part)
+        upper_boundary = positive_boundary(family_n, subsets)
+        outside_support_ranks = tuple(
+            rank
+            for rank in range(n + 1)
+            if (rank <= m or m + 3 <= rank) and slice_cardinality(upper_boundary, rank) > 0
+        )
+        upper_total_size = total_size(tuple(sorted(upper_part)))
+        exact_upper_downset_search = len(upper_part) <= 12
+        if exact_upper_downset_search:
+            min_interface_boundary, best_upper_downset_size, best_destroyed = (
+                exact_min_prism_boundary_in_rank3_removal_model(family_n, subsets)
+            )
+            min_prism_boundary = len(upper_boundary) + min_interface_boundary
+        else:
+            upper_rank4_sets = [subset for subset in upper_part if subset_cardinality(subset) == 4]
+            target_rank4_sets = [
+                subset
+                for subset in subsets
+                if subset_cardinality(subset) == 4 and subset not in upper_part
+            ]
+            best_destroyed = max_destroyed_rank4_targets_by_rank3_budget(
+                n, subsets, target_rank4_sets, excess
+            )
+            best_upper_downset_size = 0
+            min_prism_boundary = (
+                len(upper_boundary)
+                + len(upper_part)
+                + excess
+                + (35 - len(upper_rank4_sets) - best_destroyed)
+            )
+        results.append(
+            StructuredUpperTailPrismGapResult(
+                name=name,
+                n=n,
+                e=excess,
+                target=target,
+                exact_upper_downset_search=exact_upper_downset_search,
+                best_upper_downset_size=best_upper_downset_size,
+                upper_total_size_gain_over_simple_lower_budget=upper_total_size - 4 * excess,
+                upper_boundary_size=len(upper_boundary),
+                outside_support_ranks=outside_support_ranks,
+                best_destroyed_outside_rank4=best_destroyed,
+                min_prism_boundary=min_prism_boundary,
+            )
+        )
+    return results
+
+
 def search_pair_interface_counterexample(
     n: int,
     downsets: Sequence[Family],
@@ -249,6 +519,62 @@ def pair_interface_minima(
         if best is not None:
             minima.append((excess, best))
     return minima
+
+
+def search_upper_tail_prism_gap_counterexample(
+    n: int,
+    downsets: Sequence[Family],
+    boundary_cache: Dict[Family, Set[int]],
+    max_excess: int,
+) -> UpperTailPrismGapCounterexample | None:
+    half = 2 ** (n - 1)
+    m = n // 2
+    target = comb(n + 1, m + 1)
+    witness_total_size = even_lower_half_total_size_in_prism_dimension(n)
+    by_size: Dict[int, List[Family]] = {}
+    family_set_cache = {family: set(family) for family in downsets}
+    total_size_cache = {family: total_size(family) for family in downsets}
+    for family in downsets:
+        by_size.setdefault(len(family), []).append(family)
+    for excess in range(1, min(half, max_excess) + 1):
+        large_size = half + excess
+        small_size = half - excess
+        for family_n in by_size.get(large_size, []):
+            boundary_n = boundary_cache[family_n]
+            outside_rank: int | None = None
+            for rank in range(n + 1):
+                if rank > m and rank < m + 3:
+                    continue
+                if slice_cardinality(boundary_n, rank) > 0:
+                    outside_rank = rank
+                    break
+            if outside_rank is None:
+                continue
+            family_n_set = family_set_cache[family_n]
+            family_n_total_size = total_size_cache[family_n]
+            for family_m in by_size.get(small_size, []):
+                family_m_set = family_set_cache[family_m]
+                if not family_m_set.issubset(family_n_set):
+                    continue
+                prism_total_size = family_n_total_size + total_size_cache[family_m] + len(family_m)
+                if prism_total_size <= witness_total_size:
+                    continue
+                prism_boundary_size = len(boundary_n) + len(
+                    (family_n_set - family_m_set) | boundary_cache[family_m]
+                )
+                if prism_boundary_size <= target:
+                    return UpperTailPrismGapCounterexample(
+                        n=n,
+                        e=excess,
+                        target=target,
+                        boundary_size=prism_boundary_size,
+                        witness_total_size=witness_total_size,
+                        prism_total_size=prism_total_size,
+                        outside_rank=outside_rank,
+                        family_n=family_n,
+                        family_m=family_m,
+                    )
+    return None
 
 
 def half_cube_slice_minima(n: int, downsets: Sequence[Family]) -> List[int]:
@@ -360,6 +686,7 @@ def analyze_dimension(
     MinimalOutsideCounterexample | None,
     List[Tuple[int, int]],
     PairInterfaceCounterexample | None,
+    UpperTailPrismGapCounterexample | None,
 ]:
     subsets, downsets = enumerate_downsets(n)
     boundary_cache = {family: positive_boundary(family, subsets) for family in downsets}
@@ -377,6 +704,9 @@ def analyze_dimension(
     min_out_bad = search_minimal_outside_counterexample(n, downsets, minimal_outside_cache)
     pair_min = pair_interface_minima(n, downsets, boundary_cache, max_excess)
     bad = search_pair_interface_counterexample(n, downsets, boundary_cache, max_excess)
+    upper_tail_bad = search_upper_tail_prism_gap_counterexample(
+        n, downsets, boundary_cache, max_excess
+    )
     return (
         profiles,
         slice_minima,
@@ -388,12 +718,22 @@ def analyze_dimension(
         min_out_bad,
         pair_min,
         bad,
+        upper_tail_bad,
     )
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Exhaustive low-dimensional search for the odd-cube boundary program in Problem #1."
+    )
+    parser.add_argument(
+        "--structured-upper-tail-n7-simple-lower",
+        action="store_true",
+        help=(
+            "Run the exact structured n=7 falsification search for the upper-tail prism gap "
+            "in the class N = lower_half + small high-rank generators, "
+            "M = lower_half minus e rank-3 sets."
+        ),
     )
     parser.add_argument(
         "--dimensions",
@@ -410,8 +750,42 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    if args.structured_upper_tail_n7_simple_lower:
+        any_warning = False
+        for result in structured_upper_tail_prism_gap_results_n7_simple_lower():
+            if result.outside_support_ranks and result.upper_total_size_gain_over_simple_lower_budget > 0:
+                if result.min_prism_boundary <= result.target:
+                    any_warning = True
+                    warn(
+                        "WARNING structured upper-tail prism gap counterexample found in class "
+                        f"{result.name}: min_boundary={result.min_prism_boundary} <= target={result.target}"
+                    )
+                else:
+                    ok(
+                        "OK structured n=7 class "
+                        f"{result.name}: min_boundary={result.min_prism_boundary} > target={result.target}"
+                    )
+            else:
+                ok(
+                    "OK structured n=7 class "
+                    f"{result.name}: hypotheses already fail before the boundary test"
+                )
+            print(
+                f"  e={result.e} gain={result.upper_total_size_gain_over_simple_lower_budget} "
+                f"exact_upper_search={result.exact_upper_downset_search} "
+                f"best_upper_size={result.best_upper_downset_size} "
+                f"outside_support={list(result.outside_support_ranks)} "
+                f"upper_boundary={result.upper_boundary_size} "
+                f"best_destroyed_outside_rank4={result.best_destroyed_outside_rank4}"
+            )
+        if any_warning:
+            warn("WARNING overall: structured n=7 upper-tail search found a candidate.")
+            return 1
+        ok("OK overall: no structured n=7 simple-lower upper-tail counterexample found.")
+        return 0
+
     dimensions = tuple(args.dimensions)
-    total_steps = len(dimensions) * 7
+    total_steps = len(dimensions) * 8
     completed = 0
     any_warning = False
 
@@ -428,6 +802,7 @@ def main() -> int:
             min_out_bad,
             pair_minima_table,
             bad,
+            upper_tail_bad,
         ) = analyze_dimension(n, args.max_excess)
         completed += 1
         render_progress(completed, total_steps, f"computed profile minima for n={n}")
@@ -519,6 +894,28 @@ def main() -> int:
             target = 2 * middle
             ok(
                 f"OK n={n}: no pair-interface counterexample found up to e={min(half, args.max_excess)}, target={target}"
+            )
+
+        completed += 1
+        render_progress(completed, total_steps, f"checked upper-tail prism gap candidate for n={n}")
+
+        if upper_tail_bad is not None:
+            any_warning = True
+            warn(
+                "WARNING upper-tail prism gap counterexample found at "
+                f"n={upper_tail_bad.n}, e={upper_tail_bad.e}, outside_rank={upper_tail_bad.outside_rank}: "
+                f"boundary={upper_tail_bad.boundary_size} <= target={upper_tail_bad.target}"
+            )
+            print(
+                "  prism_total_size="
+                f"{upper_tail_bad.prism_total_size} > witness_total_size={upper_tail_bad.witness_total_size}"
+            )
+            print(f"  N = {format_family(upper_tail_bad.family_n)}")
+            print(f"  M = {format_family(upper_tail_bad.family_m)}")
+        else:
+            target = comb(n + 1, n // 2 + 1)
+            ok(
+                f"OK n={n}: no upper-tail prism gap counterexample found up to e={min(half, args.max_excess)}, target={target}"
             )
 
         print(f"n={n} half-cube slice minima:")

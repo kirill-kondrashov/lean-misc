@@ -657,6 +657,51 @@ theorem card_slice_succFamily {n r : ℕ} (𝒜 : Finset (Finset (Fin n))) :
     #((succFamily 𝒜) # r) = #(𝒜 # r) := by
   rw [slice_succFamily, card_succFamily]
 
+theorem nonMemberSubfamily_slice {n r : ℕ} {𝒜 : Finset (Finset (Fin (n + 1)))} :
+    (𝒜 # r).nonMemberSubfamily 0 = (𝒜.nonMemberSubfamily 0) # r := by
+  ext s
+  constructor
+  · intro hs
+    rcases mem_nonMemberSubfamily.mp hs with ⟨hsSlice, hs0⟩
+    rcases Finset.mem_slice.mp hsSlice with ⟨hsA, hsCard⟩
+    exact Finset.mem_slice.mpr ⟨mem_nonMemberSubfamily.mpr ⟨hsA, hs0⟩, hsCard⟩
+  · intro hs
+    rcases Finset.mem_slice.mp hs with ⟨hsNon, hsCard⟩
+    rcases mem_nonMemberSubfamily.mp hsNon with ⟨hsA, hs0⟩
+    exact mem_nonMemberSubfamily.mpr ⟨Finset.mem_slice.mpr ⟨hsA, hsCard⟩, hs0⟩
+
+theorem memberSubfamily_slice_succ {n r : ℕ} {𝒜 : Finset (Finset (Fin (n + 1)))} :
+    (𝒜 # (r + 1)).memberSubfamily 0 = (𝒜.memberSubfamily 0) # r := by
+  ext s
+  constructor
+  · intro hs
+    rcases mem_memberSubfamily.mp hs with ⟨hsSlice, hs0⟩
+    rcases Finset.mem_slice.mp hsSlice with ⟨hsA, hsCard⟩
+    refine Finset.mem_slice.mpr ⟨mem_memberSubfamily.mpr ⟨hsA, hs0⟩, ?_⟩
+    rw [Finset.card_insert_of_notMem hs0] at hsCard
+    omega
+  · intro hs
+    rcases Finset.mem_slice.mp hs with ⟨hsMember, hsCard⟩
+    rcases mem_memberSubfamily.mp hsMember with ⟨hsA, hs0⟩
+    refine mem_memberSubfamily.mpr ⟨Finset.mem_slice.mpr ⟨hsA, ?_⟩, hs0⟩
+    have hsCard' : s.card + 1 = r + 1 := by
+      omega
+    simpa [Finset.card_insert_of_notMem hs0, add_comm] using hsCard'
+
+theorem card_slice_succ_eq_card_nonMemberSubfamily_slice_succ_add_card_memberSubfamily_slice
+    {n r : ℕ} {𝒜 : Finset (Finset (Fin (n + 1)))} :
+    #(𝒜 # (r + 1)) =
+      #((𝒜.nonMemberSubfamily 0) # (r + 1)) + #((𝒜.memberSubfamily 0) # r) := by
+  calc
+    #(𝒜 # (r + 1)) =
+      #(((𝒜 # (r + 1)).memberSubfamily 0)) + #(((𝒜 # (r + 1)).nonMemberSubfamily 0)) := by
+        symm
+        exact Finset.card_memberSubfamily_add_card_nonMemberSubfamily 0 (𝒜 # (r + 1))
+    _ = #((𝒜.memberSubfamily 0) # r) + #((𝒜.nonMemberSubfamily 0) # (r + 1)) := by
+        rw [memberSubfamily_slice_succ, nonMemberSubfamily_slice]
+    _ = #((𝒜.nonMemberSubfamily 0) # (r + 1)) + #((𝒜.memberSubfamily 0) # r) := by
+        ac_rfl
+
 theorem card_one_slice_succFamily_powerset (n : ℕ) :
     #((succFamily ((Finset.univ : Finset (Fin n)).powerset)) # 1) = n := by
   have hslice :
@@ -817,6 +862,96 @@ theorem card_evenLowerHalfFamily_eq_half_cube (m : ℕ) :
     have hErase := congrArg (fun u : Finset (Fin (2 * m + 2)) => u.erase 0) hst
     simpa [hs0, ht0] using hErase
 
+theorem card_slice_evenLowerHalfFamily_eq_choose {m r : ℕ} (hr : r ≤ m) :
+    #((evenLowerHalfFamily m) # r) = Nat.choose (2 * m + 2) r := by
+  cases r with
+  | zero =>
+      rw [Nat.choose_zero_right]
+      refine Finset.card_eq_one.mpr ?_
+      refine ⟨∅, ?_⟩
+      ext s
+      rw [Finset.mem_slice]
+      constructor
+      · rintro ⟨_, hsCard⟩
+        have hsEmpty : s = ∅ := Finset.card_eq_zero.mp hsCard
+        simpa [hsEmpty]
+      · intro hs
+        have hempty : (∅ : Finset (Fin (2 * m + 2))) ∈ evenLowerHalfFamily m := by
+          rw [evenLowerHalfFamily, mem_union]
+          left
+          rw [mem_succFamily_iff]
+          refine ⟨by simp, ?_⟩
+          simpa [mem_oddLowerHalfFamily]
+        have hsEmpty : s = ∅ := by simpa using hs
+        subst hsEmpty
+        exact ⟨hempty, by simp⟩
+  | succ r' =>
+      calc
+        #((evenLowerHalfFamily m) # (r' + 1))
+          = #(((evenLowerHalfFamily m).nonMemberSubfamily 0) # (r' + 1)) +
+              #(((evenLowerHalfFamily m).memberSubfamily 0) # r') := by
+                exact card_slice_succ_eq_card_nonMemberSubfamily_slice_succ_add_card_memberSubfamily_slice
+        _ = #((oddLowerHalfFamily m) # (r' + 1)) + #((oddLowerHalfFamily m) # r') := by
+              rw [nonMemberSubfamily_evenLowerHalfFamily, memberSubfamily_evenLowerHalfFamily,
+                card_slice_succFamily, card_slice_succFamily]
+        _ = Nat.choose (2 * m + 1) (r' + 1) + Nat.choose (2 * m + 1) r' := by
+              rw [card_slice_oddLowerHalfFamily_eq_choose hr,
+                card_slice_oddLowerHalfFamily_eq_choose (by omega)]
+        _ = Nat.choose (2 * m + 1) r' + Nat.choose (2 * m + 1) (r' + 1) := by
+              ac_rfl
+        _ = Nat.choose (2 * m + 2) (r' + 1) := by
+              have hpascal :
+                  Nat.choose (2 * m + 2) (r' + 1) =
+                    Nat.choose (2 * m + 1) r' + Nat.choose (2 * m + 1) (r' + 1) := by
+                rw [Nat.choose_succ_succ']
+              exact hpascal.symm
+
+theorem card_slice_evenLowerHalfFamily_eq_middle (m : ℕ) :
+    #((evenLowerHalfFamily m) # (m + 1)) = Nat.choose (2 * m + 1) m := by
+  calc
+    #((evenLowerHalfFamily m) # (m + 1))
+      = #(((evenLowerHalfFamily m).nonMemberSubfamily 0) # (m + 1)) +
+          #(((evenLowerHalfFamily m).memberSubfamily 0) # m) := by
+            exact card_slice_succ_eq_card_nonMemberSubfamily_slice_succ_add_card_memberSubfamily_slice
+    _ = #((oddLowerHalfFamily m) # (m + 1)) + #((oddLowerHalfFamily m) # m) := by
+          rw [nonMemberSubfamily_evenLowerHalfFamily, memberSubfamily_evenLowerHalfFamily,
+            card_slice_succFamily, card_slice_succFamily]
+    _ = 0 + Nat.choose (2 * m + 1) m := by
+          rw [card_slice_oddLowerHalfFamily_eq_zero (by omega),
+            card_slice_oddLowerHalfFamily_eq_choose le_rfl]
+    _ = Nat.choose (2 * m + 1) m := by simp
+
+theorem card_slice_evenLowerHalfFamily_eq_zero {m r : ℕ} (hr : m + 2 ≤ r) :
+    #((evenLowerHalfFamily m) # r) = 0 := by
+  cases r with
+  | zero =>
+      omega
+  | succ r' =>
+      have hr' : m + 1 ≤ r' := by
+        omega
+      calc
+        #((evenLowerHalfFamily m) # (r' + 1))
+          = #(((evenLowerHalfFamily m).nonMemberSubfamily 0) # (r' + 1)) +
+              #(((evenLowerHalfFamily m).memberSubfamily 0) # r') := by
+                exact card_slice_succ_eq_card_nonMemberSubfamily_slice_succ_add_card_memberSubfamily_slice
+        _ = #((oddLowerHalfFamily m) # (r' + 1)) + #((oddLowerHalfFamily m) # r') := by
+              rw [nonMemberSubfamily_evenLowerHalfFamily, memberSubfamily_evenLowerHalfFamily,
+                card_slice_succFamily, card_slice_succFamily]
+        _ = 0 + 0 := by
+              rw [card_slice_oddLowerHalfFamily_eq_zero (by omega),
+                card_slice_oddLowerHalfFamily_eq_zero hr']
+        _ = 0 := by simp
+
+theorem evenLowerHalfFamily_has_exact_slice_profile (m : ℕ) :
+    (∀ r ∈ Finset.range (m + 1), #((evenLowerHalfFamily m) # r) = Nat.choose (2 * m + 2) r) ∧
+      #((evenLowerHalfFamily m) # (m + 1)) = Nat.choose (2 * m + 1) m ∧
+      (∀ r, m + 2 ≤ r → #((evenLowerHalfFamily m) # r) = 0) := by
+  refine ⟨?_, card_slice_evenLowerHalfFamily_eq_middle m, ?_⟩
+  · intro r hr
+    exact card_slice_evenLowerHalfFamily_eq_choose (Nat.le_of_lt_succ (Finset.mem_range.mp hr))
+  · intro r hr
+    exact card_slice_evenLowerHalfFamily_eq_zero hr
+
 theorem nonMemberSubfamily_positiveBoundary_evenLowerHalfFamily (m : ℕ) :
     (positiveBoundary (evenLowerHalfFamily m)).nonMemberSubfamily 0 =
       succFamily (oddMiddleLayer m) := by
@@ -830,6 +965,138 @@ theorem memberSubfamily_positiveBoundary_evenLowerHalfFamily (m : ℕ) :
   rw [memberSubfamily_positiveBoundary]
   rw [nonMemberSubfamily_evenLowerHalfFamily, memberSubfamily_evenLowerHalfFamily]
   simp [nonMemberSubfamily_positiveBoundary_succFamily, positiveBoundary_oddLowerHalfFamily]
+
+theorem card_slice_oddMiddleLayer_eq_middle (m : ℕ) :
+    #((oddMiddleLayer m) # (m + 1)) = Nat.choose (2 * m + 1) m := by
+  have hEq : (oddMiddleLayer m) # (m + 1) = oddMiddleLayer m := by
+    ext s
+    constructor
+    · intro hs
+      exact (Finset.mem_slice.mp hs).1
+    · intro hs
+      refine Finset.mem_slice.mpr ⟨hs, ?_⟩
+      simpa [mem_oddMiddleLayer] using hs
+  rw [hEq, card_oddMiddleLayer]
+
+theorem card_slice_oddMiddleLayer_eq_zero_of_ne_middle_even
+    {m r : ℕ} (hr : r ≠ m + 1) :
+    #((oddMiddleLayer m) # r) = 0 := by
+  refine Finset.card_eq_zero.mpr ?_
+  ext s
+  constructor
+  · intro hs
+    exfalso
+    rcases Finset.mem_slice.mp hs with ⟨hsMid, hsCard⟩
+    have hsCard' : s.card = m + 1 := by
+      simpa [mem_oddMiddleLayer] using hsMid
+    exact hr (hsCard.symm.trans hsCard')
+  · intro hs
+    simpa using hs
+
+theorem card_slice_positiveBoundary_evenLowerHalfFamily_eq_middle_left (m : ℕ) :
+    #((positiveBoundary (evenLowerHalfFamily m)) # (m + 1)) =
+      Nat.choose (2 * m + 1) m := by
+  calc
+    #((positiveBoundary (evenLowerHalfFamily m)) # (m + 1))
+      = #(((positiveBoundary (evenLowerHalfFamily m)).nonMemberSubfamily 0) # (m + 1)) +
+          #(((positiveBoundary (evenLowerHalfFamily m)).memberSubfamily 0) # m) := by
+            exact card_slice_succ_eq_card_nonMemberSubfamily_slice_succ_add_card_memberSubfamily_slice
+    _ = #((oddMiddleLayer m) # (m + 1)) + #((oddMiddleLayer m) # m) := by
+          rw [nonMemberSubfamily_positiveBoundary_evenLowerHalfFamily,
+            memberSubfamily_positiveBoundary_evenLowerHalfFamily,
+            card_slice_succFamily, card_slice_succFamily]
+    _ = Nat.choose (2 * m + 1) m + 0 := by
+          rw [card_slice_oddMiddleLayer_eq_middle,
+            card_slice_oddMiddleLayer_eq_zero_of_ne_middle_even (by omega)]
+    _ = Nat.choose (2 * m + 1) m := by simp
+
+theorem card_slice_positiveBoundary_evenLowerHalfFamily_eq_middle_right (m : ℕ) :
+    #((positiveBoundary (evenLowerHalfFamily m)) # (m + 2)) =
+      Nat.choose (2 * m + 1) m := by
+  calc
+    #((positiveBoundary (evenLowerHalfFamily m)) # (m + 2))
+      = #(((positiveBoundary (evenLowerHalfFamily m)).nonMemberSubfamily 0) # (m + 2)) +
+          #(((positiveBoundary (evenLowerHalfFamily m)).memberSubfamily 0) # (m + 1)) := by
+            exact card_slice_succ_eq_card_nonMemberSubfamily_slice_succ_add_card_memberSubfamily_slice
+    _ = #((oddMiddleLayer m) # (m + 2)) + #((oddMiddleLayer m) # (m + 1)) := by
+          rw [nonMemberSubfamily_positiveBoundary_evenLowerHalfFamily,
+            memberSubfamily_positiveBoundary_evenLowerHalfFamily,
+            card_slice_succFamily, card_slice_succFamily]
+    _ = 0 + Nat.choose (2 * m + 1) m := by
+          rw [card_slice_oddMiddleLayer_eq_zero_of_ne_middle_even (by omega),
+            card_slice_oddMiddleLayer_eq_middle]
+    _ = Nat.choose (2 * m + 1) m := by simp
+
+theorem card_slice_positiveBoundary_evenLowerHalfFamily_eq_zero_of_lt_middle
+    {m r : ℕ} (hr : r ≤ m) :
+    #((positiveBoundary (evenLowerHalfFamily m)) # r) = 0 := by
+  cases r with
+  | zero =>
+      refine Finset.card_eq_zero.mpr ?_
+      ext s
+      constructor
+      · intro hs
+        have hsEmpty : s = ∅ := Finset.card_eq_zero.mp (Finset.mem_slice.mp hs).2
+        subst hsEmpty
+        have hmem : (∅ : Finset (Fin (2 * m + 2))) ∈ positiveBoundary (evenLowerHalfFamily m) :=
+          (Finset.mem_slice.mp hs).1
+        rw [mem_positiveBoundary] at hmem
+        simpa using hmem.2
+      · intro hs
+        simpa using hs
+  | succ r' =>
+      have hr' : r' < m := by omega
+      calc
+        #((positiveBoundary (evenLowerHalfFamily m)) # (r' + 1))
+          = #(((positiveBoundary (evenLowerHalfFamily m)).nonMemberSubfamily 0) # (r' + 1)) +
+              #(((positiveBoundary (evenLowerHalfFamily m)).memberSubfamily 0) # r') := by
+                exact card_slice_succ_eq_card_nonMemberSubfamily_slice_succ_add_card_memberSubfamily_slice
+        _ = #((oddMiddleLayer m) # (r' + 1)) + #((oddMiddleLayer m) # r') := by
+              rw [nonMemberSubfamily_positiveBoundary_evenLowerHalfFamily,
+                memberSubfamily_positiveBoundary_evenLowerHalfFamily,
+                card_slice_succFamily, card_slice_succFamily]
+        _ = 0 + 0 := by
+              rw [card_slice_oddMiddleLayer_eq_zero_of_ne_middle_even (by omega),
+                card_slice_oddMiddleLayer_eq_zero_of_ne_middle_even (by omega)]
+        _ = 0 := by simp
+
+theorem card_slice_positiveBoundary_evenLowerHalfFamily_eq_zero_of_gt_upper_middle
+    {m r : ℕ} (hr : m + 3 ≤ r) :
+    #((positiveBoundary (evenLowerHalfFamily m)) # r) = 0 := by
+  cases r with
+  | zero =>
+      omega
+  | succ r' =>
+      have hr' : m + 2 ≤ r' := by omega
+      calc
+        #((positiveBoundary (evenLowerHalfFamily m)) # (r' + 1))
+          = #(((positiveBoundary (evenLowerHalfFamily m)).nonMemberSubfamily 0) # (r' + 1)) +
+              #(((positiveBoundary (evenLowerHalfFamily m)).memberSubfamily 0) # r') := by
+                exact card_slice_succ_eq_card_nonMemberSubfamily_slice_succ_add_card_memberSubfamily_slice
+        _ = #((oddMiddleLayer m) # (r' + 1)) + #((oddMiddleLayer m) # r') := by
+              rw [nonMemberSubfamily_positiveBoundary_evenLowerHalfFamily,
+                memberSubfamily_positiveBoundary_evenLowerHalfFamily,
+                card_slice_succFamily, card_slice_succFamily]
+        _ = 0 + 0 := by
+              rw [card_slice_oddMiddleLayer_eq_zero_of_ne_middle_even (by omega),
+                card_slice_oddMiddleLayer_eq_zero_of_ne_middle_even (by omega)]
+        _ = 0 := by simp
+
+theorem positiveBoundary_evenLowerHalfFamily_has_exact_slice_profile (m : ℕ) :
+    (∀ r ∈ Finset.range (m + 1),
+      #((positiveBoundary (evenLowerHalfFamily m)) # r) = 0) ∧
+      #((positiveBoundary (evenLowerHalfFamily m)) # (m + 1)) =
+        Nat.choose (2 * m + 1) m ∧
+      #((positiveBoundary (evenLowerHalfFamily m)) # (m + 2)) =
+        Nat.choose (2 * m + 1) m ∧
+      (∀ r, m + 3 ≤ r → #((positiveBoundary (evenLowerHalfFamily m)) # r) = 0) := by
+  refine ⟨?_, card_slice_positiveBoundary_evenLowerHalfFamily_eq_middle_left m,
+    card_slice_positiveBoundary_evenLowerHalfFamily_eq_middle_right m, ?_⟩
+  · intro r hr
+    exact card_slice_positiveBoundary_evenLowerHalfFamily_eq_zero_of_lt_middle
+      (Nat.le_of_lt_succ (Finset.mem_range.mp hr))
+  · intro r hr
+    exact card_slice_positiveBoundary_evenLowerHalfFamily_eq_zero_of_gt_upper_middle hr
 
 theorem card_positiveBoundary_evenLowerHalfFamily (m : ℕ) :
     #(positiveBoundary (evenLowerHalfFamily m)) = Nat.choose (2 * m + 2) (m + 1) := by

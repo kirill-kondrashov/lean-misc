@@ -1,5 +1,7 @@
 # Lean Experiments
 
+[![build](https://github.com/kirill-kondrashov/lean-misc/actions/workflows/lean_action_ci.yml/badge.svg)](https://github.com/kirill-kondrashov/lean-misc/actions/workflows/lean_action_ci.yml)
+
 Lean formalization experiments and problem-focused developments, using a project structure modeled
 after <https://github.com/kirill-kondrashov/yoccos-theorem>.
 
@@ -316,6 +318,105 @@ The live remaining target is the Prism Theorem above. In particular, the odd hal
 no longer treated as a separate frontier assumption in the active route: it is now a formal
 consequence of the prism frontier.
 
+### Prism theorem status
+
+As of March 25, 2026, the working estimate for the current formal route is:
+
+```text
+[########--] 8/10
+```
+
+This is a program-structure estimate, not a probability claim.
+
+Mathematically, this means that the reduction and packaging layer is mostly complete: everything
+downstream of six local odd-dimensional source statements is already formalized.
+
+Write
+
+```math
+\mathcal F_r := \{A \in \mathcal F : |A| = r\}.
+```
+
+In the nested-sheet branch, the standing hypotheses are
+
+```math
+\begin{aligned}
+\mathcal M &\subseteq \mathcal N,\\[2pt]
+|\mathcal N| &= 2^{2m}+e,\\
+|\mathcal M| &= 2^{2m}-e,\\[2pt]
+\mathrm{totalSize}(\mathrm{evenLowerHalfFamily}(m))
+&<
+\mathrm{totalSize}(\mathrm{twoSheetFamily}(\mathcal M,\mathcal N)).
+\end{aligned}
+```
+
+The remaining source leaves are:
+
+Odd one-sheet upper-shadow-gap leaf.
+
+```math
+|\mathcal D| = 2^{2m},\qquad
+\mathrm{totalSize}(\mathrm{oddLowerHalfFamily}(m)) < \mathrm{totalSize}(\mathcal D)
+\Longrightarrow
+\binom{2m+1}{m} < \mathrm{upperShadowGap}(\mathcal D).
+```
+
+Exterior-support strict-excess leaves.
+
+```math
+(\partial^+\mathcal N)_r \ne \varnothing
+\quad\text{for some } r \le m \text{ or } r \ge m+3
+\Longrightarrow
+2\binom{2m+1}{m} < |\partial^+\mathcal N| + 2e.
+```
+
+```math
+I(\mathcal M,\mathcal N)_q \ne \varnothing
+\quad\text{for some } q < m \text{ or } q \ge m+2
+\Longrightarrow
+2\binom{2m+1}{m} < |\partial^+\mathcal N| + 2e.
+```
+
+First-gap prism leaf.
+
+```math
+(\mathcal N \setminus \mathcal M)_s = \varnothing \text{ for } s < q,\qquad
+(\mathcal N \setminus \mathcal M)_q \ne \varnothing
+\Longrightarrow
+\binom{2m+2}{m+1} < |\partial^+(\mathrm{twoSheetFamily}(\mathcal M,\mathcal N))|.
+```
+
+Support-silent middle leaves.
+
+```math
+I(\mathcal M,\mathcal N)_r = \varnothing
+\quad\text{for all } r < m \text{ or } r \ge m+2.
+```
+
+Lower middle case:
+
+```math
+(\partial^+\mathcal M)_m \ne \varnothing
+\Longrightarrow
+\binom{2m+2}{m+1} < |\partial^+(\mathrm{twoSheetFamily}(\mathcal M,\mathcal N))|.
+```
+
+Upper middle case:
+
+```math
+(\partial^+\mathcal M)_{m+1} \ne \varnothing
+\Longrightarrow
+\binom{2m+2}{m+1} < |\partial^+(\mathrm{twoSheetFamily}(\mathcal M,\mathcal N))|.
+```
+
+The theorem-level boundary route has already been detached from the strict prism-boundary branch:
+it now factors through the one-leaf odd-size source bundle
+`PrismTheoremOddSizeLeafFrontierStatement`, then the one-leaf theorem consequence bundle
+`PrismTheoremBoundaryLowerFrontierStatement`.
+
+For the current detailed progress log, see
+[plan/PROGRESS_two_sheet_boundary_theorem_2026-03-22.md](./plan/PROGRESS_two_sheet_boundary_theorem_2026-03-22.md).
+
 What is now ruled out:
 
 Paired odd-section frontier: false.
@@ -393,10 +494,29 @@ This fails for the same $n = 3$, $e = 1$ family above, because it would force
 
 Current research program:
 
-1. Prove the Prism Theorem.
-2. Work on it through the prism family `twoSheetFamily M N` in the even cube.
-3. Use the exact section-boundary decomposition and a canonical-minimizer / compression route.
-4. Replace `halfCubeBoundaryLower` by the proved prism frontier.
+1. Keep `Prism Theorem` / `Two-Sheet Boundary Theorem` as the single live theorem target.
+2. Treat the prism packaging, exact section-boundary decomposition, and even minimizer
+   normalization as completed infrastructure:
+   - `twoSheetFamily M N` is already formalized.
+   - the exact identity `twoSheetOuterBoundaryCard M N = #(positiveBoundary (twoSheetFamily M N))`
+     is already proved.
+   - the even minimizer route already reaches a middle-transition-window normal form.
+3. Focus the proof program on the actual remaining bottleneck: the six local odd source leaves
+   listed in the Prism theorem status block above. They split into:
+   - one odd one-sheet upper-shadow-gap leaf;
+   - two exterior-support strict-excess leaves;
+   - one first-gap prism leaf;
+   - two support-silent middle leaves at ranks `m` and `m + 1`.
+4. Use those six odd source leaves to force
+
+   ```math
+   \mathrm{totalSize}(\mathcal D) \le \mathrm{totalSize}(\mathrm{evenLowerHalfFamily}(m)),
+   ```
+
+   and then recover balanced `0`-sections and the collapse to the standard witness through the
+   already-formalized even minimizer reductions.
+5. Feed that extremizer identification back through `PrismHalfCubeBoundaryLowerStatement` and
+   replace `halfCubeBoundaryLower` by the proved prism frontier.
 
 The old odd-excess wrappers in
 [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean)
