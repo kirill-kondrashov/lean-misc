@@ -340,11 +340,14 @@ Write
 In the nested-sheet branch, the standing hypotheses are
 
 ```math
-\mathcal M \subseteq \mathcal N,\qquad
-|\mathcal N| = 2^{2m} + e,\qquad
-|\mathcal M| = 2^{2m} - e,\qquad
-\mathrm{totalSize}(\mathrm{evenLowerHalfFamily}(m)) <
+\begin{aligned}
+\mathcal M &\subseteq \mathcal N,\\
+|\mathcal N| &= 2^{2m} + e,\\
+|\mathcal M| &= 2^{2m} - e,\\
+\mathrm{totalSize}(\mathrm{evenLowerHalfFamily}(m))
+&<
 \mathrm{totalSize}(\mathrm{twoSheetFamily}(\mathcal M,\mathcal N)).
+\end{aligned}
 ```
 
 The remaining source leaves are:
