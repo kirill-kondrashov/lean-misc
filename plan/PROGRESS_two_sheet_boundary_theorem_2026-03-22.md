@@ -27,6 +27,7 @@ Completed program layers:
 - current six-leaf frontier repackaged into a five-leaf strict prism-boundary bundle for the downstream consequence chain
 - strict prism-boundary bundle further collapsed into a two-leaf even-consequence frontier
 - theorem-level boundary-lower and equivalence wrappers collapsed from the two-leaf even-consequence frontier to a one-leaf upper-shadow-gap boundary frontier
+- theorem-level upper-shadow-gap route detached from the even-consequence bundle and factored through a one-leaf odd-size source frontier
 
 Open leaf obligations:
 
@@ -46,9 +47,9 @@ strict-excess reductions.
 
 Latest step:
 
-The theorem-level lower-bound chain above the two-sheet/topological statements now routes through
-the direct one-leaf frontier `PrismTheoremBoundaryLowerFrontierStatement`: odd upper-shadow-gap
-lower bounds, pair-interface boundary lower bounds, two-sheet/prism half-cube boundary
-statements, half-cube lower bounds, and the current equivalence wrappers now all reduce to that
-single packaged theorem-level input. The underlying six source leaves are unchanged, so the
-progress bar stays conservative at `8/10`.
+The theorem-level lower-bound chain above the two-sheet/topological statements still lands in the
+one-leaf consequence frontier `PrismTheoremBoundaryLowerFrontierStatement`, but its source is now
+the direct one-leaf odd-size bundle `PrismTheoremOddSizeLeafFrontierStatement` rather than the
+two-leaf even-consequence frontier. This detaches the theorem layer from the strict
+prism-boundary branch; the underlying six source leaves are still unchanged, so the progress bar
+stays conservative at `8/10`.

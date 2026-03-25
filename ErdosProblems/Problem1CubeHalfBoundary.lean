@@ -7897,6 +7897,11 @@ def PrismTheoremEvenConsequenceFrontierStatement : Prop :=
   OddSectionFirstStrictPrismBoundarySliceAboveUpperBoundaryLargerPrismThanEvenWitnessForcesStrictBoundaryStatement ∧
     OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement
 
+/-- Exact source leaf needed for the theorem-level upper-shadow-gap route once the theorem side
+has been detached from the strict prism-boundary branch. -/
+def PrismTheoremOddSizeLeafFrontierStatement : Prop :=
+  OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement
+
 /-- Exact odd consequence needed for the theorem-level boundary-lower and equivalence layer once
 the even-side minimizer chain has already been packaged. -/
 def PrismTheoremBoundaryLowerFrontierStatement : Prop :=
@@ -9245,6 +9250,33 @@ theorem
     (hFrontier : PrismTheoremEvenConsequenceFrontierStatement) :
     OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement := by
   exact hFrontier.2
+
+theorem
+    oddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_prismTheoremOddSizeLeafFrontier
+    (hFrontier : PrismTheoremOddSizeLeafFrontierStatement) :
+    OddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGapStatement := by
+  exact hFrontier
+
+theorem prismTheoremOddSizeLeafFrontier_of_prismTheoremEvenConsequenceFrontier
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement) :
+    PrismTheoremOddSizeLeafFrontierStatement := by
+  exact
+    oddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_prismTheoremEvenConsequenceFrontier
+      hFrontier
+
+theorem prismTheoremOddSizeLeafFrontier_of_prismTheoremStrictPrismBoundaryLeafFrontier
+    (hFrontier : PrismTheoremStrictPrismBoundaryLeafFrontierStatement) :
+    PrismTheoremOddSizeLeafFrontierStatement := by
+  exact
+    oddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_prismTheoremStrictPrismBoundaryLeafFrontier
+      hFrontier
+
+theorem prismTheoremOddSizeLeafFrontier_of_prismTheoremCurrentLeafFrontier
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    PrismTheoremOddSizeLeafFrontierStatement := by
+  exact
+    oddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_prismTheoremCurrentLeafFrontier
+      hFrontier
 
 theorem prismTheoremEvenConsequenceFrontier_of_prismTheoremStrictPrismBoundaryLeafFrontier
     (hFrontier : PrismTheoremStrictPrismBoundaryLeafFrontierStatement) :
@@ -11116,28 +11148,36 @@ theorem prismHalfCubeBoundaryLowerStatement_iff_twoSheetBoundaryTheorem :
   simpa [PrismHalfCubeBoundaryLowerStatement] using
     twoSheetBoundaryTheorem_iff_prismHalfCubeBoundary.symm
 
+theorem oddHalfCubeBoundaryLower_of_prismTheoremOddSizeLeafFrontier
+    (hFrontier : PrismTheoremOddSizeLeafFrontierStatement) :
+    OddHalfCubeBoundaryLowerStatement := by
+  exact
+    oddHalfCubeBoundaryLower_of_largerTotalSizeThanWitnessForcesStrictUpperShadowGap
+      (oddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_prismTheoremOddSizeLeafFrontier
+        hFrontier)
+
 theorem oddHalfCubeBoundaryLower_of_prismTheoremEvenConsequenceFrontier
     (hFrontier : PrismTheoremEvenConsequenceFrontierStatement) :
     OddHalfCubeBoundaryLowerStatement := by
   exact
-    oddHalfCubeBoundaryLower_of_largerTotalSizeThanWitnessForcesStrictUpperShadowGap
-      (oddHalfCubeLargerTotalSizeThanWitnessForcesStrictUpperShadowGap_of_prismTheoremEvenConsequenceFrontier
+    oddHalfCubeBoundaryLower_of_prismTheoremOddSizeLeafFrontier
+      (prismTheoremOddSizeLeafFrontier_of_prismTheoremEvenConsequenceFrontier
         hFrontier)
 
 theorem oddHalfCubeBoundaryLower_of_prismTheoremStrictPrismBoundaryLeafFrontier
     (hFrontier : PrismTheoremStrictPrismBoundaryLeafFrontierStatement) :
     OddHalfCubeBoundaryLowerStatement := by
   exact
-    oddHalfCubeBoundaryLower_of_prismTheoremEvenConsequenceFrontier
-      (prismTheoremEvenConsequenceFrontier_of_prismTheoremStrictPrismBoundaryLeafFrontier
+    oddHalfCubeBoundaryLower_of_prismTheoremOddSizeLeafFrontier
+      (prismTheoremOddSizeLeafFrontier_of_prismTheoremStrictPrismBoundaryLeafFrontier
         hFrontier)
 
 theorem oddHalfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier
     (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
     OddHalfCubeBoundaryLowerStatement := by
   exact
-    oddHalfCubeBoundaryLower_of_prismTheoremEvenConsequenceFrontier
-      (prismTheoremEvenConsequenceFrontier_of_prismTheoremCurrentLeafFrontier
+    oddHalfCubeBoundaryLower_of_prismTheoremOddSizeLeafFrontier
+      (prismTheoremOddSizeLeafFrontier_of_prismTheoremCurrentLeafFrontier
         hFrontier)
 
 theorem oddHalfCubeUpperShadowGapLower_of_prismTheoremBoundaryLowerFrontier
@@ -11145,12 +11185,20 @@ theorem oddHalfCubeUpperShadowGapLower_of_prismTheoremBoundaryLowerFrontier
     OddHalfCubeUpperShadowGapLowerStatement := by
   exact hFrontier
 
+theorem prismTheoremBoundaryLowerFrontier_of_prismTheoremOddSizeLeafFrontier
+    (hFrontier : PrismTheoremOddSizeLeafFrontierStatement) :
+    PrismTheoremBoundaryLowerFrontierStatement := by
+  exact
+    oddHalfCubeUpperShadowGapLower_of_oddHalfCubeBoundaryLower
+      (oddHalfCubeBoundaryLower_of_prismTheoremOddSizeLeafFrontier hFrontier)
+
 theorem prismTheoremBoundaryLowerFrontier_of_prismTheoremEvenConsequenceFrontier
     (hFrontier : PrismTheoremEvenConsequenceFrontierStatement) :
     PrismTheoremBoundaryLowerFrontierStatement := by
   exact
-    oddHalfCubeUpperShadowGapLower_of_oddHalfCubeBoundaryLower
-      (oddHalfCubeBoundaryLower_of_prismTheoremEvenConsequenceFrontier hFrontier)
+    prismTheoremBoundaryLowerFrontier_of_prismTheoremOddSizeLeafFrontier
+      (prismTheoremOddSizeLeafFrontier_of_prismTheoremEvenConsequenceFrontier
+        hFrontier)
 
 theorem oddHalfCubeUpperShadowGapLower_of_prismTheoremEvenConsequenceFrontier
     (hFrontier : PrismTheoremEvenConsequenceFrontierStatement) :
@@ -11164,16 +11212,17 @@ theorem oddHalfCubeUpperShadowGapLower_of_prismTheoremCurrentLeafFrontier
     (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
     OddHalfCubeUpperShadowGapLowerStatement := by
   exact
-    oddHalfCubeUpperShadowGapLower_of_prismTheoremEvenConsequenceFrontier
-      (prismTheoremEvenConsequenceFrontier_of_prismTheoremCurrentLeafFrontier
-        hFrontier)
+    oddHalfCubeUpperShadowGapLower_of_prismTheoremBoundaryLowerFrontier
+      (prismTheoremBoundaryLowerFrontier_of_prismTheoremOddSizeLeafFrontier
+        (prismTheoremOddSizeLeafFrontier_of_prismTheoremCurrentLeafFrontier
+          hFrontier))
 
 theorem prismTheoremBoundaryLowerFrontier_of_prismTheoremCurrentLeafFrontier
     (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
     PrismTheoremBoundaryLowerFrontierStatement := by
   exact
-    prismTheoremBoundaryLowerFrontier_of_prismTheoremEvenConsequenceFrontier
-      (prismTheoremEvenConsequenceFrontier_of_prismTheoremCurrentLeafFrontier
+    prismTheoremBoundaryLowerFrontier_of_prismTheoremOddSizeLeafFrontier
+      (prismTheoremOddSizeLeafFrontier_of_prismTheoremCurrentLeafFrontier
         hFrontier)
 
 theorem
