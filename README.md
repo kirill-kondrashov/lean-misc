@@ -340,81 +340,71 @@ Write
 In the nested-sheet branch, the standing hypotheses are
 
 ```math
-\mathcal M \subseteq \mathcal N,
-\qquad
-|\mathcal N| = 2^{2m} + e,
-\qquad
-|\mathcal M| = 2^{2m} - e,
-\qquad
-\mathrm{totalSize}(\mathrm{evenLowerHalfFamily}(m))
-<
+\mathcal M \subseteq \mathcal N,\qquad
+|\mathcal N| = 2^{2m} + e,\qquad
+|\mathcal M| = 2^{2m} - e,\qquad
+\mathrm{totalSize}(\mathrm{evenLowerHalfFamily}(m)) <
 \mathrm{totalSize}(\mathrm{twoSheetFamily}(\mathcal M,\mathcal N)).
 ```
 
-The remaining source leaves are then:
+The remaining source leaves are:
 
-1. One odd one-sheet upper-shadow-gap leaf:
+Odd one-sheet upper-shadow-gap leaf.
 
-   ```math
-   |\mathcal D| = 2^{2m},
-   \qquad
-   \mathrm{totalSize}(\mathrm{oddLowerHalfFamily}(m)) < \mathrm{totalSize}(\mathcal D)
-   \Longrightarrow
-   \binom{2m+1}{m} < \mathrm{upperShadowGap}(\mathcal D).
-   ```
+```math
+|\mathcal D| = 2^{2m},\qquad
+\mathrm{totalSize}(\mathrm{oddLowerHalfFamily}(m)) < \mathrm{totalSize}(\mathcal D)
+\Longrightarrow
+\binom{2m+1}{m} < \mathrm{upperShadowGap}(\mathcal D).
+```
 
-2. Two exterior-support strict-excess leaves:
+Exterior-support strict-excess leaves.
 
-   ```math
-   (\partial^+\mathcal N)_r \ne \varnothing
-   \quad\text{for some } r \le m \text{ or } r \ge m+3
-   \Longrightarrow
-   2\binom{2m+1}{m} < |\partial^+\mathcal N| + 2e,
-   ```
+```math
+(\partial^+\mathcal N)_r \ne \varnothing
+\quad\text{for some } r \le m \text{ or } r \ge m+3
+\Longrightarrow
+2\binom{2m+1}{m} < |\partial^+\mathcal N| + 2e.
+```
 
-   and
+```math
+I(\mathcal M,\mathcal N)_q \ne \varnothing
+\quad\text{for some } q < m \text{ or } q \ge m+2
+\Longrightarrow
+2\binom{2m+1}{m} < |\partial^+\mathcal N| + 2e.
+```
 
-   ```math
-   I(\mathcal M,\mathcal N)_q \ne \varnothing
-   \quad\text{for some } q < m \text{ or } q \ge m+2
-   \Longrightarrow
-   2\binom{2m+1}{m} < |\partial^+\mathcal N| + 2e.
-   ```
+First-gap prism leaf.
 
-3. One first-gap prism leaf:
+```math
+(\mathcal N \setminus \mathcal M)_s = \varnothing \text{ for } s < q,\qquad
+(\mathcal N \setminus \mathcal M)_q \ne \varnothing
+\Longrightarrow
+\binom{2m+2}{m+1} < |\partial^+(\mathrm{twoSheetFamily}(\mathcal M,\mathcal N))|.
+```
 
-   ```math
-   (\mathcal N \setminus \mathcal M)_s = \varnothing \text{ for } s < q,
-   \qquad
-   (\mathcal N \setminus \mathcal M)_q \ne \varnothing
-   \Longrightarrow
-   \binom{2m+2}{m+1} < |\partial^+(\mathrm{twoSheetFamily}(\mathcal M,\mathcal N))|.
-   ```
+Support-silent middle leaves.
 
-4. Two support-silent middle leaves:
+```math
+I(\mathcal M,\mathcal N)_r = \varnothing
+\quad\text{for all } r < m \text{ or } r \ge m+2.
+```
 
-   ```math
-   I(\mathcal M,\mathcal N)_r = \varnothing
-   \quad\text{for all } r < m \text{ or } r \ge m+2,
-   ```
+Lower middle case:
 
-   together with either
+```math
+(\partial^+\mathcal M)_m \ne \varnothing
+\Longrightarrow
+\binom{2m+2}{m+1} < |\partial^+(\mathrm{twoSheetFamily}(\mathcal M,\mathcal N))|.
+```
 
-   ```math
-   (\partial^+\mathcal M)_m \ne \varnothing
-   ```
+Upper middle case:
 
-   or
-
-   ```math
-   (\partial^+\mathcal M)_{m+1} \ne \varnothing,
-   ```
-
-   and in either case the conclusion is
-
-   ```math
-   \binom{2m+2}{m+1} < |\partial^+(\mathrm{twoSheetFamily}(\mathcal M,\mathcal N))|.
-   ```
+```math
+(\partial^+\mathcal M)_{m+1} \ne \varnothing
+\Longrightarrow
+\binom{2m+2}{m+1} < |\partial^+(\mathrm{twoSheetFamily}(\mathcal M,\mathcal N))|.
+```
 
 The theorem-level boundary route has already been detached from the strict prism-boundary branch:
 it now factors through the one-leaf odd-size source bundle
