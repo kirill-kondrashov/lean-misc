@@ -91,6 +91,24 @@ theorem erdos_1_lower_bound_exact_of_prismTheoremCurrentLeafFrontier_of_firstPos
       hDefect hFrontier hA hAne)
 
 /--
+Exact Erdős #1 endpoint factored through the two explicit remaining subgoals:
+normalize the canonical defect bottleneck to the simple-lower contradiction surface, and then
+prove the simple-lower upper-tail bridge.
+-/
+theorem
+    erdos_1_lower_bound_exact_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLower_of_simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle
+    (hNorm : PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerStatement)
+    (hSimple : SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement)
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    ∀ (N : ℕ) (A : Finset ℕ), IsSumDistinctSet A N → A.Nonempty →
+      Nat.choose A.card (A.card / 2) ≤ N := by
+  exact
+    erdos_1_lower_bound_exact_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck
+      hFrontier
+      (prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck_of_normalizesToSimpleLower_of_simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle
+        hNorm hSimple)
+
+/--
 Equivalent exact Erdős #1 endpoint using the positive-excess defect bridge directly.
 -/
 theorem erdos_1_lower_bound_exact_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSize

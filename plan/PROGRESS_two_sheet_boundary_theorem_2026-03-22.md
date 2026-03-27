@@ -120,3 +120,11 @@ and the no-larger-prism contradiction surface
 
 So the remaining work is sharper again: bridge the current first-positive-gap defect bottleneck to
 that simple-lower upper-tail statement, then the larger-prism contradiction is already formalized.
+
+The final route is now split into two explicit theorem inputs:
+
+- `PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerStatement`
+- `SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement`
+
+The Lean files now show directly that those two inputs close the canonical defect bottleneck and
+therefore the exact Erdős #1 endpoint under `PrismTheoremCurrentLeafFrontierStatement`.

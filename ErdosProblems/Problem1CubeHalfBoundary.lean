@@ -8038,6 +8038,33 @@ theorem
     prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck_iff_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerPrismThanEvenWitness.trans
       oddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerPrismThanEvenWitness_iff_withNoLargerPrismThanEvenWitnessImpossible
 
+/-- Exact remaining normalization layer behind the canonical defect bottleneck: once the
+search-aligned simple-lower contradiction surface is available, it should imply the original
+first-gap contradiction surface. -/
+def PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerStatement : Prop :=
+  SimpleLowerPairInterfaceBoundaryDefectWithNoLargerPrismThanEvenWitnessImpossibleStatement →
+    OddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectWithNoLargerPrismThanEvenWitnessImpossibleStatement
+
+theorem
+    prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck_of_normalizesToSimpleLower_of_simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle
+    (hNorm : PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerStatement)
+    (hSimple : SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement) :
+    PrismTheoremCanonicalPairInterfaceBoundaryDefectBottleneckStatement := by
+  have hSimpleImpossible :
+      SimpleLowerPairInterfaceBoundaryDefectWithNoLargerPrismThanEvenWitnessImpossibleStatement :=
+    (simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle_iff_withNoLargerPrismThanEvenWitnessImpossible).mp
+      hSimple
+  have hCanonImpossible :
+      OddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectWithNoLargerPrismThanEvenWitnessImpossibleStatement :=
+    hNorm hSimpleImpossible
+  intro m q e 𝒩 ℳ he h𝒩 hℳ hsub h𝒩card hℳcard hzero hpos hlt
+  by_contra hnot
+  have hle :
+      totalSize (twoSheetFamily ℳ 𝒩) ≤ totalSize (evenLowerHalfFamily m) := by
+    simpa [totalSize_twoSheetFamily] using (le_of_not_gt hnot)
+  exact
+    hCanonImpossible he h𝒩 hℳ hsub h𝒩card hℳcard hzero hpos hlt hle
+
 theorem isDownSetFamily_twoSheetFamily {n : ℕ} {ℳ 𝒩 : Finset (Finset (Fin n))}
     (hℳ : IsDownSetFamily ℳ) (h𝒩 : IsDownSetFamily 𝒩) (hsub : ℳ ⊆ 𝒩) :
     IsDownSetFamily (twoSheetFamily ℳ 𝒩) := by
