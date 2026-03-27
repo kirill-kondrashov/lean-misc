@@ -13605,4 +13605,258 @@ theorem positiveBoundaryFamilyNat_lower_of_oddHalfCubeBoundaryLower_of_positiveE
       (halfCubeBoundaryLower_of_oddHalfCubeBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
         hOdd hPair) h hA
 
+theorem subcubeHalfCubeBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_positiveExcessPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremBoundaryLowerFrontierStatement)
+    (hPair : OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundary (negativeHalfFamilySubcubeNat A)).card := by
+  exact
+    subcubeHalfCubeBoundaryLower_of_halfCubeBoundaryLower
+      (halfCubeBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_positiveExcessPairInterfaceBoundaryLower
+        hFrontier hPair) h hA
+
+theorem subcubeHalfCubeBoundaryLower_of_prismTheoremEvenConsequenceFrontier_of_positiveExcessPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement)
+    (hPair : OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundary (negativeHalfFamilySubcubeNat A)).card := by
+  exact
+    subcubeHalfCubeBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_positiveExcessPairInterfaceBoundaryLower
+      (prismTheoremBoundaryLowerFrontier_of_prismTheoremEvenConsequenceFrontier
+        hFrontier)
+      hPair h hA
+
+theorem subcubeHalfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hPair : OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundary (negativeHalfFamilySubcubeNat A)).card := by
+  exact
+    subcubeHalfCubeBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_positiveExcessPairInterfaceBoundaryLower
+      (prismTheoremBoundaryLowerFrontier_of_prismTheoremCurrentLeafFrontier
+        hFrontier)
+      hPair h hA
+
+theorem subcubeHalfCubeBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_firstSeparationPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremBoundaryLowerFrontierStatement)
+    (hFirst : OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundary (negativeHalfFamilySubcubeNat A)).card := by
+  exact
+    subcubeHalfCubeBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_positiveExcessPairInterfaceBoundaryLower
+      hFrontier
+      (oddSectionPositiveExcessPairInterfaceBoundaryLower_of_firstSeparationPairInterfaceBoundaryLower
+        hFirst)
+      h hA
+
+theorem subcubeHalfCubeBoundaryLower_of_prismTheoremEvenConsequenceFrontier_of_firstSeparationPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement)
+    (hFirst : OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundary (negativeHalfFamilySubcubeNat A)).card := by
+  exact
+    subcubeHalfCubeBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_firstSeparationPairInterfaceBoundaryLower
+      (prismTheoremBoundaryLowerFrontier_of_prismTheoremEvenConsequenceFrontier
+        hFrontier)
+      hFirst h hA
+
+theorem subcubeHalfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_firstSeparationPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hFirst : OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundary (negativeHalfFamilySubcubeNat A)).card := by
+  exact
+    subcubeHalfCubeBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_firstSeparationPairInterfaceBoundaryLower
+      (prismTheoremBoundaryLowerFrontier_of_prismTheoremCurrentLeafFrontier
+        hFrontier)
+      hFirst h hA
+
+theorem subcubeHalfCubeBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremBoundaryLowerFrontierStatement)
+    (hGap : OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundary (negativeHalfFamilySubcubeNat A)).card := by
+  exact
+    subcubeHalfCubeBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_positiveExcessPairInterfaceBoundaryLower
+      hFrontier
+      (oddSectionPositiveExcessPairInterfaceBoundaryLower_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+        hGap)
+      h hA
+
+theorem subcubeHalfCubeBoundaryLower_of_prismTheoremEvenConsequenceFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement)
+    (hGap : OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundary (negativeHalfFamilySubcubeNat A)).card := by
+  exact
+    subcubeHalfCubeBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      (prismTheoremBoundaryLowerFrontier_of_prismTheoremEvenConsequenceFrontier
+        hFrontier)
+      hGap h hA
+
+theorem subcubeHalfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hGap : OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundary (negativeHalfFamilySubcubeNat A)).card := by
+  exact
+    subcubeHalfCubeBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      (prismTheoremBoundaryLowerFrontier_of_prismTheoremCurrentLeafFrontier
+        hFrontier)
+      hGap h hA
+
+theorem subcubeHalfCubeBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremBoundaryLowerFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundary (negativeHalfFamilySubcubeNat A)).card := by
+  exact
+    subcubeHalfCubeBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon h hA
+
+theorem subcubeHalfCubeBoundaryLower_of_prismTheoremEvenConsequenceFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundary (negativeHalfFamilySubcubeNat A)).card := by
+  exact
+    subcubeHalfCubeBoundaryLower_of_prismTheoremEvenConsequenceFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon h hA
+
+theorem subcubeHalfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundary (negativeHalfFamilySubcubeNat A)).card := by
+  exact
+    subcubeHalfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon h hA
+
+theorem positiveBoundaryFamilyNat_lower_of_prismTheoremBoundaryLowerFrontier_of_positiveExcessPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremBoundaryLowerFrontierStatement)
+    (hPair : OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundaryFamilyNat A).card := by
+  exact
+    positiveBoundaryFamilyNat_lower_of_halfCubeBoundaryLower
+      (halfCubeBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_positiveExcessPairInterfaceBoundaryLower
+        hFrontier hPair) h hA
+
+theorem positiveBoundaryFamilyNat_lower_of_prismTheoremEvenConsequenceFrontier_of_positiveExcessPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement)
+    (hPair : OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundaryFamilyNat A).card := by
+  exact
+    positiveBoundaryFamilyNat_lower_of_prismTheoremBoundaryLowerFrontier_of_positiveExcessPairInterfaceBoundaryLower
+      (prismTheoremBoundaryLowerFrontier_of_prismTheoremEvenConsequenceFrontier
+        hFrontier)
+      hPair h hA
+
+theorem positiveBoundaryFamilyNat_lower_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hPair : OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundaryFamilyNat A).card := by
+  exact
+    positiveBoundaryFamilyNat_lower_of_prismTheoremBoundaryLowerFrontier_of_positiveExcessPairInterfaceBoundaryLower
+      (prismTheoremBoundaryLowerFrontier_of_prismTheoremCurrentLeafFrontier
+        hFrontier)
+      hPair h hA
+
+theorem positiveBoundaryFamilyNat_lower_of_prismTheoremBoundaryLowerFrontier_of_firstSeparationPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremBoundaryLowerFrontierStatement)
+    (hFirst : OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundaryFamilyNat A).card := by
+  exact
+    positiveBoundaryFamilyNat_lower_of_prismTheoremBoundaryLowerFrontier_of_positiveExcessPairInterfaceBoundaryLower
+      hFrontier
+      (oddSectionPositiveExcessPairInterfaceBoundaryLower_of_firstSeparationPairInterfaceBoundaryLower
+        hFirst)
+      h hA
+
+theorem positiveBoundaryFamilyNat_lower_of_prismTheoremEvenConsequenceFrontier_of_firstSeparationPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement)
+    (hFirst : OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundaryFamilyNat A).card := by
+  exact
+    positiveBoundaryFamilyNat_lower_of_prismTheoremBoundaryLowerFrontier_of_firstSeparationPairInterfaceBoundaryLower
+      (prismTheoremBoundaryLowerFrontier_of_prismTheoremEvenConsequenceFrontier
+        hFrontier)
+      hFirst h hA
+
+theorem positiveBoundaryFamilyNat_lower_of_prismTheoremCurrentLeafFrontier_of_firstSeparationPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hFirst : OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundaryFamilyNat A).card := by
+  exact
+    positiveBoundaryFamilyNat_lower_of_prismTheoremBoundaryLowerFrontier_of_firstSeparationPairInterfaceBoundaryLower
+      (prismTheoremBoundaryLowerFrontier_of_prismTheoremCurrentLeafFrontier
+        hFrontier)
+      hFirst h hA
+
+theorem positiveBoundaryFamilyNat_lower_of_prismTheoremBoundaryLowerFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremBoundaryLowerFrontierStatement)
+    (hGap : OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundaryFamilyNat A).card := by
+  exact
+    positiveBoundaryFamilyNat_lower_of_prismTheoremBoundaryLowerFrontier_of_positiveExcessPairInterfaceBoundaryLower
+      hFrontier
+      (oddSectionPositiveExcessPairInterfaceBoundaryLower_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+        hGap)
+      h hA
+
+theorem positiveBoundaryFamilyNat_lower_of_prismTheoremEvenConsequenceFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement)
+    (hGap : OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundaryFamilyNat A).card := by
+  exact
+    positiveBoundaryFamilyNat_lower_of_prismTheoremBoundaryLowerFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      (prismTheoremBoundaryLowerFrontier_of_prismTheoremEvenConsequenceFrontier
+        hFrontier)
+      hGap h hA
+
+theorem positiveBoundaryFamilyNat_lower_of_prismTheoremCurrentLeafFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hGap : OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundaryFamilyNat A).card := by
+  exact
+    positiveBoundaryFamilyNat_lower_of_prismTheoremBoundaryLowerFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      (prismTheoremBoundaryLowerFrontier_of_prismTheoremCurrentLeafFrontier
+        hFrontier)
+      hGap h hA
+
+theorem positiveBoundaryFamilyNat_lower_of_prismTheoremBoundaryLowerFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremBoundaryLowerFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundaryFamilyNat A).card := by
+  exact
+    positiveBoundaryFamilyNat_lower_of_prismTheoremBoundaryLowerFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon h hA
+
+theorem positiveBoundaryFamilyNat_lower_of_prismTheoremEvenConsequenceFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundaryFamilyNat A).card := by
+  exact
+    positiveBoundaryFamilyNat_lower_of_prismTheoremEvenConsequenceFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon h hA
+
+theorem positiveBoundaryFamilyNat_lower_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundaryFamilyNat A).card := by
+  exact
+    positiveBoundaryFamilyNat_lower_of_prismTheoremCurrentLeafFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon h hA
+
 end Erdos1
