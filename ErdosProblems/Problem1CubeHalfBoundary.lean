@@ -13086,6 +13086,134 @@ theorem
       hPair hn h𝒟 hcard
 
 theorem
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremBoundaryLowerFrontier_of_firstSeparationPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremBoundaryLowerFrontierStatement)
+    (hFirst :
+      OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremBoundaryLowerFrontier_of_positiveExcessPairInterfaceBoundaryLower
+      hFrontier
+      (oddSectionPositiveExcessPairInterfaceBoundaryLower_of_firstSeparationPairInterfaceBoundaryLower
+        hFirst)
+      hn h𝒟 hcard
+
+theorem
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremEvenConsequenceFrontier_of_firstSeparationPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement)
+    (hFirst :
+      OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremBoundaryLowerFrontier_of_firstSeparationPairInterfaceBoundaryLower
+      (prismTheoremBoundaryLowerFrontier_of_prismTheoremEvenConsequenceFrontier
+        hFrontier)
+      hFirst hn h𝒟 hcard
+
+theorem
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremCurrentLeafFrontier_of_firstSeparationPairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hFirst :
+      OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremBoundaryLowerFrontier_of_firstSeparationPairInterfaceBoundaryLower
+      (prismTheoremBoundaryLowerFrontier_of_prismTheoremCurrentLeafFrontier
+        hFrontier)
+      hFirst hn h𝒟 hcard
+
+theorem
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremBoundaryLowerFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremBoundaryLowerFrontierStatement)
+    (hGap :
+      OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremBoundaryLowerFrontier_of_positiveExcessPairInterfaceBoundaryLower
+      hFrontier
+      (oddSectionPositiveExcessPairInterfaceBoundaryLower_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+        hGap)
+      hn h𝒟 hcard
+
+theorem
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremEvenConsequenceFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement)
+    (hGap :
+      OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremBoundaryLowerFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      (prismTheoremBoundaryLowerFrontier_of_prismTheoremEvenConsequenceFrontier
+        hFrontier)
+      hGap hn h𝒟 hcard
+
+theorem
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremCurrentLeafFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hGap :
+      OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremBoundaryLowerFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      (prismTheoremBoundaryLowerFrontier_of_prismTheoremCurrentLeafFrontier
+        hFrontier)
+      hGap hn h𝒟 hcard
+
+theorem
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremBoundaryLowerFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremBoundaryLowerFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremBoundaryLowerFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon hn h𝒟 hcard
+
+theorem
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremEvenConsequenceFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremEvenConsequenceFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon hn h𝒟 hcard
+
+theorem
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremCurrentLeafFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon hn h𝒟 hcard
+
+theorem
     halfCubeBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_positiveExcessPairInterfaceBoundaryLower
     (hFrontier : PrismTheoremBoundaryLowerFrontierStatement)
     (hPair :
@@ -14111,6 +14239,64 @@ theorem positiveBoundaryFamilyNat_lower_of_prismTheoremCurrentLeafFrontier_of_pr
   exact
     positiveBoundaryFamilyNat_lower_of_prismTheoremCurrentLeafFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
       hFrontier hCanon h hA
+
+theorem
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSize_of_prismTheoremCurrentLeafFrontier
+    (hDefect :
+      OddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement)
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+      hFrontier
+      (prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSize_of_prismTheoremCurrentLeafFrontier
+        hDefect hFrontier)
+      hn h𝒟 hcard
+
+theorem
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_positiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSize_of_prismTheoremCurrentLeafFrontier
+    (hDefect :
+      OddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement)
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSize_of_prismTheoremCurrentLeafFrontier
+      ((oddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_iff_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness).mp
+        hDefect)
+      hFrontier hn h𝒟 hcard
+
+theorem
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_firstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSize_of_prismTheoremCurrentLeafFrontier
+    (hDefect :
+      OddSectionFirstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement)
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSize_of_prismTheoremCurrentLeafFrontier
+      ((oddSectionFirstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_iff_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness).mp
+        hDefect)
+      hFrontier hn h𝒟 hcard
+
+theorem
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hCanonDefect : PrismTheoremCanonicalPairInterfaceBoundaryDefectBottleneckStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSize_of_prismTheoremCurrentLeafFrontier
+      hCanonDefect hFrontier hn h𝒟 hcard
 
 theorem
     oddSectionPairInterfaceBoundaryLower_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSize_of_prismTheoremCurrentLeafFrontier
