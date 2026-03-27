@@ -94,3 +94,10 @@ Working intermediate-lemma candidate:
 This does not prove the canonical defect bottleneck yet, but it gives a concrete local proof target:
 rule out the zero-gain regime abstractly, then convert positive weighted upper-tail gain into the
 desired `totalSize` inequality.
+
+The Lean file now also has the exact prism-form target
+`OddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerPrismThanEvenWitnessStatement`,
+proved equivalent to the canonical defect bottleneck and wired directly to the exact Erdős #1
+endpoint under the current leaf frontier. So the remaining missing step is now explicitly
+"defect => larger prism" in the same language used by both the search tooling and the existing leaf
+strict-boundary route.
