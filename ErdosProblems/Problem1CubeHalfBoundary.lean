@@ -8062,6 +8062,353 @@ def PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUnifo
   SimpleLowerPairInterfaceBoundaryDefectWithUniformUpperImpossibleStatement →
     OddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectWithNoLargerPrismThanEvenWitnessImpossibleStatement
 
+theorem prismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpper :
+    PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpperStatement := by
+  intro hSimple
+  intro m q e 𝒩 ℳ he h𝒩 hℳ hsub h𝒩card hℳcard _hzero _hpos hlt hle
+  let 𝒟 : Finset (Finset (Fin (2 * m + 2))) := twoSheetFamily ℳ 𝒩
+  let ℒ : Finset (Finset (Fin (2 * m + 1))) := oddLowerHalfFamily m
+  let 𝒰 : Finset (Finset (Fin (2 * m + 1))) := 𝒩 \ ℒ
+  let 𝒱 : Finset (Finset (Fin (2 * m + 1))) := ℒ \ ℳ
+  let 𝒲 : Finset (Finset (Fin (2 * m + 1))) := ℳ \ ℒ
+  have hele : e ≤ 2 ^ (2 * m) := by
+    have hcard_le : 𝒩.card ≤ 2 ^ (2 * m + 1) := by
+      calc
+        𝒩.card ≤ Fintype.card (Finset (Fin (2 * m + 1))) := Finset.card_le_univ 𝒩
+        _ = 2 ^ (2 * m + 1) := by simp
+    rw [h𝒩card, pow_succ'] at hcard_le
+    omega
+  have h𝒟card : 𝒟.card = 2 ^ (2 * m + 1) := by
+    simpa [𝒟] using card_twoSheetFamily_of_symmetric hele h𝒩card hℳcard
+  have h𝒩nonempty : 𝒩.Nonempty := by
+    apply Finset.card_pos.mp
+    rw [h𝒩card]
+    positivity
+  have hempty𝒩 : (∅ : Finset (Fin (2 * m + 1))) ∈ 𝒩 :=
+    empty_mem_of_nonempty_isDownSetFamily h𝒩 h𝒩nonempty
+  have h𝒟lower :
+      ∀ r ∈ Finset.range (m + 1), #(𝒟 # r) = Nat.choose (2 * m + 2) r := by
+    intro r hr
+    by_cases hr0 : r = 0
+    · subst hr0
+      have hempty𝒟 : (∅ : Finset (Fin (2 * m + 2))) ∈ 𝒟 := by
+        rw [show 𝒟 = twoSheetFamily ℳ 𝒩 by rfl, twoSheetFamily, Finset.mem_union]
+        left
+        rw [mem_succFamily_iff]
+        simpa using hempty𝒩
+      have hslice0 : #(𝒟 # 0) = 1 := by
+        refine Finset.card_eq_one.mpr ?_
+        refine ⟨∅, ?_⟩
+        ext s
+        rw [Finset.mem_slice]
+        constructor
+        · rintro ⟨hs𝒟, hsCard⟩
+          have hsEmpty : s = ∅ := Finset.card_eq_zero.mp hsCard
+          simpa [hsEmpty] using hs𝒟
+        · intro hs
+          have hsEmpty : s = ∅ := by simpa using hs
+          subst hsEmpty
+          exact ⟨hempty𝒟, by simp⟩
+      simpa using hslice0
+    · have hrpos : 0 < r := Nat.pos_of_ne_zero hr0
+      have hrm : r ≤ m := Nat.le_of_lt_succ (Finset.mem_range.mp hr)
+      have hnotdef : ¬ #(𝒟 # r) < Nat.choose (2 * m + 2) r := by
+        intro hdef
+        have hstrict :
+            totalSize (evenLowerHalfFamily m) < totalSize 𝒟 :=
+          totalSize_evenLowerHalfFamily_lt_of_card_eq_half_cube_of_lower_slice_deficit
+            h𝒟card hrpos hrm hdef
+        exact (not_lt_of_ge hle) hstrict
+      exact Nat.le_antisymm (card_slice_le_choose (𝒟 := 𝒟) (r := r)) (Nat.not_lt.mp hnotdef)
+  have hslice_full :
+      ∀ r, r < m →
+        #(ℳ # r) = Nat.choose (2 * m + 1) r ∧
+          #(𝒩 # (r + 1)) = Nat.choose (2 * m + 1) (r + 1) := by
+    intro r hr
+    have h𝒟slice :
+        #(𝒟 # (r + 1)) = Nat.choose (2 * m + 2) (r + 1) :=
+      h𝒟lower (r + 1) (Finset.mem_range.mpr (Nat.succ_lt_succ hr))
+    have hsum :
+        #(𝒩 # (r + 1)) + #(ℳ # r) = Nat.choose (2 * m + 2) (r + 1) := by
+      simpa [𝒟, h𝒟slice] using
+        (card_slice_succ_twoSheetFamily (ℳ := ℳ) (𝒩 := 𝒩) (r := r)).symm
+    have h𝒩le : #(𝒩 # (r + 1)) ≤ Nat.choose (2 * m + 1) (r + 1) :=
+      card_slice_le_choose (𝒟 := 𝒩) (r := r + 1)
+    have hℳle : #(ℳ # r) ≤ Nat.choose (2 * m + 1) r :=
+      card_slice_le_choose (𝒟 := ℳ) (r := r)
+    have hpascal :
+        Nat.choose (2 * m + 2) (r + 1) =
+          Nat.choose (2 * m + 1) (r + 1) + Nat.choose (2 * m + 1) r := by
+      simpa [two_mul, add_assoc, add_left_comm, add_comm] using
+        (Nat.choose_succ_succ (2 * m + 1) r)
+    have hsum' :
+        #(𝒩 # (r + 1)) + #(ℳ # r) =
+          Nat.choose (2 * m + 1) (r + 1) + Nat.choose (2 * m + 1) r := by
+      rw [hsum, hpascal]
+    have hℳge : Nat.choose (2 * m + 1) r ≤ #(ℳ # r) := by
+      omega
+    have h𝒩ge : Nat.choose (2 * m + 1) (r + 1) ≤ #(𝒩 # (r + 1)) := by
+      omega
+    exact ⟨Nat.le_antisymm hℳle hℳge, Nat.le_antisymm h𝒩le h𝒩ge⟩
+  have hℳfull :
+      ∀ r, r < m → #(ℳ # r) = Nat.choose (2 * m + 1) r := by
+    intro r hr
+    exact (hslice_full r hr).1
+  have h𝒩full :
+      ∀ r, 0 < r → r ≤ m → #(𝒩 # r) = Nat.choose (2 * m + 1) r := by
+    intro r hrpos hrle
+    have h := (hslice_full (r - 1) (by omega)).2
+    have hrEq : r - 1 + 1 = r := Nat.sub_add_cancel (Nat.succ_le_of_lt hrpos)
+    simpa [hrEq] using h
+  have hℒsub𝒩 : ℒ ⊆ 𝒩 := by
+    intro s hsℒ
+    by_cases hs0 : s.card = 0
+    · have hsEmpty : s = ∅ := Finset.card_eq_zero.mp hs0
+      simpa [hsEmpty] using hempty𝒩
+    · have hspos : 0 < s.card := Nat.pos_of_ne_zero hs0
+      have hsle : s.card ≤ m := mem_oddLowerHalfFamily.mp hsℒ
+      have hsliceCard : #(𝒩 # s.card) = Nat.choose (2 * m + 1) s.card :=
+        h𝒩full s.card hspos hsle
+      have hslice :
+          𝒩 # s.card =
+            (Finset.univ : Finset (Fin (2 * m + 1))).powersetCard s.card :=
+        slice_eq_powersetCard_of_card_eq_choose hsliceCard
+      have hsPow :
+          s ∈ (Finset.univ : Finset (Fin (2 * m + 1))).powersetCard s.card := by
+        exact Finset.mem_powersetCard.mpr ⟨Finset.subset_univ _, rfl⟩
+      have hsSlice : s ∈ 𝒩 # s.card := by
+        simpa [hslice] using hsPow
+      exact (Finset.mem_slice.mp hsSlice).1
+  have h𝒰disj : Disjoint 𝒰 ℒ := by
+    rw [Finset.disjoint_left]
+    intro s hs𝒰 hsℒ
+    exact (Finset.mem_sdiff.mp hs𝒰).2 hsℒ
+  have h𝒲disj : Disjoint 𝒲 ℒ := by
+    rw [Finset.disjoint_left]
+    intro s hs𝒲 hsℒ
+    exact (Finset.mem_sdiff.mp hs𝒲).2 hsℒ
+  have h𝒰card : 𝒰.card = e := by
+    have hcardSplit := Finset.card_sdiff_add_card_eq_card hℒsub𝒩
+    rw [show 𝒩 \ ℒ = 𝒰 by rfl, h𝒩card, card_oddLowerHalfFamily_eq_half_cube] at hcardSplit
+    omega
+  have h𝒱subℒ : 𝒱 ⊆ ℒ := by
+    intro s hs
+    exact (Finset.mem_sdiff.mp hs).1
+  have h𝒱top : 𝒱 ⊆ ℒ # m := by
+    intro s hs𝒱
+    have hsℒ : s ∈ ℒ := (Finset.mem_sdiff.mp hs𝒱).1
+    have hsNotℳ : s ∉ ℳ := (Finset.mem_sdiff.mp hs𝒱).2
+    have hsle : s.card ≤ m := mem_oddLowerHalfFamily.mp hsℒ
+    have hseq : s.card = m := by
+      by_contra hsNe
+      have hslt : s.card < m := by omega
+      have hsliceCard : #(ℳ # s.card) = Nat.choose (2 * m + 1) s.card := hℳfull s.card hslt
+      have hslice :
+          ℳ # s.card =
+            (Finset.univ : Finset (Fin (2 * m + 1))).powersetCard s.card :=
+        slice_eq_powersetCard_of_card_eq_choose hsliceCard
+      have hsPow :
+          s ∈ (Finset.univ : Finset (Fin (2 * m + 1))).powersetCard s.card := by
+        exact Finset.mem_powersetCard.mpr ⟨Finset.subset_univ _, rfl⟩
+      have hsSlice : s ∈ ℳ # s.card := by
+        simpa [hslice] using hsPow
+      exact hsNotℳ (Finset.mem_slice.mp hsSlice).1
+    exact Finset.mem_slice.mpr ⟨hsℒ, hseq⟩
+  have h𝒩decomp : ℒ ∪ 𝒰 = 𝒩 := by
+    ext s
+    by_cases hsℒ : s ∈ ℒ
+    · simp [𝒰, hsℒ, hℒsub𝒩 hsℒ]
+    · simp [𝒰, hsℒ]
+  have h𝒲ℒdisj : Disjoint (ℒ \ 𝒱) 𝒲 := by
+    rw [Finset.disjoint_left]
+    intro s hs hs𝒲
+    exact (Finset.mem_sdiff.mp hs𝒲).2 ((Finset.mem_sdiff.mp hs).1)
+  have hℳdecomp : (ℒ \ 𝒱) ∪ 𝒲 = ℳ := by
+    ext s
+    by_cases hsℒ : s ∈ ℒ
+    · have hsNot𝒲 : s ∉ 𝒲 := by
+        intro hs𝒲
+        exact (Finset.mem_sdiff.mp hs𝒲).2 hsℒ
+      constructor
+      · intro hs
+        rw [Finset.mem_union] at hs
+        rcases hs with hs | hs
+        · have hsNot𝒱 : s ∉ 𝒱 := (Finset.mem_sdiff.mp hs).2
+          by_contra hsNotℳ
+          exact hsNot𝒱 (Finset.mem_sdiff.mpr ⟨hsℒ, hsNotℳ⟩)
+        · exact False.elim (hsNot𝒲 hs)
+      · intro hsℳ
+        rw [Finset.mem_union]
+        left
+        refine Finset.mem_sdiff.mpr ⟨hsℒ, ?_⟩
+        intro hs𝒱
+        exact (Finset.mem_sdiff.mp hs𝒱).2 hsℳ
+    · constructor
+      · intro hs
+        rw [Finset.mem_union] at hs
+        rcases hs with hs | hs
+        · exact False.elim (hsℒ ((Finset.mem_sdiff.mp hs).1))
+        · exact (Finset.mem_sdiff.mp hs).1
+      · intro hsℳ
+        rw [Finset.mem_union]
+        right
+        exact Finset.mem_sdiff.mpr ⟨hsℳ, hsℒ⟩
+  have h𝒱card_rel : 𝒱.card = e + 𝒲.card := by
+    have hdiffM : (ℒ ∪ ℳ) \ ℳ = 𝒱 := by
+      ext s
+      by_cases hsℒ : s ∈ ℒ <;> by_cases hsℳ : s ∈ ℳ <;> simp [𝒱, hsℒ, hsℳ]
+    have hdiffL : (ℒ ∪ ℳ) \ ℒ = 𝒲 := by
+      ext s
+      by_cases hsℒ : s ∈ ℒ <;> by_cases hsℳ : s ∈ ℳ <;> simp [𝒲, hsℒ, hsℳ]
+    have hunionM :
+        ((ℒ ∪ ℳ) \ ℳ).card + ℳ.card = (ℒ ∪ ℳ).card := by
+      exact Finset.card_sdiff_add_card_eq_card (by intro s hs; exact Finset.mem_union.mpr (Or.inr hs))
+    have hunionL :
+        ((ℒ ∪ ℳ) \ ℒ).card + ℒ.card = (ℒ ∪ ℳ).card := by
+      exact Finset.card_sdiff_add_card_eq_card (by intro s hs; exact Finset.mem_union.mpr (Or.inl hs))
+    rw [hdiffM, hℳcard] at hunionM
+    rw [hdiffL, card_oddLowerHalfFamily_eq_half_cube] at hunionL
+    have hunionM' : 𝒱.card + (2 ^ (2 * m) - e) = (ℒ ∪ ℳ).card := hunionM
+    have hunionL' : 𝒲.card + 2 ^ (2 * m) = (ℒ ∪ ℳ).card := hunionL
+    omega
+  have h𝒰lower :
+      ∀ s ∈ 𝒰, m + 1 ≤ s.card :=
+    card_lower_bound_of_disjoint_oddLowerHalfFamily h𝒰disj
+  have h𝒲lower :
+      ∀ s ∈ 𝒲, m + 1 ≤ s.card :=
+    card_lower_bound_of_disjoint_oddLowerHalfFamily h𝒲disj
+  have h𝒩lower :
+      totalSize ℒ + (m + 1) * 𝒰.card ≤ totalSize 𝒩 := by
+    have h𝒰total :
+        (m + 1) * 𝒰.card ≤ totalSize 𝒰 :=
+      card_mul_le_totalSize_of_card_lower_bound (𝒜 := 𝒰) (r := m + 1) h𝒰lower
+    rw [← h𝒩decomp, totalSize_union_of_disjoint h𝒰disj.symm]
+    omega
+  have h𝒲total :
+      (m + 1) * 𝒲.card ≤ totalSize 𝒲 :=
+    card_mul_le_totalSize_of_card_lower_bound (𝒜 := 𝒲) (r := m + 1) h𝒲lower
+  have h𝒱total : totalSize 𝒱 = m * 𝒱.card := by
+    exact totalSize_eq_card_mul_of_uniform (fun s hs => (Finset.mem_slice.mp (h𝒱top hs)).2)
+  have hcardLV : (ℒ \ 𝒱).card + 𝒱.card = ℒ.card :=
+    Finset.card_sdiff_add_card_eq_card h𝒱subℒ
+  have hℳcardDecomp : (ℒ \ 𝒱).card + 𝒲.card = ℳ.card := by
+    have htmp : #((ℒ \ 𝒱) ∪ 𝒲) = #(ℒ \ 𝒱) + #𝒲 := by
+      exact (Finset.card_union_eq_card_add_card).2 h𝒲ℒdisj
+    rw [← hℳdecomp]
+    exact htmp.symm
+  have hℳtotalDecomp :
+      totalSize (ℒ \ 𝒱) + totalSize 𝒲 = totalSize ℳ := by
+    rw [← hℳdecomp]
+    simpa using (totalSize_union_of_disjoint h𝒲ℒdisj).symm
+  have hLVtotalAdd : totalSize (ℒ \ 𝒱) + totalSize 𝒱 = totalSize ℒ := by
+    simpa [totalSize] using (Finset.sum_sdiff h𝒱subℒ (f := fun s => s.card))
+  have h𝒱card_le : 𝒱.card ≤ ℒ.card := by
+    have htmp : 𝒱.card ≤ (ℒ \ 𝒱).card + 𝒱.card := Nat.le_add_left _ _
+    simpa [hcardLV] using htmp
+  have h𝒱total_le : totalSize 𝒱 ≤ totalSize ℒ := by
+    have htmp : totalSize 𝒱 ≤ totalSize (ℒ \ 𝒱) + totalSize 𝒱 := Nat.le_add_left _ _
+    simpa [hLVtotalAdd] using htmp
+  have h𝒱bound : (m + 1) * 𝒱.card ≤ totalSize ℒ + ℒ.card := by
+    have hsumV : totalSize 𝒱 + 𝒱.card = (m + 1) * 𝒱.card := by
+      rw [h𝒱total]
+      rw [Nat.add_mul, one_mul]
+    rw [← hsumV]
+    exact add_le_add h𝒱total_le h𝒱card_le
+  have h𝒲boost : (m + 2) * 𝒲.card ≤ totalSize 𝒲 + 𝒲.card := by
+    have htmp := Nat.add_le_add_right h𝒲total 𝒲.card
+    calc
+      (m + 2) * 𝒲.card = (m + 1) * 𝒲.card + 𝒲.card := by
+        rw [show m + 2 = (m + 1) + 1 by omega, Nat.add_mul, one_mul]
+      _ ≤ totalSize 𝒲 + 𝒲.card := htmp
+  have hℳexpr_add :
+      totalSize ℳ + ℳ.card + (m + 1) * 𝒱.card =
+        totalSize ℒ + ℒ.card + (totalSize 𝒲 + 𝒲.card) := by
+    have hsumV : totalSize 𝒱 + 𝒱.card = (m + 1) * 𝒱.card := by
+      rw [h𝒱total]
+      rw [Nat.add_mul, one_mul]
+    calc
+      totalSize ℳ + ℳ.card + (m + 1) * 𝒱.card =
+          ((totalSize (ℒ \ 𝒱) + totalSize 𝒲) + ((ℒ \ 𝒱).card + 𝒲.card)) +
+            (totalSize 𝒱 + 𝒱.card) := by
+            simpa [hℳtotalDecomp, hℳcardDecomp, ← hsumV, add_assoc, add_left_comm, add_comm]
+      _ = ((totalSize (ℒ \ 𝒱) + totalSize 𝒱) + ((ℒ \ 𝒱).card + 𝒱.card)) +
+            (totalSize 𝒲 + 𝒲.card) := by
+            simp [add_assoc, add_left_comm, add_comm]
+      _ = (totalSize ℒ + ℒ.card) + (totalSize 𝒲 + 𝒲.card) := by
+            rw [hLVtotalAdd, hcardLV]
+      _ = totalSize ℒ + ℒ.card + (totalSize 𝒲 + 𝒲.card) := by
+            simp [add_assoc]
+  have htemp :
+      totalSize ℒ + ℒ.card + (m + 2) * 𝒲.card ≤
+        totalSize ℳ + ℳ.card + (m + 1) * 𝒱.card := by
+    calc
+      totalSize ℒ + ℒ.card + (m + 2) * 𝒲.card ≤
+          totalSize ℒ + ℒ.card + (totalSize 𝒲 + 𝒲.card) := by
+            exact Nat.add_le_add_left h𝒲boost (totalSize ℒ + ℒ.card)
+      _ = totalSize ℳ + ℳ.card + (m + 1) * 𝒱.card := by
+            rw [hℳexpr_add]
+  have h𝒟ge :
+      totalSize (evenLowerHalfFamily m) + 𝒲.card ≤ totalSize 𝒟 := by
+    have hwitness :
+        totalSize (evenLowerHalfFamily m) = 2 * totalSize ℒ + ℒ.card := by
+      calc
+        totalSize (evenLowerHalfFamily m) = 2 * totalSize ℒ + 2 ^ (2 * m) := by
+          simpa [ℒ] using
+            totalSize_evenLowerHalfFamily_eq_two_mul_totalSize_oddLowerHalfFamily_add_halfCube m
+        _ = 2 * totalSize ℒ + ℒ.card := by
+          rw [card_oddLowerHalfFamily_eq_half_cube]
+    have h𝒩lower' : totalSize ℒ + (m + 1) * e ≤ totalSize 𝒩 := by
+      simpa [h𝒰card] using h𝒩lower
+    have hmain :
+        2 * totalSize ℒ + ℒ.card + 𝒲.card ≤ totalSize 𝒩 + totalSize ℳ + ℳ.card := by
+      have haux :=
+        add_le_add h𝒩lower' htemp
+      have h𝒲split : (m + 2) * 𝒲.card = 𝒲.card + (m + 1) * 𝒲.card := by
+        calc
+          (m + 2) * 𝒲.card = ((m + 1) + 1) * 𝒲.card := by simp
+          _ = (m + 1) * 𝒲.card + 𝒲.card := by rw [Nat.add_mul, one_mul]
+          _ = 𝒲.card + (m + 1) * 𝒲.card := by ac_rfl
+      have hcancel :
+          (2 * totalSize ℒ + ℒ.card + 𝒲.card) + (m + 1) * 𝒲.card ≤
+            (totalSize 𝒩 + totalSize ℳ + ℳ.card) + (m + 1) * 𝒲.card := by
+        rw [h𝒱card_rel, Nat.left_distrib] at haux
+        simpa [two_mul, h𝒲split, add_assoc, add_left_comm, add_comm] using haux
+      exact Nat.le_of_add_le_add_right hcancel
+    rw [hwitness]
+    simpa [𝒟, totalSize_twoSheetFamily] using hmain
+  have h𝒲cardZero : 𝒲.card = 0 := by
+    have hleW : totalSize (evenLowerHalfFamily m) + 𝒲.card ≤ totalSize (evenLowerHalfFamily m) := by
+      exact le_trans h𝒟ge hle
+    have hleW' :
+        totalSize (evenLowerHalfFamily m) + 𝒲.card ≤ totalSize (evenLowerHalfFamily m) + 0 := by
+      simpa using hleW
+    have hnonpos : 𝒲.card ≤ 0 :=
+      (Nat.add_le_add_iff_left).mp hleW'
+    exact Nat.eq_zero_of_le_zero hnonpos
+  have h𝒲empty : 𝒲 = ∅ := Finset.card_eq_zero.mp h𝒲cardZero
+  have hℳsimple : ℳ = ℒ \ 𝒱 := by
+    rw [← hℳdecomp, h𝒲empty, Finset.union_empty]
+  have h𝒱card : 𝒱.card = e := by
+    rw [h𝒲cardZero, add_zero] at h𝒱card_rel
+    exact h𝒱card_rel
+  have h𝒰uniform :
+      ∀ s ∈ 𝒰, s.card = m + 1 := by
+    have hleSimple :
+        totalSize (twoSheetFamily (ℒ \ 𝒱) (ℒ ∪ 𝒰)) ≤ totalSize (evenLowerHalfFamily m) := by
+      simpa [𝒟, h𝒩decomp, hℳsimple] using hle
+    exact
+      (totalSize_twoSheetFamily_oddLowerHalf_sdiff_union_le_evenWitness_iff_upperUniform
+        (m := m) (𝒰 := 𝒰) (𝒱 := 𝒱) (by simpa [ℒ] using h𝒱top) (by simpa [ℒ] using h𝒰disj)
+        (by omega)).mp hleSimple
+  have hltSimple :
+      #(positiveBoundary (ℒ ∪ 𝒰)) +
+          #((((ℒ ∪ 𝒰) \ (ℒ \ 𝒱)) ∪ positiveBoundary (ℒ \ 𝒱))) <
+        2 * Nat.choose (2 * m + 1) m := by
+    simpa [h𝒩decomp, hℳsimple] using hlt
+  exact
+    hSimple (by simpa [ℒ] using h𝒱top) (by simpa [ℒ] using h𝒰disj) (by omega) hltSimple
+      h𝒰uniform
+
 theorem
     prismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLower_of_uniformUpper
     (hNorm :
