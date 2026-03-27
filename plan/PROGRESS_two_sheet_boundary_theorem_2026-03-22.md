@@ -144,3 +144,23 @@ normalization burden is sharper:
 
 - transfer the boundary defect to a simple-lower pair,
 - and normalize the upper part entirely into the middle layer.
+
+Update on 2026-03-27:
+
+- `PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpperStatement`
+  is now fully proved in Lean at
+  [Problem1CubeHalfBoundary.lean:8065](/home/kir/pers/erdos/lean-misc/ErdosProblems/Problem1CubeHalfBoundary.lean:8065).
+- The proof does not use a separate shifted-compression lemma. Instead it works directly with
+  `𝒟 := twoSheetFamily ℳ 𝒩`, proves all lower slices of `𝒟` are full up to rank `m`, deduces
+  `oddLowerHalfFamily m ⊆ 𝒩`, decomposes
+  `𝒩 = oddLowerHalfFamily m ∪ 𝒰` and `ℳ = (oddLowerHalfFamily m \ 𝒱) ∪ 𝒲`, and then uses the
+  `totalSize ≤ witness` hypothesis to force `𝒲 = ∅`. That yields the simple-lower shape
+  `ℳ = oddLowerHalfFamily m \ 𝒱`, `𝒩 = oddLowerHalfFamily m ∪ 𝒰`.
+- The already-formalized simple-lower equivalence
+  `totalSize ≤ witness ↔ uniform upper layer`
+  then gives `∀ s ∈ 𝒰, s.card = m + 1`, so the stronger normalization theorem closes directly.
+
+So this branch of the plan is complete. The remaining live subgoal in the overall prism route is
+now just:
+
+- `SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement`.

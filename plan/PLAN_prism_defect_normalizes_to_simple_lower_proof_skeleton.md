@@ -1,286 +1,403 @@
-# Proof Skeleton: `PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerStatement`
+# Proof Outline: `PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpperStatement`
 
-This note records the mathematical meaning of the remaining normalization subgoal and a plausible
-proof route for implementing it in Lean.
+This note records the current suggested proof of the stronger normalization theorem
 
-## Target Statement
+\[
+\texttt{PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpperStatement}.
+\]
+
+Status on 2026-03-27: implemented in Lean at
+[Problem1CubeHalfBoundary.lean:8065](/home/kir/pers/erdos/lean-misc/ErdosProblems/Problem1CubeHalfBoundary.lean:8065).
+What follows is now the mathematical proof outline matching the formal proof, not just a conjectural
+route.
+
+The older statement
+
+\[
+\texttt{PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerStatement}
+\]
+
+is now a formal corollary of this stronger surface, because in the simple-lower model the condition
+
+\[
+\operatorname{TS}(L_m \setminus V,\; L_m \cup U) \le \operatorname{ts}(E_m)
+\]
+
+is already equivalent to
+
+\[
+\forall s \in U,\ |s| = m+1.
+\]
+
+So the real normalization target is not a raw `totalSize` transport statement. The right target is:
+
+> normalize an arbitrary first-gap bad pair to a simple-lower bad pair whose upper part already
+> lies entirely in the middle layer.
+
+## Statement in Standard Notation
 
 Write
 
-- \(L_m := \{ S \subseteq [2m+1] : |S| \le m \}\) for the odd lower half,
-- \(E_m\) for the even witness,
+- \(L_m := \{S \subseteq [2m+1] : |S| \le m\}\),
+- \(E_m\) for the even witness in dimension \(2m+2\),
 - \(\partial^+\) for positive boundary,
-- \(\operatorname{ts}(\cdot)\) for `totalSize`,
 - \(\operatorname{TS}(\mathcal M,\mathcal N) := \operatorname{ts}(\operatorname{TwoSheet}(\mathcal M,\mathcal N))\).
 
-The normalization statement says:
+The theorem says:
 
-> If every **simple-lower** counterexample is impossible, then every **first-positive-gap**
-> counterexample is impossible.
+> If every simple-lower bad pair with **uniform upper layer**
+> \[
+> \forall s \in U,\ |s| = m+1
+> \]
+> is impossible, then every first-positive-gap bad pair is impossible.
 
-More explicitly:
+Equivalently:
 
 \[
-\Bigl[\forall m,\forall U,V,\ \mathrm{SimpleLowerBad}(m;U,V)\Rightarrow \bot\Bigr]
+\Bigl[\forall m,\forall U,V,\ \mathrm{SimpleLowerBad}^{\mathrm{unif}}(m;U,V)\Rightarrow \bot\Bigr]
 \Longrightarrow
 \Bigl[\forall m,q,e,\forall \mathcal M \subseteq \mathcal N,\ \mathrm{FirstGapBad}(m,q,e;\mathcal M,\mathcal N)\Rightarrow \bot\Bigr].
 \]
 
 Here:
 
-### Simple-lower bad configuration
+### First-gap bad configuration
 
 \[
-V \subseteq \binom{[2m+1]}{m}, \qquad U \cap L_m = \varnothing, \qquad |U| = |V|,
+0 < e,\qquad \mathcal M \subseteq \mathcal N \subseteq 2^{[2m+1]},
 \]
 
 \[
-|\partial^+(L_m \cup U)|
+|\mathcal N| = 2^{2m}+e,\qquad |\mathcal M| = 2^{2m}-e,
+\]
+
+\[
+(\mathcal N \setminus \mathcal M)\cap \binom{[2m+1]}{r}=\varnothing \quad (r<q),
+\qquad
+(\mathcal N \setminus \mathcal M)\cap \binom{[2m+1]}{q}\neq\varnothing,
+\]
+
+\[
+|\partial^+\mathcal N| + |(\mathcal N\setminus\mathcal M)\cup\partial^+\mathcal M|
+<
+2\binom{2m+1}{m},
+\]
+
+and
+
+\[
+\operatorname{TS}(\mathcal M,\mathcal N)\le \operatorname{ts}(E_m).
+\]
+
+### Simple-lower bad configuration with uniform upper layer
+
+\[
+V \subseteq \binom{[2m+1]}{m},\qquad U \cap L_m = \varnothing,\qquad |U|=|V|,
+\]
+
+\[
+|\partial^+(L_m\cup U)|
 +
-\left| ((L_m \cup U) \setminus (L_m \setminus V)) \cup \partial^+(L_m \setminus V) \right|
+\left|((L_m\cup U)\setminus(L_m\setminus V))\cup\partial^+(L_m\setminus V)\right|
 <
-2 \binom{2m+1}{m},
+2\binom{2m+1}{m},
 \]
 
 and
 
 \[
-\operatorname{TS}(L_m \setminus V,\; L_m \cup U) \le \operatorname{ts}(E_m).
-\]
-
-### First-positive-gap bad configuration
-
-\[
-0 < e, \qquad \mathcal M \subseteq \mathcal N \subseteq 2^{[2m+1]},
-\]
-
-\[
-|\mathcal N| = 2^{2m} + e, \qquad |\mathcal M| = 2^{2m} - e,
-\]
-
-\[
-(\mathcal N \setminus \mathcal M) \cap \binom{[2m+1]}{r} = \varnothing
-\quad \text{for all } r < q,
-\]
-
-\[
-(\mathcal N \setminus \mathcal M) \cap \binom{[2m+1]}{q} \neq \varnothing,
-\]
-
-\[
-|\partial^+\mathcal N| + \left|(\mathcal N \setminus \mathcal M)\cup \partial^+\mathcal M\right|
-<
-2 \binom{2m+1}{m},
-\]
-
-and
-
-\[
-\operatorname{TS}(\mathcal M,\mathcal N) \le \operatorname{ts}(E_m).
-\]
-
-So the desired normalization theorem is:
-
-> Given a first-positive-gap bad pair \((\mathcal M,\mathcal N)\), construct a simple-lower bad
-> pair \((L_m \setminus V,\, L_m \cup U)\).
-
-## Intended Construction
-
-The natural normalization target is
-
-\[
-\mathcal M' := L_m \setminus V, \qquad \mathcal N' := L_m \cup U,
-\]
-
-where:
-
-- \(V\) records the missing middle-layer sets removed from \(L_m\),
-- \(U\) records the upper-layer sets added above \(L_m\).
-
-The construction should satisfy:
-
-\[
-V \subseteq \binom{[2m+1]}{m}, \qquad U \cap L_m = \varnothing, \qquad |U| = |V| = e,
-\]
-
-and preserve the two properties needed for contradiction:
-
-1. the pair-interface defect inequality,
-2. the no-larger-prism inequality
-   \(\operatorname{TS}(\mathcal M',\mathcal N') \le \operatorname{ts}(E_m)\).
-
-## Proof Skeleton
-
-Assume a first-positive-gap bad pair \((\mathcal M,\mathcal N)\).
-
-### Step 1: Identify the lower-half baseline
-
-Show that the cardinal constraints
-
-\[
-|\mathcal N| = 2^{2m} + e, \qquad |\mathcal M| = 2^{2m} - e
-\]
-
-mean that \((\mathcal M,\mathcal N)\) differs from the half-cube baseline by exactly \(e\) upward
-moves and \(e\) downward removals.
-
-Expected Lean output:
-
-- a decomposition of the relevant layers into a lower-half core plus a deficit part \(V\) and an
-  upper excess part \(U\),
-- cardinal equalities such as \(|U| = |V|\).
-
-### Step 2: Normalize to simple-lower shape
-
-Construct \(U\) and \(V\) so that
-
-\[
-\mathcal M' = L_m \setminus V, \qquad \mathcal N' = L_m \cup U.
-\]
-
-Show:
-
-\[
-V \subseteq \binom{[2m+1]}{m}, \qquad U \cap L_m = \varnothing.
-\]
-
-Expected Lean output:
-
-- a theorem that every normalized deficit sits in the middle layer,
-- a theorem that every normalized excess sits strictly above the middle layer,
-- a theorem that the normalized pair has the same section-cardinality gap as the original pair.
-
-### Step 3: Transfer the first-gap defect to the normalized pair
-
-Prove that the strict boundary defect survives normalization:
-
-\[
-|\partial^+\mathcal N'| + \left|(\mathcal N' \setminus \mathcal M') \cup \partial^+\mathcal M'\right|
-\le
-|\partial^+\mathcal N| + \left|(\mathcal N \setminus \mathcal M) \cup \partial^+\mathcal M\right|.
-\]
-
-Since the right-hand side is \(< 2\binom{2m+1}{m}\), this yields the simple-lower defect.
-
-This is the most delicate part. The proof likely needs either:
-
-- a compression/minimality argument showing normalization cannot increase the pair-interface
-  boundary, or
-- an exact slice-by-slice rewrite showing the defect quantity depends only on the normalized
-  deficit/excess data.
-
-Expected Lean output:
-
-- a monotonicity lemma or exact identity for the pair-interface defect under the normalization.
-
-### Step 4: Collapse the no-larger-prism condition to a uniform-upper condition
-
-This step is easier than a raw `totalSize` transport inequality.
-
-The existing simple-lower algebra already proves:
-
-\[
-\operatorname{TS}(L_m \setminus V,\; L_m \cup U) \le \operatorname{ts}(E_m)
-\iff
 \forall s \in U,\ |s| = m+1.
 \]
 
-So on the normalized side, the no-larger-prism hypothesis is equivalent to saying that every
-upper-sheet set lies exactly on the middle layer.
+## Proof
 
-Therefore the normalization problem can be strengthened as follows:
-
-> it is enough to normalize a first-gap bad pair to a simple-lower bad pair
-> \((L_m \setminus V,\; L_m \cup U)\) with
-> \[
-> \forall s \in U,\ |s| = m+1.
-> \]
-
-Then the inequality
-\[
-\operatorname{TS}(L_m \setminus V,\; L_m \cup U) \le \operatorname{ts}(E_m)
-\]
-holds automatically, by the already proved simple-lower `totalSize` equivalence.
-
-So the transport burden is not really:
+Assume a first-gap bad pair \((\mathcal M,\mathcal N)\), so
 
 \[
-\operatorname{TS}(\mathcal M',\mathcal N') \le \operatorname{TS}(\mathcal M,\mathcal N).
+0 < e,\qquad \mathcal M \subseteq \mathcal N \subseteq 2^{[2m+1]},
 \]
 
-Instead it is:
-
 \[
-\text{construct the normalized upper part } U \text{ entirely in rank } m+1.
+|\mathcal N| = 2^{2m}+e,\qquad |\mathcal M| = 2^{2m}-e,
 \]
 
-Expected Lean output:
-
-- a stronger normalization theorem reducing the target to the simple-lower
-  `uniform upper` contradiction surface,
-- rather than a direct theorem transporting a raw `totalSize` inequality.
-
-### Step 5: Invoke the simple-lower contradiction surface
-
-Now \((U,V)\) satisfies the simple-lower bad hypotheses, so by the assumed theorem
-
 \[
-\forall m,\forall U,V,\ \mathrm{SimpleLowerBad}(m;U,V)\Rightarrow \bot,
+|\partial^+\mathcal N| + |(\mathcal N\setminus\mathcal M)\cup\partial^+\mathcal M|
+<
+2\binom{2m+1}{m},
 \]
 
-we obtain a contradiction.
-
-Therefore no first-positive-gap bad pair exists.
-
-## Minimal Lean Sublemma Checklist
-
-The likely implementation path is to prove the normalization statement from the following local
-lemmas.
-
-1. `firstGap_bad_pair_has_simpleLower_card_profile`
-
-   From the original hypotheses, construct \(U,V\) with
-   \[
-   V \subseteq \binom{[2m+1]}{m}, \qquad U \cap L_m = \varnothing, \qquad |U| = |V|.
-   \]
-
-2. `firstGap_bad_pair_normalizes_to_simpleLower_boundary_defect`
-
-   Transfer
-   \[
-   |\partial^+\mathcal N| + |(\mathcal N \setminus \mathcal M)\cup \partial^+\mathcal M|
-   <
-   2 \binom{2m+1}{m}
-   \]
-   to the normalized pair.
-
-3. `firstGap_bad_pair_normalizes_to_simpleLower_uniform_upper`
-
-   Construct the normalized upper part so that
-   \[
-   \forall s \in U,\ |s| = m+1.
-   \]
-
-   Then the simple-lower no-larger-prism hypothesis follows automatically from the existing
-   algebraic equivalence.
-
-4. `firstGap_bad_pair_normalizes_to_simpleLower`
-
-   Bundle the previous three lemmas into the exact implication
-   `PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerStatement`.
-
-## Tactical Interpretation
-
-This theorem does not itself prove the prism bottleneck. It isolates the remaining abstract
-normalization burden:
-
-- convert an arbitrary first-gap defect counterexample into the simple-lower model,
-- keep both the defect inequality and the non-larger-prism inequality intact,
-- then apply the already isolated simple-lower contradiction theorem.
-
-If this normalization is achieved, the remaining proof burden is entirely concentrated in the
-simple-lower statement
+and
 
 \[
-\mathrm{SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle}.
+\operatorname{TS}(\mathcal M,\mathcal N)\le \operatorname{ts}(E_m).
+\]
+
+Set
+
+\[
+\mathcal D := \operatorname{TwoSheet}(\mathcal M,\mathcal N)
+\subseteq 2^{[2m+2]}.
+\]
+
+Then the first step is to rewrite the problem entirely in terms of the even prism family
+\(\mathcal D\).
+
+### Step 1: Prism translation
+
+By the existing prism identities:
+
+\[
+|\mathcal D| = 2^{2m+1},
+\]
+
+\[
+\operatorname{ts}(\mathcal D)=\operatorname{TS}(\mathcal M,\mathcal N),
+\]
+
+and
+
+\[
+|\partial^+\mathcal D|
+=
+|\partial^+\mathcal N| + |(\mathcal N\setminus\mathcal M)\cup\partial^+\mathcal M|.
+\]
+
+So \(\mathcal D\) is an even-dimensional down-set of half-cube size with
+
+\[
+|\partial^+\mathcal D| < \binom{2m+2}{m+1},
+\qquad
+\operatorname{ts}(\mathcal D)\le \operatorname{ts}(E_m).
+\]
+
+Moreover,
+
+\[
+|\mathcal D^{0\text{-free}}| = |\mathcal N| = 2^{2m}+e > 2^{2m},
+\]
+
+so the \(0\)-free section of \(\mathcal D\) has strict excess over half-cube size.
+
+This means \(\mathcal D\) is already an even half-cube counterexample with a distinguished
+coordinate \(0\) carrying zero-section excess.
+
+### Step 2: Rule out lower-slice deficits below the middle
+
+This is the key rigidity argument.
+
+Because \(\mathcal D\) has half-cube size, any missing mass below the middle layer forces
+`totalSize` to increase above the even witness. This is exactly the estimate already proved in the
+file through the theorem
+
+\[
+\texttt{totalSize\_evenLowerHalfFamily\_lt\_of\_card\_eq\_half\_cube\_of\_lower\_slice\_deficit}.
+\]
+
+So if there were some \(r \le m\) such that
+
+\[
+|\mathcal D \cap \binom{[2m+2]}{r}| < \binom{2m+2}{r},
+\]
+
+then one would get
+
+\[
+\operatorname{ts}(E_m) < \operatorname{ts}(\mathcal D),
+\]
+
+contradicting the badness assumption.
+
+Therefore \(\mathcal D\) has **all lower slices full up to the middle**:
+
+\[
+|\mathcal D \cap \binom{[2m+2]}{r}| = \binom{2m+2}{r}
+\qquad (0 \le r \le m).
+\]
+
+### Step 3: Deduce simple-lower shape from full lower slices
+
+Set
+
+\[
+L_m := \{S\subseteq [2m+1]: |S|\le m\},
+\qquad
+U := \mathcal N \setminus L_m,
+\qquad
+V := L_m \setminus \mathcal M,
+\qquad
+W := \mathcal M \setminus L_m.
+\]
+
+The full lower-slice identities for \(\mathcal D\) imply:
+
+\[
+|\mathcal M \cap \tbinom{[2m+1]}{r}| = \binom{2m+1}{r}
+\quad (r<m),
+\]
+
+and
+
+\[
+|\mathcal N \cap \tbinom{[2m+1]}{r}| = \binom{2m+1}{r}
+\quad (1\le r\le m).
+\]
+
+Hence every set of size at most \(m\) lies in \(\mathcal N\), i.e.
+
+\[
+L_m \subseteq \mathcal N.
+\]
+
+So
+
+\[
+\mathcal N = L_m \cup U.
+\]
+
+Likewise, every set in \(V\) must lie in the middle layer:
+
+\[
+V \subseteq \binom{[2m+1]}{m}.
+\]
+
+Also
+
+\[
+\mathcal M = (L_m\setminus V)\cup W,
+\]
+
+with \(W\cap L_m=\varnothing\), so every set in \(W\) has size at least \(m+1\).
+
+\[
+\mathcal N = L_m \cup U,
+\qquad
+\mathcal M = (L_m\setminus V)\cup W.
+\]
+
+The cardinality identities give
+
+\[
+\lvert U\rvert = e,
+\qquad
+\lvert V\rvert = e + \lvert W\rvert.
+\]
+
+Now compare `totalSize` on both sides. Since every set in \(U\) and \(W\) has size at least
+\(m+1\), and every set in \(V\) has size exactly \(m\), one gets the lower bounds
+
+\[
+\operatorname{ts}(\mathcal N)\ge \operatorname{ts}(L_m) + (m+1)\lvert U\rvert,
+\]
+
+\[
+\operatorname{ts}(\mathcal M)+|\mathcal M|
++ (m+1)\lvert V\rvert
+\ge
+\operatorname{ts}(L_m)+|L_m| + (m+2)\lvert W\rvert.
+\]
+
+Combining these with
+
+\[
+\lvert U\rvert = e,\qquad \lvert V\rvert = e+\lvert W\rvert
+\]
+
+and
+
+\[
+\operatorname{ts}(E_m)=2\,\operatorname{ts}(L_m)+|L_m|,
+\qquad
+\operatorname{TS}(\mathcal M,\mathcal N)
+=
+\operatorname{ts}(\mathcal N)+\operatorname{ts}(\mathcal M)+|\mathcal M|,
+\]
+
+one obtains
+
+\[
+\operatorname{ts}(E_m)+|W|
+\le
+\operatorname{TS}(\mathcal M,\mathcal N).
+\]
+
+But by assumption
+
+\[
+\operatorname{TS}(\mathcal M,\mathcal N)\le \operatorname{ts}(E_m),
+\]
+
+so \(|W|=0\). Therefore \(W=\varnothing\), and hence
+
+\[
+\mathcal M = L_m\setminus V.
+\]
+
+This is the simple-lower normalization.
+
+### Step 4: Force the upper part to lie in the middle layer
+
+At this point the simple-lower algebra already proved in the file applies:
+
+\[
+\operatorname{ts}\bigl(\operatorname{TwoSheet}(L_m\setminus V,\; L_m\cup U)\bigr)
+\le
+\operatorname{ts}(E_m)
+\iff
+\forall s \in U,\ |s|=m+1.
+\]
+
+But the left-hand side holds because
+
+\[
+\operatorname{TwoSheet}(L_m\setminus V,\; L_m\cup U)=\mathcal D
+\]
+
+after the normalization of Step 5, and \(\mathcal D\) was assumed to satisfy
+
+\[
+\operatorname{ts}(\mathcal D)\le \operatorname{ts}(E_m).
+\]
+
+Hence automatically:
+
+\[
+\forall s \in U,\ |s|=m+1.
+\]
+
+So the “uniform upper” part of the target is not an extra burden once the simple-lower shape is
+identified.
+
+### Step 5: Transfer the defect inequality
+
+The boundary defect now transfers by the exact prism identity:
+
+\[
+|\partial^+\mathcal D|
+=
+|\partial^+(L_m\cup U)|
++
+\left|((L_m\cup U)\setminus(L_m\setminus V))\cup\partial^+(L_m\setminus V)\right|.
+\]
+
+Since \(|\partial^+\mathcal D| < \binom{2m+2}{m+1} = 2\binom{2m+1}{m}\), the normalized pair
+\((L_m\setminus V,\; L_m\cup U)\) is a simple-lower bad pair with uniform upper layer.
+
+### Step 6: Contradiction
+
+Apply the assumed simple-lower impossibility statement to \((U,V)\).
+
+This yields a contradiction, so the original first-gap bad pair cannot exist.
+
+## Outcome
+
+This proof is now implemented. The normalization theorem is no longer a speculative route: it is a
+proved reduction from the general first-gap defect configuration to the simple-lower uniform-upper
+configuration.
+
+As a consequence, the remaining live subgoal in the overall prism program is no longer any
+normalization statement. It is the simple-lower local theorem
+
+\[
+\texttt{SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement}.
 \]
