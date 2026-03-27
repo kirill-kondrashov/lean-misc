@@ -7853,6 +7853,112 @@ theorem totalSize_twoSheetFamily_oddLowerHalf_sdiff_union_eq_evenWitness_iff_upp
       totalSize_twoSheetFamily_oddLowerHalf_sdiff_union_eq_evenWitness_of_upperUniform
         h𝒱 h𝒰disj hcard h𝒰uniform
 
+/-- Search-aligned simple-lower intermediate target: if the pair-interface boundary lower bound
+fails for `𝒩 = lower_half ∪ 𝒰`, `ℳ = lower_half \ 𝒱`, then some upper-sheet set must lie strictly
+above the middle layer. This is the abstract version of the `n = 7` weighted upper-tail gain
+signal. -/
+def SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement : Prop :=
+  ∀ {m : ℕ} {𝒰 𝒱 : Finset (Finset (Fin (2 * m + 1)))},
+      𝒱 ⊆ (oddLowerHalfFamily m) # m →
+      Disjoint 𝒰 (oddLowerHalfFamily m) →
+      𝒰.card = 𝒱.card →
+      #(positiveBoundary (oddLowerHalfFamily m ∪ 𝒰)) +
+          #((((oddLowerHalfFamily m ∪ 𝒰) \ (oddLowerHalfFamily m \ 𝒱)) ∪
+              positiveBoundary (oddLowerHalfFamily m \ 𝒱)))
+        < 2 * Nat.choose (2 * m + 1) m →
+      ∃ s ∈ 𝒰, m + 1 < s.card
+
+def SimpleLowerPairInterfaceBoundaryDefectForcesLargerPrismThanEvenWitnessStatement : Prop :=
+  ∀ {m : ℕ} {𝒰 𝒱 : Finset (Finset (Fin (2 * m + 1)))},
+      𝒱 ⊆ (oddLowerHalfFamily m) # m →
+      Disjoint 𝒰 (oddLowerHalfFamily m) →
+      𝒰.card = 𝒱.card →
+      #(positiveBoundary (oddLowerHalfFamily m ∪ 𝒰)) +
+          #((((oddLowerHalfFamily m ∪ 𝒰) \ (oddLowerHalfFamily m \ 𝒱)) ∪
+              positiveBoundary (oddLowerHalfFamily m \ 𝒱)))
+        < 2 * Nat.choose (2 * m + 1) m →
+      totalSize (evenLowerHalfFamily m) <
+        totalSize (twoSheetFamily (oddLowerHalfFamily m \ 𝒱) (oddLowerHalfFamily m ∪ 𝒰))
+
+def SimpleLowerPairInterfaceBoundaryDefectWithUniformUpperImpossibleStatement : Prop :=
+  ∀ {m : ℕ} {𝒰 𝒱 : Finset (Finset (Fin (2 * m + 1)))},
+      𝒱 ⊆ (oddLowerHalfFamily m) # m →
+      Disjoint 𝒰 (oddLowerHalfFamily m) →
+      𝒰.card = 𝒱.card →
+      #(positiveBoundary (oddLowerHalfFamily m ∪ 𝒰)) +
+          #((((oddLowerHalfFamily m ∪ 𝒰) \ (oddLowerHalfFamily m \ 𝒱)) ∪
+              positiveBoundary (oddLowerHalfFamily m \ 𝒱)))
+        < 2 * Nat.choose (2 * m + 1) m →
+      (∀ s ∈ 𝒰, s.card = m + 1) →
+      False
+
+def SimpleLowerPairInterfaceBoundaryDefectWithNoLargerPrismThanEvenWitnessImpossibleStatement :
+    Prop :=
+  ∀ {m : ℕ} {𝒰 𝒱 : Finset (Finset (Fin (2 * m + 1)))},
+      𝒱 ⊆ (oddLowerHalfFamily m) # m →
+      Disjoint 𝒰 (oddLowerHalfFamily m) →
+      𝒰.card = 𝒱.card →
+      #(positiveBoundary (oddLowerHalfFamily m ∪ 𝒰)) +
+          #((((oddLowerHalfFamily m ∪ 𝒰) \ (oddLowerHalfFamily m \ 𝒱)) ∪
+              positiveBoundary (oddLowerHalfFamily m \ 𝒱)))
+        < 2 * Nat.choose (2 * m + 1) m →
+      totalSize (twoSheetFamily (oddLowerHalfFamily m \ 𝒱) (oddLowerHalfFamily m ∪ 𝒰)) ≤
+        totalSize (evenLowerHalfFamily m) →
+      False
+
+theorem
+    simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle_iff_largerPrismThanEvenWitness :
+    SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement ↔
+      SimpleLowerPairInterfaceBoundaryDefectForcesLargerPrismThanEvenWitnessStatement := by
+  constructor
+  · intro hDefect m 𝒰 𝒱 h𝒱 h𝒰disj hcard hlt
+    exact
+      totalSize_evenLowerHalfFamily_lt_twoSheetFamily_oddLowerHalf_sdiff_union_of_exists_upperCard_gt
+        h𝒱 h𝒰disj hcard (hDefect h𝒱 h𝒰disj hcard hlt)
+  · intro hDefect m 𝒰 𝒱 h𝒱 h𝒰disj hcard hlt
+    exact
+      exists_upperCard_gt_of_totalSize_evenLowerHalfFamily_lt_twoSheetFamily_oddLowerHalf_sdiff_union
+        h𝒱 h𝒰disj hcard (hDefect h𝒱 h𝒰disj hcard hlt)
+
+theorem
+    simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle_iff_withUniformUpperImpossible :
+    SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement ↔
+      SimpleLowerPairInterfaceBoundaryDefectWithUniformUpperImpossibleStatement := by
+  constructor
+  · intro hDefect m 𝒰 𝒱 h𝒱 h𝒰disj hcard hlt h𝒰uniform
+    rcases hDefect h𝒱 h𝒰disj hcard hlt with ⟨s, hs𝒰, hsStrict⟩
+    have hsEq : s.card = m + 1 := h𝒰uniform s hs𝒰
+    omega
+  · intro hDefect m 𝒰 𝒱 h𝒱 h𝒰disj hcard hlt
+    by_contra hnot
+    have h𝒰uniform : ∀ s ∈ 𝒰, s.card = m + 1 := by
+      intro s hs𝒰
+      have hsLower : m + 1 ≤ s.card :=
+        card_lower_bound_of_disjoint_oddLowerHalfFamily h𝒰disj s hs𝒰
+      by_cases hsStrict : m + 1 < s.card
+      · exact False.elim (hnot ⟨s, hs𝒰, hsStrict⟩)
+      · omega
+    exact hDefect h𝒱 h𝒰disj hcard hlt h𝒰uniform
+
+theorem
+    simpleLowerPairInterfaceBoundaryDefectForcesLargerPrismThanEvenWitness_iff_withNoLargerPrismThanEvenWitnessImpossible :
+    SimpleLowerPairInterfaceBoundaryDefectForcesLargerPrismThanEvenWitnessStatement ↔
+      SimpleLowerPairInterfaceBoundaryDefectWithNoLargerPrismThanEvenWitnessImpossibleStatement := by
+  constructor
+  · intro hDefect m 𝒰 𝒱 h𝒱 h𝒰disj hcard hlt hle
+    exact (not_lt_of_ge hle) (hDefect h𝒱 h𝒰disj hcard hlt)
+  · intro hDefect m 𝒰 𝒱 h𝒱 h𝒰disj hcard hlt
+    by_contra hnot
+    exact hDefect h𝒱 h𝒰disj hcard hlt (le_of_not_gt hnot)
+
+theorem
+    simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle_iff_withNoLargerPrismThanEvenWitnessImpossible :
+    SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement ↔
+      SimpleLowerPairInterfaceBoundaryDefectWithNoLargerPrismThanEvenWitnessImpossibleStatement := by
+  exact
+    simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle_iff_largerPrismThanEvenWitness.trans
+      simpleLowerPairInterfaceBoundaryDefectForcesLargerPrismThanEvenWitness_iff_withNoLargerPrismThanEvenWitnessImpossible
+
 /-- Prism-form restatement of the first-positive-gap defect bottleneck. This is the same local
 bridge as the larger-`totalSize` statement above, but with the conclusion expressed directly on
 the odd prism `twoSheetFamily ℳ 𝒩`. This is the exact theorem surface suggested by the current

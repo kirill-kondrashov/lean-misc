@@ -108,3 +108,15 @@ It is proved equivalent to the larger-prism surface and wired directly to the ex
 endpoint. So the remaining local target can now be attacked either as a positivity statement
 (`defect => larger prism`) or as the contradiction form promised by the current plan
 (`defect` plus `prism <= witness` is impossible).
+
+The simple-lower intermediate target is now explicit in Lean too:
+`SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement`.
+It is proved equivalent to the simple-lower larger-prism surface
+`SimpleLowerPairInterfaceBoundaryDefectForcesLargerPrismThanEvenWitnessStatement`,
+the uniform-upper contradiction surface
+`SimpleLowerPairInterfaceBoundaryDefectWithUniformUpperImpossibleStatement`,
+and the no-larger-prism contradiction surface
+`SimpleLowerPairInterfaceBoundaryDefectWithNoLargerPrismThanEvenWitnessImpossibleStatement`.
+
+So the remaining work is sharper again: bridge the current first-positive-gap defect bottleneck to
+that simple-lower upper-tail statement, then the larger-prism contradiction is already formalized.
