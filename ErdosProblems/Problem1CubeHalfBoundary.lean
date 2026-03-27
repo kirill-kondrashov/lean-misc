@@ -7811,6 +7811,48 @@ theorem
   rw [hEq]
   omega
 
+theorem totalSize_twoSheetFamily_oddLowerHalf_sdiff_union_le_evenWitness_iff_upperUniform
+    {m : ℕ} {𝒰 𝒱 : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒱 : 𝒱 ⊆ (oddLowerHalfFamily m) # m)
+    (h𝒰disj : Disjoint 𝒰 (oddLowerHalfFamily m))
+    (hcard : 𝒰.card = 𝒱.card) :
+    totalSize (twoSheetFamily (oddLowerHalfFamily m \ 𝒱) (oddLowerHalfFamily m ∪ 𝒰)) ≤
+        totalSize (evenLowerHalfFamily m) ↔
+      ∀ s ∈ 𝒰, s.card = m + 1 := by
+  constructor
+  · intro hle s hs
+    have hsLower : m + 1 ≤ s.card :=
+      card_lower_bound_of_disjoint_oddLowerHalfFamily h𝒰disj s hs
+    by_cases hsStrict : m + 1 < s.card
+    · have hlt :
+          totalSize (evenLowerHalfFamily m) <
+            totalSize (twoSheetFamily (oddLowerHalfFamily m \ 𝒱) (oddLowerHalfFamily m ∪ 𝒰)) :=
+        totalSize_evenLowerHalfFamily_lt_twoSheetFamily_oddLowerHalf_sdiff_union_of_exists_upperCard_gt
+          h𝒱 h𝒰disj hcard ⟨s, hs, hsStrict⟩
+      exact (not_lt_of_ge hle hlt).elim
+    · omega
+  · intro h𝒰uniform
+    rw [totalSize_twoSheetFamily_oddLowerHalf_sdiff_union_eq_evenWitness_of_upperUniform
+      h𝒱 h𝒰disj hcard h𝒰uniform]
+
+theorem totalSize_twoSheetFamily_oddLowerHalf_sdiff_union_eq_evenWitness_iff_upperUniform
+    {m : ℕ} {𝒰 𝒱 : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒱 : 𝒱 ⊆ (oddLowerHalfFamily m) # m)
+    (h𝒰disj : Disjoint 𝒰 (oddLowerHalfFamily m))
+    (hcard : 𝒰.card = 𝒱.card) :
+    totalSize (twoSheetFamily (oddLowerHalfFamily m \ 𝒱) (oddLowerHalfFamily m ∪ 𝒰)) =
+        totalSize (evenLowerHalfFamily m) ↔
+      ∀ s ∈ 𝒰, s.card = m + 1 := by
+  constructor
+  · intro hEq
+    exact
+      (totalSize_twoSheetFamily_oddLowerHalf_sdiff_union_le_evenWitness_iff_upperUniform
+        h𝒱 h𝒰disj hcard).mp (le_of_eq hEq)
+  · intro h𝒰uniform
+    exact
+      totalSize_twoSheetFamily_oddLowerHalf_sdiff_union_eq_evenWitness_of_upperUniform
+        h𝒱 h𝒰disj hcard h𝒰uniform
+
 /-- Prism-form restatement of the first-positive-gap defect bottleneck. This is the same local
 bridge as the larger-`totalSize` statement above, but with the conclusion expressed directly on
 the odd prism `twoSheetFamily ℳ 𝒩`. This is the exact theorem surface suggested by the current
