@@ -1464,6 +1464,49 @@ theorem totalSize_succFamily {n : ℕ} (𝒜 : Finset (Finset (Fin n))) :
           rw [htopZero, add_zero]
     _ = totalSize 𝒜 := hbase.symm
 
+/-- Total size is additive across disjoint unions. -/
+theorem totalSize_union_of_disjoint
+    {𝒜 ℬ : Finset (Finset α)} (hdisj : Disjoint 𝒜 ℬ) :
+    totalSize (𝒜 ∪ ℬ) = totalSize 𝒜 + totalSize ℬ := by
+  simp only [totalSize]
+  rw [Finset.sum_union hdisj]
+
+/-- Removing a subfamily subtracts exactly its total size. -/
+theorem totalSize_sdiff_of_subset
+    {𝒜 ℬ : Finset (Finset α)} (hsub : ℬ ⊆ 𝒜) :
+    totalSize (𝒜 \ ℬ) = totalSize 𝒜 - totalSize ℬ := by
+  apply Nat.eq_sub_of_add_eq
+  simpa [totalSize] using (Finset.sum_sdiff hsub (f := fun s => s.card))
+
+/-- A uniform family has total size equal to its common rank times its cardinality. -/
+theorem totalSize_eq_card_mul_of_uniform
+    {𝒜 : Finset (Finset α)} {r : ℕ}
+    (hcard : ∀ s ∈ 𝒜, s.card = r) :
+    totalSize 𝒜 = r * 𝒜.card := by
+  rw [totalSize]
+  calc
+    Finset.sum 𝒜 (fun s => s.card) = Finset.sum 𝒜 (fun _ => r) := by
+      refine Finset.sum_congr rfl ?_
+      intro s hs
+      rw [hcard s hs]
+    _ = 𝒜.card * r := by
+      rw [Finset.sum_const_nat (s := 𝒜) (m := r) (fun s hs => rfl)]
+    _ = r * 𝒜.card := by
+      rw [Nat.mul_comm]
+
+/-- If every set in a family has cardinality at least `r`, then its total size is at least
+`r * card`. -/
+theorem card_mul_le_totalSize_of_card_lower_bound
+    {𝒜 : Finset (Finset α)} {r : ℕ}
+    (hcard : ∀ s ∈ 𝒜, r ≤ s.card) :
+    r * 𝒜.card ≤ totalSize 𝒜 := by
+  rw [totalSize]
+  calc
+    r * 𝒜.card = Finset.sum 𝒜 (fun _ => r) := by
+      rw [Finset.sum_const_nat (s := 𝒜) (m := r) (fun s hs => rfl), Nat.mul_comm]
+    _ ≤ Finset.sum 𝒜 (fun s => s.card) := by
+      exact Finset.sum_le_sum (fun s hs => hcard s hs)
+
 /-- The standard even lower-half witness has explicit total size. In particular, it sits strictly
 below the crude uniform upper bound `(2 * m + 2) * 2^(2 * m)`, so that bound cannot be the
 correct witness-comparison target for the prism program. -/
@@ -7504,6 +7547,134 @@ theorem totalSize_evenLowerHalfFamily_eq_two_mul_totalSize_oddLowerHalfFamily_ad
     _ = 2 * totalSize (oddLowerHalfFamily m) + 2 ^ (2 * m) := by
           rw [card_oddLowerHalfFamily_eq_half_cube]
           ring
+
+/-- In the simple-lower model `𝒩 = lower_half ∪ 𝒰`, `ℳ = lower_half \ 𝒱` with `𝒱` cut from the
+top slice of the odd lower half and `|𝒰| = |𝒱|`, the prism total-size gap over the even witness
+is exactly `totalSize 𝒰 - (m + 1) * |𝒰|`. This is the precise weighted upper-tail gain measured by
+the current `n = 7` search. -/
+theorem totalSize_twoSheetFamily_oddLowerHalf_sdiff_union_eq_evenWitness_add_upperGain
+    {m : ℕ} {𝒰 𝒱 : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒱 : 𝒱 ⊆ (oddLowerHalfFamily m) # m)
+    (h𝒰disj : Disjoint 𝒰 (oddLowerHalfFamily m))
+    (hcard : 𝒰.card = 𝒱.card) :
+    totalSize (twoSheetFamily (oddLowerHalfFamily m \ 𝒱) (oddLowerHalfFamily m ∪ 𝒰)) =
+      totalSize (evenLowerHalfFamily m) + totalSize 𝒰 - (m + 1) * 𝒰.card := by
+  have h𝒱sub : 𝒱 ⊆ oddLowerHalfFamily m := by
+    intro s hs
+    exact (Finset.mem_slice.mp (h𝒱 hs)).1
+  have h𝒱total : totalSize 𝒱 = m * 𝒱.card := by
+    exact totalSize_eq_card_mul_of_uniform (fun s hs => (Finset.mem_slice.mp (h𝒱 hs)).2)
+  have h𝒱decomp : (oddLowerHalfFamily m \ 𝒱) ∪ 𝒱 = oddLowerHalfFamily m := by
+    ext s
+    by_cases hs𝒱 : s ∈ 𝒱
+    · have hsOdd : s ∈ oddLowerHalfFamily m := h𝒱sub hs𝒱
+      simp [hs𝒱, hsOdd]
+    · by_cases hsOdd : s ∈ oddLowerHalfFamily m
+      · simp [hs𝒱, hsOdd]
+      · simp [hs𝒱, hsOdd]
+  have h𝒱disj : Disjoint (oddLowerHalfFamily m \ 𝒱) 𝒱 := by
+    rw [Finset.disjoint_left]
+    intro s hs hs𝒱
+    exact (Finset.mem_sdiff.mp hs).2 hs𝒱
+  have hoddTotal :
+      totalSize (oddLowerHalfFamily m \ 𝒱) + totalSize 𝒱 = totalSize (oddLowerHalfFamily m) := by
+    calc
+      totalSize (oddLowerHalfFamily m \ 𝒱) + totalSize 𝒱
+          = totalSize ((oddLowerHalfFamily m \ 𝒱) ∪ 𝒱) := by
+              symm
+              exact totalSize_union_of_disjoint h𝒱disj
+      _ = totalSize (oddLowerHalfFamily m) := by rw [h𝒱decomp]
+  have hoddCard :
+      #(oddLowerHalfFamily m \ 𝒱) + #𝒱 = #(oddLowerHalfFamily m) := by
+    exact Finset.card_sdiff_add_card_eq_card h𝒱sub
+  have hsliceGain :
+      totalSize (oddLowerHalfFamily m \ 𝒱) + #(oddLowerHalfFamily m \ 𝒱) +
+          (m + 1) * 𝒰.card =
+        totalSize (oddLowerHalfFamily m) + #(oddLowerHalfFamily m) := by
+    have hoddTotal' :
+        totalSize (oddLowerHalfFamily m \ 𝒱) + m * 𝒱.card =
+          totalSize (oddLowerHalfFamily m) := by
+      simpa [h𝒱total] using hoddTotal
+    rw [hcard]
+    have hmul :
+        (m + 1) * 𝒱.card = m * 𝒱.card + 𝒱.card := by
+      rw [Nat.add_mul, one_mul]
+    rw [hmul]
+    calc
+      totalSize (oddLowerHalfFamily m \ 𝒱) + #(oddLowerHalfFamily m \ 𝒱) +
+            (m * 𝒱.card + 𝒱.card)
+          = (totalSize (oddLowerHalfFamily m \ 𝒱) + m * 𝒱.card) +
+              (#(oddLowerHalfFamily m \ 𝒱) + 𝒱.card) := by
+                simp [add_assoc, add_left_comm, add_comm]
+      _ = totalSize (oddLowerHalfFamily m) + #(oddLowerHalfFamily m) := by
+            rw [hoddTotal', hoddCard]
+  apply Nat.eq_sub_of_add_eq
+  rw [totalSize_twoSheetFamily, totalSize_union_of_disjoint h𝒰disj.symm]
+  calc
+    (totalSize (oddLowerHalfFamily m) + totalSize 𝒰) +
+          totalSize (oddLowerHalfFamily m \ 𝒱) + #(oddLowerHalfFamily m \ 𝒱) +
+          (m + 1) * 𝒰.card
+      = totalSize (oddLowerHalfFamily m) + totalSize 𝒰 +
+          (totalSize (oddLowerHalfFamily m \ 𝒱) + #(oddLowerHalfFamily m \ 𝒱) +
+            (m + 1) * 𝒰.card) := by
+            omega
+    _ = totalSize (oddLowerHalfFamily m) + totalSize 𝒰 +
+          (totalSize (oddLowerHalfFamily m) + #(oddLowerHalfFamily m)) := by
+            rw [hsliceGain]
+    _ = totalSize (evenLowerHalfFamily m) + totalSize 𝒰 := by
+          rw [totalSize_evenLowerHalfFamily_eq_two_mul_totalSize_oddLowerHalfFamily_add_halfCube,
+            card_oddLowerHalfFamily_eq_half_cube]
+          ring
+
+theorem
+    totalSize_evenLowerHalfFamily_lt_twoSheetFamily_oddLowerHalf_sdiff_union_iff_weightedUpperGainPos
+    {m : ℕ} {𝒰 𝒱 : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒱 : 𝒱 ⊆ (oddLowerHalfFamily m) # m)
+    (h𝒰disj : Disjoint 𝒰 (oddLowerHalfFamily m))
+    (hcard : 𝒰.card = 𝒱.card) :
+    totalSize (evenLowerHalfFamily m) <
+        totalSize (twoSheetFamily (oddLowerHalfFamily m \ 𝒱) (oddLowerHalfFamily m ∪ 𝒰)) ↔
+      (m + 1) * 𝒰.card < totalSize 𝒰 := by
+  have hEq :=
+    totalSize_twoSheetFamily_oddLowerHalf_sdiff_union_eq_evenWitness_add_upperGain
+      h𝒱 h𝒰disj hcard
+  have h𝒰lower :
+      (m + 1) * 𝒰.card ≤ totalSize 𝒰 := by
+    exact
+      card_mul_le_totalSize_of_card_lower_bound (𝒜 := 𝒰) (r := m + 1) (fun s hs => by
+        have hsNotLower : s ∉ oddLowerHalfFamily m := by
+          exact (Finset.disjoint_left.mp h𝒰disj) hs
+        by_contra hslt
+        apply hsNotLower
+        rw [mem_oddLowerHalfFamily]
+        omega)
+  rw [hEq]
+  omega
+
+theorem
+    totalSize_twoSheetFamily_oddLowerHalf_sdiff_union_le_evenWitness_iff_weightedUpperGainNonpos
+    {m : ℕ} {𝒰 𝒱 : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒱 : 𝒱 ⊆ (oddLowerHalfFamily m) # m)
+    (h𝒰disj : Disjoint 𝒰 (oddLowerHalfFamily m))
+    (hcard : 𝒰.card = 𝒱.card) :
+    totalSize (twoSheetFamily (oddLowerHalfFamily m \ 𝒱) (oddLowerHalfFamily m ∪ 𝒰)) ≤
+        totalSize (evenLowerHalfFamily m) ↔
+      totalSize 𝒰 ≤ (m + 1) * 𝒰.card := by
+  have hEq :=
+    totalSize_twoSheetFamily_oddLowerHalf_sdiff_union_eq_evenWitness_add_upperGain
+      h𝒱 h𝒰disj hcard
+  have h𝒰lower :
+      (m + 1) * 𝒰.card ≤ totalSize 𝒰 := by
+    exact
+      card_mul_le_totalSize_of_card_lower_bound (𝒜 := 𝒰) (r := m + 1) (fun s hs => by
+        have hsNotLower : s ∉ oddLowerHalfFamily m := by
+          exact (Finset.disjoint_left.mp h𝒰disj) hs
+        by_contra hslt
+        apply hsNotLower
+        rw [mem_oddLowerHalfFamily]
+        omega)
+  rw [hEq]
+  omega
 
 /-- Prism-form restatement of the first-positive-gap defect bottleneck. This is the same local
 bridge as the larger-`totalSize` statement above, but with the conclusion expressed directly on
