@@ -11348,6 +11348,33 @@ theorem
       hGap
 
 theorem
+    oddSectionPairInterfaceBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremBoundaryLowerFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement) :
+    OddSectionPairInterfaceBoundaryLowerStatement := by
+  exact
+    oddSectionPairInterfaceBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon
+
+theorem
+    oddSectionPairInterfaceBoundaryLower_of_prismTheoremEvenConsequenceFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement) :
+    OddSectionPairInterfaceBoundaryLowerStatement := by
+  exact
+    oddSectionPairInterfaceBoundaryLower_of_prismTheoremEvenConsequenceFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon
+
+theorem
+    oddSectionPairInterfaceBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement) :
+    OddSectionPairInterfaceBoundaryLowerStatement := by
+  exact
+    oddSectionPairInterfaceBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon
+
+theorem
     twoSheetBoundaryTheorem_of_prismTheoremBoundaryLowerFrontier_of_positiveExcessPairInterfaceBoundaryLower
     (hFrontier : PrismTheoremBoundaryLowerFrontierStatement)
     (hPos : OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement) :
@@ -11444,6 +11471,33 @@ theorem
       hGap
 
 theorem
+    twoSheetBoundaryTheorem_of_prismTheoremBoundaryLowerFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremBoundaryLowerFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement) :
+    TwoSheetBoundaryTheorem := by
+  exact
+    twoSheetBoundaryTheorem_of_prismTheoremBoundaryLowerFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon
+
+theorem
+    twoSheetBoundaryTheorem_of_prismTheoremEvenConsequenceFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement) :
+    TwoSheetBoundaryTheorem := by
+  exact
+    twoSheetBoundaryTheorem_of_prismTheoremEvenConsequenceFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon
+
+theorem
+    twoSheetBoundaryTheorem_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement) :
+    TwoSheetBoundaryTheorem := by
+  exact
+    twoSheetBoundaryTheorem_of_prismTheoremCurrentLeafFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon
+
+theorem
     prismHalfCubeBoundaryLowerStatement_of_prismTheoremBoundaryLowerFrontier_of_positiveExcessPairInterfaceBoundaryLower
     (hFrontier : PrismTheoremBoundaryLowerFrontierStatement)
     (hPos : OddSectionPositiveExcessPairInterfaceBoundaryLowerStatement) :
@@ -11538,6 +11592,33 @@ theorem
       (prismTheoremBoundaryLowerFrontier_of_prismTheoremCurrentLeafFrontier
         hFrontier)
       hGap
+
+theorem
+    prismHalfCubeBoundaryLowerStatement_of_prismTheoremBoundaryLowerFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremBoundaryLowerFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement) :
+    PrismHalfCubeBoundaryLowerStatement := by
+  exact
+    prismHalfCubeBoundaryLowerStatement_of_prismTheoremBoundaryLowerFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon
+
+theorem
+    prismHalfCubeBoundaryLowerStatement_of_prismTheoremEvenConsequenceFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement) :
+    PrismHalfCubeBoundaryLowerStatement := by
+  exact
+    prismHalfCubeBoundaryLowerStatement_of_prismTheoremEvenConsequenceFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon
+
+theorem
+    prismHalfCubeBoundaryLowerStatement_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement) :
+    PrismHalfCubeBoundaryLowerStatement := by
+  exact
+    prismHalfCubeBoundaryLowerStatement_of_prismTheoremCurrentLeafFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon
 
 /-- The prism family attached to two symmetric nested sheets is already a half-cube down-set.
 This isolates the exact input data needed for a compression/extremizer proof. -/
@@ -12850,6 +12931,33 @@ theorem
       (prismTheoremBoundaryLowerFrontier_of_prismTheoremCurrentLeafFrontier
         hFrontier)
       hGap
+
+theorem
+    halfCubeBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremBoundaryLowerFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement) :
+    HalfCubeBoundaryLowerStatement := by
+  exact
+    halfCubeBoundaryLower_of_prismTheoremBoundaryLowerFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon
+
+theorem
+    halfCubeBoundaryLower_of_prismTheoremEvenConsequenceFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremEvenConsequenceFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement) :
+    HalfCubeBoundaryLowerStatement := by
+  exact
+    halfCubeBoundaryLower_of_prismTheoremEvenConsequenceFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon
+
+theorem
+    halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hCanon : PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement) :
+    HalfCubeBoundaryLowerStatement := by
+  exact
+    halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryLower
+      hFrontier hCanon
 
 theorem
     halfCubeUpperShadowGapLower_of_prismTheoremBoundaryLowerFrontier_of_positiveExcessPairInterfaceBoundaryLower
