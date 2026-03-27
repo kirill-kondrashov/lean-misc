@@ -1177,6 +1177,13 @@ theorem oddSectionPositiveExcessPairInterfaceBoundaryLower_iff_firstPositiveGapS
   · exact oddSectionFirstPositiveGapSlicePairInterfaceBoundaryLower_of_positiveExcessPairInterfaceBoundaryLower
   · exact oddSectionPositiveExcessPairInterfaceBoundaryLower_of_firstPositiveGapSlicePairInterfaceBoundaryLower
 
+theorem oddSectionFirstSeparationPairInterfaceBoundaryLower_iff_firstPositiveGapSlicePairInterfaceBoundaryLower :
+    OddSectionFirstSeparationPairInterfaceBoundaryLowerStatement ↔
+      OddSectionFirstPositiveGapSlicePairInterfaceBoundaryLowerStatement := by
+  exact
+    oddSectionPositiveExcessPairInterfaceBoundaryLower_iff_firstSeparationPairInterfaceBoundaryLower.symm.trans
+      oddSectionPositiveExcessPairInterfaceBoundaryLower_iff_firstPositiveGapSlicePairInterfaceBoundaryLower
+
 /-- Total size is the weighted sum of the slice cardinalities. -/
 theorem totalSize_eq_sum_range_mul_card_slice (𝒟 : Finset (Finset α)) :
     totalSize 𝒟 =
