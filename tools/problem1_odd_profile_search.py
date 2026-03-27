@@ -73,6 +73,21 @@ class StructuredUpperTailPrismGapResult:
     min_prism_boundary: int
 
 
+@dataclass(frozen=True)
+class StructuredFirstGapDefectResult:
+    name: str
+    n: int
+    e: int
+    target: int
+    upper_profile: Tuple[int, ...]
+    weighted_upper_tail_gain: int
+    exact_upper_downset_search: bool
+    best_upper_downset_size: int
+    upper_boundary_size: int
+    best_destroyed_outside_rank4: int
+    min_prism_boundary: int
+
+
 def all_subsets(n: int) -> Tuple[int, ...]:
     subsets: List[int] = []
     for r in range(n + 1):
@@ -217,6 +232,24 @@ def profile_table(
 
 def total_size(family: Family) -> int:
     return sum(subset_cardinality(subset) for subset in family)
+
+
+def initial_segment_mask(size: int) -> int:
+    return (1 << size) - 1
+
+
+def representative_pair_generators(
+    n: int, left_rank: int, right_rank: int, intersection: int
+) -> Tuple[int, int]:
+    min_intersection = max(0, left_rank + right_rank - n)
+    if intersection < min_intersection or intersection > min(left_rank, right_rank):
+        raise ValueError("invalid intersection size for representative pair")
+    left = initial_segment_mask(left_rank)
+    right = initial_segment_mask(intersection)
+    next_index = left_rank
+    for offset in range(right_rank - intersection):
+        right |= 1 << (next_index + offset)
+    return (left, right)
 
 
 def slice_cardinality(family: Iterable[int], rank: int) -> int:
@@ -392,6 +425,42 @@ def exact_min_prism_boundary_in_rank3_removal_model(
     return (best_boundary, best_upper_downset_size, best_destroyed)
 
 
+def simple_lower_generator_classes_n7_exact() -> List[Tuple[str, Tuple[int, ...]]]:
+    n = 7
+    subsets = all_subsets(n)
+    lower_half = set(lower_half_family(n, subsets))
+    classes: List[Tuple[str, Tuple[int, ...]]] = []
+    seen_families: Set[Family] = set()
+
+    for rank in range(4, 8):
+        generators = (initial_segment_mask(rank),)
+        family_n = downset_from_generators_above_lower_half(n, subsets, generators)
+        upper_part = tuple(sorted(set(family_n) - lower_half))
+        if len(upper_part) > 12 or family_n in seen_families:
+            continue
+        classes.append((f"single-{rank}", generators))
+        seen_families.add(family_n)
+
+    for left_rank in range(4, 8):
+        for right_rank in range(left_rank, 8):
+            min_intersection = max(0, left_rank + right_rank - n)
+            for intersection in range(min_intersection, min(left_rank, right_rank) + 1):
+                if left_rank == right_rank and intersection == left_rank:
+                    continue
+                generators = representative_pair_generators(
+                    n, left_rank, right_rank, intersection
+                )
+                family_n = downset_from_generators_above_lower_half(n, subsets, generators)
+                upper_part = tuple(sorted(set(family_n) - lower_half))
+                if len(upper_part) > 12 or family_n in seen_families:
+                    continue
+                name = f"pair-{left_rank}-{right_rank}-int{intersection}"
+                classes.append((name, generators))
+                seen_families.add(family_n)
+
+    return classes
+
+
 def structured_upper_tail_prism_gap_results_n7_simple_lower() -> List[StructuredUpperTailPrismGapResult]:
     n = 7
     m = n // 2
@@ -455,6 +524,53 @@ def structured_upper_tail_prism_gap_results_n7_simple_lower() -> List[Structured
             )
         )
     return results
+
+
+def structured_first_gap_defect_results_n7_simple_lower() -> List[StructuredFirstGapDefectResult]:
+    n = 7
+    m = n // 2
+    subsets = all_subsets(n)
+    lower_half = set(lower_half_family(n, subsets))
+    target = 2 * comb(n, m)
+    results: List[StructuredFirstGapDefectResult] = []
+    for name, generators in simple_lower_generator_classes_n7_exact():
+        family_n = downset_from_generators_above_lower_half(n, subsets, generators)
+        upper_part = tuple(sorted(set(family_n) - lower_half))
+        upper_boundary = positive_boundary(family_n, subsets)
+        min_interface_boundary, best_upper_downset_size, best_destroyed = (
+            exact_min_prism_boundary_in_rank3_removal_model(family_n, subsets)
+        )
+        upper_profile = tuple(
+            slice_cardinality(upper_part, rank) for rank in range(m + 1, n + 1)
+        )
+        weighted_upper_tail_gain = sum(
+            (rank - (m + 1)) * slice_cardinality(upper_part, rank)
+            for rank in range(m + 2, n + 1)
+        )
+        results.append(
+            StructuredFirstGapDefectResult(
+                name=name,
+                n=n,
+                e=len(upper_part),
+                target=target,
+                upper_profile=upper_profile,
+                weighted_upper_tail_gain=weighted_upper_tail_gain,
+                exact_upper_downset_search=True,
+                best_upper_downset_size=best_upper_downset_size,
+                upper_boundary_size=len(upper_boundary),
+                best_destroyed_outside_rank4=best_destroyed,
+                min_prism_boundary=len(upper_boundary) + min_interface_boundary,
+            )
+        )
+    return sorted(
+        results,
+        key=lambda result: (
+            result.weighted_upper_tail_gain,
+            result.min_prism_boundary,
+            result.e,
+            result.name,
+        ),
+    )
 
 
 def search_pair_interface_counterexample(
@@ -736,6 +852,14 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--structured-first-gap-defect-n7-simple-lower",
+        action="store_true",
+        help=(
+            "Run the exact structured n=7 first-gap defect search in the simple-lower model "
+            "over single/pair generator orbit classes with upper part size at most 12."
+        ),
+    )
+    parser.add_argument(
         "--dimensions",
         type=int,
         nargs="+",
@@ -782,6 +906,58 @@ def main() -> int:
             warn("WARNING overall: structured n=7 upper-tail search found a candidate.")
             return 1
         ok("OK overall: no structured n=7 simple-lower upper-tail counterexample found.")
+        return 0
+
+    if args.structured_first_gap_defect_n7_simple_lower:
+        any_warning = False
+        results = structured_first_gap_defect_results_n7_simple_lower()
+        for result in results:
+            boundary_margin = result.min_prism_boundary - result.target
+            if result.min_prism_boundary <= result.target:
+                any_warning = True
+                warn(
+                    "WARNING structured n=7 first-gap defect candidate found in class "
+                    f"{result.name}: min_boundary={result.min_prism_boundary} <= target={result.target}"
+                )
+            else:
+                ok(
+                    "OK structured n=7 first-gap class "
+                    f"{result.name}: min_boundary={result.min_prism_boundary} > target={result.target}"
+                )
+            print(
+                f"  e={result.e} upper_profile={list(result.upper_profile)} "
+                f"weighted_gain={result.weighted_upper_tail_gain} "
+                f"boundary_margin={boundary_margin} "
+                f"best_upper_size={result.best_upper_downset_size} "
+                f"upper_boundary={result.upper_boundary_size} "
+                f"best_destroyed_outside_rank4={result.best_destroyed_outside_rank4}"
+            )
+        zero_gain_results = [
+            result for result in results if result.weighted_upper_tail_gain == 0
+        ]
+        if zero_gain_results:
+            tightest_zero_gain = min(
+                zero_gain_results, key=lambda result: result.min_prism_boundary
+            )
+            print(
+                "TIGHTEST zero-gain class: "
+                f"{tightest_zero_gain.name} with min_boundary={tightest_zero_gain.min_prism_boundary} "
+                f"(target={tightest_zero_gain.target}, margin={tightest_zero_gain.min_prism_boundary - tightest_zero_gain.target})"
+            )
+        tightest_overall = min(results, key=lambda result: result.min_prism_boundary)
+        print(
+            "TIGHTEST overall exact class: "
+            f"{tightest_overall.name} with upper_profile={list(tightest_overall.upper_profile)} "
+            f"weighted_gain={tightest_overall.weighted_upper_tail_gain} "
+            f"min_boundary={tightest_overall.min_prism_boundary} "
+            f"(target={tightest_overall.target}, margin={tightest_overall.min_prism_boundary - tightest_overall.target})"
+        )
+        if any_warning:
+            warn("WARNING overall: structured n=7 first-gap defect search found a candidate.")
+            return 1
+        ok(
+            "OK overall: no exact structured n=7 simple-lower first-gap defect candidate found."
+        )
         return 0
 
     dimensions = tuple(args.dimensions)
