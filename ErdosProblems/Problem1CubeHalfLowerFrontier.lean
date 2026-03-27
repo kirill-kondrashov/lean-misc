@@ -76,6 +76,21 @@ theorem erdos_1_lower_bound_exact_of_prismTheoremCurrentLeafFrontier_of_firstPos
       hDefect hFrontier hA hAne)
 
 /--
+Equivalent exact Erdős #1 endpoint using the first-positive-gap contradiction surface: a defect
+cannot coexist with a prism of size at most the even witness.
+-/
+theorem erdos_1_lower_bound_exact_of_prismTheoremCurrentLeafFrontier_of_firstPositiveGapSlicePairInterfaceBoundaryDefectWithNoLargerPrismThanEvenWitnessImpossible
+    (hDefect :
+      OddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectWithNoLargerPrismThanEvenWitnessImpossibleStatement)
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    ∀ (N : ℕ) (A : Finset ℕ), IsSumDistinctSet A N → A.Nonempty →
+      Nat.choose A.card (A.card / 2) ≤ N := by
+  intro N A hA hAne
+  exact choose_middle_le_of_boundary_lower hA
+    (positiveBoundaryFamilyNat_lower_of_firstPositiveGapSlicePairInterfaceBoundaryDefectWithNoLargerPrismThanEvenWitnessImpossible_of_prismTheoremCurrentLeafFrontier
+      hDefect hFrontier hA hAne)
+
+/--
 Equivalent exact Erdős #1 endpoint using the positive-excess defect bridge directly.
 -/
 theorem erdos_1_lower_bound_exact_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSize

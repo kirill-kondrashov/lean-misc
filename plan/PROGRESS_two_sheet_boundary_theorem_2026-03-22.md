@@ -101,3 +101,10 @@ proved equivalent to the canonical defect bottleneck and wired directly to the e
 endpoint under the current leaf frontier. So the remaining missing step is now explicitly
 "defect => larger prism" in the same language used by both the search tooling and the existing leaf
 strict-boundary route.
+
+The zero-gain contradiction surface is now explicit as well:
+`OddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectWithNoLargerPrismThanEvenWitnessImpossibleStatement`.
+It is proved equivalent to the larger-prism surface and wired directly to the exact Erdős #1
+endpoint. So the remaining local target can now be attacked either as a positivity statement
+(`defect => larger prism`) or as the contradiction form promised by the current plan
+(`defect` plus `prism <= witness` is impossible).
