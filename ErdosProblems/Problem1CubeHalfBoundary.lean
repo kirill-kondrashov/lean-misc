@@ -1507,6 +1507,48 @@ theorem card_mul_le_totalSize_of_card_lower_bound
     _ ≤ Finset.sum 𝒜 (fun s => s.card) := by
       exact Finset.sum_le_sum (fun s hs => hcard s hs)
 
+/-- If every member of a family has cardinality at least `r` and one member is strictly larger,
+then the total size is strictly larger than `r * card`. -/
+theorem card_mul_lt_totalSize_of_exists_card_gt
+    {𝒜 : Finset (Finset α)} {r : ℕ}
+    (hlower : ∀ s ∈ 𝒜, r ≤ s.card)
+    (hstrict : ∃ s ∈ 𝒜, r < s.card) :
+    r * 𝒜.card < totalSize 𝒜 := by
+  rcases hstrict with ⟨s, hs𝒜, hsStrict⟩
+  have hrest :
+      r * (𝒜.erase s).card ≤ totalSize (𝒜.erase s) := by
+    exact
+      card_mul_le_totalSize_of_card_lower_bound (𝒜 := 𝒜.erase s) (r := r) (fun t ht =>
+        hlower t (Finset.mem_of_mem_erase ht))
+  have hcard :
+      r * 𝒜.card = r * (𝒜.erase s).card + r := by
+    rw [← Finset.card_erase_add_one hs𝒜, Nat.mul_add, Nat.mul_one]
+  have hdisj : Disjoint (𝒜.erase s) ({s} : Finset (Finset α)) := by
+    rw [Finset.disjoint_left]
+    intro t ht hts
+    have hts' : t = s := by simpa using hts
+    exact (Finset.mem_erase.mp ht).1 hts'
+  have hsplit : 𝒜.erase s ∪ ({s} : Finset (Finset α)) = 𝒜 := by
+    ext t
+    by_cases ht : t = s
+    · subst ht
+      simp [hs𝒜]
+    · simp [ht]
+  have hsize :
+      totalSize 𝒜 = totalSize (𝒜.erase s) + s.card := by
+    calc
+      totalSize 𝒜 = totalSize (𝒜.erase s ∪ ({s} : Finset (Finset α))) := by
+          rw [hsplit]
+      _ = totalSize (𝒜.erase s) + totalSize ({s} : Finset (Finset α)) := by
+          exact totalSize_union_of_disjoint hdisj
+      _ = totalSize (𝒜.erase s) + s.card := by
+          simp [totalSize]
+  calc
+    r * 𝒜.card = r * (𝒜.erase s).card + r := hcard
+    _ < totalSize (𝒜.erase s) + s.card := by
+          omega
+    _ = totalSize 𝒜 := hsize.symm
+
 /-- The standard even lower-half witness has explicit total size. In particular, it sits strictly
 below the crude uniform upper bound `(2 * m + 2) * 2^(2 * m)`, so that bound cannot be the
 correct witness-comparison target for the prism program. -/
@@ -7548,6 +7590,24 @@ theorem totalSize_evenLowerHalfFamily_eq_two_mul_totalSize_oddLowerHalfFamily_ad
           rw [card_oddLowerHalfFamily_eq_half_cube]
           ring
 
+theorem card_lower_bound_of_not_mem_oddLowerHalfFamily
+    {m : ℕ} {s : Finset (Fin (2 * m + 1))}
+    (hs : s ∉ oddLowerHalfFamily m) :
+    m + 1 ≤ s.card := by
+  by_contra hslt
+  apply hs
+  rw [mem_oddLowerHalfFamily]
+  omega
+
+theorem card_lower_bound_of_disjoint_oddLowerHalfFamily
+    {m : ℕ} {𝒰 : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒰disj : Disjoint 𝒰 (oddLowerHalfFamily m)) :
+    ∀ s ∈ 𝒰, m + 1 ≤ s.card := by
+  intro s hs
+  exact
+    card_lower_bound_of_not_mem_oddLowerHalfFamily
+      ((Finset.disjoint_left.mp h𝒰disj) hs)
+
 /-- In the simple-lower model `𝒩 = lower_half ∪ 𝒰`, `ℳ = lower_half \ 𝒱` with `𝒱` cut from the
 top slice of the odd lower half and `|𝒰| = |𝒱|`, the prism total-size gap over the even witness
 is exactly `totalSize 𝒰 - (m + 1) * |𝒰|`. This is the precise weighted upper-tail gain measured by
@@ -7650,6 +7710,81 @@ theorem
         omega)
   rw [hEq]
   omega
+
+theorem totalSize_twoSheetFamily_oddLowerHalf_sdiff_union_eq_evenWitness_of_upperUniform
+    {m : ℕ} {𝒰 𝒱 : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒱 : 𝒱 ⊆ (oddLowerHalfFamily m) # m)
+    (h𝒰disj : Disjoint 𝒰 (oddLowerHalfFamily m))
+    (hcard : 𝒰.card = 𝒱.card)
+    (h𝒰uniform : ∀ s ∈ 𝒰, s.card = m + 1) :
+    totalSize (twoSheetFamily (oddLowerHalfFamily m \ 𝒱) (oddLowerHalfFamily m ∪ 𝒰)) =
+      totalSize (evenLowerHalfFamily m) := by
+  have h𝒰total : totalSize 𝒰 = (m + 1) * 𝒰.card := by
+    exact totalSize_eq_card_mul_of_uniform h𝒰uniform
+  rw [totalSize_twoSheetFamily_oddLowerHalf_sdiff_union_eq_evenWitness_add_upperGain
+      h𝒱 h𝒰disj hcard, h𝒰total]
+  omega
+
+theorem totalSize_evenLowerHalfFamily_lt_twoSheetFamily_oddLowerHalf_sdiff_union_of_exists_upperCard_gt
+    {m : ℕ} {𝒰 𝒱 : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒱 : 𝒱 ⊆ (oddLowerHalfFamily m) # m)
+    (h𝒰disj : Disjoint 𝒰 (oddLowerHalfFamily m))
+    (hcard : 𝒰.card = 𝒱.card)
+    (hstrict : ∃ s ∈ 𝒰, m + 1 < s.card) :
+    totalSize (evenLowerHalfFamily m) <
+      totalSize (twoSheetFamily (oddLowerHalfFamily m \ 𝒱) (oddLowerHalfFamily m ∪ 𝒰)) := by
+  have hlower : ∀ s ∈ 𝒰, m + 1 ≤ s.card :=
+    card_lower_bound_of_disjoint_oddLowerHalfFamily h𝒰disj
+  have hgain : (m + 1) * 𝒰.card < totalSize 𝒰 := by
+    exact
+      card_mul_lt_totalSize_of_exists_card_gt (𝒜 := 𝒰) (r := m + 1) hlower hstrict
+  exact
+    (totalSize_evenLowerHalfFamily_lt_twoSheetFamily_oddLowerHalf_sdiff_union_iff_weightedUpperGainPos
+      h𝒱 h𝒰disj hcard).mpr hgain
+
+theorem exists_upperCard_gt_of_totalSize_evenLowerHalfFamily_lt_twoSheetFamily_oddLowerHalf_sdiff_union
+    {m : ℕ} {𝒰 𝒱 : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒱 : 𝒱 ⊆ (oddLowerHalfFamily m) # m)
+    (h𝒰disj : Disjoint 𝒰 (oddLowerHalfFamily m))
+    (hcard : 𝒰.card = 𝒱.card)
+    (hlt :
+      totalSize (evenLowerHalfFamily m) <
+        totalSize (twoSheetFamily (oddLowerHalfFamily m \ 𝒱) (oddLowerHalfFamily m ∪ 𝒰))) :
+    ∃ s ∈ 𝒰, m + 1 < s.card := by
+  have hgain :
+      (m + 1) * 𝒰.card < totalSize 𝒰 := by
+    exact
+      (totalSize_evenLowerHalfFamily_lt_twoSheetFamily_oddLowerHalf_sdiff_union_iff_weightedUpperGainPos
+        h𝒱 h𝒰disj hcard).mp hlt
+  by_contra hnot
+  have h𝒰uniform : ∀ s ∈ 𝒰, s.card = m + 1 := by
+    intro s hs
+    have hlower : m + 1 ≤ s.card :=
+      card_lower_bound_of_disjoint_oddLowerHalfFamily h𝒰disj s hs
+    by_cases hsStrict : m + 1 < s.card
+    · exact False.elim (hnot ⟨s, hs, hsStrict⟩)
+    · omega
+  have h𝒰total : totalSize 𝒰 = (m + 1) * 𝒰.card := by
+    exact totalSize_eq_card_mul_of_uniform h𝒰uniform
+  omega
+
+theorem totalSize_evenLowerHalfFamily_lt_twoSheetFamily_oddLowerHalf_sdiff_union_iff_exists_upperCard_gt
+    {m : ℕ} {𝒰 𝒱 : Finset (Finset (Fin (2 * m + 1)))}
+    (h𝒱 : 𝒱 ⊆ (oddLowerHalfFamily m) # m)
+    (h𝒰disj : Disjoint 𝒰 (oddLowerHalfFamily m))
+    (hcard : 𝒰.card = 𝒱.card) :
+    totalSize (evenLowerHalfFamily m) <
+        totalSize (twoSheetFamily (oddLowerHalfFamily m \ 𝒱) (oddLowerHalfFamily m ∪ 𝒰)) ↔
+      ∃ s ∈ 𝒰, m + 1 < s.card := by
+  constructor
+  · intro hlt
+    exact
+      exists_upperCard_gt_of_totalSize_evenLowerHalfFamily_lt_twoSheetFamily_oddLowerHalf_sdiff_union
+        h𝒱 h𝒰disj hcard hlt
+  · intro hstrict
+    exact
+      totalSize_evenLowerHalfFamily_lt_twoSheetFamily_oddLowerHalf_sdiff_union_of_exists_upperCard_gt
+        h𝒱 h𝒰disj hcard hstrict
 
 theorem
     totalSize_twoSheetFamily_oddLowerHalf_sdiff_union_le_evenWitness_iff_weightedUpperGainNonpos
