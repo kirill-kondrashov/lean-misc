@@ -839,6 +839,34 @@ abbrev PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement : Prop
 at the first positive gap slice, then the odd two-sheet family must already be larger in
 `totalSize` than the even witness. Combined with the existing strict first-gap theorem, this is
 the single genuinely new local implication still needed to close the prism theorem. -/
+def OddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement :
+    Prop :=
+  ∀ {m e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
+      0 < e →
+      IsDownSetFamily 𝒩 →
+      IsDownSetFamily ℳ →
+      ℳ ⊆ 𝒩 →
+      𝒩.card = 2 ^ (2 * m) + e →
+      ℳ.card = 2 ^ (2 * m) - e →
+      #(positiveBoundary 𝒩) + #((𝒩 \ ℳ) ∪ positiveBoundary ℳ) <
+        2 * Nat.choose (2 * m + 1) m →
+      totalSize (evenLowerHalfFamily m) < totalSize 𝒩 + totalSize ℳ + ℳ.card
+
+def OddSectionFirstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement :
+    Prop :=
+  ∀ {m q e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
+      0 < e →
+      IsDownSetFamily 𝒩 →
+      IsDownSetFamily ℳ →
+      ℳ ⊆ 𝒩 →
+      𝒩.card = 2 ^ (2 * m) + e →
+      ℳ.card = 2 ^ (2 * m) - e →
+      (∀ ⦃r : ℕ⦄, r < q → #(ℳ # r) = #(𝒩 # r)) →
+      #(ℳ # q) < #(𝒩 # q) →
+      #(positiveBoundary 𝒩) + #((𝒩 \ ℳ) ∪ positiveBoundary ℳ) <
+        2 * Nat.choose (2 * m + 1) m →
+      totalSize (evenLowerHalfFamily m) < totalSize 𝒩 + totalSize ℳ + ℳ.card
+
 def OddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement :
     Prop :=
   ∀ {m q e : ℕ} {𝒩 ℳ : Finset (Finset (Fin (2 * m + 1)))},
@@ -853,6 +881,11 @@ def OddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalS
       #(positiveBoundary 𝒩) + #((𝒩 \ ℳ) ∪ positiveBoundary ℳ) <
         2 * Nat.choose (2 * m + 1) m →
       totalSize (evenLowerHalfFamily m) < totalSize 𝒩 + totalSize ℳ + ℳ.card
+
+/-- Canonical defect-side local bottleneck behind the prism theorem. This is the same first-gap
+surface as the lower-bound bottleneck, but phrased as the single missing defect-to-size bridge. -/
+abbrev PrismTheoremCanonicalPairInterfaceBoundaryDefectBottleneckStatement : Prop :=
+  OddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement
 
 theorem oddSectionPositiveExcessPairInterfaceBoundaryLower_of_section_pairInterfaceBoundaryLower
     (hPair : OddSectionPairInterfaceBoundaryLowerStatement) :
@@ -1208,6 +1241,149 @@ theorem oddSectionFirstSeparationPairInterfaceBoundaryLower_iff_firstPositiveGap
   exact
     oddSectionPositiveExcessPairInterfaceBoundaryLower_iff_firstSeparationPairInterfaceBoundaryLower.symm.trans
       oddSectionPositiveExcessPairInterfaceBoundaryLower_iff_firstPositiveGapSlicePairInterfaceBoundaryLower
+
+theorem
+    oddSectionFirstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_of_positiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness
+    (hDefect :
+      OddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement) :
+    OddSectionFirstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement := by
+  intro m q e 𝒩 ℳ he h𝒩 hℳ hsub h𝒩card hℳcard _hbefore _hqStrict hlt
+  exact hDefect he h𝒩 hℳ hsub h𝒩card hℳcard hlt
+
+theorem
+    oddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_of_firstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness
+    (hDefect :
+      OddSectionFirstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement) :
+    OddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement := by
+  intro m e 𝒩 ℳ he h𝒩 hℳ hsub h𝒩card hℳcard hlt
+  have hsum𝒩 :
+      Finset.sum (Finset.range (2 * m + 2)) (fun r => #(𝒩 # r)) = 𝒩.card := by
+    simpa [Nat.range_succ_eq_Iic, Fintype.card_fin] using (Finset.sum_card_slice 𝒩)
+  have hsumℳ :
+      Finset.sum (Finset.range (2 * m + 2)) (fun r => #(ℳ # r)) = ℳ.card := by
+    simpa [Nat.range_succ_eq_Iic, Fintype.card_fin] using (Finset.sum_card_slice ℳ)
+  have hsep :
+      ∃ q, q ∈ Finset.range (2 * m + 2) ∧ #(ℳ # q) < #(𝒩 # q) := by
+    by_contra hno
+    have hslices :
+        ∀ q ∈ Finset.range (2 * m + 2), #(ℳ # q) = #(𝒩 # q) := by
+      intro q hq
+      have hle : #(ℳ # q) ≤ #(𝒩 # q) :=
+        card_slice_le_card_slice_of_subset hsub
+      have hnotlt : ¬ #(ℳ # q) < #(𝒩 # q) := by
+        intro hqStrict
+        exact hno ⟨q, hq, hqStrict⟩
+      exact Nat.le_antisymm hle (Nat.not_lt.mp hnotlt)
+    have hcardEq : ℳ.card = 𝒩.card := by
+      calc
+        ℳ.card = Finset.sum (Finset.range (2 * m + 2)) (fun r => #(ℳ # r)) := by
+          symm
+          exact hsumℳ
+        _ = Finset.sum (Finset.range (2 * m + 2)) (fun r => #(𝒩 # r)) := by
+          refine Finset.sum_congr rfl ?_
+          intro r hr
+          exact hslices r hr
+        _ = 𝒩.card := hsum𝒩
+    have hcardNe : ℳ.card ≠ 𝒩.card := by
+      intro hEq
+      rw [hℳcard, h𝒩card] at hEq
+      have hlt' :
+          2 ^ (2 * m) - e < 2 ^ (2 * m) + e := by
+        calc
+          2 ^ (2 * m) - e < 2 ^ (2 * m) := by
+            exact Nat.sub_lt (pow_pos (by decide : 0 < 2) (2 * m)) he
+          _ < 2 ^ (2 * m) + e := Nat.lt_add_of_pos_right he
+      exact (ne_of_lt hlt') hEq
+    exact (hcardNe hcardEq).elim
+  let q : ℕ := Nat.find hsep
+  have hqRange : q ∈ Finset.range (2 * m + 2) := (Nat.find_spec hsep).1
+  have hqStrict : #(ℳ # q) < #(𝒩 # q) := (Nat.find_spec hsep).2
+  have hbefore : ∀ ⦃r : ℕ⦄, r < q → #(ℳ # r) = #(𝒩 # r) := by
+    intro r hr
+    have hrRange : r ∈ Finset.range (2 * m + 2) := by
+      exact Finset.mem_range.mpr (lt_trans hr (Finset.mem_range.mp hqRange))
+    have hle : #(ℳ # r) ≤ #(𝒩 # r) :=
+      card_slice_le_card_slice_of_subset hsub
+    have hnotlt : ¬ #(ℳ # r) < #(𝒩 # r) := by
+      intro hrStrict
+      have hqle : q ≤ r := Nat.find_min' hsep ⟨hrRange, hrStrict⟩
+      exact (Nat.not_le_of_gt hr) hqle
+    exact Nat.le_antisymm hle (Nat.not_lt.mp hnotlt)
+  exact hDefect he h𝒩 hℳ hsub h𝒩card hℳcard hbefore hqStrict hlt
+
+theorem
+    oddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_iff_firstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness :
+    OddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement ↔
+      OddSectionFirstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement := by
+  constructor
+  · exact
+      oddSectionFirstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_of_positiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness
+  · exact
+      oddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_of_firstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness
+
+theorem
+    oddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_of_positiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness
+    (hDefect :
+      OddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement) :
+    OddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement := by
+  intro m q e 𝒩 ℳ he h𝒩 hℳ hsub h𝒩card hℳcard _hzero _hpos hlt
+  exact hDefect he h𝒩 hℳ hsub h𝒩card hℳcard hlt
+
+theorem
+    oddSectionFirstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness
+    (hDefect :
+      OddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement) :
+    OddSectionFirstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement := by
+  intro m q e 𝒩 ℳ he h𝒩 hℳ hsub h𝒩card hℳcard hbefore hqStrict hlt
+  have hzero :
+      ∀ s ∈ Finset.range q, #(((𝒩 \ ℳ) # s)) = 0 := by
+    intro s hs
+    have hsEq : #(ℳ # s) = #(𝒩 # s) := hbefore (Finset.mem_range.mp hs)
+    rw [card_slice_sdiff_eq_card_slice_sub_card_slice_of_subset hsub, hsEq, Nat.sub_self]
+  have hpos : 0 < #(((𝒩 \ ℳ) # q)) := by
+    rw [card_slice_sdiff_eq_card_slice_sub_card_slice_of_subset hsub]
+    exact Nat.sub_pos_of_lt hqStrict
+  exact hDefect he h𝒩 hℳ hsub h𝒩card hℳcard hzero hpos hlt
+
+theorem
+    oddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness
+    (hDefect :
+      OddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement) :
+    OddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement := by
+  exact
+    oddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_of_firstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness
+      (oddSectionFirstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness
+        hDefect)
+
+theorem
+    oddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_iff_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness :
+    OddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement ↔
+      OddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement := by
+  constructor
+  · exact
+      oddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_of_positiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness
+  · exact
+      oddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness
+
+theorem
+    oddSectionFirstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_iff_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness :
+    OddSectionFirstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement ↔
+      OddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement := by
+  exact
+    oddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_iff_firstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness.symm.trans
+      oddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_iff_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness
+
+theorem prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck_iff_firstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness :
+    PrismTheoremCanonicalPairInterfaceBoundaryDefectBottleneckStatement ↔
+      OddSectionFirstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement := by
+  simpa [PrismTheoremCanonicalPairInterfaceBoundaryDefectBottleneckStatement] using
+    oddSectionFirstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_iff_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness.symm
+
+theorem prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck_iff_positiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness :
+    PrismTheoremCanonicalPairInterfaceBoundaryDefectBottleneckStatement ↔
+      OddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement := by
+  simpa [PrismTheoremCanonicalPairInterfaceBoundaryDefectBottleneckStatement] using
+    oddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness_iff_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitness.symm
 
 theorem prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck_iff_firstSeparationPairInterfaceBoundaryLower :
     PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement ↔
@@ -14023,5 +14199,79 @@ theorem
       (prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSize_of_prismTheoremCurrentLeafFrontier
         hDefect hFrontier)
       h hA
+
+theorem
+    prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hCanonDefect : PrismTheoremCanonicalPairInterfaceBoundaryDefectBottleneckStatement) :
+    PrismTheoremCanonicalPairInterfaceBoundaryLowerBottleneckStatement := by
+  exact
+    prismTheoremCanonicalPairInterfaceBoundaryLowerBottleneck_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSize_of_prismTheoremCurrentLeafFrontier
+      hCanonDefect hFrontier
+
+theorem
+    oddSectionPairInterfaceBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hCanonDefect : PrismTheoremCanonicalPairInterfaceBoundaryDefectBottleneckStatement) :
+    OddSectionPairInterfaceBoundaryLowerStatement := by
+  exact
+    oddSectionPairInterfaceBoundaryLower_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSize_of_prismTheoremCurrentLeafFrontier
+      hCanonDefect hFrontier
+
+theorem
+    twoSheetBoundaryTheorem_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hCanonDefect : PrismTheoremCanonicalPairInterfaceBoundaryDefectBottleneckStatement) :
+    TwoSheetBoundaryTheorem := by
+  exact
+    twoSheetBoundaryTheorem_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSize_of_prismTheoremCurrentLeafFrontier
+      hCanonDefect hFrontier
+
+theorem
+    prismHalfCubeBoundaryLowerStatement_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hCanonDefect : PrismTheoremCanonicalPairInterfaceBoundaryDefectBottleneckStatement) :
+    PrismHalfCubeBoundaryLowerStatement := by
+  exact
+    prismHalfCubeBoundaryLowerStatement_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSize_of_prismTheoremCurrentLeafFrontier
+      hCanonDefect hFrontier
+
+theorem
+    halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hCanonDefect : PrismTheoremCanonicalPairInterfaceBoundaryDefectBottleneckStatement) :
+    HalfCubeBoundaryLowerStatement := by
+  exact
+    halfCubeBoundaryLower_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSize_of_prismTheoremCurrentLeafFrontier
+      hCanonDefect hFrontier
+
+theorem
+    halfCubeUpperShadowGapLower_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hCanonDefect : PrismTheoremCanonicalPairInterfaceBoundaryDefectBottleneckStatement) :
+    HalfCubeUpperShadowGapLowerStatement := by
+  exact
+    halfCubeUpperShadowGapLower_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSize_of_prismTheoremCurrentLeafFrontier
+      hCanonDefect hFrontier
+
+theorem
+    subcubeHalfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hCanonDefect : PrismTheoremCanonicalPairInterfaceBoundaryDefectBottleneckStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundary (negativeHalfFamilySubcubeNat A)).card := by
+  exact
+    subcubeHalfCubeBoundaryLower_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSize_of_prismTheoremCurrentLeafFrontier
+      hCanonDefect hFrontier h hA
+
+theorem
+    positiveBoundaryFamilyNat_lower_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hCanonDefect : PrismTheoremCanonicalPairInterfaceBoundaryDefectBottleneckStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundaryFamilyNat A).card := by
+  exact
+    positiveBoundaryFamilyNat_lower_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSize_of_prismTheoremCurrentLeafFrontier
+      hCanonDefect hFrontier h hA
 
 end Erdos1
