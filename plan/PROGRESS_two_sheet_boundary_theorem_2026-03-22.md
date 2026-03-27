@@ -128,3 +128,19 @@ The final route is now split into two explicit theorem inputs:
 
 The Lean files now show directly that those two inputs close the canonical defect bottleneck and
 therefore the exact Erdős #1 endpoint under `PrismTheoremCurrentLeafFrontierStatement`.
+
+Latest normalization-side sharpening:
+
+- the simple-lower no-larger-prism condition is now explicitly equivalent to the uniform-upper
+  condition `∀ s ∈ 𝒰, s.card = m + 1`;
+- correspondingly, Lean now has the stronger normalization surface
+  `PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpperStatement`,
+  and shows that this stronger form already implies the original normalization statement, the
+  canonical defect bottleneck, the half-cube boundary / upper-shadow-gap consequences, and the
+  exact Erdős #1 endpoint under the current leaf frontier.
+
+So the `totalSize` transport inequality is no longer the right target in raw form. The remaining
+normalization burden is sharper:
+
+- transfer the boundary defect to a simple-lower pair,
+- and normalize the upper part entirely into the middle layer.

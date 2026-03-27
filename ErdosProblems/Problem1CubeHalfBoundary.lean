@@ -7959,6 +7959,14 @@ theorem
     simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle_iff_largerPrismThanEvenWitness.trans
       simpleLowerPairInterfaceBoundaryDefectForcesLargerPrismThanEvenWitness_iff_withNoLargerPrismThanEvenWitnessImpossible
 
+theorem
+    simpleLowerPairInterfaceBoundaryDefectWithUniformUpperImpossible_iff_withNoLargerPrismThanEvenWitnessImpossible :
+    SimpleLowerPairInterfaceBoundaryDefectWithUniformUpperImpossibleStatement ↔
+      SimpleLowerPairInterfaceBoundaryDefectWithNoLargerPrismThanEvenWitnessImpossibleStatement := by
+  exact
+    simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle_iff_withUniformUpperImpossible.symm.trans
+      simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle_iff_withNoLargerPrismThanEvenWitnessImpossible
+
 /-- Prism-form restatement of the first-positive-gap defect bottleneck. This is the same local
 bridge as the larger-`totalSize` statement above, but with the conclusion expressed directly on
 the odd prism `twoSheetFamily ℳ 𝒩`. This is the exact theorem surface suggested by the current
@@ -8045,6 +8053,35 @@ def PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerState
   SimpleLowerPairInterfaceBoundaryDefectWithNoLargerPrismThanEvenWitnessImpossibleStatement →
     OddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectWithNoLargerPrismThanEvenWitnessImpossibleStatement
 
+/-- Stronger normalization surface for the canonical defect bottleneck: it already suffices to
+normalize the first-gap contradiction to the simple-lower model with the upper part constrained to
+the middle layer. Via the simple-lower `totalSize` algebra, this packages the no-larger-prism
+transport into the uniform-upper condition. -/
+def PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpperStatement :
+    Prop :=
+  SimpleLowerPairInterfaceBoundaryDefectWithUniformUpperImpossibleStatement →
+    OddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectWithNoLargerPrismThanEvenWitnessImpossibleStatement
+
+theorem
+    prismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLower_of_uniformUpper
+    (hNorm :
+      PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpperStatement) :
+    PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerStatement := by
+  unfold PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerStatement
+  unfold PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpperStatement at hNorm
+  intro hSimple
+  have hUniform :
+      SimpleLowerPairInterfaceBoundaryDefectWithUniformUpperImpossibleStatement := by
+    intro m 𝒰 𝒱 h𝒱 h𝒰disj hcard hlt h𝒰uniform
+    have hle :
+        totalSize (twoSheetFamily (oddLowerHalfFamily m \ 𝒱) (oddLowerHalfFamily m ∪ 𝒰)) ≤
+          totalSize (evenLowerHalfFamily m) :=
+      (totalSize_twoSheetFamily_oddLowerHalf_sdiff_union_le_evenWitness_iff_upperUniform
+        h𝒱 h𝒰disj hcard).mpr h𝒰uniform
+    exact hSimple h𝒱 h𝒰disj hcard hlt hle
+  intro m q e 𝒩 ℳ he h𝒩 hℳ hsub h𝒩card hℳcard hzero hpos hlt hle
+  exact hNorm hUniform he h𝒩 hℳ hsub h𝒩card hℳcard hzero hpos hlt hle
+
 theorem
     prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck_of_normalizesToSimpleLower_of_simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle
     (hNorm : PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerStatement)
@@ -8064,6 +8101,17 @@ theorem
     simpa [totalSize_twoSheetFamily] using (le_of_not_gt hnot)
   exact
     hCanonImpossible he h𝒩 hℳ hsub h𝒩card hℳcard hzero hpos hlt hle
+
+theorem
+    prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck_of_normalizesToSimpleLowerUniformUpper_of_simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle
+    (hNorm :
+      PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpperStatement)
+    (hSimple : SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement) :
+    PrismTheoremCanonicalPairInterfaceBoundaryDefectBottleneckStatement := by
+  exact
+    prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck_of_normalizesToSimpleLower_of_simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle
+      (prismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLower_of_uniformUpper hNorm)
+      hSimple
 
 theorem isDownSetFamily_twoSheetFamily {n : ℕ} {ℳ 𝒩 : Finset (Finset (Fin n))}
     (hℳ : IsDownSetFamily ℳ) (h𝒩 : IsDownSetFamily 𝒩) (hsub : ℳ ⊆ 𝒩) :
@@ -14859,6 +14907,23 @@ theorem
       hCanonDefect hFrontier hn h𝒟 hcard
 
 theorem
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpper_of_simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hNorm :
+      PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpperStatement)
+    (hSimple : SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement)
+    {n : ℕ} (hn : 0 < n) {𝒟 : Finset (Finset (Fin n))}
+    (h𝒟 : IsDownSetFamily 𝒟)
+    (hcard : 𝒟.card = 2 ^ (n - 1)) :
+    Nat.choose n (n / 2) ≤ #(positiveBoundary 𝒟) := by
+  exact
+    choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck
+      hFrontier
+      (prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck_of_normalizesToSimpleLowerUniformUpper_of_simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle
+        hNorm hSimple)
+      hn h𝒟 hcard
+
+theorem
     choose_middle_le_card_positiveBoundary_of_card_eq_half_cube_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerPrismThanEvenWitness_of_prismTheoremCurrentLeafFrontier
     (hDefect :
       OddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerPrismThanEvenWitnessStatement)
@@ -15233,6 +15298,19 @@ theorem
       hCanonDefect hFrontier
 
 theorem
+    halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpper_of_simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hNorm :
+      PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpperStatement)
+    (hSimple : SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement) :
+    HalfCubeBoundaryLowerStatement := by
+  exact
+    halfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck
+      hFrontier
+      (prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck_of_normalizesToSimpleLowerUniformUpper_of_simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle
+        hNorm hSimple)
+
+theorem
     halfCubeUpperShadowGapLower_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck
     (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
     (hCanonDefect : PrismTheoremCanonicalPairInterfaceBoundaryDefectBottleneckStatement) :
@@ -15240,6 +15318,19 @@ theorem
   exact
     halfCubeUpperShadowGapLower_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSize_of_prismTheoremCurrentLeafFrontier
       hCanonDefect hFrontier
+
+theorem
+    halfCubeUpperShadowGapLower_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpper_of_simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hNorm :
+      PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpperStatement)
+    (hSimple : SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement) :
+    HalfCubeUpperShadowGapLowerStatement := by
+  exact
+    halfCubeUpperShadowGapLower_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck
+      hFrontier
+      (prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck_of_normalizesToSimpleLowerUniformUpper_of_simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle
+        hNorm hSimple)
 
 theorem
     subcubeHalfCubeBoundaryLower_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck
@@ -15260,5 +15351,20 @@ theorem
   exact
     positiveBoundaryFamilyNat_lower_of_firstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSize_of_prismTheoremCurrentLeafFrontier
       hCanonDefect hFrontier h hA
+
+theorem
+    positiveBoundaryFamilyNat_lower_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpper_of_simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement)
+    (hNorm :
+      PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpperStatement)
+    (hSimple : SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement)
+    {A : Finset ℕ} {N : ℕ} (h : IsSumDistinctSet A N) (hA : A.Nonempty) :
+    Nat.choose A.card (A.card / 2) ≤ (positiveBoundaryFamilyNat A).card := by
+  exact
+    positiveBoundaryFamilyNat_lower_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck
+      hFrontier
+      (prismTheoremCanonicalPairInterfaceBoundaryDefectBottleneck_of_normalizesToSimpleLowerUniformUpper_of_simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle
+        hNorm hSimple)
+      h hA
 
 end Erdos1

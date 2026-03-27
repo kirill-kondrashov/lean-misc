@@ -109,6 +109,23 @@ theorem
         hNorm hSimple)
 
 /--
+Equivalent exact Erdős #1 endpoint factored through the stronger normalization surface where the
+simple-lower upper family is already restricted to the middle layer. This packages the
+no-larger-prism transport into the uniform-upper condition.
+-/
+theorem
+    erdos_1_lower_bound_exact_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpper_of_simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle
+    (hNorm : PrismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLowerUniformUpperStatement)
+    (hSimple : SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement)
+    (hFrontier : PrismTheoremCurrentLeafFrontierStatement) :
+    ∀ (N : ℕ) (A : Finset ℕ), IsSumDistinctSet A N → A.Nonempty →
+      Nat.choose A.card (A.card / 2) ≤ N := by
+  exact
+    erdos_1_lower_bound_exact_of_prismTheoremCurrentLeafFrontier_of_prismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLower_of_simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle
+      (prismTheoremCanonicalPairInterfaceBoundaryDefectNormalizesToSimpleLower_of_uniformUpper hNorm)
+      hSimple hFrontier
+
+/--
 Equivalent exact Erdős #1 endpoint using the positive-excess defect bridge directly.
 -/
 theorem erdos_1_lower_bound_exact_of_prismTheoremCurrentLeafFrontier_of_positiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSize
