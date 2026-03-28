@@ -4,6 +4,9 @@ This note records the mathematical formulation of
 `SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement` and a plausible proof
 route in standard notation. It is a research note, not a formal proof.
 
+For the standalone theorem statement, see
+[STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md](/home/kir/pers/erdos/lean-misc/plan/STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md).
+
 ## Statement
 
 Write

@@ -202,11 +202,23 @@ Latest computational sharpening:
   T(V)\setminus U = \varnothing.
   \]
 
-So the current best research direction is sharper again:
+However, the naive compression route has now been falsified computationally:
 
-- prove compression/shifting does not increase
+- the strong inclusion
   \[
-  |T(V)\setminus U| - |\partial^\uparrow U|;
+  C_{ij}\bigl(T(V)\setminus U\bigr) \subseteq T(C_{ij}V)\setminus C_{ij}U
   \]
-- then prove the stronger colex containment statement \(T(V^\ast) \subseteq U^\ast\), or otherwise
-  compute the compressed case exactly.
+  fails in an explicit `n = 7` example;
+- the weaker badness monotonicity
+  \[
+  |T(V)\setminus U| - |\partial^\uparrow U|
+  \le
+  |T(C_{ij}V)\setminus C_{ij}U| - |\partial^\uparrow(C_{ij}U)|
+  \]
+  also fails on that same example.
+
+So the current best research direction is now:
+
+- abandon the naive compression monotonicity route;
+- either find a different monotone defect functional, or
+- prove the reduced middle-layer inequality directly without that compression step.

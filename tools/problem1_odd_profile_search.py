@@ -110,6 +110,22 @@ class ColexUniformUpperMiddleLayerResult:
     reduced_margin: int
 
 
+@dataclass(frozen=True)
+class MiddleLayerCompressionCounterexample:
+    n: int
+    i: int
+    j: int
+    u_family: Family
+    v_family: Family
+    t_v_outside: Family
+    compressed_u_family: Family
+    compressed_v_family: Family
+    compressed_t_v_outside: Family
+    compressed_image_of_t_v_outside: Family
+    delta_before: int
+    delta_after: int
+
+
 def all_subsets(n: int) -> Tuple[int, ...]:
     subsets: List[int] = []
     for r in range(n + 1):
@@ -294,6 +310,27 @@ def colex_initial_segment(n: int, rank: int, size: int, subsets: Sequence[int]) 
     return tuple(ordered[:size])
 
 
+def compress_mask(mask: int, i: int, j: int) -> int:
+    if i == j:
+        return mask
+    i_bit = 1 << i
+    j_bit = 1 << j
+    if mask & j_bit and not (mask & i_bit):
+        return (mask ^ j_bit) | i_bit
+    return mask
+
+
+def compress_uniform_family(family: Sequence[int], i: int, j: int) -> Family:
+    family_set = set(family)
+    compressed = set(family_set)
+    for member in family:
+        image = compress_mask(member, i, j)
+        if image != member and image not in family_set:
+            compressed.remove(member)
+            compressed.add(image)
+    return tuple(sorted(compressed))
+
+
 def even_lower_half_total_size_in_prism_dimension(n: int) -> int:
     m = n // 2
     return (n + 1) * (2 ** (n - 1)) - (m + 1) * comb(n, m)
@@ -455,6 +492,111 @@ def t_of_v_rank4_family(v_family: Sequence[int], subsets: Sequence[int]) -> Tupl
         if all_triples_present:
             targets.append(subset)
     return tuple(sorted(targets))
+
+
+def t_of_v_family(v_family: Sequence[int], subsets: Sequence[int]) -> Family:
+    if not v_family:
+        return ()
+    source_rank = subset_cardinality(v_family[0])
+    target_rank = source_rank + 1
+    v_set = set(v_family)
+    targets: List[int] = []
+    for subset in subsets:
+        if subset_cardinality(subset) != target_rank:
+            continue
+        candidates = subset
+        all_predecessors_present = True
+        while candidates:
+            bit = candidates & -candidates
+            predecessor = subset ^ bit
+            if predecessor not in v_set:
+                all_predecessors_present = False
+                break
+            candidates ^= bit
+        if all_predecessors_present:
+            targets.append(subset)
+    return tuple(sorted(targets))
+
+
+def middle_layer_badness(u_family: Sequence[int], v_family: Sequence[int], subsets: Sequence[int]) -> int:
+    t_v = t_of_v_family(v_family, subsets)
+    t_v_outside = tuple(subset for subset in t_v if subset not in set(u_family))
+    upper_shadow = upper_shadow_of_uniform_middle_family(u_family, subsets)
+    return len(t_v_outside) - len(upper_shadow)
+
+
+def canonical_middle_layer_compression_inclusion_counterexample_n7() -> MiddleLayerCompressionCounterexample:
+    n = 7
+    subsets = all_subsets(n)
+    all_rank4_sets = rank_subsets(n, 4, subsets)
+    i, j = 0, 2
+    b = sum(1 << index for index in (2, 3, 4, 5))
+    v_family = tuple(sorted(b ^ (1 << index) for index in (2, 3, 4, 5)))
+    b_compressed = compress_mask(b, i, j)
+    filler = tuple(subset for subset in all_rank4_sets if subset not in {b, b_compressed})
+    u_family = tuple(sorted((b_compressed,) + filler[:3]))
+    t_v_outside = tuple(subset for subset in t_of_v_family(v_family, subsets) if subset not in set(u_family))
+    compressed_u_family = compress_uniform_family(u_family, i, j)
+    compressed_v_family = compress_uniform_family(v_family, i, j)
+    compressed_t_v_outside = tuple(
+        subset
+        for subset in t_of_v_family(compressed_v_family, subsets)
+        if subset not in set(compressed_u_family)
+    )
+    compressed_image_of_t_v_outside = compress_uniform_family(t_v_outside, i, j)
+    return MiddleLayerCompressionCounterexample(
+        n=n,
+        i=i,
+        j=j,
+        u_family=u_family,
+        v_family=v_family,
+        t_v_outside=t_v_outside,
+        compressed_u_family=compressed_u_family,
+        compressed_v_family=compressed_v_family,
+        compressed_t_v_outside=compressed_t_v_outside,
+        compressed_image_of_t_v_outside=compressed_image_of_t_v_outside,
+        delta_before=middle_layer_badness(u_family, v_family, subsets),
+        delta_after=middle_layer_badness(compressed_u_family, compressed_v_family, subsets),
+    )
+
+
+def search_canonical_middle_layer_delta_failure_n7() -> MiddleLayerCompressionCounterexample | None:
+    n = 7
+    subsets = all_subsets(n)
+    all_rank4_sets = rank_subsets(n, 4, subsets)
+    i, j = 0, 2
+    b = sum(1 << index for index in (2, 3, 4, 5))
+    v_family = tuple(sorted(b ^ (1 << index) for index in (2, 3, 4, 5)))
+    for u_family in combinations(all_rank4_sets, len(v_family)):
+        compressed_u_family = compress_uniform_family(u_family, i, j)
+        compressed_v_family = compress_uniform_family(v_family, i, j)
+        delta_before = middle_layer_badness(u_family, v_family, subsets)
+        delta_after = middle_layer_badness(compressed_u_family, compressed_v_family, subsets)
+        if delta_before > delta_after:
+            t_v_outside = tuple(
+                subset for subset in t_of_v_family(v_family, subsets) if subset not in set(u_family)
+            )
+            compressed_t_v_outside = tuple(
+                subset
+                for subset in t_of_v_family(compressed_v_family, subsets)
+                if subset not in set(compressed_u_family)
+            )
+            compressed_image_of_t_v_outside = compress_uniform_family(t_v_outside, i, j)
+            return MiddleLayerCompressionCounterexample(
+                n=n,
+                i=i,
+                j=j,
+                u_family=tuple(sorted(u_family)),
+                v_family=v_family,
+                t_v_outside=t_v_outside,
+                compressed_u_family=compressed_u_family,
+                compressed_v_family=compressed_v_family,
+                compressed_t_v_outside=compressed_t_v_outside,
+                compressed_image_of_t_v_outside=compressed_image_of_t_v_outside,
+                delta_before=delta_before,
+                delta_after=delta_after,
+            )
+    return None
 
 
 def max_destroyed_rank4_targets_by_available_rank3_sets_with_witness(
@@ -1061,6 +1203,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--middle-layer-compression-counterexample-n7",
+        action="store_true",
+        help=(
+            "Exhibit the canonical n=7 counterexample to the strong compression inclusion "
+            "C_ij(T(V) \\ U) ⊆ T(C_ij V) \\ C_ij U, and test the weaker Δ-monotonicity on the "
+            "same canonical V."
+        ),
+    )
+    parser.add_argument(
         "--dimensions",
         type=int,
         nargs="+",
@@ -1214,6 +1365,44 @@ def main() -> int:
             return 1
         ok("OK overall: all colex n=7 middle-layer samples satisfy the reduced inequality.")
         return 0
+
+    if args.middle_layer_compression_counterexample_n7:
+        result = canonical_middle_layer_compression_inclusion_counterexample_n7()
+        image_set = set(result.compressed_image_of_t_v_outside)
+        target_set = set(result.compressed_t_v_outside)
+        if image_set.issubset(target_set):
+            ok(
+                "OK canonical n=7 example: the strong compression inclusion unexpectedly survives."
+            )
+        else:
+            warn(
+                "WARNING canonical n=7 example falsifies the strong compression inclusion "
+                "C_ij(T(V) \\ U) ⊆ T(C_ij V) \\ C_ij U."
+            )
+        print(f"  n={result.n} compression=(i,j)=({result.i},{result.j})")
+        print(f"  V = {format_family(result.v_family)}")
+        print(f"  U = {format_family(result.u_family)}")
+        print(f"  T(V)\\\\U = {format_family(result.t_v_outside)}")
+        print(f"  C(U) = {format_family(result.compressed_u_family)}")
+        print(f"  C(V) = {format_family(result.compressed_v_family)}")
+        print(f"  C(T(V)\\\\U) = {format_family(result.compressed_image_of_t_v_outside)}")
+        print(f"  T(C(V))\\\\C(U) = {format_family(result.compressed_t_v_outside)}")
+        print(
+            f"  delta_before={result.delta_before} delta_after={result.delta_after}"
+        )
+
+        delta_failure = search_canonical_middle_layer_delta_failure_n7()
+        if delta_failure is None:
+            ok(
+                "OK canonical n=7 e=4 sweep: no Δ-monotonicity failure found for the fixed witness V."
+            )
+            return 0
+        warn(
+            "WARNING canonical n=7 e=4 sweep found a Δ-monotonicity failure for the fixed witness V."
+        )
+        print(f"  failing U = {format_family(delta_failure.u_family)}")
+        print(f"  delta_before={delta_failure.delta_before} delta_after={delta_failure.delta_after}")
+        return 1
 
     dimensions = tuple(args.dimensions)
     total_steps = len(dimensions) * 8

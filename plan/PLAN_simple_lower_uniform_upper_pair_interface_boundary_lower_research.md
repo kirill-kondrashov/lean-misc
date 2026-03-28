@@ -65,6 +65,39 @@ T(V)
 
 So the remaining work is a pure middle-layer combinatorial inequality.
 
+## Standalone Proof Attempt
+
+The compression-route proof attempt for the reduced inequality is recorded separately in
+[PLAN_middle_layer_compression_monotonicity_proof_attempt.md](./PLAN_middle_layer_compression_monotonicity_proof_attempt.md).
+
+That note writes down the conjectural badness functional
+
+\[
+\Delta(U,V) := |T(V)\setminus U| - |\partial^\uparrow U|
+\]
+
+and the originally proposed compression strategy:
+
+\[
+\Delta(U,V) \le \Delta(C_{ij}U,\; C_{ij}V).
+\]
+
+That route is now known to fail. The separate note records an explicit \(n=7\) counterexample to
+both the strong inclusion
+
+\[
+C_{ij}\bigl(T(V)\setminus U\bigr) \subseteq T(C_{ij}V)\setminus C_{ij}U
+\]
+
+and the weaker monotonicity claim
+
+\[
+\Delta(U,V) \le \Delta(C_{ij}U,\; C_{ij}V).
+\]
+
+So the standalone note should now be read as a falsified proof attempt rather than as a live proof
+program.
+
 ## Why This Is The Right Route
 
 The Lean development already proves:
@@ -99,9 +132,9 @@ Interpret:
 The goal is then to compare a clique-style family on the right with the upper shadow of a family of
 the same size.
 
-### 2. Identify the extremal compressed model
+### 2. Replace the falsified compression route
 
-The working conjecture is that for fixed
+The old working conjecture was that for fixed
 
 \[
 |U| = |V| = e,
@@ -115,12 +148,17 @@ the minimum of
 
 is attained by compressed / colex-initial configurations.
 
-So the next mathematical subgoal is:
+That exact reduction is false: the direct left-compression monotonicity fails already in the
+explicit \(n=7\) example from the standalone note.
 
-> prove that shifting/compression does not increase the badness quantity
-> \[
-> |T(V)\setminus U| - |\partial^\uparrow U|.
-> \]
+So the new subgoal is to replace the failed route with one of:
+
+- a different monotone defect functional,
+- a weaker extremal reduction that does not use the false monotonicity,
+- or a direct non-compression proof of
+  \[
+  |\partial^\uparrow U| \ge |T(V)\setminus U|.
+  \]
 
 ### 3. Compute the compressed extremizers explicitly
 
@@ -134,13 +172,14 @@ For compressed initial segments \(U^\ast, V^\ast\), compute:
 |T(V^\ast)\setminus U^\ast|.
 \]
 
-The expected outcome is
+The expected outcome was
 
 \[
 |\partial^\uparrow U^\ast| \ge |T(V^\ast)\setminus U^\ast|.
 \]
 
-If true, compression reduces the whole theorem to an explicit counting exercise.
+This remains computationally plausible, but it is no longer enough by itself, because the failed
+compression step no longer reduces the general case to the compressed case.
 
 Current `n=7` evidence is stronger than this:
 
@@ -239,8 +278,8 @@ equivalences close:
 
 The plan is successful once one of the following is achieved:
 
-1. a proof that compression reduces the target inequality to colex initial segments, together with
-   an explicit count in the compressed case; or
+1. a replacement extremal reduction to a provable compressed model, together with an explicit count
+   in that reduced case; or
 2. a direct middle-layer counting lemma proving
    \[
    |\partial^\uparrow U| \ge |T(V)\setminus U|.
@@ -254,16 +293,16 @@ This plan is partially implemented:
 
 - the reduced middle-layer inequality has been isolated,
 - the structured `n=7` uniform-upper diagnostics have been added,
-- and the colex `n=7` diagnostics suggest the stronger compressed containment
+- and the colex `n=7` diagnostics still suggest the stronger compressed containment
   \[
   T(V^\ast)\subseteq U^\ast.
   \]
 
-The project is still stuck mathematically, but the blocker is now sharper:
+The project is still stuck mathematically, and the blocker is now sharper than before:
 
-1. prove compression/shifting does not worsen
+1. the naive compression monotonicity route is false and cannot be repaired by proving the old
+   conjecture;
+2. the next live task is to find a replacement reduction or a direct proof of
    \[
-   |T(V)\setminus U| - |\partial^\uparrow U|;
+   |\partial^\uparrow U| \ge |T(V)\setminus U|.
    \]
-2. then prove the stronger colex containment statement, or otherwise compute the compressed case
-   exactly.
