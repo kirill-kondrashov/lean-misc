@@ -73,20 +73,21 @@ The current plan is:
    \[
    |\partial^\uparrow U| \ge |T(V)\setminus U|.
    \]
-2. Do not use the naive compression-monotonicity route
-   \[
-   \Delta(U,V) \le \Delta(C_{ij}U,\; C_{ij}V),
-   \]
-   because that route has already been falsified.
-3. Replace it with one of the following:
-   - a different monotone defect functional;
-   - a weaker extremal/colex reduction that avoids the false monotonicity;
+2. Use one of the live routes:
+   - a weaker extremal/colex reduction from general \((U,V)\) to canonical equal-size middle-layer
+     pairs;
    - or a direct counting proof of the reduced inequality.
-   The best current replacement conjecture is the weaker colex route:
+   The best current live conjecture is the weaker colex route:
    first reduce to equal-size colex middle-layer pairs \((U^\ast,V^\ast)\), then prove
    \[
    T(V^\ast)\subseteq U^\ast.
    \]
+   That compressed-case theorem is now proved mathematically in
+   [PROOF_colex_equal_size_middle_layer_containment.md](./PROOF_colex_equal_size_middle_layer_containment.md),
+   but its direct Lean formalization is currently stuck and should not be treated as a theorem that
+   already exists in the codebase.
+3. Archived stuck routes are tracked separately in
+   [STUCK_PLANS.md](./STUCK_PLANS.md).
 4. Once that reduced inequality is proved, use the already-formalized Lean equivalence layer to
    recover
    `SimpleLowerUniformUpperPairInterfaceBoundaryLowerStatement`,
@@ -96,38 +97,10 @@ The current plan is:
 So the remaining work is no longer theorem packaging. It is one new middle-layer combinatorial
 argument.
 
-## Standalone Proof Attempt
+## Archived Routes
 
-The compression-route proof attempt for the reduced inequality is recorded separately in
-[PLAN_middle_layer_compression_monotonicity_proof_attempt.md](./PLAN_middle_layer_compression_monotonicity_proof_attempt.md).
-
-That note writes down the conjectural badness functional
-
-\[
-\Delta(U,V) := |T(V)\setminus U| - |\partial^\uparrow U|
-\]
-
-and the originally proposed compression strategy:
-
-\[
-\Delta(U,V) \le \Delta(C_{ij}U,\; C_{ij}V).
-\]
-
-That route is now known to fail. The separate note records an explicit \(n=7\) counterexample to
-both the strong inclusion
-
-\[
-C_{ij}\bigl(T(V)\setminus U\bigr) \subseteq T(C_{ij}V)\setminus C_{ij}U
-\]
-
-and the weaker monotonicity claim
-
-\[
-\Delta(U,V) \le \Delta(C_{ij}U,\; C_{ij}V).
-\]
-
-So the standalone note should now be read as a falsified proof attempt rather than as a live proof
-program.
+Stuck plan branches are recorded separately in
+[STUCK_PLANS.md](./STUCK_PLANS.md).
 
 ## Why This Is The Right Route
 
@@ -163,30 +136,17 @@ Interpret:
 The goal is then to compare a clique-style family on the right with the upper shadow of a family of
 the same size.
 
-### 2. Replace the falsified compression route
+### 2. Pursue a weaker extremal reduction
 
-The old working conjecture was that for fixed
+For fixed
 
 \[
 |U| = |V| = e,
 \]
 
-the minimum of
+the active subgoal is to find a weaker extremal reduction from general \((U,V)\) to colex
+equal-size middle-layer pairs, or else bypass reduction entirely and prove
 
-\[
-|\partial^\uparrow U| - |T(V)\setminus U|
-\]
-
-is attained by compressed / colex-initial configurations.
-
-That exact reduction is false: the direct left-compression monotonicity fails already in the
-explicit \(n=7\) example from the standalone note.
-
-So the new subgoal is to replace the failed route with one of:
-
-- a different monotone defect functional,
-- a weaker extremal reduction that does not use the false monotonicity,
-- or a direct non-compression proof of
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|.
   \]
@@ -209,8 +169,8 @@ The expected outcome was
 |\partial^\uparrow U^\ast| \ge |T(V^\ast)\setminus U^\ast|.
 \]
 
-This remains computationally plausible, but it is no longer enough by itself, because the failed
-compression step no longer reduces the general case to the compressed case.
+This remains computationally plausible, but it is not yet a full proof route by itself, because the
+general-to-colex reduction is still missing.
 
 Current computational evidence is stronger than this:
 
@@ -239,8 +199,11 @@ So the current compressed-model conjecture can be sharpened:
 > T(V^\ast)\subseteq U^\ast.
 > \]
 
-If this stronger statement is true in general, then the reduced inequality is immediate in the
-compressed case.
+This stronger statement is now proved mathematically in
+[PROOF_colex_equal_size_middle_layer_containment.md](./PROOF_colex_equal_size_middle_layer_containment.md).
+Therefore the reduced inequality is immediate in the compressed case on paper. The direct Lean
+formalization attempt is currently archived in
+[STUCK_PLANS.md](./STUCK_PLANS.md).
 
 ### 4. Use computation to guess the exact extremizers
 
@@ -276,13 +239,14 @@ The sharpest current replacement route is therefore:
 
 1. prove a weaker extremal reduction from general \((U,V)\) to colex equal-size middle-layer
    pairs, without using the false naive monotonicity;
-2. prove the colex containment theorem
+2. use the mathematically proved colex containment theorem
    \[
    T(V^\ast)\subseteq U^\ast;
    \]
-3. conclude the reduced inequality
+3. conclude the reduced inequality in the compressed case on paper, and then in general once the weaker
+   reduction is established:
    \[
-   |\partial^\uparrow U| \ge |T(V)\setminus U|.
+    |\partial^\uparrow U| \ge |T(V)\setminus U|.
    \]
 
 So the search evidence supports the theorem and can be used to guess the real extremal families.

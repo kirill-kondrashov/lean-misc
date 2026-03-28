@@ -71,19 +71,14 @@ Current plan:
    \[
    |\partial^\uparrow U| \ge |T(V)\setminus U|.
    \]
-3. Do not use the naive compression-monotonicity route
-   \[
-   |T(V)\setminus U| - |\partial^\uparrow U|
-   \]
-   under left-compressions: that route has already been falsified by an explicit `n = 7`
-   counterexample.
-4. Replace it with either:
-   - a different monotone defect functional,
-   - a weaker extremal/colex reduction,
+3. Use one of the live routes:
+   - a weaker extremal/colex reduction to canonical equal-size middle-layer pairs;
    - or a direct middle-layer counting proof.
-5. Once that statement is proved, use the already-formalized equivalence layer to recover
+   Archived stuck routes are tracked separately in
+   [STUCK_PLANS.md](/home/kir/pers/erdos/lean-misc/plan/STUCK_PLANS.md).
+4. Once that statement is proved, use the already-formalized equivalence layer to recover
    `SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement`.
-6. Then the proved normalization theorem plus the existing closure graph finish the canonical
+5. Then the proved normalization theorem plus the existing closure graph finish the canonical
    defect bottleneck, the prism theorem, and the exact Erdős #1 endpoint under the current leaf
    frontier.
 
@@ -212,26 +207,10 @@ Latest computational sharpening:
   T(V)\setminus U = \varnothing.
   \]
 
-However, the naive compression route has now been falsified computationally:
+Archived stuck routes:
 
-- the strong inclusion
-  \[
-  C_{ij}\bigl(T(V)\setminus U\bigr) \subseteq T(C_{ij}V)\setminus C_{ij}U
-  \]
-  fails in an explicit `n = 7` example;
-- the weaker badness monotonicity
-  \[
-  |T(V)\setminus U| - |\partial^\uparrow U|
-  \le
-  |T(C_{ij}V)\setminus C_{ij}U| - |\partial^\uparrow(C_{ij}U)|
-  \]
-  also fails on that same example.
-
-So the current best research direction is now:
-
-- abandon the naive compression monotonicity route;
-- either find a different monotone defect functional, or
-- prove the reduced middle-layer inequality directly without that compression step.
+- the naive compression-monotonicity route is no longer active and is summarized in
+  [STUCK_PLANS.md](/home/kir/pers/erdos/lean-misc/plan/STUCK_PLANS.md).
 
 Latest replacement-route evidence:
 
@@ -253,3 +232,13 @@ So the best current replacement conjecture is now sharper:
 - find a weaker extremal reduction from general \((U,V)\) to colex equal-size middle-layer pairs,
   without using the false naive compression monotonicity;
 - then prove the colex containment theorem \(T(V^\ast)\subseteq U^\ast\) in general.
+
+Current implementation status of that colex branch:
+
+- the theorem \(T(V^\ast)\subseteq U^\ast\) now has a standalone mathematical proof in
+  [PROOF_colex_equal_size_middle_layer_containment.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_colex_equal_size_middle_layer_containment.md);
+- a direct Lean formalization attempt of that note is currently stuck at the `Finset.Colex` /
+  local-LYM interface and is not present in
+  [Problem1CubeHalfBoundary.lean](/home/kir/pers/erdos/lean-misc/ErdosProblems/Problem1CubeHalfBoundary.lean);
+- so the overall active plan is unchanged: either find a weaker reduction to the colex model, or
+  prove the reduced middle-layer inequality directly.
