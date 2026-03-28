@@ -135,6 +135,17 @@ class ExhaustiveColexDefectReductionFailure:
 
 
 @dataclass(frozen=True)
+class ExhaustiveTwoLayerBoundaryResult:
+    n: int
+    e: int
+    boundary_size: int
+    c_size: int
+    margin: int
+    witness_u_family: Family
+    witness_v_family: Family
+
+
+@dataclass(frozen=True)
 class MiddleLayerCompressionCounterexample:
     n: int
     i: int
@@ -645,6 +656,81 @@ def exhaustive_colex_defect_reduction_failure(
                         witness_v_family=witness_v_family,
                     )
     return None
+
+
+def exhaustive_two_layer_middle_boundary_minima(
+    n: int,
+) -> List[ExhaustiveTwoLayerBoundaryResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    boundary_cache: Dict[int, int] = {}
+
+    def two_layer_boundary_size(u_mask: int, v_mask: int) -> int:
+        key = (u_mask << lower_count) | v_mask
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        v_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if v_mask & (1 << index)
+        )
+        c_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if not (v_mask & (1 << index))
+        )
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    results: List[ExhaustiveTwoLayerBoundaryResult] = []
+    for e in range(lower_count + 1):
+        best_boundary: int | None = None
+        best_pair: Tuple[int, int] | None = None
+        c_size = lower_count - e
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                boundary_size = two_layer_boundary_size(u_mask, v_mask)
+                if best_boundary is None or boundary_size < best_boundary:
+                    best_boundary = boundary_size
+                    best_pair = (u_mask, v_mask)
+        if best_boundary is None or best_pair is None:
+            continue
+        u_mask, v_mask = best_pair
+        witness_u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        witness_v_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if v_mask & (1 << index)
+        )
+        results.append(
+            ExhaustiveTwoLayerBoundaryResult(
+                n=n,
+                e=e,
+                boundary_size=best_boundary,
+                c_size=c_size,
+                margin=best_boundary - c_size,
+                witness_u_family=witness_u_family,
+                witness_v_family=witness_v_family,
+            )
+        )
+    return results
 
 
 def canonical_middle_layer_compression_inclusion_counterexample_n7() -> MiddleLayerCompressionCounterexample:
@@ -1377,6 +1463,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-two-layer-middle-boundary-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 test of the direct two-layer boundary inequality "
+            "|∂^+((([n] choose m) \\\\ V) ∪ U)| >= |([n] choose m) \\\\ V| over all equal-size "
+            "middle-layer pairs."
+        ),
+    )
+    parser.add_argument(
         "--dimensions",
         type=int,
         nargs="+",
@@ -1624,6 +1719,38 @@ def main() -> int:
         print(f"  witness U = {format_family(result.witness_u_family)}")
         print(f"  witness V = {format_family(result.witness_v_family)}")
         return 1
+
+    if args.exhaustive_two_layer_middle_boundary_n5:
+        any_warning = False
+        results = exhaustive_two_layer_middle_boundary_minima(5)
+        for result in results:
+            if result.margin < 0:
+                any_warning = True
+                warn(
+                    "WARNING exact n=5 two-layer boundary failure at "
+                    f"e={result.e}: boundary={result.boundary_size} < |C|={result.c_size}"
+                )
+            else:
+                ok(
+                    "OK exact n=5 two-layer boundary at "
+                    f"e={result.e}: boundary={result.boundary_size} >= |C|={result.c_size}"
+                )
+            print(
+                f"  margin={result.margin} |C|={result.c_size} "
+                f"U={format_family(result.witness_u_family)} "
+                f"V={format_family(result.witness_v_family)}"
+            )
+        tightest = min(results, key=lambda result: (result.margin, result.e))
+        print(
+            "TIGHTEST exact n=5 class: "
+            f"e={tightest.e} boundary={tightest.boundary_size} |C|={tightest.c_size} "
+            f"margin={tightest.margin}"
+        )
+        if any_warning:
+            warn("WARNING overall: the exact n=5 two-layer boundary inequality fails.")
+            return 1
+        ok("OK overall: the exact n=5 two-layer boundary inequality survives exhaustive search.")
+        return 0
 
     dimensions = tuple(args.dimensions)
     total_steps = len(dimensions) * 8

@@ -200,3 +200,38 @@ proof of the two-layer boundary inequality itself:
 
 So this note converts the remaining bottleneck into a cleaner two-layer boundary problem, but does
 not solve that problem.
+
+## Computational Evidence
+
+The direct two-layer inequality has now been checked exhaustively in the smallest nontrivial odd
+dimension `n = 5`.
+
+Writing
+\[
+\beta(U,V)
+:=
+\left|\partial^+\!\left(\left(\binom{[5]}{2}\setminus V\right)\cup U\right)\right|
+-
+\left|\binom{[5]}{2}\setminus V\right|,
+\]
+the exact search over all equal-size pairs
+\[
+U \subseteq \binom{[5]}{3},
+\qquad
+V \subseteq \binom{[5]}{2},
+\qquad
+|U|=|V|=e,
+\]
+finds
+\[
+\min \beta(U,V)\in \{0,2,3,4,5\},
+\]
+with the full per-\(e\) minima
+\[
+0,\,2,\,3,\,2,\,3,\,2,\,0,\,2,\,3,\,4,\,5
+\qquad
+(e=0,\dots,10).
+\]
+
+So the direct route survives exact exhaustive search in `n = 5`; what remains missing is a general
+proof in arbitrary odd dimension.

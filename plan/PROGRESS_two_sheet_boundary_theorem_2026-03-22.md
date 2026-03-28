@@ -241,12 +241,10 @@ Current implementation status of that archived branch:
 - an exact exhaustive `n = 5` search now falsifies the proposed weaker colex defect-reduction
   theorem:
   for `e = 3`, the colex pair has defect `-4`, but a non-colex pair with the same upper family has
-  defect `-3`; see
-  [PLAN_weaker_reduction_to_equal_size_colex_middle_layer_pairs.md](/home/kir/pers/erdos/lean-misc/plan/PLAN_weaker_reduction_to_equal_size_colex_middle_layer_pairs.md)
-  and
-  [PROOF_weaker_reduction_to_equal_size_colex_middle_layer_pairs.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_weaker_reduction_to_equal_size_colex_middle_layer_pairs.md);
+  defect `-3`; this archived branch is now summarized in
+  [STUCK_PLANS.md](/home/kir/pers/erdos/lean-misc/plan/STUCK_PLANS.md);
 - the direct middle-layer route has now been sharpened further in
-  [PROOF_live_routes_for_middle_layer_inequality.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_live_routes_for_middle_layer_inequality.md):
+  [PROOF_two_layer_middle_boundary_inequality.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_two_layer_middle_boundary_inequality.md):
   with
   \[
   P_m := \binom{[2m+1]}{m},
@@ -263,5 +261,13 @@ Current implementation status of that archived branch:
   \[
   |\partial^+ F| \ge |C|.
   \]
+- the search tooling now also has an exact `n = 5` diagnostic for that direct route, and the full
+  exhaustive search over equal-size middle-layer pairs finds no counterexample to
+  \[
+  |\partial^+ F| \ge |C|.
+  \]
+  The minimum margin is nonnegative for every `e = 0,\dots,10`; the tight values are `0` at
+  `e = 0` and `e = 6`, and the smallest nontrivial margin is `2`.
 - so the overall active plan is now purely direct: prove the equivalent two-layer
-  middle-boundary inequality directly.
+  middle-boundary inequality directly. The route remains mathematically open, but it survives the
+  exact low-dimensional checks currently in the toolchain.

@@ -2,8 +2,9 @@
 
 This note records plan branches that are no longer active.
 
-The active plan set should only contain live routes toward
-`SimpleLowerUniformUpperPairInterfaceBoundaryLowerStatement` and the prism theorem endpoint.
+The current live plan is the direct two-layer boundary route in
+[PLAN_two_layer_middle_boundary_inequality.md](./PLAN_two_layer_middle_boundary_inequality.md).
+Everything listed below is archived.
 
 ## 1. Naive Middle-Layer Compression Monotonicity Route
 
@@ -83,15 +84,8 @@ So this plan branch cannot be repaired by simply proving the old conjectured mon
 
 ### Consequence
 
-This route is no longer part of the active plan.
-
-The current live replacements are:
-
-1. find a weaker extremal/colex reduction that does not use the false monotonicity;
-2. or prove the reduced middle-layer inequality directly:
-   \[
-   |\partial^\uparrow U| \ge |T(V)\setminus U|.
-   \]
+This route is dead. It cannot be revived by proving the old monotonicity conjecture, because that
+conjecture is false.
 
 ## 2. Lean Formalization Of The Colex Compressed Case
 
@@ -178,9 +172,7 @@ so the proposed weaker colex reduction theorem fails.
 
 ### Consequence
 
-This branch is no longer part of the active plan.
-
-The remaining active route is the direct two-layer boundary inequality
+This branch is dead. The only remaining active route is the direct two-layer boundary inequality
 \[
 |\partial^+\bigl((\binom{[n]}{m}\setminus V)\cup U\bigr)| \ge |\binom{[n]}{m}\setminus V|.
 \]

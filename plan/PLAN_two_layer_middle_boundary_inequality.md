@@ -74,5 +74,11 @@ close:
 
 - The equivalence between \((B)\) and the reduced middle-layer inequality is proved on paper.
 - No direct proof of \((B)\) is currently known in this project.
+- The exact `n = 5` exhaustive search over all equal-size middle-layer pairs now supports \((B)\):
+  for every `e = 0, \dots, 10`, the minimum value of
+  \[
+  \left|\partial^+\!\left(\left(\binom{[5]}{2}\setminus V\right)\cup U\right)\right| - \left|\binom{[5]}{2}\setminus V\right|
+  \]
+  is nonnegative, with the tight values `0` only at `e = 0` and `e = 6`.
 - This route remains active because \((B)\) removes the auxiliary operator \(T(V)\) and packages
   the remaining work as an ordinary positive-boundary lower bound for a two-layer family.
