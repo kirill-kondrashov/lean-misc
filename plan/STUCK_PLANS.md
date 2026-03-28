@@ -117,3 +117,70 @@ The obstruction is formal rather than mathematical:
 
 This does not falsify the colex theorem. It only means the current direct formalization route is
 not active until a cleaner Lean encoding of the colex proof is found.
+
+## 3. Weaker Reduction To Equal-Size Colex Middle-Layer Pairs
+
+Status: `stuck / falsified`
+
+This was the route based on the weaker extremal statement:
+
+\[
+\Delta(U,V)\le \Delta(U^\ast,V^\ast),
+\]
+
+where
+
+\[
+\Delta(U,V):=|T(V)\setminus U|-|\partial^\uparrow U|,
+\]
+
+and \((U^\ast,V^\ast)\) denotes the equal-size colex pair attached to \((U,V)\).
+
+### Why It Is Archived
+
+This route is false.
+
+An exact exhaustive `n = 5` search finds a counterexample at `e = 3`:
+
+\[
+U^\ast=\bigl\{\{0,1,2\},\{0,1,3\},\{0,2,3\}\bigr\},
+\qquad
+V^\ast=\bigl\{\{0,1\},\{0,2\},\{1,2\}\bigr\},
+\]
+
+for which
+
+\[
+\Delta(U^\ast,V^\ast)=-4,
+\]
+
+but
+
+\[
+U=\bigl\{\{0,1,2\},\{0,1,3\},\{0,2,3\}\bigr\},
+\qquad
+V=\bigl\{\{1,2\},\{1,3\},\{2,3\}\bigr\},
+\]
+
+satisfies
+
+\[
+\Delta(U,V)=-3.
+\]
+
+Hence
+
+\[
+\Delta(U,V)>\Delta(U^\ast,V^\ast),
+\]
+
+so the proposed weaker colex reduction theorem fails.
+
+### Consequence
+
+This branch is no longer part of the active plan.
+
+The remaining active route is the direct two-layer boundary inequality
+\[
+|\partial^+\bigl((\binom{[n]}{m}\setminus V)\cup U\bigr)| \ge |\binom{[n]}{m}\setminus V|.
+\]

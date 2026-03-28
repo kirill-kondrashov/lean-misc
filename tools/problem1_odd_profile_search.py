@@ -123,6 +123,18 @@ class ColexUniformUpperMiddleLayerSummary:
 
 
 @dataclass(frozen=True)
+class ExhaustiveColexDefectReductionFailure:
+    n: int
+    e: int
+    colex_delta: int
+    witness_delta: int
+    colex_u_family: Family
+    colex_v_family: Family
+    witness_u_family: Family
+    witness_v_family: Family
+
+
+@dataclass(frozen=True)
 class MiddleLayerCompressionCounterexample:
     n: int
     i: int
@@ -535,6 +547,104 @@ def middle_layer_badness(u_family: Sequence[int], v_family: Sequence[int], subse
     t_v_outside = tuple(subset for subset in t_v if subset not in set(u_family))
     upper_shadow = upper_shadow_of_uniform_middle_family(u_family, subsets)
     return len(t_v_outside) - len(upper_shadow)
+
+
+def exhaustive_colex_defect_reduction_failure(
+    n: int,
+) -> ExhaustiveColexDefectReductionFailure | None:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    upper_shadow_sizes: Dict[int, int] = {}
+    t_v_masks: Dict[int, int] = {}
+
+    for u_mask in range(1 << upper_count):
+        u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        upper_shadow_sizes[u_mask] = len(upper_shadow_of_uniform_middle_family(u_family, subsets))
+
+    upper_index = {subset: index for index, subset in enumerate(upper_rank_sets)}
+    for v_mask in range(1 << lower_count):
+        v_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if v_mask & (1 << index)
+        )
+        t_v_family = t_of_v_family(v_family, subsets)
+        t_mask = 0
+        for subset in t_v_family:
+            t_mask |= 1 << upper_index[subset]
+        t_v_masks[v_mask] = t_mask
+
+    colex_u_masks: Dict[int, int] = {}
+    colex_v_masks: Dict[int, int] = {}
+    for e in range(lower_count + 1):
+        colex_u_family = colex_initial_segment(n, upper_rank, e, subsets)
+        colex_v_family = colex_initial_segment(n, lower_rank, e, subsets)
+        u_mask = 0
+        for subset in colex_u_family:
+            u_mask |= 1 << upper_index[subset]
+        v_mask = 0
+        lower_index = {subset: index for index, subset in enumerate(lower_rank_sets)}
+        for subset in colex_v_family:
+            v_mask |= 1 << lower_index[subset]
+        colex_u_masks[e] = u_mask
+        colex_v_masks[e] = v_mask
+
+    for e in range(lower_count + 1):
+        colex_u_mask = colex_u_masks[e]
+        colex_v_mask = colex_v_masks[e]
+        colex_t_outside = (t_v_masks[colex_v_mask] & ~colex_u_mask).bit_count()
+        colex_delta = colex_t_outside - upper_shadow_sizes[colex_u_mask]
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            upper_shadow_size = upper_shadow_sizes[u_mask]
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                witness_delta = (t_v_masks[v_mask] & ~u_mask).bit_count() - upper_shadow_size
+                if witness_delta > colex_delta:
+                    colex_u_family = tuple(
+                        upper_rank_sets[index]
+                        for index in range(upper_count)
+                        if colex_u_mask & (1 << index)
+                    )
+                    colex_v_family = tuple(
+                        lower_rank_sets[index]
+                        for index in range(lower_count)
+                        if colex_v_mask & (1 << index)
+                    )
+                    witness_u_family = tuple(
+                        upper_rank_sets[index]
+                        for index in range(upper_count)
+                        if u_mask & (1 << index)
+                    )
+                    witness_v_family = tuple(
+                        lower_rank_sets[index]
+                        for index in range(lower_count)
+                        if v_mask & (1 << index)
+                    )
+                    return ExhaustiveColexDefectReductionFailure(
+                        n=n,
+                        e=e,
+                        colex_delta=colex_delta,
+                        witness_delta=witness_delta,
+                        colex_u_family=colex_u_family,
+                        colex_v_family=colex_v_family,
+                        witness_u_family=witness_u_family,
+                        witness_v_family=witness_v_family,
+                    )
+    return None
 
 
 def canonical_middle_layer_compression_inclusion_counterexample_n7() -> MiddleLayerCompressionCounterexample:
@@ -1258,6 +1368,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-colex-defect-reduction-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 test of the weaker colex-reduction theorem for "
+            "Δ(U,V)=|T(V)\\\\U|-|∂^up U|. This checks whether every equal-size middle-layer pair "
+            "is dominated by the equal-size colex pair."
+        ),
+    )
+    parser.add_argument(
         "--dimensions",
         type=int,
         nargs="+",
@@ -1487,6 +1606,23 @@ def main() -> int:
         )
         print(f"  failing U = {format_family(delta_failure.u_family)}")
         print(f"  delta_before={delta_failure.delta_before} delta_after={delta_failure.delta_after}")
+        return 1
+
+    if args.exhaustive_colex_defect_reduction_n5:
+        result = exhaustive_colex_defect_reduction_failure(5)
+        if result is None:
+            ok(
+                "OK exact n=5: the weaker colex defect-reduction theorem survives exhaustive search."
+            )
+            return 0
+        warn("WARNING exact n=5: the weaker colex defect-reduction theorem fails.")
+        print(
+            f"  e={result.e} colex_delta={result.colex_delta} witness_delta={result.witness_delta}"
+        )
+        print(f"  colex U* = {format_family(result.colex_u_family)}")
+        print(f"  colex V* = {format_family(result.colex_v_family)}")
+        print(f"  witness U = {format_family(result.witness_u_family)}")
+        print(f"  witness V = {format_family(result.witness_v_family)}")
         return 1
 
     dimensions = tuple(args.dimensions)

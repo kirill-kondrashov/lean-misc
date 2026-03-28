@@ -71,9 +71,11 @@ Current plan:
    \[
    |\partial^\uparrow U| \ge |T(V)\setminus U|.
    \]
-3. Use one of the live routes:
-   - a weaker extremal/colex reduction to canonical equal-size middle-layer pairs;
-   - or a direct middle-layer counting proof.
+3. Use the live direct route:
+   prove the equivalent two-layer middle-boundary inequality
+   \[
+   |\partial^+\bigl((\binom{[n]}{m}\setminus V)\cup U\bigr)| \ge |\binom{[n]}{m}\setminus V|.
+   \]
    Archived stuck routes are tracked separately in
    [STUCK_PLANS.md](/home/kir/pers/erdos/lean-misc/plan/STUCK_PLANS.md).
 4. Once that statement is proved, use the already-formalized equivalence layer to recover
@@ -227,19 +229,22 @@ Latest replacement-route evidence:
 - the worst reduced margins in those colex summaries are `3` at `n = 7`, `4` at `n = 9`, and `5`
   at `n = 11`, each attained at `e = 1`.
 
-So the best current replacement conjecture is now sharper:
+The old colex replacement conjecture is now dead.
 
-- find a weaker extremal reduction from general \((U,V)\) to colex equal-size middle-layer pairs,
-  without using the false naive compression monotonicity;
-- then prove the colex containment theorem \(T(V^\ast)\subseteq U^\ast\) in general.
-
-Current implementation status of that colex branch:
+Current implementation status of that archived branch:
 
 - the theorem \(T(V^\ast)\subseteq U^\ast\) now has a standalone mathematical proof in
   [PROOF_colex_equal_size_middle_layer_containment.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_colex_equal_size_middle_layer_containment.md);
 - a direct Lean formalization attempt of that note is currently stuck at the `Finset.Colex` /
   local-LYM interface and is not present in
   [Problem1CubeHalfBoundary.lean](/home/kir/pers/erdos/lean-misc/ErdosProblems/Problem1CubeHalfBoundary.lean);
+- an exact exhaustive `n = 5` search now falsifies the proposed weaker colex defect-reduction
+  theorem:
+  for `e = 3`, the colex pair has defect `-4`, but a non-colex pair with the same upper family has
+  defect `-3`; see
+  [PLAN_weaker_reduction_to_equal_size_colex_middle_layer_pairs.md](/home/kir/pers/erdos/lean-misc/plan/PLAN_weaker_reduction_to_equal_size_colex_middle_layer_pairs.md)
+  and
+  [PROOF_weaker_reduction_to_equal_size_colex_middle_layer_pairs.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_weaker_reduction_to_equal_size_colex_middle_layer_pairs.md);
 - the direct middle-layer route has now been sharpened further in
   [PROOF_live_routes_for_middle_layer_inequality.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_live_routes_for_middle_layer_inequality.md):
   with
@@ -258,5 +263,5 @@ Current implementation status of that colex branch:
   \[
   |\partial^+ F| \ge |C|.
   \]
-- so the overall active plan is now: either find a weaker reduction to the colex model, or prove
-  the equivalent two-layer middle-boundary inequality directly.
+- so the overall active plan is now purely direct: prove the equivalent two-layer
+  middle-boundary inequality directly.

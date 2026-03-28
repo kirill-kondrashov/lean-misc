@@ -74,24 +74,22 @@ The current plan is:
    |\partial^\uparrow U| \ge |T(V)\setminus U|.
    \]
 2. Use one of the live routes:
-   - a weaker extremal/colex reduction from general \((U,V)\) to canonical equal-size middle-layer
-     pairs;
-   - or a direct counting proof of the reduced inequality;
-   - or the equivalent two-layer boundary route for
+   - the equivalent two-layer boundary route for
      \[
-     F := \bigl(\binom{[n]}{m}\setminus V\bigr)\cup U.
+     F := \bigl(\binom{[n]}{m}\setminus V\bigr)\cup U,
      \]
-   These live routes are written out carefully, with the available reduction proofs, in
-   [PROOF_live_routes_for_middle_layer_inequality.md](./PROOF_live_routes_for_middle_layer_inequality.md).
-   The best current live conjecture is the weaker colex route:
-   first reduce to equal-size colex middle-layer pairs \((U^\ast,V^\ast)\), then prove
-   \[
-   T(V^\ast)\subseteq U^\ast.
-   \]
-   That compressed-case theorem is now proved mathematically in
-   [PROOF_colex_equal_size_middle_layer_containment.md](./PROOF_colex_equal_size_middle_layer_containment.md),
-   but its direct Lean formalization is currently stuck and should not be treated as a theorem that
-   already exists in the codebase.
+     recorded in
+     [PLAN_two_layer_middle_boundary_inequality.md](./PLAN_two_layer_middle_boundary_inequality.md)
+     with its equivalence proof in
+     [PROOF_two_layer_middle_boundary_inequality.md](./PROOF_two_layer_middle_boundary_inequality.md).
+   The older overview note
+   [PROOF_live_routes_for_middle_layer_inequality.md](./PROOF_live_routes_for_middle_layer_inequality.md)
+   now serves only as a combined summary.
+   The colex-reduction branch is now archived: exact `n = 5` search falsifies the proposed weaker
+   reduction theorem; see
+   [PLAN_weaker_reduction_to_equal_size_colex_middle_layer_pairs.md](./PLAN_weaker_reduction_to_equal_size_colex_middle_layer_pairs.md)
+   and
+   [PROOF_weaker_reduction_to_equal_size_colex_middle_layer_pairs.md](./PROOF_weaker_reduction_to_equal_size_colex_middle_layer_pairs.md).
 3. Archived stuck routes are tracked separately in
    [STUCK_PLANS.md](./STUCK_PLANS.md).
 4. Once that reduced inequality is proved, use the already-formalized Lean equivalence layer to
@@ -150,12 +148,11 @@ For fixed
 |U| = |V| = e,
 \]
 
-the active subgoal is to find a weaker extremal reduction from general \((U,V)\) to colex
-equal-size middle-layer pairs, or else bypass reduction entirely and prove
+the active subgoal is now to bypass reduction entirely and prove
 
-  \[
-  |\partial^\uparrow U| \ge |T(V)\setminus U|.
-  \]
+\[
+|\partial^\uparrow U| \ge |T(V)\setminus U|.
+\]
 
 ### 3. Compute the compressed extremizers explicitly
 
@@ -175,8 +172,8 @@ The expected outcome was
 |\partial^\uparrow U^\ast| \ge |T(V^\ast)\setminus U^\ast|.
 \]
 
-This remains computationally plausible, but it is not yet a full proof route by itself, because the
-general-to-colex reduction is still missing.
+This remains computationally useful as evidence, but it is no longer an active proof route by
+itself, because the proposed general-to-colex reduction has now been falsified.
 
 Current computational evidence is stronger than this:
 
@@ -198,16 +195,16 @@ Current computational evidence is stronger than this:
   T(V^\ast)\setminus U^\ast = \varnothing.
   \]
 
-So the current compressed-model conjecture can be sharpened:
+So the current compressed-model theorem can be stated cleanly:
 
 > for equal-size colex initial segments in the balanced middle layers,
 > \[
 > T(V^\ast)\subseteq U^\ast.
 > \]
 
-This stronger statement is now proved mathematically in
+This stronger statement is proved mathematically in
 [PROOF_colex_equal_size_middle_layer_containment.md](./PROOF_colex_equal_size_middle_layer_containment.md).
-Therefore the reduced inequality is immediate in the compressed case on paper. The direct Lean
+So the reduced inequality is immediate in the compressed case on paper. The direct Lean
 formalization attempt is currently archived in
 [STUCK_PLANS.md](./STUCK_PLANS.md).
 
@@ -241,22 +238,9 @@ Current evidence:
   T(V)\setminus U=\varnothing.
   \]
 
-The sharpest current replacement route is therefore:
-
-1. prove a weaker extremal reduction from general \((U,V)\) to colex equal-size middle-layer
-   pairs, without using the false naive monotonicity;
-2. use the mathematically proved colex containment theorem
-   \[
-   T(V^\ast)\subseteq U^\ast;
-   \]
-3. conclude the reduced inequality in the compressed case on paper, and then in general once the weaker
-   reduction is established:
-   \[
-    |\partial^\uparrow U| \ge |T(V)\setminus U|.
-   \]
-
-There is also a cleaner direct reformulation, proved in
-[PROOF_live_routes_for_middle_layer_inequality.md](./PROOF_live_routes_for_middle_layer_inequality.md):
+The colex reduction route is no longer active: exact `n = 5` search falsifies the proposed weaker
+defect-reduction theorem. The remaining live route is the cleaner direct reformulation, proved in
+[PROOF_two_layer_middle_boundary_inequality.md](./PROOF_two_layer_middle_boundary_inequality.md):
 if
 \[
 P_m := \binom{[n]}{m},
@@ -269,8 +253,8 @@ then the reduced inequality is equivalent to
 \[
 |\partial^+ F| \ge |C|.
 \]
-So the non-colex direct route can now be phrased entirely as a positive-boundary lower bound for a
-family supported on the adjacent middle layers.
+So the direct route can now be phrased entirely as a positive-boundary lower bound for a family
+supported on the adjacent middle layers.
 
 So the search evidence supports the theorem and can be used to guess the real extremal families.
 

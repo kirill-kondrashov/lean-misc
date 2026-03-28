@@ -1,10 +1,12 @@
-# Proof Note: Live Routes For The Reduced Middle-Layer Inequality
+# Proof Note: Route Summary For The Reduced Middle-Layer Inequality
 
-This note records the live proof routes for the reduced middle-layer inequality in standard
+This note records the current route summary for the reduced middle-layer inequality in standard
 mathematical notation.
 
-It does **not** claim that the final theorem is already proved. Instead, it isolates two precise
-statements such that a proof of either one would finish the current middle-layer bottleneck.
+It does **not** claim that the final theorem is already proved. It records:
+
+1. the archived colex-reduction route and why it would have sufficed;
+2. the direct counting and two-layer reformulations that still feed the active plan.
 
 ## Main Target
 
@@ -52,6 +54,8 @@ The remaining theorem to prove is
 \]
 
 ## Route A: Reduction To Equal-Size Colex Middle-Layer Pairs
+
+Status: `archived / falsified`
 
 The compressed-case theorem already proved in
 [PROOF_colex_equal_size_middle_layer_containment.md](./PROOF_colex_equal_size_middle_layer_containment.md)
@@ -159,8 +163,12 @@ So Route A is reduced to one precise missing theorem:
 
 for some equal-size colex pair \((U^\ast,V^\ast)\) attached to \((U,V)\).
 
-In other words: once a weaker extremal/colex reduction for the defect functional is proved, the
-compressed-case theorem closes the reduced middle-layer inequality immediately.
+In other words: if a weaker extremal/colex reduction for the defect functional were true, the
+compressed-case theorem would close the reduced middle-layer inequality immediately.
+
+However, this route is no longer active. Exact `n = 5` search falsifies the proposed reduction
+theorem; see
+[PROOF_weaker_reduction_to_equal_size_colex_middle_layer_pairs.md](./PROOF_weaker_reduction_to_equal_size_colex_middle_layer_pairs.md).
 
 ## Route B: Direct Middle-Layer Counting
 
@@ -400,13 +408,7 @@ remaining bottleneck.
 
 The live proof task is therefore genuinely one of these routes:
 
-1. prove a weaker reduction from a general pair \((U,V)\) to equal-size colex middle-layer pairs,
-   strong enough to make the defect functional
-   \[
-   \Delta(U,V)=|T(V)\setminus U|-|\partial^\uparrow U|
-   \]
-   no larger;
-2. or prove the direct counting statement
+1. prove the direct counting statement
    \[
    |T(V)| \le |\partial^\uparrow U| + |T(V)\cap U|,
    \]
@@ -414,14 +416,14 @@ The live proof task is therefore genuinely one of these routes:
    \[
    \iota:T(V)\longhookrightarrow \partial^\uparrow U \sqcup (T(V)\cap U);
    \]
-3. or prove the equivalent two-layer boundary inequality
+2. or prove the equivalent two-layer boundary inequality
    \[
    |\partial^+\bigl((\binom{[n]}{m}\setminus V)\cup U\bigr)| \ge |\binom{[n]}{m}\setminus V|.
    \]
 
-The second and third items are equivalent direct routes; the third is often cleaner because it
-packages the whole problem as a standard positive-boundary lower bound for a family supported on
-two adjacent middle layers.
+The two items above are equivalent direct routes; the second is often cleaner because it packages
+the whole problem as a standard positive-boundary lower bound for a family supported on two
+adjacent middle layers.
    T(V)\hookrightarrow \partial^\uparrow U \sqcup (T(V)\cap U).
    \]
 
