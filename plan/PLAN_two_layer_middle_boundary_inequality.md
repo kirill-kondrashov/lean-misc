@@ -100,6 +100,9 @@ close:
   there are only `352` shifted families in each middle rank, exhaustive shifted enumeration shows
   no counterexample to \((B)\), and the only shifted equality orbits are again the trivial full
   lower layer (`e = 0`) and the principal-star two-layer family (`e = 20`).
+- With the current brute-force search tool, this exact shifted-enumeration strategy appears to top
+  out at `n = 7`: an analogous `n = 9` shifted-family count does not finish on a short/medium
+  run, so deeper exhaustive search is no longer the right next step.
 - However, exact `n = 5` does **not** support uniqueness of the lex orbit of minimizers:
   for several values of `e`, multiple minimizer orbits occur.
 - A tempting stronger sufficient condition,
@@ -199,6 +202,11 @@ The search tool should be used to:
 - guess the exact shifted classification.
 
 It should not be used as a substitute for the proof.
+
+At this point, the computational side is essentially saturated: the shifted classification is exact
+in `n = 5` and `n = 7`, and the current brute-force enumerator no longer scales comfortably to
+`n = 9`. So the next advance has to be a paper proof of the compression lemma / shifted theorem,
+not another exhaustive search branch.
 
 ### 7. Lean Handoff Only After The Paper Argument Is Clear
 

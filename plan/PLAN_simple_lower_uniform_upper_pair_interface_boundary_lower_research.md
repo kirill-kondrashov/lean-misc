@@ -128,6 +128,9 @@ The current computational evidence still points in the right direction:
 - exact shifted `n = 7` enumeration now matches the same picture:
   all shifted pairs satisfy the two-layer inequality, and the only shifted equality orbits are
   again the trivial full lower-layer orbit and the principal-star two-layer orbit;
+- with the current brute-force enumerator, exact shifted search is now effectively saturated at
+  `n = 7`: the analogous `n = 9` shifted-family count does not return on a short/medium run, so
+  the next step is paper proof rather than deeper exhaustive computation;
 - but exact `n = 5` rules out the stronger uniqueness guess:
   the minimizers are not all contained in a single lex/shifted orbit;
 - structured uniform-upper `n = 7` classes satisfy
