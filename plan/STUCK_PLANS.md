@@ -252,3 +252,48 @@ for which
 
 This branch is dead as a proof strategy. The direct two-layer boundary inequality may still be
 true, but it cannot be proved merely by reducing to the Hall-shadow sufficient condition above.
+
+## 5. Unique Lex/Shifted Minimizer-Orbit Conjecture
+
+Status: `stuck / falsified`
+
+This was the stronger conjecture that, for the direct two-layer boundary problem,
+\[
+|\partial^+F| \ge |F\cap \tbinom{[n]}{m}|,
+\qquad
+F\subseteq \binom{[n]}{m}\sqcup \binom{[n]}{m+1},
+\]
+every boundary minimizer with fixed layer sizes should lie in the same permutation orbit as the
+lex/shifted model.
+
+### Why It Looked Plausible
+
+The corrected `n = 5` diagnostics show that for every admissible layer size, a lex/shifted
+two-layer family does attain the minimum boundary. So uniqueness up to symmetry was a natural next
+guess.
+
+### Why It Is Archived
+
+The uniqueness statement is false already in exact `n = 5`.
+
+For the minimizer orbits under the coordinate-permutation action:
+
+- `e = 1` has `3` minimizer orbits,
+- `e = 2` has `17` minimizer orbits,
+- `e = 3` has `2` minimizer orbits,
+- `e = 4` has `32` minimizer orbits,
+- `e = 5` has `4` minimizer orbits,
+- `e = 7` has `4` minimizer orbits,
+- `e = 8` has `7` minimizer orbits,
+- `e = 9` has `2` minimizer orbits.
+
+So the correct surviving conjecture is only:
+
+- some shifted family attains the minimum.
+
+The stronger uniqueness claim is dead.
+
+### Consequence
+
+This branch is archived. The active direct route may still be proved by a compression argument, but
+the target should be existence of shifted extremizers, not uniqueness of a single lex orbit.

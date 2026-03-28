@@ -254,6 +254,17 @@ already matches the exact minimum over all equal-size middle-layer pairs.
 So the current computational evidence points toward a genuine shifted/compression theorem for the
 direct boundary functional itself.
 
+What the `n = 5` data do **not** support is uniqueness of the lex orbit. An exact orbit
+classification of the minimizers shows that multiple minimizer orbits occur for several values of
+\(e\); for example, there are `17` minimizer orbits already at `e = 2`. So the viable
+compression-based conjecture is:
+
+- some shifted family attains the minimum boundary;
+
+not the stronger statement:
+
+- every minimizer lies in a single lex/shifted orbit.
+
 ## A Tempting Hall Reduction And Why It Is Not Enough
 
 Let \(G\) be the bipartite inclusion graph

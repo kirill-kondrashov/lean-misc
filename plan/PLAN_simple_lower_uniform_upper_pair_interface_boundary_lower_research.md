@@ -119,6 +119,8 @@ The current computational evidence still points in the right direction:
   equal-size middle-layer pairs;
 - more sharply, the exact `n = 5` direct search supports the shifted-minimizer model:
   for every `e`, a lex/shifted two-layer family \(F=C\cup U\) attains the minimum boundary;
+- but exact `n = 5` rules out the stronger uniqueness guess:
+  the minimizers are not all contained in a single lex/shifted orbit;
 - structured uniform-upper `n = 7` classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|
@@ -140,6 +142,7 @@ What is now ruled out:
   \[
   |\partial^\uparrow U| \ge |U\setminus T(V)|.
   \]
+- uniqueness of the lex/shifted minimizer orbit.
 
 So the remaining live task is the direct two-layer inequality itself, not any currently known
 stronger substitute.

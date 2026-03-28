@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
-from itertools import combinations
+from itertools import combinations, permutations
 from math import comb
 from typing import Dict, Iterable, List, Sequence, Set, Tuple
 
@@ -166,6 +166,16 @@ class ExhaustiveTwoLayerShiftedRouteResult:
     has_shifted_minimizer: bool
     shifted_witness_c_family: Family | None
     shifted_witness_u_family: Family | None
+
+
+@dataclass(frozen=True)
+class ExhaustiveTwoLayerMinimizerOrbitResult:
+    n: int
+    e: int
+    minimal_boundary_size: int
+    minimizer_count: int
+    orbit_count: int
+    all_minimizers_in_lex_orbit: bool
 
 
 @dataclass(frozen=True)
@@ -397,6 +407,18 @@ def compress_uniform_family(family: Sequence[int], i: int, j: int) -> Family:
             compressed.remove(member)
             compressed.add(image)
     return tuple(sorted(compressed))
+
+
+def apply_permutation(mask: int, perm: Sequence[int]) -> int:
+    image = 0
+    for index, target in enumerate(perm):
+        if mask & (1 << index):
+            image |= 1 << target
+    return image
+
+
+def permute_family(family: Sequence[int], perm: Sequence[int]) -> Family:
+    return tuple(sorted(apply_permutation(member, perm) for member in family))
 
 
 def even_lower_half_total_size_in_prism_dimension(n: int) -> int:
@@ -948,6 +970,98 @@ def exhaustive_two_layer_shifted_route_diagnostics(
                 has_shifted_minimizer=has_shifted_minimizer,
                 shifted_witness_c_family=shifted_witness_c_family,
                 shifted_witness_u_family=shifted_witness_u_family,
+            )
+        )
+    return results
+
+
+def exhaustive_two_layer_minimizer_orbit_diagnostics(
+    n: int,
+) -> List[ExhaustiveTwoLayerMinimizerOrbitResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    boundary_cache: Dict[int, int] = {}
+
+    def two_layer_boundary_size(u_mask: int, v_mask: int) -> int:
+        key = (u_mask << lower_count) | v_mask
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        v_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if v_mask & (1 << index)
+        )
+        c_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if not (v_mask & (1 << index))
+        )
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    lower_index = {subset: index for index, subset in enumerate(lower_rank_sets)}
+    upper_index = {subset: index for index, subset in enumerate(upper_rank_sets)}
+    perms = tuple(permutations(range(n)))
+
+    def canonical_orbit_rep(c_family: Family, u_family: Family) -> Tuple[Family, Family]:
+        candidates = [
+            (permute_family(c_family, perm), permute_family(u_family, perm))
+            for perm in perms
+        ]
+        return min(candidates)
+
+    results: List[ExhaustiveTwoLayerMinimizerOrbitResult] = []
+    for e in range(lower_count + 1):
+        best_boundary: int | None = None
+        minimizers: List[Tuple[Family, Family]] = []
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            u_family = tuple(
+                upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+            )
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                boundary_size = two_layer_boundary_size(u_mask, v_mask)
+                if best_boundary is None or boundary_size < best_boundary:
+                    best_boundary = boundary_size
+                    minimizers = []
+                if boundary_size != best_boundary:
+                    continue
+                c_family = tuple(
+                    lower_rank_sets[index]
+                    for index in range(lower_count)
+                    if not (v_mask & (1 << index))
+                )
+                minimizers.append((c_family, u_family))
+        if best_boundary is None:
+            continue
+        lex_u_family = lex_initial_segment(n, upper_rank, e, subsets)
+        lex_c_family = lex_initial_segment(n, lower_rank, lower_count - e, subsets)
+        lex_rep = canonical_orbit_rep(lex_c_family, lex_u_family)
+        minimizer_reps = {canonical_orbit_rep(c_family, u_family) for c_family, u_family in minimizers}
+        results.append(
+            ExhaustiveTwoLayerMinimizerOrbitResult(
+                n=n,
+                e=e,
+                minimal_boundary_size=best_boundary,
+                minimizer_count=len(minimizers),
+                orbit_count=len(minimizer_reps),
+                all_minimizers_in_lex_orbit=(minimizer_reps == {lex_rep}),
             )
         )
     return results
@@ -1709,6 +1823,14 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-two-layer-minimizer-orbits-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 orbit classification of all two-layer boundary minimizers: "
+            "check whether every minimizer lies in the lex/shifted orbit."
+        ),
+    )
+    parser.add_argument(
         "--dimensions",
         type=int,
         nargs="+",
@@ -2055,6 +2177,35 @@ def main() -> int:
             return 1
         ok(
             "OK overall: exact n=5 data support the shifted-minimizer picture for the direct route."
+        )
+        return 0
+
+    if args.exhaustive_two_layer_minimizer_orbits_n5:
+        any_warning = False
+        results = exhaustive_two_layer_minimizer_orbit_diagnostics(5)
+        for result in results:
+            if result.all_minimizers_in_lex_orbit:
+                ok(
+                    "OK exact n=5 minimizer orbit at "
+                    f"e={result.e}: all {result.minimizer_count} minimizers lie in one lex orbit"
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING exact n=5 minimizer orbit at "
+                    f"e={result.e}: {result.orbit_count} minimizer orbits occur"
+                )
+            print(
+                f"  min_boundary={result.minimal_boundary_size} "
+                f"minimizer_count={result.minimizer_count} orbit_count={result.orbit_count}"
+            )
+        if any_warning:
+            warn(
+                "WARNING overall: exact n=5 data do not support uniqueness of the lex/shifted orbit."
+            )
+            return 1
+        ok(
+            "OK overall: exact n=5 data support lex/shifted orbit uniqueness for the direct route."
         )
         return 0
 

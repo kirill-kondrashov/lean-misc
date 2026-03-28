@@ -281,6 +281,10 @@ Current implementation status of that archived branch:
   \[
   |\partial^+(C\cup U)|.
   \]
+- but the stronger uniqueness guess is now dead:
+  exact `n = 5` minimizer-orbit classification shows that for several values of `e`, multiple
+  minimizer orbits occur, so the live compression conjecture is only existence of shifted
+  minimizers, not uniqueness of a single lex orbit.
 - so the overall active plan is now purely direct: prove the equivalent two-layer
   middle-boundary inequality directly. The route remains mathematically open, but it survives the
   exact low-dimensional checks currently in the toolchain.

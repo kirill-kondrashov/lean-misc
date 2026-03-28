@@ -86,6 +86,8 @@ close:
   F=C\cup U,\qquad C\subseteq \binom{[5]}{2},\quad U\subseteq \binom{[5]}{3},
   \]
   attains the minimum value of \(|\partial^+F|\).
+- However, exact `n = 5` does **not** support uniqueness of the lex orbit of minimizers:
+  for several values of `e`, multiple minimizer orbits occur.
 - A tempting stronger sufficient condition,
   \[
   |\partial^\uparrow U| \ge |U\setminus T(V)|,
@@ -140,12 +142,16 @@ F\subseteq \binom{[n]}{m}\sqcup \binom{[n]}{m+1}.
 ### 4. Classify The Shifted Extremizers
 
 Use the exact `n = 5` data and the tight examples to guess the equality cases. The current evidence
-suggests that the relevant extremizers should be:
+supports the existence of shifted extremizers, but it already rules out the strongest uniqueness
+guess: the exact `n = 5` minimizers are not all contained in a single lex orbit.
 
-- the full middle layer \(\binom{[n]}{m}\),
-- principal-star type two-layer families.
+So the classification target should be:
 
-The aim should be a stronger theorem with equality classification, not just the inequality.
+- identify the full list of shifted extremal orbits;
+- isolate which of those are equality cases and which are merely near-equality templates.
+
+The aim should still be a stronger theorem with equality classification, but not one that assumes
+there is a unique lex/shifted orbit.
 
 ### 5. Attack The Shifted Case By One-Coordinate Sections
 
@@ -184,4 +190,5 @@ revived without a genuinely new idea:
 - compression monotonicity for \(\Delta(U,V)\),
 - weaker colex reduction,
 - Hall-shadow sufficient condition,
+- uniqueness of the lex/shifted minimizer orbit,
 - separate colex-formalization route as an active proof program.
