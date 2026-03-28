@@ -179,6 +179,20 @@ class ExhaustiveTwoLayerMinimizerOrbitResult:
 
 
 @dataclass(frozen=True)
+class ExhaustiveTwoLayerCompressionCounterexample:
+    n: int
+    e: int
+    i: int
+    j: int
+    boundary_before: int
+    boundary_after: int
+    c_family: Family
+    u_family: Family
+    compressed_c_family: Family
+    compressed_u_family: Family
+
+
+@dataclass(frozen=True)
 class MiddleLayerCompressionCounterexample:
     n: int
     i: int
@@ -1067,6 +1081,81 @@ def exhaustive_two_layer_minimizer_orbit_diagnostics(
     return results
 
 
+def exhaustive_two_layer_boundary_compression_counterexample(
+    n: int,
+) -> ExhaustiveTwoLayerCompressionCounterexample | None:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_index = {subset: index for index, subset in enumerate(lower_rank_sets)}
+    upper_index = {subset: index for index, subset in enumerate(upper_rank_sets)}
+    boundary_cache: Dict[int, int] = {}
+
+    def family_from_mask(rank_sets: Sequence[int], mask: int) -> Family:
+        return tuple(
+            rank_sets[index] for index in range(len(rank_sets)) if mask & (1 << index)
+        )
+
+    def mask_from_family(index_map: Dict[int, int], family: Sequence[int]) -> int:
+        mask = 0
+        for subset in family:
+            mask |= 1 << index_map[subset]
+        return mask
+
+    def two_layer_boundary_size(c_mask: int, u_mask: int) -> int:
+        key = (u_mask << lower_count) | c_mask
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        c_family = family_from_mask(lower_rank_sets, c_mask)
+        u_family = family_from_mask(upper_rank_sets, u_mask)
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    for c_mask in range(1 << lower_count):
+        c_size = c_mask.bit_count()
+        e = lower_count - c_size
+        c_family = family_from_mask(lower_rank_sets, c_mask)
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            u_family = family_from_mask(upper_rank_sets, u_mask)
+            boundary_before = two_layer_boundary_size(c_mask, u_mask)
+            for i in range(n):
+                for j in range(i + 1, n):
+                    compressed_c_family = compress_uniform_family(c_family, i, j)
+                    compressed_u_family = compress_uniform_family(u_family, i, j)
+                    compressed_c_mask = mask_from_family(lower_index, compressed_c_family)
+                    compressed_u_mask = mask_from_family(upper_index, compressed_u_family)
+                    boundary_after = two_layer_boundary_size(compressed_c_mask, compressed_u_mask)
+                    if boundary_after > boundary_before:
+                        return ExhaustiveTwoLayerCompressionCounterexample(
+                            n=n,
+                            e=e,
+                            i=i,
+                            j=j,
+                            boundary_before=boundary_before,
+                            boundary_after=boundary_after,
+                            c_family=c_family,
+                            u_family=u_family,
+                            compressed_c_family=compressed_c_family,
+                            compressed_u_family=compressed_u_family,
+                        )
+    return None
+
+
 def canonical_middle_layer_compression_inclusion_counterexample_n7() -> MiddleLayerCompressionCounterexample:
     n = 7
     subsets = all_subsets(n)
@@ -1831,6 +1920,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-two-layer-compression-monotonicity-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 test of the actual two-layer compression lemma: "
+            "check whether every layer-preserving shift weakly decreases |∂^+ F| "
+            "for equal-size middle-layer pairs F = ((([n] choose m) \\\\ V) ∪ U)."
+        ),
+    )
+    parser.add_argument(
         "--dimensions",
         type=int,
         nargs="+",
@@ -2208,6 +2306,24 @@ def main() -> int:
             "OK overall: exact n=5 data support lex/shifted orbit uniqueness for the direct route."
         )
         return 0
+
+    if args.exhaustive_two_layer_compression_monotonicity_n5:
+        result = exhaustive_two_layer_boundary_compression_counterexample(5)
+        if result is None:
+            ok(
+                "OK exact n=5: every layer-preserving two-layer shift weakly decreases |∂^+ F|."
+            )
+            return 0
+        warn("WARNING exact n=5: the actual two-layer compression lemma fails.")
+        print(
+            f"  e={result.e} compression=(i,j)=({result.i},{result.j}) "
+            f"boundary_before={result.boundary_before} boundary_after={result.boundary_after}"
+        )
+        print(f"  C = {format_family(result.c_family)}")
+        print(f"  U = {format_family(result.u_family)}")
+        print(f"  C' = {format_family(result.compressed_c_family)}")
+        print(f"  U' = {format_family(result.compressed_u_family)}")
+        return 1
 
     dimensions = tuple(args.dimensions)
     total_steps = len(dimensions) * 8

@@ -86,6 +86,12 @@ close:
   F=C\cup U,\qquad C\subseteq \binom{[5]}{2},\quad U\subseteq \binom{[5]}{3},
   \]
   attains the minimum value of \(|\partial^+F|\).
+- Even more sharply, the exact `n = 5` search supports the actual two-layer compression lemma:
+  for every equal-size middle-layer pair \(F=C\cup U\) and every layer-preserving shift
+  \(S_{ij}\), one has
+  \[
+  |\partial^+(S_{ij}F)| \le |\partial^+F|.
+  \]
 - However, exact `n = 5` does **not** support uniqueness of the lex orbit of minimizers:
   for several values of `e`, multiple minimizer orbits occur.
 - A tempting stronger sufficient condition,
@@ -126,7 +132,9 @@ control is the actual positive boundary of \(F\), not the auxiliary difference
 
 Exact `n = 5` support: for every `e = 0,\dots,10`, the lex-initial lower slice \(C\) of size
 \(\binom{5}{2}-e\) together with the lex-initial upper slice \(U\) of size \(e\) attains the
-minimum observed two-layer boundary.
+minimum observed two-layer boundary. In addition, the exact `n = 5` check of the actual
+compression statement finds no counterexample: every layer-preserving shift weakly decreases the
+two-layer boundary.
 
 ### 3. Reduce To Shifted Two-Layer Families
 

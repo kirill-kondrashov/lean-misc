@@ -199,6 +199,10 @@ Latest computational sharpening:
 
 - the search tooling now has dedicated `n = 7` diagnostics for the reduced middle-layer inequality
   on uniform-upper simple-lower classes and for colex initial middle-layer pairs;
+- the search tooling now also has an exact `n = 5` diagnostic for the actual two-layer
+  compression target, and that check finds no counterexample:
+  every layer-preserving shift of a two-layer family \(F\) weakly decreases \(|\partial^+F|\)
+  across all equal-size middle-layer pairs;
 - all searched structured uniform-upper classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|,

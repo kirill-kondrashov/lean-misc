@@ -259,6 +259,30 @@ classification of the minimizers shows that multiple minimizer orbits occur for 
 \(e\); for example, there are `17` minimizer orbits already at `e = 2`. So the viable
 compression-based conjecture is:
 
+\[
+\text{some shifted minimizer exists, and more generally shifts do not increase } |\partial^+F|,
+\]
+
+not
+
+\[
+\text{there is a unique lex/shifted minimizer orbit.}
+\]
+
+This has now been sharpened further by an exact `n = 5` check of the actual two-layer compression
+functional: for every equal-size middle-layer pair
+\[
+F=C\cup U\subseteq \binom{[5]}{2}\sqcup \binom{[5]}{3}
+\]
+and every layer-preserving shift \(S_{ij}\),
+\[
+|\partial^+(S_{ij}F)| \le |\partial^+F|.
+\]
+
+So the low-dimensional evidence now supports the real compression lemma of the active route, not
+just the weaker shifted-minimizer existence picture. What remains missing is a proof in arbitrary
+odd dimension.
+
 - some shifted family attains the minimum boundary;
 
 not the stronger statement:
