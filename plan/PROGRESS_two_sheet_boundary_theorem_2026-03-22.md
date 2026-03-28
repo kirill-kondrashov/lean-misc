@@ -275,6 +275,12 @@ Current implementation status of that archived branch:
   \]
   would imply the direct two-layer target, but exact exhaustive `n = 5` search falsifies it at
   `e = 5,6,7,8`, with worst margin `-2` at `e = 6`.
+- the direct-route compression picture now has exact `n = 5` support in the right model:
+  for every `e = 0,\dots,10`, the lex-initial lower slice \(C\) of size \(\binom{5}{2}-e\)
+  together with the lex-initial upper slice \(U\) of size \(e\) attains the exact minimum of
+  \[
+  |\partial^+(C\cup U)|.
+  \]
 - so the overall active plan is now purely direct: prove the equivalent two-layer
   middle-boundary inequality directly. The route remains mathematically open, but it survives the
   exact low-dimensional checks currently in the toolchain.

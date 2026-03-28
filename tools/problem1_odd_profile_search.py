@@ -157,6 +157,18 @@ class ExhaustiveTwoLayerHallShadowResult:
 
 
 @dataclass(frozen=True)
+class ExhaustiveTwoLayerShiftedRouteResult:
+    n: int
+    e: int
+    minimal_boundary_size: int
+    lex_shifted_boundary_size: int
+    lex_shifted_gap: int
+    has_shifted_minimizer: bool
+    shifted_witness_c_family: Family | None
+    shifted_witness_u_family: Family | None
+
+
+@dataclass(frozen=True)
 class MiddleLayerCompressionCounterexample:
     n: int
     i: int
@@ -350,9 +362,19 @@ def colex_key(mask: int) -> Tuple[int, ...]:
     return tuple(reversed(elements))
 
 
+def lex_key(mask: int) -> Tuple[int, ...]:
+    return tuple(index for index in range(mask.bit_length()) if mask & (1 << index))
+
+
 def colex_initial_segment(n: int, rank: int, size: int, subsets: Sequence[int]) -> Family:
     rank_family = rank_subsets(n, rank, subsets)
     ordered = sorted(rank_family, key=colex_key)
+    return tuple(ordered[:size])
+
+
+def lex_initial_segment(n: int, rank: int, size: int, subsets: Sequence[int]) -> Family:
+    rank_family = rank_subsets(n, rank, subsets)
+    ordered = sorted(rank_family, key=lex_key)
     return tuple(ordered[:size])
 
 
@@ -818,6 +840,114 @@ def exhaustive_two_layer_hall_shadow_minima(
                 margin=best_margin,
                 witness_u_family=witness_u_family,
                 witness_v_family=witness_v_family,
+            )
+        )
+    return results
+
+
+def is_shifted_uniform_family(family: Sequence[int], n: int) -> bool:
+    family_tuple = tuple(sorted(family))
+    for i in range(n):
+        for j in range(i + 1, n):
+            if compress_uniform_family(family_tuple, i, j) != family_tuple:
+                return False
+    return True
+
+
+def exhaustive_two_layer_shifted_route_diagnostics(
+    n: int,
+) -> List[ExhaustiveTwoLayerShiftedRouteResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    boundary_cache: Dict[int, int] = {}
+
+    def two_layer_boundary_size(u_mask: int, v_mask: int) -> int:
+        key = (u_mask << lower_count) | v_mask
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        v_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if v_mask & (1 << index)
+        )
+        c_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if not (v_mask & (1 << index))
+        )
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    lower_index = {subset: index for index, subset in enumerate(lower_rank_sets)}
+    upper_index = {subset: index for index, subset in enumerate(upper_rank_sets)}
+    results: List[ExhaustiveTwoLayerShiftedRouteResult] = []
+
+    for e in range(lower_count + 1):
+        best_boundary: int | None = None
+        has_shifted_minimizer = False
+        shifted_witness_c_family: Family | None = None
+        shifted_witness_u_family: Family | None = None
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            u_family = tuple(
+                upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+            )
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                boundary_size = two_layer_boundary_size(u_mask, v_mask)
+                if best_boundary is None or boundary_size < best_boundary:
+                    best_boundary = boundary_size
+                    has_shifted_minimizer = False
+                    shifted_witness_c_family = None
+                    shifted_witness_u_family = None
+                if boundary_size != best_boundary:
+                    continue
+                c_family = tuple(
+                    lower_rank_sets[index]
+                    for index in range(lower_count)
+                    if not (v_mask & (1 << index))
+                )
+                if is_shifted_uniform_family(c_family, n) and is_shifted_uniform_family(u_family, n):
+                    has_shifted_minimizer = True
+                    shifted_witness_c_family = c_family
+                    shifted_witness_u_family = u_family
+        lex_u_family = lex_initial_segment(n, upper_rank, e, subsets)
+        lex_c_family = lex_initial_segment(n, lower_rank, lower_count - e, subsets)
+        lex_u_mask = 0
+        for subset in lex_u_family:
+            lex_u_mask |= 1 << upper_index[subset]
+        lex_c_mask = 0
+        for subset in lex_c_family:
+            lex_c_mask |= 1 << lower_index[subset]
+        lex_v_mask = ((1 << lower_count) - 1) ^ lex_c_mask
+        lex_shifted_boundary = two_layer_boundary_size(lex_u_mask, lex_v_mask)
+        if best_boundary is None:
+            continue
+        results.append(
+            ExhaustiveTwoLayerShiftedRouteResult(
+                n=n,
+                e=e,
+                minimal_boundary_size=best_boundary,
+                lex_shifted_boundary_size=lex_shifted_boundary,
+                lex_shifted_gap=lex_shifted_boundary - best_boundary,
+                has_shifted_minimizer=has_shifted_minimizer,
+                shifted_witness_c_family=shifted_witness_c_family,
+                shifted_witness_u_family=shifted_witness_u_family,
             )
         )
     return results
@@ -1570,6 +1700,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-two-layer-compression-route-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 diagnostics for the new compression-based direct route: "
+            "check whether the lex/shifted model attains the minimum two-layer boundary and whether "
+            "some boundary minimizer has shifted lower and upper slices."
+        ),
+    )
+    parser.add_argument(
         "--dimensions",
         type=int,
         nargs="+",
@@ -1881,6 +2020,42 @@ def main() -> int:
             warn("WARNING overall: the exact n=5 Hall-shadow criterion fails.")
             return 1
         ok("OK overall: the exact n=5 Hall-shadow criterion survives exhaustive search.")
+        return 0
+
+    if args.exhaustive_two_layer_compression_route_n5:
+        any_warning = False
+        results = exhaustive_two_layer_shifted_route_diagnostics(5)
+        for result in results:
+            if result.lex_shifted_gap == 0:
+                ok(
+                    "OK exact n=5 shifted route at "
+                    f"e={result.e}: lex/shifted boundary matches the minimum {result.minimal_boundary_size}"
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING exact n=5 shifted route at "
+                    f"e={result.e}: lex/shifted boundary={result.lex_shifted_boundary_size} "
+                    f"> minimum={result.minimal_boundary_size}"
+                )
+            print(
+                f"lex_shifted_gap={result.lex_shifted_gap} "
+                f"has_shifted_minimizer={result.has_shifted_minimizer}"
+            )
+            if result.has_shifted_minimizer and result.shifted_witness_u_family is not None:
+                print(
+                    f"  shifted minimizer C={format_family(result.shifted_witness_c_family or ())} "
+                    f"U={format_family(result.shifted_witness_u_family)}"
+                )
+        if any_warning:
+            warn(
+                "WARNING overall: the exact n=5 data do not support the naive lex/shifted model "
+                "for the direct compression route."
+            )
+            return 1
+        ok(
+            "OK overall: exact n=5 data support the shifted-minimizer picture for the direct route."
+        )
         return 0
 
     dimensions = tuple(args.dimensions)

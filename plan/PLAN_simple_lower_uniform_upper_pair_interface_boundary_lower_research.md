@@ -117,6 +117,8 @@ The current computational evidence still points in the right direction:
 
 - the exact direct two-layer boundary inequality survives exhaustive `n = 5` search for all
   equal-size middle-layer pairs;
+- more sharply, the exact `n = 5` direct search supports the shifted-minimizer model:
+  for every `e`, a lex/shifted two-layer family \(F=C\cup U\) attains the minimum boundary;
 - structured uniform-upper `n = 7` classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|

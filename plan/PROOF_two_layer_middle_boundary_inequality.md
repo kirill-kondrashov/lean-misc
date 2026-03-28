@@ -236,6 +236,24 @@ with the full per-\(e\) minima
 So the direct route survives exact exhaustive search in `n = 5`; what remains missing is a general
 proof in arbitrary odd dimension.
 
+The `n = 5` data are sharper than mere nonnegativity: for every `e = 0,\dots,10`, a lex/shifted
+two-layer family attains the minimum boundary. Concretely, if one takes
+\[
+C \subseteq \binom{[5]}{2}
+\]
+to be the lex-initial segment of size \(10-e\), and
+\[
+U \subseteq \binom{[5]}{3}
+\]
+to be the lex-initial segment of size \(e\), then
+\[
+|\partial^+(C\cup U)|
+\]
+already matches the exact minimum over all equal-size middle-layer pairs.
+
+So the current computational evidence points toward a genuine shifted/compression theorem for the
+direct boundary functional itself.
+
 ## A Tempting Hall Reduction And Why It Is Not Enough
 
 Let \(G\) be the bipartite inclusion graph
