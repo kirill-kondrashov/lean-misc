@@ -122,6 +122,9 @@ The current computational evidence still points in the right direction:
   across all equal-size middle-layer pairs;
 - more sharply, the exact `n = 5` direct search supports the shifted-minimizer model:
   for every `e`, a lex/shifted two-layer family \(F=C\cup U\) attains the minimum boundary;
+- exact shifted `n = 5` classification is sharper again:
+  equality occurs only in the trivial full lower-layer orbit and the principal-star two-layer
+  orbit;
 - but exact `n = 5` rules out the stronger uniqueness guess:
   the minimizers are not all contained in a single lex/shifted orbit;
 - structured uniform-upper `n = 7` classes satisfy

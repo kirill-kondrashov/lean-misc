@@ -193,6 +193,20 @@ class ExhaustiveTwoLayerCompressionCounterexample:
 
 
 @dataclass(frozen=True)
+class ExhaustiveShiftedTwoLayerExtremizerResult:
+    n: int
+    e: int
+    minimal_boundary_size: int
+    minimal_margin: int
+    shifted_minimizer_count: int
+    shifted_minimizer_orbit_count: int
+    equality_count: int
+    equality_orbit_count: int
+    witness_c_family: Family
+    witness_u_family: Family
+
+
+@dataclass(frozen=True)
 class MiddleLayerCompressionCounterexample:
     n: int
     i: int
@@ -1156,6 +1170,106 @@ def exhaustive_two_layer_boundary_compression_counterexample(
     return None
 
 
+def exhaustive_shifted_two_layer_extremizers(
+    n: int,
+) -> List[ExhaustiveShiftedTwoLayerExtremizerResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    boundary_cache: Dict[int, int] = {}
+    perms = tuple(permutations(range(n)))
+
+    def two_layer_boundary_size(c_family: Family, u_family: Family) -> int:
+        c_mask = 0
+        for index, subset in enumerate(lower_rank_sets):
+            if subset in set(c_family):
+                c_mask |= 1 << index
+        u_mask = 0
+        for index, subset in enumerate(upper_rank_sets):
+            if subset in set(u_family):
+                u_mask |= 1 << index
+        key = (u_mask << lower_count) | c_mask
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    def canonical_orbit_rep(c_family: Family, u_family: Family) -> Tuple[Family, Family]:
+        candidates = [
+            (permute_family(c_family, perm), permute_family(u_family, perm))
+            for perm in perms
+        ]
+        return min(candidates)
+
+    results: List[ExhaustiveShiftedTwoLayerExtremizerResult] = []
+    for e in range(lower_count + 1):
+        shifted_pairs: List[Tuple[Family, Family, int]] = []
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            u_family = tuple(
+                upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+            )
+            if not is_shifted_uniform_family(u_family, n):
+                continue
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                c_family = tuple(
+                    lower_rank_sets[index]
+                    for index in range(lower_count)
+                    if not (v_mask & (1 << index))
+                )
+                if not is_shifted_uniform_family(c_family, n):
+                    continue
+                shifted_pairs.append((c_family, u_family, two_layer_boundary_size(c_family, u_family)))
+        if not shifted_pairs:
+            continue
+        best_boundary = min(boundary_size for _, _, boundary_size in shifted_pairs)
+        c_size = lower_count - e
+        minimizer_pairs = [
+            (c_family, u_family) for c_family, u_family, boundary_size in shifted_pairs
+            if boundary_size == best_boundary
+        ]
+        equality_pairs = [
+            (c_family, u_family) for c_family, u_family, boundary_size in shifted_pairs
+            if boundary_size == c_size
+        ]
+        minimizer_reps = {canonical_orbit_rep(c_family, u_family) for c_family, u_family in minimizer_pairs}
+        equality_reps = {canonical_orbit_rep(c_family, u_family) for c_family, u_family in equality_pairs}
+        witness_c_family, witness_u_family = minimizer_pairs[0]
+        if equality_pairs:
+            witness_c_family, witness_u_family = equality_pairs[0]
+        results.append(
+            ExhaustiveShiftedTwoLayerExtremizerResult(
+                n=n,
+                e=e,
+                minimal_boundary_size=best_boundary,
+                minimal_margin=best_boundary - c_size,
+                shifted_minimizer_count=len(minimizer_pairs),
+                shifted_minimizer_orbit_count=len(minimizer_reps),
+                equality_count=len(equality_pairs),
+                equality_orbit_count=len(equality_reps),
+                witness_c_family=witness_c_family,
+                witness_u_family=witness_u_family,
+            )
+        )
+    return results
+
+
 def canonical_middle_layer_compression_inclusion_counterexample_n7() -> MiddleLayerCompressionCounterexample:
     n = 7
     subsets = all_subsets(n)
@@ -1929,6 +2043,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-shifted-two-layer-extremizers-n5",
+        action="store_true",
+        help=(
+            "Classify the exact n=5 shifted two-layer extremizers: for each e, report the "
+            "minimal shifted boundary margin, the number of shifted minimizer orbits, "
+            "and the shifted equality-orbit count."
+        ),
+    )
+    parser.add_argument(
         "--dimensions",
         type=int,
         nargs="+",
@@ -2324,6 +2447,33 @@ def main() -> int:
         print(f"  C' = {format_family(result.compressed_c_family)}")
         print(f"  U' = {format_family(result.compressed_u_family)}")
         return 1
+
+    if args.exhaustive_shifted_two_layer_extremizers_n5:
+        results = exhaustive_shifted_two_layer_extremizers(5)
+        for result in results:
+            if result.equality_count > 0:
+                ok(
+                    "OK exact n=5 shifted equality at "
+                    f"e={result.e}: equality_orbits={result.equality_orbit_count}"
+                )
+            else:
+                ok(
+                    "OK exact n=5 shifted minimum at "
+                    f"e={result.e}: min_margin={result.minimal_margin}"
+                )
+            print(
+                f"  min_margin={result.minimal_margin} "
+                f"shifted_minimizers={result.shifted_minimizer_count} "
+                f"shifted_minimizer_orbits={result.shifted_minimizer_orbit_count} "
+                f"equality_count={result.equality_count} "
+                f"equality_orbits={result.equality_orbit_count}"
+            )
+            print(
+                f"  witness C={format_family(result.witness_c_family)} "
+                f"U={format_family(result.witness_u_family)}"
+            )
+        ok("OK overall: exact n=5 shifted two-layer extremizers classified.")
+        return 0
 
     dimensions = tuple(args.dimensions)
     total_steps = len(dimensions) * 8

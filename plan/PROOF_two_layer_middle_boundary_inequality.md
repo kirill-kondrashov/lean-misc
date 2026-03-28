@@ -283,6 +283,31 @@ So the low-dimensional evidence now supports the real compression lemma of the a
 just the weaker shifted-minimizer existence picture. What remains missing is a proof in arbitrary
 odd dimension.
 
+The exact shifted classification in `n = 5` is sharper again. Restricting to shifted two-layer
+families, equality in
+\[
+|\partial^+F| \ge |F\cap \tbinom{[5]}{2}|
+\]
+occurs only in two shifted orbits:
+
+1. the trivial family
+   \[
+   F=\binom{[5]}{2},
+   \]
+   corresponding to `e = 0`;
+2. the principal-star family
+   \[
+   F=
+   \{A\in \tbinom{[5]}{2}: 0\in A\}
+   \;\cup\;
+   \{B\in \tbinom{[5]}{3}: 0\in B\},
+   \]
+   corresponding to `e = 6`.
+
+So the current paper-level equality conjecture for the shifted theorem is no longer vague: the
+`n = 5` exact data point to the full middle layer and the principal-star two-layer family as the
+only equality templates, up to permutation.
+
 - some shifted family attains the minimum boundary;
 
 not the stronger statement:

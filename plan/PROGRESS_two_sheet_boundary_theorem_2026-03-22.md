@@ -203,6 +203,12 @@ Latest computational sharpening:
   compression target, and that check finds no counterexample:
   every layer-preserving shift of a two-layer family \(F\) weakly decreases \(|\partial^+F|\)
   across all equal-size middle-layer pairs;
+- exact shifted `n = 5` classification now sharpens the equality picture too:
+  within shifted two-layer families, equality in
+  \[
+  |\partial^+F| \ge |F\cap \tbinom{[5]}{2}|
+  \]
+  occurs only in the full lower-layer orbit and the principal-star orbit;
 - all searched structured uniform-upper classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|,

@@ -92,6 +92,10 @@ close:
   \[
   |\partial^+(S_{ij}F)| \le |\partial^+F|.
   \]
+- Exact shifted classification in `n = 5` is now sharper as well:
+  among shifted two-layer families, equality in \((B)\) occurs only in two orbits:
+  the trivial full lower layer at `e = 0`, and the principal-star two-layer family at `e = 6`
+  (up to permutation).
 - However, exact `n = 5` does **not** support uniqueness of the lex orbit of minimizers:
   for several values of `e`, multiple minimizer orbits occur.
 - A tempting stronger sufficient condition,
@@ -157,6 +161,18 @@ So the classification target should be:
 
 - identify the full list of shifted extremal orbits;
 - isolate which of those are equality cases and which are merely near-equality templates.
+
+Current `n = 5` evidence suggests the equality cases should be only:
+
+- the full lower middle layer \(F=\binom{[n]}{m}\),
+- the principal-star two-layer family
+  \[
+  F=
+  \{A\in \tbinom{[n]}{m}: 0\in A\}
+  \;\cup\;
+  \{B\in \tbinom{[n]}{m+1}: 0\in B\},
+  \]
+  up to permutation.
 
 The aim should still be a stronger theorem with equality classification, but not one that assumes
 there is a unique lex/shifted orbit.
