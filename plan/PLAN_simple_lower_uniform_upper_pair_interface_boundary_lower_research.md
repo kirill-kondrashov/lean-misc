@@ -125,6 +125,9 @@ The current computational evidence still points in the right direction:
 - exact shifted `n = 5` classification is sharper again:
   equality occurs only in the trivial full lower-layer orbit and the principal-star two-layer
   orbit;
+- exact shifted `n = 7` enumeration now matches the same picture:
+  all shifted pairs satisfy the two-layer inequality, and the only shifted equality orbits are
+  again the trivial full lower-layer orbit and the principal-star two-layer orbit;
 - but exact `n = 5` rules out the stronger uniqueness guess:
   the minimizers are not all contained in a single lex/shifted orbit;
 - structured uniform-upper `n = 7` classes satisfy

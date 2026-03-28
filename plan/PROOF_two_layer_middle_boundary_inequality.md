@@ -308,6 +308,30 @@ So the current paper-level equality conjecture for the shifted theorem is no lon
 `n = 5` exact data point to the full middle layer and the principal-star two-layer family as the
 only equality templates, up to permutation.
 
+This is no longer just an `n = 5` artifact. Exact shifted enumeration in `n = 7` is also feasible:
+there are only `352` shifted families in each middle rank, and the full shifted two-layer search
+finds:
+
+- no shifted counterexample to
+  \[
+  |\partial^+F| \ge |F\cap \tbinom{[7]}{3}|;
+  \]
+- exactly two shifted equality orbits, namely
+  \[
+  F=\binom{[7]}{3}
+  \]
+  and the principal-star two-layer family
+  \[
+  F=
+  \{A\in \tbinom{[7]}{3}: 0\in A\}
+  \;\cup\;
+  \{B\in \tbinom{[7]}{4}: 0\in B\},
+  \]
+  up to permutation.
+
+So the active shifted-case conjecture is now supported exactly in two odd dimensions:
+`n = 5` and `n = 7`.
+
 - some shifted family attains the minimum boundary;
 
 not the stronger statement:

@@ -96,6 +96,10 @@ close:
   among shifted two-layer families, equality in \((B)\) occurs only in two orbits:
   the trivial full lower layer at `e = 0`, and the principal-star two-layer family at `e = 6`
   (up to permutation).
+- The shifted subproblem is now exact in `n = 7` as well:
+  there are only `352` shifted families in each middle rank, exhaustive shifted enumeration shows
+  no counterexample to \((B)\), and the only shifted equality orbits are again the trivial full
+  lower layer (`e = 0`) and the principal-star two-layer family (`e = 20`).
 - However, exact `n = 5` does **not** support uniqueness of the lex orbit of minimizers:
   for several values of `e`, multiple minimizer orbits occur.
 - A tempting stronger sufficient condition,
@@ -173,6 +177,9 @@ Current `n = 5` evidence suggests the equality cases should be only:
   \{B\in \tbinom{[n]}{m+1}: 0\in B\},
   \]
   up to permutation.
+
+This equality conjecture is now supported exactly on the shifted subproblem for both `n = 5` and
+`n = 7`.
 
 The aim should still be a stronger theorem with equality classification, but not one that assumes
 there is a unique lex/shifted orbit.

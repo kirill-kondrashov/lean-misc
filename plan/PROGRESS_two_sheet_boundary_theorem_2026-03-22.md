@@ -209,6 +209,10 @@ Latest computational sharpening:
   |\partial^+F| \ge |F\cap \tbinom{[5]}{2}|
   \]
   occurs only in the full lower-layer orbit and the principal-star orbit;
+- exact shifted `n = 7` enumeration now matches the same picture:
+  the shifted-only search over all `352 × 352` middle-layer families finds no counterexample, and
+  the only shifted equality orbits are again the full lower-layer orbit and the principal-star
+  orbit;
 - all searched structured uniform-upper classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|,

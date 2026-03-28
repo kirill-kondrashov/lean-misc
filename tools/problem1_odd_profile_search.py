@@ -207,6 +207,32 @@ class ExhaustiveShiftedTwoLayerExtremizerResult:
 
 
 @dataclass(frozen=True)
+class ShiftedUniformFamilyCountResult:
+    n: int
+    rank: int
+    family_count: int
+
+
+@dataclass(frozen=True)
+class ExhaustiveShiftedTwoLayerSummaryResult:
+    n: int
+    lower_shifted_family_count: int
+    upper_shifted_family_count: int
+    all_margins_nonnegative: bool
+    worst_margin: int
+    worst_margin_e: int
+    equality_count: int
+
+
+@dataclass(frozen=True)
+class ShiftedTwoLayerEqualityOrbitResult:
+    n: int
+    e: int
+    c_family: Family
+    u_family: Family
+
+
+@dataclass(frozen=True)
 class MiddleLayerCompressionCounterexample:
     n: int
     i: int
@@ -414,6 +440,55 @@ def lex_initial_segment(n: int, rank: int, size: int, subsets: Sequence[int]) ->
     rank_family = rank_subsets(n, rank, subsets)
     ordered = sorted(rank_family, key=lex_key)
     return tuple(ordered[:size])
+
+
+def subset_tuple(mask: int) -> Tuple[int, ...]:
+    return tuple(index for index in range(mask.bit_length()) if mask & (1 << index))
+
+
+def shifted_leq(left: int, right: int) -> bool:
+    left_tuple = subset_tuple(left)
+    right_tuple = subset_tuple(right)
+    if len(left_tuple) != len(right_tuple):
+        return False
+    return all(left_item <= right_item for left_item, right_item in zip(left_tuple, right_tuple))
+
+
+def enumerate_shifted_uniform_families(n: int, rank: int, subsets: Sequence[int]) -> List[Family]:
+    rank_family = rank_subsets(n, rank, subsets)
+    order = sorted(rank_family, key=subset_tuple, reverse=True)
+    comparable: Dict[int, Set[int]] = {mask: set() for mask in rank_family}
+    for left in rank_family:
+        for right in rank_family:
+            if shifted_leq(left, right) or shifted_leq(right, left):
+                comparable[left].add(right)
+
+    antichains: List[Tuple[int, ...]] = []
+    chosen: List[int] = []
+
+    def go(index: int, forbidden: Set[int]) -> None:
+        if index == len(order):
+            antichains.append(tuple(chosen))
+            return
+        current = order[index]
+        go(index + 1, forbidden)
+        if current not in forbidden:
+            chosen.append(current)
+            go(index + 1, forbidden | comparable[current])
+            chosen.pop()
+
+    go(0, set())
+    families: List[Family] = []
+    for antichain in antichains:
+        family = tuple(
+            sorted(
+                subset
+                for subset in rank_family
+                if any(shifted_leq(subset, maximal) for maximal in antichain)
+            )
+        )
+        families.append(family)
+    return families
 
 
 def compress_mask(mask: int, i: int, j: int) -> int:
@@ -1270,6 +1345,128 @@ def exhaustive_shifted_two_layer_extremizers(
     return results
 
 
+def exhaustive_shifted_two_layer_summary(
+    n: int,
+) -> ExhaustiveShiftedTwoLayerSummaryResult:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_shifted_families = enumerate_shifted_uniform_families(n, lower_rank, subsets)
+    upper_shifted_families = enumerate_shifted_uniform_families(n, upper_rank, subsets)
+    lower_by_size: Dict[int, List[Family]] = {}
+    upper_by_size: Dict[int, List[Family]] = {}
+    for family in lower_shifted_families:
+        lower_by_size.setdefault(len(family), []).append(family)
+    for family in upper_shifted_families:
+        upper_by_size.setdefault(len(family), []).append(family)
+
+    boundary_cache: Dict[Tuple[Family, Family], int] = {}
+
+    def two_layer_boundary_size(c_family: Family, u_family: Family) -> int:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    worst_margin: int | None = None
+    worst_margin_e = 0
+    equality_count = 0
+    for e in range(lower_count + 1):
+        c_size = lower_count - e
+        for c_family in lower_by_size.get(c_size, []):
+            for u_family in upper_by_size.get(e, []):
+                margin = two_layer_boundary_size(c_family, u_family) - c_size
+                if worst_margin is None or margin < worst_margin:
+                    worst_margin = margin
+                    worst_margin_e = e
+                if margin == 0:
+                    equality_count += 1
+
+    return ExhaustiveShiftedTwoLayerSummaryResult(
+        n=n,
+        lower_shifted_family_count=len(lower_shifted_families),
+        upper_shifted_family_count=len(upper_shifted_families),
+        all_margins_nonnegative=(worst_margin is not None and worst_margin >= 0),
+        worst_margin=0 if worst_margin is None else worst_margin,
+        worst_margin_e=worst_margin_e,
+        equality_count=equality_count,
+    )
+
+
+def shifted_two_layer_equality_orbits(
+    n: int,
+) -> List[ShiftedTwoLayerEqualityOrbitResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_shifted_families = enumerate_shifted_uniform_families(n, lower_rank, subsets)
+    upper_shifted_families = enumerate_shifted_uniform_families(n, upper_rank, subsets)
+    lower_by_size: Dict[int, List[Family]] = {}
+    upper_by_size: Dict[int, List[Family]] = {}
+    for family in lower_shifted_families:
+        lower_by_size.setdefault(len(family), []).append(family)
+    for family in upper_shifted_families:
+        upper_by_size.setdefault(len(family), []).append(family)
+
+    boundary_cache: Dict[Tuple[Family, Family], int] = {}
+
+    def two_layer_boundary_size(c_family: Family, u_family: Family) -> int:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    perms = tuple(permutations(range(n)))
+
+    def canonical_orbit_rep(c_family: Family, u_family: Family) -> Tuple[Family, Family]:
+        candidates = [
+            (permute_family(c_family, perm), permute_family(u_family, perm))
+            for perm in perms
+        ]
+        return min(candidates)
+
+    orbit_reps: Dict[Tuple[Family, Family], int] = {}
+    for e in range(lower_count + 1):
+        c_size = lower_count - e
+        for c_family in lower_by_size.get(c_size, []):
+            for u_family in upper_by_size.get(e, []):
+                if two_layer_boundary_size(c_family, u_family) != c_size:
+                    continue
+                orbit_reps.setdefault(canonical_orbit_rep(c_family, u_family), e)
+    return [
+        ShiftedTwoLayerEqualityOrbitResult(n=n, e=e, c_family=c_family, u_family=u_family)
+        for (c_family, u_family), e in sorted(orbit_reps.items(), key=lambda item: (item[1], item[0]))
+    ]
+
+
 def canonical_middle_layer_compression_inclusion_counterexample_n7() -> MiddleLayerCompressionCounterexample:
     n = 7
     subsets = all_subsets(n)
@@ -2052,6 +2249,34 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--shifted-uniform-family-counts",
+        type=int,
+        nargs="+",
+        help=(
+            "Count shifted uniform families on the given odd dimensions. "
+            "For each odd n, report the number of shifted families in the middle ranks m and m+1."
+        ),
+    )
+    parser.add_argument(
+        "--exhaustive-shifted-two-layer-summary",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only two-layer boundary summary on the given odd dimensions. "
+            "For each odd n, enumerate all shifted middle-layer families, then report the "
+            "worst shifted margin and equality count for |∂^+ F| >= |F ∩ ([n] choose m)|."
+        ),
+    )
+    parser.add_argument(
+        "--shifted-two-layer-equality-orbits",
+        type=int,
+        nargs="+",
+        help=(
+            "List the equality orbits in the shifted two-layer problem on the given odd dimensions. "
+            "For each odd n, enumerate all shifted equality pairs up to permutation."
+        ),
+    )
+    parser.add_argument(
         "--dimensions",
         type=int,
         nargs="+",
@@ -2473,6 +2698,62 @@ def main() -> int:
                 f"U={format_family(result.witness_u_family)}"
             )
         ok("OK overall: exact n=5 shifted two-layer extremizers classified.")
+        return 0
+
+    if args.shifted_uniform_family_counts is not None:
+        for n in args.shifted_uniform_family_counts:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                return 1
+            subsets = all_subsets(n)
+            middle = n // 2
+            lower_count = len(enumerate_shifted_uniform_families(n, middle, subsets))
+            upper_count = len(enumerate_shifted_uniform_families(n, middle + 1, subsets))
+            ok(
+                f"OK shifted-family counts at n={n}: "
+                f"rank-{middle}={lower_count}, rank-{middle + 1}={upper_count}"
+            )
+        return 0
+
+    if args.exhaustive_shifted_two_layer_summary is not None:
+        any_warning = False
+        for n in args.exhaustive_shifted_two_layer_summary:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                any_warning = True
+                continue
+            result = exhaustive_shifted_two_layer_summary(n)
+            if result.all_margins_nonnegative:
+                ok(
+                    "OK shifted two-layer summary at "
+                    f"n={n}: worst_margin={result.worst_margin} at e={result.worst_margin_e}"
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING shifted two-layer failure at "
+                    f"n={n}: worst_margin={result.worst_margin} at e={result.worst_margin_e}"
+                )
+            print(
+                f"  lower_shifted_families={result.lower_shifted_family_count} "
+                f"upper_shifted_families={result.upper_shifted_family_count} "
+                f"equality_count={result.equality_count}"
+            )
+        if any_warning:
+            warn("WARNING overall: some shifted two-layer summaries failed.")
+            return 1
+        ok("OK overall: all requested shifted two-layer summaries survived.")
+        return 0
+
+    if args.shifted_two_layer_equality_orbits is not None:
+        for n in args.shifted_two_layer_equality_orbits:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                return 1
+            results = shifted_two_layer_equality_orbits(n)
+            ok(f"OK shifted two-layer equality orbits at n={n}: orbit_count={len(results)}")
+            for result in results:
+                print(f"  e={result.e} C={format_family(result.c_family)} U={format_family(result.u_family)}")
         return 0
 
     dimensions = tuple(args.dimensions)
