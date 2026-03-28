@@ -7892,6 +7892,20 @@ def SimpleLowerPairInterfaceBoundaryDefectWithUniformUpperImpossibleStatement : 
       (∀ s ∈ 𝒰, s.card = m + 1) →
       False
 
+/-- Contrapositive boundary-lower form of the simple-lower bottleneck: if the upper part stays
+entirely in the middle layer, then the pair-interface boundary is at least the middle-layer target.
+This is the precise surface isolated by the current proof note. -/
+def SimpleLowerUniformUpperPairInterfaceBoundaryLowerStatement : Prop :=
+  ∀ {m : ℕ} {𝒰 𝒱 : Finset (Finset (Fin (2 * m + 1)))},
+      𝒱 ⊆ (oddLowerHalfFamily m) # m →
+      Disjoint 𝒰 (oddLowerHalfFamily m) →
+      𝒰.card = 𝒱.card →
+      (∀ s ∈ 𝒰, s.card = m + 1) →
+      2 * Nat.choose (2 * m + 1) m ≤
+        #(positiveBoundary (oddLowerHalfFamily m ∪ 𝒰)) +
+          #((((oddLowerHalfFamily m ∪ 𝒰) \ (oddLowerHalfFamily m \ 𝒱)) ∪
+              positiveBoundary (oddLowerHalfFamily m \ 𝒱)))
+
 def SimpleLowerPairInterfaceBoundaryDefectWithNoLargerPrismThanEvenWitnessImpossibleStatement :
     Prop :=
   ∀ {m : ℕ} {𝒰 𝒱 : Finset (Finset (Fin (2 * m + 1)))},
@@ -7921,6 +7935,17 @@ theorem
         h𝒱 h𝒰disj hcard (hDefect h𝒱 h𝒰disj hcard hlt)
 
 theorem
+    simpleLowerUniformUpperPairInterfaceBoundaryLower_iff_withUniformUpperImpossible :
+    SimpleLowerUniformUpperPairInterfaceBoundaryLowerStatement ↔
+      SimpleLowerPairInterfaceBoundaryDefectWithUniformUpperImpossibleStatement := by
+  constructor
+  · intro hLower m 𝒰 𝒱 h𝒱 h𝒰disj hcard hlt h𝒰uniform
+    exact (not_lt_of_ge (hLower h𝒱 h𝒰disj hcard h𝒰uniform)) hlt
+  · intro hImpossible m 𝒰 𝒱 h𝒱 h𝒰disj hcard h𝒰uniform
+    by_contra hnot
+    exact hImpossible h𝒱 h𝒰disj hcard (Nat.not_le.mp hnot) h𝒰uniform
+
+theorem
     simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle_iff_withUniformUpperImpossible :
     SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement ↔
       SimpleLowerPairInterfaceBoundaryDefectWithUniformUpperImpossibleStatement := by
@@ -7939,6 +7964,14 @@ theorem
       · exact False.elim (hnot ⟨s, hs𝒰, hsStrict⟩)
       · omega
     exact hDefect h𝒱 h𝒰disj hcard hlt h𝒰uniform
+
+theorem
+    simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle_iff_uniformUpperPairInterfaceBoundaryLower :
+    SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement ↔
+      SimpleLowerUniformUpperPairInterfaceBoundaryLowerStatement := by
+  exact
+    simpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddle_iff_withUniformUpperImpossible.trans
+      simpleLowerUniformUpperPairInterfaceBoundaryLower_iff_withUniformUpperImpossible.symm
 
 theorem
     simpleLowerPairInterfaceBoundaryDefectForcesLargerPrismThanEvenWitness_iff_withNoLargerPrismThanEvenWitnessImpossible :

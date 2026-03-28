@@ -164,3 +164,19 @@ So this branch of the plan is complete. The remaining live subgoal in the overal
 now just:
 
 - `SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement`.
+
+Update on 2026-03-28:
+
+- The remaining simple-lower subgoal has now been sharpened in Lean to the explicit contrapositive
+  boundary-lower surface
+  `SimpleLowerUniformUpperPairInterfaceBoundaryLowerStatement`,
+  and the file proves it equivalent to
+  `SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement`.
+- The active proof note now reduces this surface to a pure middle-layer inequality
+  \[
+  |\partial^\uparrow U| \ge |T(V)\setminus U|,
+  \]
+  where \(U \subseteq \binom{[2m+1]}{m+1}\) and \(T(V)\) is the family of middle-layer sets whose
+  entire \(m\)-shadow lies in \(V \subseteq \binom{[2m+1]}{m}\).
+- This is the current blocker. The development is no longer missing plumbing; it is stuck on that
+  compression/isoperimetric middle-layer lemma.
