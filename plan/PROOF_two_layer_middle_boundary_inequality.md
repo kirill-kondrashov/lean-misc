@@ -235,3 +235,77 @@ with the full per-\(e\) minima
 
 So the direct route survives exact exhaustive search in `n = 5`; what remains missing is a general
 proof in arbitrary odd dimension.
+
+## A Tempting Hall Reduction And Why It Is Not Enough
+
+Let \(G\) be the bipartite inclusion graph
+\[
+P_m \leftrightarrow P_{m+1}.
+\]
+Because \(n=2m+1\), both sides have size \(\binom{n}{m}\), and every vertex on either side has
+degree \(m+1\). Hence \(G\) is balanced and regular, so Hall's theorem gives
+\[
+|N(C)| \ge |C|
+\qquad
+\text{for every }
+C\subseteq P_m,
+\]
+where \(N(C)=\partial^\uparrow C\subseteq P_{m+1}\).
+
+Now
+\[
+\partial^+F
+=
+(\partial^\uparrow C\setminus U)\sqcup \partial^\uparrow U,
+\]
+so
+\[
+|\partial^+F|
+=
+|\partial^\uparrow C|-|U\cap \partial^\uparrow C|+|\partial^\uparrow U|
+\ge
+|C|-|U\cap \partial^\uparrow C|+|\partial^\uparrow U|.
+\]
+
+Using
+\[
+\partial^\uparrow C=P_{m+1}\setminus T(V),
+\]
+this becomes
+\[
+|\partial^+F|
+\ge
+|C|-|U\setminus T(V)|+|\partial^\uparrow U|.
+\]
+
+Therefore the stronger inequality
+\[
+|\partial^\uparrow U| \ge |U\setminus T(V)|
+\tag{9}
+\]
+would imply the desired two-layer boundary inequality \((2)\).
+
+However, \((9)\) is false in general.
+
+An exact exhaustive `n=5` search finds failures at \(e=5,6,7,8\). For example, at \(e=6\),
+\[
+U=
+\{
+\{0,1,2\},\{0,1,3\},\{0,2,3\},\{0,1,4\},\{0,2,4\},\{0,3,4\}
+\},
+\]
+\[
+V=
+\{
+\{0,2\},\{1,2\},\{0,3\},\{1,3\},\{0,4\},\{1,4\}
+\},
+\]
+for which
+\[
+|\partial^\uparrow U|=4
+\qquad\text{but}\qquad
+|U\setminus T(V)|=6.
+\]
+
+So the Hall-shadow criterion is a valid sufficient condition, but it cannot by itself prove the
+two-layer boundary inequality.

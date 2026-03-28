@@ -2,6 +2,17 @@
 
 This note records the active plan for the last remaining simple-lower bottleneck.
 
+## Active Files
+
+The active documentation set for this route is:
+
+- [PLAN_two_layer_middle_boundary_inequality.md](./PLAN_two_layer_middle_boundary_inequality.md)
+- [PROOF_two_layer_middle_boundary_inequality.md](./PROOF_two_layer_middle_boundary_inequality.md)
+- [STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md](./STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md)
+- [PROGRESS_two_sheet_boundary_theorem_2026-03-22.md](./PROGRESS_two_sheet_boundary_theorem_2026-03-22.md)
+
+Archived branches are summarized only in [STUCK_PLANS.md](./STUCK_PLANS.md).
+
 ## Main Target
 
 Let
@@ -96,12 +107,9 @@ This route is recorded in:
 Archived and falsified branches are summarized in
 [STUCK_PLANS.md](./STUCK_PLANS.md).
 
-In particular:
-
-- the naive compression-monotonicity route is false;
-- the weaker colex defect-reduction route is false already in exact `n = 5`;
-- the direct Lean formalization of the compressed colex case remains a separate formalization issue,
-  not an active proof route.
+In particular, the naive compression route and the weaker colex reduction route are both archived,
+the Hall-shadow sufficient-condition route is now archived as well, and the separate colex
+formalization issue is no longer part of the active proof notebook set.
 
 ## Current Evidence
 
@@ -121,6 +129,18 @@ The current computational evidence still points in the right direction:
   \]
 
 This is evidence only. It does not supply the remaining proof.
+
+What is now ruled out:
+
+- the naive compression-monotonicity route;
+- the weaker colex defect-reduction route;
+- the Hall-shadow sufficient condition
+  \[
+  |\partial^\uparrow U| \ge |U\setminus T(V)|.
+  \]
+
+So the remaining live task is the direct two-layer inequality itself, not any currently known
+stronger substitute.
 
 ## Practical Success Criterion
 

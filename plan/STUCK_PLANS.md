@@ -2,8 +2,13 @@
 
 This note records plan branches that are no longer active.
 
-The current live plan is the direct two-layer boundary route in
-[PLAN_two_layer_middle_boundary_inequality.md](./PLAN_two_layer_middle_boundary_inequality.md).
+The current live plan is the direct two-layer boundary route:
+
+- [PLAN_simple_lower_uniform_upper_pair_interface_boundary_lower_research.md](./PLAN_simple_lower_uniform_upper_pair_interface_boundary_lower_research.md)
+- [PLAN_two_layer_middle_boundary_inequality.md](./PLAN_two_layer_middle_boundary_inequality.md)
+- [PROOF_two_layer_middle_boundary_inequality.md](./PROOF_two_layer_middle_boundary_inequality.md)
+- [STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md](./STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md)
+
 Everything listed below is archived.
 
 ## 1. Naive Middle-Layer Compression Monotonicity Route
@@ -87,7 +92,7 @@ So this plan branch cannot be repaired by simply proving the old conjectured mon
 This route is dead. It cannot be revived by proving the old monotonicity conjecture, because that
 conjecture is false.
 
-## 2. Lean Formalization Of The Colex Compressed Case
+## 2. Colex Compressed Case Formalization Route
 
 Status: `stuck at formalization`
 
@@ -95,8 +100,8 @@ The compressed-case theorem
 \[
 T(V^\ast)\subseteq U^\ast
 \]
-for equal-size colex initial segments in the balanced middle layers is now proved mathematically in
-[PROOF_colex_equal_size_middle_layer_containment.md](./PROOF_colex_equal_size_middle_layer_containment.md).
+for equal-size colex initial segments in the balanced middle layers has a paper proof, but that
+paper proof is not part of the active plan anymore.
 
 However, the direct attempt to land that proof in Lean inside
 [Problem1CubeHalfBoundary.lean](../ErdosProblems/Problem1CubeHalfBoundary.lean) is currently stuck.
@@ -109,8 +114,13 @@ The obstruction is formal rather than mathematical:
    |T(V^\ast)| \le |V^\ast|.
    \]
 
-This does not falsify the colex theorem. It only means the current direct formalization route is
-not active until a cleaner Lean encoding of the colex proof is found.
+This does not falsify the colex theorem. It only means the direct formalization route is not
+active until a cleaner Lean encoding of the colex proof is found.
+
+### Consequence
+
+This branch is archived. The theorem may still be useful as background evidence, but the project no
+longer carries a dedicated active `PROOF_*.md` note for it.
 
 ## 3. Weaker Reduction To Equal-Size Colex Middle-Layer Pairs
 
@@ -176,3 +186,69 @@ This branch is dead. The only remaining active route is the direct two-layer bou
 \[
 |\partial^+\bigl((\binom{[n]}{m}\setminus V)\cup U\bigr)| \ge |\binom{[n]}{m}\setminus V|.
 \]
+
+## 4. Hall-Shadow Sufficient-Condition Route
+
+Status: `stuck / falsified`
+
+This was the route based on the stronger middle-layer inequality
+\[
+|\partial^\uparrow U| \ge |U\setminus T(V)|.
+\]
+
+### Why It Looked Promising
+
+Let \(C:=\binom{[n]}{m}\setminus V\) and \(F:=C\cup U\). In the balanced bipartite inclusion graph
+\[
+\binom{[n]}{m} \leftrightarrow \binom{[n]}{m+1},
+\]
+regularity and Hall imply
+\[
+|\partial^\uparrow C| \ge |C|.
+\]
+Since
+\[
+\partial^+F=(\partial^\uparrow C\setminus U)\sqcup \partial^\uparrow U
+\]
+and
+\[
+\partial^\uparrow C=\binom{[n]}{m+1}\setminus T(V),
+\]
+one gets
+\[
+|\partial^+F|
+\ge
+|C|-|U\setminus T(V)|+|\partial^\uparrow U|.
+\]
+So the Hall-shadow inequality above would have implied the active two-layer boundary target
+\[
+|\partial^+F| \ge |C|.
+\]
+
+### Why It Is Archived
+
+The sufficient condition is false.
+
+An exact exhaustive `n = 5` search finds failures already at `e = 5,6,7,8`. For example, at
+`e = 6`,
+\[
+U=
+\{
+\{0,1,2\},\{0,1,3\},\{0,2,3\},\{0,1,4\},\{0,2,4\},\{0,3,4\}
+\},
+\]
+\[
+V=
+\{
+\{0,2\},\{1,2\},\{0,3\},\{1,3\},\{0,4\},\{1,4\}
+\},
+\]
+for which
+\[
+|\partial^\uparrow U|=4<6=|U\setminus T(V)|.
+\]
+
+### Consequence
+
+This branch is dead as a proof strategy. The direct two-layer boundary inequality may still be
+true, but it cannot be proved merely by reducing to the Hall-shadow sufficient condition above.

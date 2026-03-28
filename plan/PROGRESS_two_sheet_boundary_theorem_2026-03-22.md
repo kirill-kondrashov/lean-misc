@@ -233,8 +233,8 @@ The old colex replacement conjecture is now dead.
 
 Current implementation status of that archived branch:
 
-- the theorem \(T(V^\ast)\subseteq U^\ast\) now has a standalone mathematical proof in
-  [PROOF_colex_equal_size_middle_layer_containment.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_colex_equal_size_middle_layer_containment.md);
+- the theorem \(T(V^\ast)\subseteq U^\ast\) has a paper proof, but that proof note is no longer
+  part of the active plan set;
 - a direct Lean formalization attempt of that note is currently stuck at the `Finset.Colex` /
   local-LYM interface and is not present in
   [Problem1CubeHalfBoundary.lean](/home/kir/pers/erdos/lean-misc/ErdosProblems/Problem1CubeHalfBoundary.lean);
@@ -268,6 +268,13 @@ Current implementation status of that archived branch:
   \]
   The minimum margin is nonnegative for every `e = 0,\dots,10`; the tight values are `0` at
   `e = 0` and `e = 6`, and the smallest nontrivial margin is `2`.
+- a new Hall-based sufficient-condition route has now also been tested and archived:
+  the stronger inequality
+  \[
+  |\partial^\uparrow U| \ge |U\setminus T(V)|
+  \]
+  would imply the direct two-layer target, but exact exhaustive `n = 5` search falsifies it at
+  `e = 5,6,7,8`, with worst margin `-2` at `e = 6`.
 - so the overall active plan is now purely direct: prove the equivalent two-layer
   middle-boundary inequality directly. The route remains mathematically open, but it survives the
   exact low-dimensional checks currently in the toolchain.

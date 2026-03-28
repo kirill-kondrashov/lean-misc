@@ -146,6 +146,17 @@ class ExhaustiveTwoLayerBoundaryResult:
 
 
 @dataclass(frozen=True)
+class ExhaustiveTwoLayerHallShadowResult:
+    n: int
+    e: int
+    upper_shadow_size: int
+    damaged_u_size: int
+    margin: int
+    witness_u_family: Family
+    witness_v_family: Family
+
+
+@dataclass(frozen=True)
 class MiddleLayerCompressionCounterexample:
     n: int
     i: int
@@ -726,6 +737,85 @@ def exhaustive_two_layer_middle_boundary_minima(
                 boundary_size=best_boundary,
                 c_size=c_size,
                 margin=best_boundary - c_size,
+                witness_u_family=witness_u_family,
+                witness_v_family=witness_v_family,
+            )
+        )
+    return results
+
+
+def exhaustive_two_layer_hall_shadow_minima(
+    n: int,
+) -> List[ExhaustiveTwoLayerHallShadowResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    upper_shadow_sizes: Dict[int, int] = {}
+    t_v_masks: Dict[int, int] = {}
+    upper_index = {subset: index for index, subset in enumerate(upper_rank_sets)}
+
+    for u_mask in range(1 << upper_count):
+        u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        upper_shadow_sizes[u_mask] = len(upper_shadow_of_uniform_middle_family(u_family, subsets))
+
+    for v_mask in range(1 << lower_count):
+        v_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if v_mask & (1 << index)
+        )
+        t_v_family = t_of_v_family(v_family, subsets)
+        t_mask = 0
+        for subset in t_v_family:
+            t_mask |= 1 << upper_index[subset]
+        t_v_masks[v_mask] = t_mask
+
+    results: List[ExhaustiveTwoLayerHallShadowResult] = []
+    for e in range(lower_count + 1):
+        best_margin: int | None = None
+        best_pair: Tuple[int, int] | None = None
+        best_shadow = 0
+        best_damaged = 0
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            upper_shadow_size = upper_shadow_sizes[u_mask]
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                damaged_u_size = (u_mask & ~t_v_masks[v_mask]).bit_count()
+                margin = upper_shadow_size - damaged_u_size
+                if best_margin is None or margin < best_margin:
+                    best_margin = margin
+                    best_pair = (u_mask, v_mask)
+                    best_shadow = upper_shadow_size
+                    best_damaged = damaged_u_size
+        if best_margin is None or best_pair is None:
+            continue
+        u_mask, v_mask = best_pair
+        witness_u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        witness_v_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if v_mask & (1 << index)
+        )
+        results.append(
+            ExhaustiveTwoLayerHallShadowResult(
+                n=n,
+                e=e,
+                upper_shadow_size=best_shadow,
+                damaged_u_size=best_damaged,
+                margin=best_margin,
                 witness_u_family=witness_u_family,
                 witness_v_family=witness_v_family,
             )
@@ -1472,6 +1562,14 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-two-layer-hall-shadow-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 test of the stronger Hall-shadow sufficient criterion "
+            "|∂^up U| >= |U \\\\ T(V)| over all equal-size middle-layer pairs."
+        ),
+    )
+    parser.add_argument(
         "--dimensions",
         type=int,
         nargs="+",
@@ -1750,6 +1848,39 @@ def main() -> int:
             warn("WARNING overall: the exact n=5 two-layer boundary inequality fails.")
             return 1
         ok("OK overall: the exact n=5 two-layer boundary inequality survives exhaustive search.")
+        return 0
+
+    if args.exhaustive_two_layer_hall_shadow_n5:
+        any_warning = False
+        results = exhaustive_two_layer_hall_shadow_minima(5)
+        for result in results:
+            if result.margin < 0:
+                any_warning = True
+                warn(
+                    "WARNING exact n=5 Hall-shadow criterion failure at "
+                    f"e={result.e}: shadow={result.upper_shadow_size} < damaged={result.damaged_u_size}"
+                )
+            else:
+                ok(
+                    "OK exact n=5 Hall-shadow criterion at "
+                    f"e={result.e}: shadow={result.upper_shadow_size} >= damaged={result.damaged_u_size}"
+                )
+            print(
+                f"  margin={result.margin} shadow={result.upper_shadow_size} "
+                f"damaged={result.damaged_u_size} "
+                f"U={format_family(result.witness_u_family)} "
+                f"V={format_family(result.witness_v_family)}"
+            )
+        tightest = min(results, key=lambda result: (result.margin, result.e))
+        print(
+            "TIGHTEST exact n=5 Hall-shadow class: "
+            f"e={tightest.e} shadow={tightest.upper_shadow_size} damaged={tightest.damaged_u_size} "
+            f"margin={tightest.margin}"
+        )
+        if any_warning:
+            warn("WARNING overall: the exact n=5 Hall-shadow criterion fails.")
+            return 1
+        ok("OK overall: the exact n=5 Hall-shadow criterion survives exhaustive search.")
         return 0
 
     dimensions = tuple(args.dimensions)

@@ -80,5 +80,11 @@ close:
   \left|\partial^+\!\left(\left(\binom{[5]}{2}\setminus V\right)\cup U\right)\right| - \left|\binom{[5]}{2}\setminus V\right|
   \]
   is nonnegative, with the tight values `0` only at `e = 0` and `e = 6`.
+- A tempting stronger sufficient condition,
+  \[
+  |\partial^\uparrow U| \ge |U\setminus T(V)|,
+  \]
+  is now archived: it would imply \((B)\) by Hall in the balanced middle-layer inclusion graph,
+  but exact `n = 5` search falsifies it.
 - This route remains active because \((B)\) removes the auxiliary operator \(T(V)\) and packages
   the remaining work as an ordinary positive-boundary lower bound for a two-layer family.
