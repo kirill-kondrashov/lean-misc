@@ -76,7 +76,13 @@ The current plan is:
 2. Use one of the live routes:
    - a weaker extremal/colex reduction from general \((U,V)\) to canonical equal-size middle-layer
      pairs;
-   - or a direct counting proof of the reduced inequality.
+   - or a direct counting proof of the reduced inequality;
+   - or the equivalent two-layer boundary route for
+     \[
+     F := \bigl(\binom{[n]}{m}\setminus V\bigr)\cup U.
+     \]
+   These live routes are written out carefully, with the available reduction proofs, in
+   [PROOF_live_routes_for_middle_layer_inequality.md](./PROOF_live_routes_for_middle_layer_inequality.md).
    The best current live conjecture is the weaker colex route:
    first reduce to equal-size colex middle-layer pairs \((U^\ast,V^\ast)\), then prove
    \[
@@ -248,6 +254,23 @@ The sharpest current replacement route is therefore:
    \[
     |\partial^\uparrow U| \ge |T(V)\setminus U|.
    \]
+
+There is also a cleaner direct reformulation, proved in
+[PROOF_live_routes_for_middle_layer_inequality.md](./PROOF_live_routes_for_middle_layer_inequality.md):
+if
+\[
+P_m := \binom{[n]}{m},
+\qquad
+C := P_m \setminus V,
+\qquad
+F := C \cup U,
+\]
+then the reduced inequality is equivalent to
+\[
+|\partial^+ F| \ge |C|.
+\]
+So the non-colex direct route can now be phrased entirely as a positive-boundary lower bound for a
+family supported on the adjacent middle layers.
 
 So the search evidence supports the theorem and can be used to guess the real extremal families.
 

@@ -240,5 +240,23 @@ Current implementation status of that colex branch:
 - a direct Lean formalization attempt of that note is currently stuck at the `Finset.Colex` /
   local-LYM interface and is not present in
   [Problem1CubeHalfBoundary.lean](/home/kir/pers/erdos/lean-misc/ErdosProblems/Problem1CubeHalfBoundary.lean);
-- so the overall active plan is unchanged: either find a weaker reduction to the colex model, or
-  prove the reduced middle-layer inequality directly.
+- the direct middle-layer route has now been sharpened further in
+  [PROOF_live_routes_for_middle_layer_inequality.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_live_routes_for_middle_layer_inequality.md):
+  with
+  \[
+  P_m := \binom{[2m+1]}{m},
+  \qquad
+  C := P_m \setminus V,
+  \qquad
+  F := C \cup U,
+  \]
+  the reduced inequality
+  \[
+  |\partial^\uparrow U| \ge |T(V)\setminus U|
+  \]
+  is equivalent to the two-layer boundary inequality
+  \[
+  |\partial^+ F| \ge |C|.
+  \]
+- so the overall active plan is now: either find a weaker reduction to the colex model, or prove
+  the equivalent two-layer middle-boundary inequality directly.
