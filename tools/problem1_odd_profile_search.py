@@ -88,6 +88,28 @@ class StructuredFirstGapDefectResult:
     min_prism_boundary: int
 
 
+@dataclass(frozen=True)
+class StructuredUniformUpperMiddleLayerResult:
+    name: str
+    n: int
+    e: int
+    upper_shadow_size: int
+    max_t_v_outside: int
+    reduced_margin: int
+    best_v: Family
+    best_t_v_outside: Family
+
+
+@dataclass(frozen=True)
+class ColexUniformUpperMiddleLayerResult:
+    n: int
+    e: int
+    upper_shadow_size: int
+    t_v_size: int
+    t_v_outside_size: int
+    reduced_margin: int
+
+
 def all_subsets(n: int) -> Tuple[int, ...]:
     subsets: List[int] = []
     for r in range(n + 1):
@@ -256,6 +278,22 @@ def slice_cardinality(family: Iterable[int], rank: int) -> int:
     return sum(1 for subset in family if subset_cardinality(subset) == rank)
 
 
+def rank_subsets(n: int, rank: int, subsets: Sequence[int]) -> Tuple[int, ...]:
+    del n
+    return tuple(sorted(subset for subset in subsets if subset_cardinality(subset) == rank))
+
+
+def colex_key(mask: int) -> Tuple[int, ...]:
+    elements = [index for index in range(mask.bit_length()) if mask & (1 << index)]
+    return tuple(reversed(elements))
+
+
+def colex_initial_segment(n: int, rank: int, size: int, subsets: Sequence[int]) -> Family:
+    rank_family = rank_subsets(n, rank, subsets)
+    ordered = sorted(rank_family, key=colex_key)
+    return tuple(ordered[:size])
+
+
 def even_lower_half_total_size_in_prism_dimension(n: int) -> int:
     m = n // 2
     return (n + 1) * (2 ** (n - 1)) - (m + 1) * comb(n, m)
@@ -380,6 +418,89 @@ def outside_high_boundary_count_from_upper_downset(
                 break
             candidates ^= bit
     return count
+
+
+def upper_shadow_of_uniform_middle_family(
+    upper_family: Sequence[int], subsets: Sequence[int]
+) -> Tuple[int, ...]:
+    if not upper_family:
+        return ()
+    upper_family_set = set(upper_family)
+    ambient_rank = subset_cardinality(upper_family[0])
+    target_rank = ambient_rank + 1
+    shadow = [
+        subset
+        for subset in subsets
+        if subset_cardinality(subset) == target_rank
+        and any((member & subset) == member for member in upper_family_set)
+    ]
+    return tuple(sorted(shadow))
+
+
+def t_of_v_rank4_family(v_family: Sequence[int], subsets: Sequence[int]) -> Tuple[int, ...]:
+    v_set = set(v_family)
+    targets = []
+    for subset in subsets:
+        if subset_cardinality(subset) != 4:
+            continue
+        candidates = subset
+        all_triples_present = True
+        while candidates:
+            bit = candidates & -candidates
+            triple = subset ^ bit
+            if triple not in v_set:
+                all_triples_present = False
+                break
+            candidates ^= bit
+        if all_triples_present:
+            targets.append(subset)
+    return tuple(sorted(targets))
+
+
+def max_destroyed_rank4_targets_by_available_rank3_sets_with_witness(
+    target_rank4_sets: Sequence[int], available_rank3_sets: Sequence[int], budget: int
+) -> Tuple[int, Tuple[int, ...]]:
+    triple_index = {subset: index for index, subset in enumerate(available_rank3_sets)}
+    target_masks: List[int] = []
+    for rank4_set in target_rank4_sets:
+        triple_mask = 0
+        valid_target = True
+        candidates = rank4_set
+        while candidates:
+            bit = candidates & -candidates
+            triple = rank4_set ^ bit
+            triple_position = triple_index.get(triple)
+            if triple_position is None:
+                valid_target = False
+                break
+            triple_mask |= 1 << triple_position
+            candidates ^= bit
+        if valid_target:
+            target_masks.append(triple_mask)
+    dp: Dict[int, int] = {0: 0}
+    for target_mask in target_masks:
+        updates: Dict[int, int] = {}
+        for union_mask, destroyed in dp.items():
+            new_union_mask = union_mask | target_mask
+            if new_union_mask.bit_count() > budget:
+                continue
+            candidate_destroyed = destroyed + 1
+            current = max(dp.get(new_union_mask, -1), updates.get(new_union_mask, -1))
+            if candidate_destroyed > current:
+                updates[new_union_mask] = candidate_destroyed
+        for union_mask, destroyed in updates.items():
+            current = dp.get(union_mask)
+            if current is None or current < destroyed:
+                dp[union_mask] = destroyed
+    best_union_mask, best_destroyed = max(
+        dp.items(), key=lambda item: (item[1], -item[0].bit_count(), item[0])
+    )
+    witness = tuple(
+        available_rank3_sets[index]
+        for index in range(len(available_rank3_sets))
+        if best_union_mask & (1 << index)
+    )
+    return (best_destroyed, witness)
 
 
 def exact_min_prism_boundary_in_rank3_removal_model(
@@ -571,6 +692,70 @@ def structured_first_gap_defect_results_n7_simple_lower() -> List[StructuredFirs
             result.name,
         ),
     )
+
+
+def structured_uniform_upper_middle_layer_results_n7() -> List[StructuredUniformUpperMiddleLayerResult]:
+    n = 7
+    subsets = all_subsets(n)
+    lower_half = set(lower_half_family(n, subsets))
+    all_rank3_sets = rank_subsets(n, 3, subsets)
+    all_rank4_sets = rank_subsets(n, 4, subsets)
+    results: List[StructuredUniformUpperMiddleLayerResult] = []
+    for name, generators in simple_lower_generator_classes_n7_exact():
+        family_n = downset_from_generators_above_lower_half(n, subsets, generators)
+        upper_part = tuple(sorted(set(family_n) - lower_half))
+        if any(subset_cardinality(subset) != 4 for subset in upper_part):
+            continue
+        upper_shadow = upper_shadow_of_uniform_middle_family(upper_part, subsets)
+        outside_rank4_targets = [
+            subset for subset in all_rank4_sets if subset not in set(upper_part)
+        ]
+        max_t_v_outside, best_v = max_destroyed_rank4_targets_by_available_rank3_sets_with_witness(
+            outside_rank4_targets, all_rank3_sets, len(upper_part)
+        )
+        best_t_v_outside = tuple(
+            subset
+            for subset in outside_rank4_targets
+            if all((subset ^ bit) in set(best_v) for bit in (1 << i for i in range(subset.bit_length()) if subset & (1 << i)))
+        )
+        results.append(
+            StructuredUniformUpperMiddleLayerResult(
+                name=name,
+                n=n,
+                e=len(upper_part),
+                upper_shadow_size=len(upper_shadow),
+                max_t_v_outside=max_t_v_outside,
+                reduced_margin=len(upper_shadow) - max_t_v_outside,
+                best_v=tuple(sorted(best_v)),
+                best_t_v_outside=tuple(sorted(best_t_v_outside)),
+            )
+        )
+    return sorted(results, key=lambda result: (result.reduced_margin, result.e, result.name))
+
+
+def colex_uniform_upper_middle_layer_results_n7() -> List[ColexUniformUpperMiddleLayerResult]:
+    n = 7
+    subsets = all_subsets(n)
+    all_rank3_sets = rank_subsets(n, 3, subsets)
+    all_rank4_sets = rank_subsets(n, 4, subsets)
+    results: List[ColexUniformUpperMiddleLayerResult] = []
+    for e in range(1, len(all_rank4_sets) + 1):
+        u_family = colex_initial_segment(n, 4, e, subsets)
+        v_family = colex_initial_segment(n, 3, e, subsets)
+        upper_shadow = upper_shadow_of_uniform_middle_family(u_family, subsets)
+        t_v = t_of_v_rank4_family(v_family, subsets)
+        t_v_outside = tuple(subset for subset in t_v if subset not in set(u_family))
+        results.append(
+            ColexUniformUpperMiddleLayerResult(
+                n=n,
+                e=e,
+                upper_shadow_size=len(upper_shadow),
+                t_v_size=len(t_v),
+                t_v_outside_size=len(t_v_outside),
+                reduced_margin=len(upper_shadow) - len(t_v_outside),
+            )
+        )
+    return results
 
 
 def search_pair_interface_counterexample(
@@ -860,6 +1045,22 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--structured-uniform-upper-middle-layer-n7",
+        action="store_true",
+        help=(
+            "Run the exact structured n=7 search for the reduced middle-layer inequality "
+            "|∂^up U| >= |T(V) \\ U| on uniform-upper simple-lower classes."
+        ),
+    )
+    parser.add_argument(
+        "--colex-uniform-upper-middle-layer-n7",
+        action="store_true",
+        help=(
+            "Tabulate the reduced middle-layer quantity |∂^up U| - |T(V) \\ U| "
+            "for colex-initial rank-4/rank-3 segments in n=7."
+        ),
+    )
+    parser.add_argument(
         "--dimensions",
         type=int,
         nargs="+",
@@ -958,6 +1159,60 @@ def main() -> int:
         ok(
             "OK overall: no exact structured n=7 simple-lower first-gap defect candidate found."
         )
+        return 0
+
+    if args.structured_uniform_upper_middle_layer_n7:
+        any_warning = False
+        results = structured_uniform_upper_middle_layer_results_n7()
+        for result in results:
+            if result.reduced_margin < 0:
+                any_warning = True
+                warn(
+                    "WARNING structured n=7 uniform-upper middle-layer failure found in class "
+                    f"{result.name}: shadow={result.upper_shadow_size} < Tout={result.max_t_v_outside}"
+                )
+            else:
+                ok(
+                    "OK structured n=7 uniform-upper class "
+                    f"{result.name}: shadow={result.upper_shadow_size} >= Tout={result.max_t_v_outside}"
+                )
+            print(
+                f"  e={result.e} reduced_margin={result.reduced_margin} "
+                f"best_v_size={len(result.best_v)} best_t_v_outside={len(result.best_t_v_outside)}"
+            )
+            if result.best_v:
+                print(f"  best V = {format_family(result.best_v)}")
+            if result.best_t_v_outside:
+                print(f"  best T(V)\\\\U = {format_family(result.best_t_v_outside)}")
+        if any_warning:
+            warn("WARNING overall: structured n=7 uniform-upper middle-layer search found a candidate.")
+            return 1
+        ok("OK overall: no structured n=7 uniform-upper middle-layer counterexample found.")
+        return 0
+
+    if args.colex_uniform_upper_middle_layer_n7:
+        any_warning = False
+        results = colex_uniform_upper_middle_layer_results_n7()
+        for result in results:
+            if result.reduced_margin < 0:
+                any_warning = True
+                warn(
+                    "WARNING colex n=7 middle-layer failure at "
+                    f"e={result.e}: shadow={result.upper_shadow_size} < Tout={result.t_v_outside_size}"
+                )
+            else:
+                ok(
+                    "OK colex n=7 e="
+                    f"{result.e}: shadow={result.upper_shadow_size} >= Tout={result.t_v_outside_size}"
+                )
+            print(
+                f"  T(V)={result.t_v_size} T(V)\\\\U={result.t_v_outside_size} "
+                f"reduced_margin={result.reduced_margin}"
+            )
+        if any_warning:
+            warn("WARNING overall: a colex n=7 middle-layer candidate failed.")
+            return 1
+        ok("OK overall: all colex n=7 middle-layer samples satisfy the reduced inequality.")
         return 0
 
     dimensions = tuple(args.dimensions)

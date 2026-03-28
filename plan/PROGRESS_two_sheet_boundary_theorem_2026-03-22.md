@@ -1,4 +1,4 @@
-# Prism Theorem Progress - 2026-03-27
+# Prism Theorem Progress - 2026-03-28
 
 Validation gate:
 
@@ -8,7 +8,7 @@ Validation gate:
 
 Progress bar:
 
-`[#########-] 9/10`
+`[#########>] 9.5/10`
 
 This is a heuristic program-progress bar for the current formal route, not a probability claim.
 
@@ -42,39 +42,46 @@ Completed program layers:
 
 Current bottleneck:
 
-- `PrismTheoremCanonicalPairInterfaceBoundaryDefectBottleneckStatement`
+- `SimpleLowerUniformUpperPairInterfaceBoundaryLowerStatement`
 
-Equivalent local formulations:
+Equivalent theorem surfaces already in Lean:
 
-- `OddSectionFirstPositiveGapSlicePairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement`
-- `OddSectionFirstSeparationPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement`
-- `OddSectionPositiveExcessPairInterfaceBoundaryDefectForcesLargerTotalSizeThanEvenWitnessStatement`
+- `SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement`
+- `SimpleLowerPairInterfaceBoundaryDefectWithUniformUpperImpossibleStatement`
+- `SimpleLowerPairInterfaceBoundaryDefectWithNoLargerPrismThanEvenWitnessImpossibleStatement`
 
-These are no longer separate proof goals in the theorem graph; they are equivalent reformulations of
-the same remaining local odd defect-to-`totalSize` bridge.
+Current reduced mathematical blocker:
+
+\[
+|\partial^\uparrow U| \ge |T(V)\setminus U|,
+\]
+
+where \(U \subseteq \binom{[2m+1]}{m+1}\), \(V \subseteq \binom{[2m+1]}{m}\), and \(T(V)\) is the
+family of \((m+1)\)-sets whose full \(m\)-shadow lies in \(V\).
 
 Current plan:
 
-1. Add a targeted `n = 7` first-positive-gap defect search mode for the simple-lower model
-   `𝒩 = lower_half ∪ upper_part`, `ℳ = lower_half \ rank3_removed`, with exact reporting of:
-   the upper-rank slice profile, the weighted upper-tail gain
-   `u₅ + 2 u₆ + 3 u₇ = totalSize(twoSheetFamily ℳ 𝒩) - totalSize(evenLowerHalfFamily 3)`,
-   and the best pair-interface boundary margin above/below the target `2 * choose(7, 3) = 70`.
-2. Use that data to isolate the zero-margin regime (`u₅ = u₆ = u₇ = 0`, i.e. pure rank-4 upper
-   tails) and formulate the missing intermediate lemma:
-   first-positive-gap pair-interface defect forces positive weighted upper-tail gain.
-3. Prove that intermediate lemma in Lean, first in the first-positive-gap form, then via the
-   existing equivalence layer for the canonical defect bottleneck.
-4. Plug that theorem into the existing closure graph; the current file already propagates it to the
-   two-sheet theorem, prism theorem, half-cube boundary theorem, half-cube upper-shadow-gap
-   theorem, and the downstream arithmetic corollaries.
+1. Prove the uniform-upper pair-interface lower bound directly in the simple-lower model:
+   \[
+   |\partial^+(L_m \cup U)| + |(U \cup V)\cup \partial^+(L_m \setminus V)|
+   \ge
+   2\binom{2m+1}{m}.
+   \]
+2. Attack it as a middle-layer compression/isoperimetric problem on the balanced graph
+   \[
+   \binom{[2m+1]}{m} \leftrightarrow \binom{[2m+1]}{m+1}.
+   \]
+3. Once that statement is proved, use the already-formalized equivalence layer to recover
+   `SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement`.
+4. Then the proved normalization theorem plus the existing closure graph finish the canonical
+   defect bottleneck, the prism theorem, and the exact Erdős #1 endpoint under the current leaf
+   frontier.
 
 Interpretation:
 
-The remaining work is no longer packaging. The theorem graph is already in place. The real missing
-piece is a new local combinatorial proof about the first positive gap slice of `𝒩 \ ℳ`, and the
-current search plan is to identify that proof through the weighted upper-tail invariant in the
-structured `n = 7` model before formalizing it abstractly.
+The remaining work is no longer packaging. The theorem graph is in place, and the general odd
+first-gap problem has already been normalized to the simple-lower uniform-upper regime. The actual
+missing piece is now one middle-layer compression/isoperimetric lemma.
 
 Latest step:
 
@@ -180,3 +187,26 @@ Update on 2026-03-28:
   entire \(m\)-shadow lies in \(V \subseteq \binom{[2m+1]}{m}\).
 - This is the current blocker. The development is no longer missing plumbing; it is stuck on that
   compression/isoperimetric middle-layer lemma.
+
+Latest computational sharpening:
+
+- the search tooling now has dedicated `n = 7` diagnostics for the reduced middle-layer inequality
+  on uniform-upper simple-lower classes and for colex initial middle-layer pairs;
+- all searched structured uniform-upper classes satisfy
+  \[
+  |\partial^\uparrow U| \ge |T(V)\setminus U|,
+  \]
+  with margins `3`, `5`, and `6`;
+- all colex `n = 7` initial segment pairs satisfy the stronger property
+  \[
+  T(V)\setminus U = \varnothing.
+  \]
+
+So the current best research direction is sharper again:
+
+- prove compression/shifting does not increase
+  \[
+  |T(V)\setminus U| - |\partial^\uparrow U|;
+  \]
+- then prove the stronger colex containment statement \(T(V^\ast) \subseteq U^\ast\), or otherwise
+  compute the compressed case exactly.
