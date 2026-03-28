@@ -111,6 +111,18 @@ class ColexUniformUpperMiddleLayerResult:
 
 
 @dataclass(frozen=True)
+class ColexUniformUpperMiddleLayerSummary:
+    n: int
+    all_reduced_margins_nonnegative: bool
+    all_t_v_outside_zero: bool
+    worst_reduced_margin: int
+    worst_reduced_margin_e: int
+    max_t_v_outside_size: int
+    max_t_v_outside_e: int
+    sample_count: int
+
+
+@dataclass(frozen=True)
 class MiddleLayerCompressionCounterexample:
     n: int
     i: int
@@ -875,17 +887,21 @@ def structured_uniform_upper_middle_layer_results_n7() -> List[StructuredUniform
     return sorted(results, key=lambda result: (result.reduced_margin, result.e, result.name))
 
 
-def colex_uniform_upper_middle_layer_results_n7() -> List[ColexUniformUpperMiddleLayerResult]:
-    n = 7
+def colex_uniform_upper_middle_layer_results(n: int) -> List[ColexUniformUpperMiddleLayerResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
     subsets = all_subsets(n)
-    all_rank3_sets = rank_subsets(n, 3, subsets)
-    all_rank4_sets = rank_subsets(n, 4, subsets)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    all_rank_lower_sets = rank_subsets(n, lower_rank, subsets)
+    all_rank_upper_sets = rank_subsets(n, upper_rank, subsets)
     results: List[ColexUniformUpperMiddleLayerResult] = []
-    for e in range(1, len(all_rank4_sets) + 1):
-        u_family = colex_initial_segment(n, 4, e, subsets)
-        v_family = colex_initial_segment(n, 3, e, subsets)
+    for e in range(1, len(all_rank_upper_sets) + 1):
+        u_family = colex_initial_segment(n, upper_rank, e, subsets)
+        v_family = colex_initial_segment(n, lower_rank, e, subsets)
         upper_shadow = upper_shadow_of_uniform_middle_family(u_family, subsets)
-        t_v = t_of_v_rank4_family(v_family, subsets)
+        t_v = t_of_v_family(v_family, subsets)
         t_v_outside = tuple(subset for subset in t_v if subset not in set(u_family))
         results.append(
             ColexUniformUpperMiddleLayerResult(
@@ -898,6 +914,26 @@ def colex_uniform_upper_middle_layer_results_n7() -> List[ColexUniformUpperMiddl
             )
         )
     return results
+
+
+def summarize_colex_uniform_upper_middle_layer(n: int) -> ColexUniformUpperMiddleLayerSummary:
+    results = colex_uniform_upper_middle_layer_results(n)
+    worst_reduced_margin_result = min(
+        results, key=lambda result: (result.reduced_margin, result.e)
+    )
+    worst_t_v_outside_result = max(
+        results, key=lambda result: (result.t_v_outside_size, -result.e)
+    )
+    return ColexUniformUpperMiddleLayerSummary(
+        n=n,
+        all_reduced_margins_nonnegative=all(result.reduced_margin >= 0 for result in results),
+        all_t_v_outside_zero=all(result.t_v_outside_size == 0 for result in results),
+        worst_reduced_margin=worst_reduced_margin_result.reduced_margin,
+        worst_reduced_margin_e=worst_reduced_margin_result.e,
+        max_t_v_outside_size=worst_t_v_outside_result.t_v_outside_size,
+        max_t_v_outside_e=worst_t_v_outside_result.e,
+        sample_count=len(results),
+    )
 
 
 def search_pair_interface_counterexample(
@@ -1203,6 +1239,16 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--colex-uniform-upper-middle-layer-odd-dimensions",
+        type=int,
+        nargs="+",
+        help=(
+            "Summarize the colex compressed middle-layer inequality on the given odd dimensions. "
+            "For each odd n, report whether all colex equal-size middle-layer pairs satisfy "
+            "T(V*) \\ U* = ∅ and the reduced inequality."
+        ),
+    )
+    parser.add_argument(
         "--middle-layer-compression-counterexample-n7",
         action="store_true",
         help=(
@@ -1343,7 +1389,7 @@ def main() -> int:
 
     if args.colex_uniform_upper_middle_layer_n7:
         any_warning = False
-        results = colex_uniform_upper_middle_layer_results_n7()
+        results = colex_uniform_upper_middle_layer_results(7)
         for result in results:
             if result.reduced_margin < 0:
                 any_warning = True
@@ -1364,6 +1410,45 @@ def main() -> int:
             warn("WARNING overall: a colex n=7 middle-layer candidate failed.")
             return 1
         ok("OK overall: all colex n=7 middle-layer samples satisfy the reduced inequality.")
+        return 0
+
+    if args.colex_uniform_upper_middle_layer_odd_dimensions is not None:
+        any_warning = False
+        for n in args.colex_uniform_upper_middle_layer_odd_dimensions:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                any_warning = True
+                continue
+            summary = summarize_colex_uniform_upper_middle_layer(n)
+            if not summary.all_reduced_margins_nonnegative:
+                any_warning = True
+                warn(
+                    "WARNING colex odd middle-layer failure at "
+                    f"n={n}: worst_reduced_margin={summary.worst_reduced_margin} "
+                    f"at e={summary.worst_reduced_margin_e}"
+                )
+            else:
+                ok(
+                    "OK colex odd middle-layer reduced inequality at "
+                    f"n={n}: worst_reduced_margin={summary.worst_reduced_margin} "
+                    f"at e={summary.worst_reduced_margin_e}"
+                )
+            if summary.all_t_v_outside_zero:
+                ok(
+                    "OK colex odd middle-layer containment at "
+                    f"n={n}: T(V*)\\\\U*=∅ for all e in 1..{summary.sample_count}"
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING colex odd middle-layer containment fails at "
+                    f"n={n}: max T(V*)\\\\U* size={summary.max_t_v_outside_size} "
+                    f"at e={summary.max_t_v_outside_e}"
+                )
+        if any_warning:
+            warn("WARNING overall: some requested odd-dimension colex summaries failed.")
+            return 1
+        ok("OK overall: all requested odd-dimension colex summaries survived.")
         return 0
 
     if args.middle_layer_compression_counterexample_n7:

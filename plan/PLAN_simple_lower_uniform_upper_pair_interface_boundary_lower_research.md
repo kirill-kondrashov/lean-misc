@@ -65,6 +65,37 @@ T(V)
 
 So the remaining work is a pure middle-layer combinatorial inequality.
 
+## Current Plan Snapshot
+
+The current plan is:
+
+1. Keep the live target at the reduced middle-layer inequality
+   \[
+   |\partial^\uparrow U| \ge |T(V)\setminus U|.
+   \]
+2. Do not use the naive compression-monotonicity route
+   \[
+   \Delta(U,V) \le \Delta(C_{ij}U,\; C_{ij}V),
+   \]
+   because that route has already been falsified.
+3. Replace it with one of the following:
+   - a different monotone defect functional;
+   - a weaker extremal/colex reduction that avoids the false monotonicity;
+   - or a direct counting proof of the reduced inequality.
+   The best current replacement conjecture is the weaker colex route:
+   first reduce to equal-size colex middle-layer pairs \((U^\ast,V^\ast)\), then prove
+   \[
+   T(V^\ast)\subseteq U^\ast.
+   \]
+4. Once that reduced inequality is proved, use the already-formalized Lean equivalence layer to
+   recover
+   `SimpleLowerUniformUpperPairInterfaceBoundaryLowerStatement`,
+   `SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement`,
+   the canonical defect bottleneck, and the exact Erdős #1 endpoint under the current frontier.
+
+So the remaining work is no longer theorem packaging. It is one new middle-layer combinatorial
+argument.
+
 ## Standalone Proof Attempt
 
 The compression-route proof attempt for the reduced inequality is recorded separately in
@@ -181,10 +212,17 @@ The expected outcome was
 This remains computationally plausible, but it is no longer enough by itself, because the failed
 compression step no longer reduces the general case to the compressed case.
 
-Current `n=7` evidence is stronger than this:
+Current computational evidence is stronger than this:
 
-- for all colex initial segments \(U^\ast \subseteq \binom{[7]}{4}\),
-  \(V^\ast \subseteq \binom{[7]}{3}\) with \(|U^\ast|=|V^\ast|=e\),
+- for all colex initial segments in odd dimensions \(n=7,9,11\),
+  with
+  \[
+  U^\ast \subseteq \binom{[n]}{(n+1)/2},
+  \qquad
+  V^\ast \subseteq \binom{[n]}{(n-1)/2},
+  \qquad
+  |U^\ast|=|V^\ast|=e,
+  \]
   the search data gives
   \[
   T(V^\ast)\subseteq U^\ast,
@@ -216,7 +254,8 @@ Extend the existing `n=7` search tooling so it reports:
 This step is now partially implemented. The tooling has dedicated `n=7` diagnostics for:
 
 - exact structured uniform-upper classes,
-- and colex initial middle-layer pairs.
+- colex initial middle-layer pairs in `n=7`,
+- and summary checks for colex initial middle-layer pairs in odd dimensions `n=7,9,11`.
 
 Current evidence:
 
@@ -228,10 +267,23 @@ Current evidence:
   |\partial^\uparrow U| \ge |T(V)\setminus U|
   \]
   with margins \(3,5,6\);
-- all colex `n=7` samples satisfy the stronger property
+- all colex samples in `n=7,9,11` satisfy the stronger property
   \[
   T(V)\setminus U=\varnothing.
   \]
+
+The sharpest current replacement route is therefore:
+
+1. prove a weaker extremal reduction from general \((U,V)\) to colex equal-size middle-layer
+   pairs, without using the false naive monotonicity;
+2. prove the colex containment theorem
+   \[
+   T(V^\ast)\subseteq U^\ast;
+   \]
+3. conclude the reduced inequality
+   \[
+   |\partial^\uparrow U| \ge |T(V)\setminus U|.
+   \]
 
 So the search evidence supports the theorem and can be used to guess the real extremal families.
 

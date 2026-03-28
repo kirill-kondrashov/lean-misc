@@ -67,13 +67,23 @@ Current plan:
    \ge
    2\binom{2m+1}{m}.
    \]
-2. Attack it as a middle-layer compression/isoperimetric problem on the balanced graph
+2. Work through the reduced middle-layer inequality
    \[
-   \binom{[2m+1]}{m} \leftrightarrow \binom{[2m+1]}{m+1}.
+   |\partial^\uparrow U| \ge |T(V)\setminus U|.
    \]
-3. Once that statement is proved, use the already-formalized equivalence layer to recover
+3. Do not use the naive compression-monotonicity route
+   \[
+   |T(V)\setminus U| - |\partial^\uparrow U|
+   \]
+   under left-compressions: that route has already been falsified by an explicit `n = 7`
+   counterexample.
+4. Replace it with either:
+   - a different monotone defect functional,
+   - a weaker extremal/colex reduction,
+   - or a direct middle-layer counting proof.
+5. Once that statement is proved, use the already-formalized equivalence layer to recover
    `SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement`.
-4. Then the proved normalization theorem plus the existing closure graph finish the canonical
+6. Then the proved normalization theorem plus the existing closure graph finish the canonical
    defect bottleneck, the prism theorem, and the exact Erdős #1 endpoint under the current leaf
    frontier.
 
@@ -222,3 +232,24 @@ So the current best research direction is now:
 - abandon the naive compression monotonicity route;
 - either find a different monotone defect functional, or
 - prove the reduced middle-layer inequality directly without that compression step.
+
+Latest replacement-route evidence:
+
+- the search tooling now has generalized colex summary checks for odd dimensions;
+- for colex equal-size middle-layer pairs in `n = 7, 9, 11`, every searched case satisfies the
+  stronger compressed-case containment
+  \[
+  T(V^\ast)\subseteq U^\ast,
+  \]
+  hence in particular
+  \[
+  T(V^\ast)\setminus U^\ast=\varnothing;
+  \]
+- the worst reduced margins in those colex summaries are `3` at `n = 7`, `4` at `n = 9`, and `5`
+  at `n = 11`, each attained at `e = 1`.
+
+So the best current replacement conjecture is now sharper:
+
+- find a weaker extremal reduction from general \((U,V)\) to colex equal-size middle-layer pairs,
+  without using the false naive compression monotonicity;
+- then prove the colex containment theorem \(T(V^\ast)\subseteq U^\ast\) in general.
