@@ -479,6 +479,19 @@ class ShiftedLocalFluxGeneratorWitnessSummaryResult:
 
 
 @dataclass(frozen=True)
+class ShiftedLocalFluxGeneratorPatternSummaryResult:
+    n: int
+    lower_shifted_family_count: int
+    upper_shifted_family_count: int
+    max_min_generator_count: int
+    distinct_generator_family_count: int
+    distinct_max_generator_family_count: int
+    distinct_generator_family_count_by_size: Tuple[Tuple[int, int], ...]
+    sample_generator_families: Tuple[Family, ...]
+    sample_max_generator_families: Tuple[Family, ...]
+
+
+@dataclass(frozen=True)
 class MiddleLayerCompressionCounterexample:
     n: int
     i: int
@@ -595,6 +608,10 @@ def format_subset(mask: int) -> str:
 
 def format_family(family: Family) -> str:
     return "[" + ", ".join(format_subset(mask) for mask in family) + "]"
+
+
+def format_family_collection(families: Sequence[Family]) -> str:
+    return "[" + ", ".join(format_family(family) for family in families) + "]"
 
 
 def is_antichain(family: Iterable[int]) -> bool:
@@ -3472,6 +3489,111 @@ def shifted_two_layer_generator_witness_summary(
     )
 
 
+def shifted_two_layer_generator_pattern_summary(
+    n: int,
+) -> ShiftedLocalFluxGeneratorPatternSummaryResult:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_count = comb(n, lower_rank)
+    upper_count = comb(n, upper_rank)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_shifted_families = enumerate_shifted_uniform_families(n, lower_rank, subsets)
+    upper_shifted_families = enumerate_shifted_uniform_families(n, upper_rank, subsets)
+    lower_by_size: Dict[int, List[Family]] = {}
+    upper_by_size: Dict[int, List[Family]] = {}
+    for family in lower_shifted_families:
+        lower_by_size.setdefault(len(family), []).append(family)
+    for family in upper_shifted_families:
+        upper_by_size.setdefault(len(family), []).append(family)
+
+    boundary_cache: Dict[Tuple[Family, Family], Family] = {}
+
+    def boundary_family(c_family: Family, u_family: Family) -> Family:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = tuple(sorted(positive_boundary(family, subsets)))
+        boundary_cache[key] = value
+        return value
+
+    generator_families_by_size: Dict[int, Set[Family]] = {}
+    max_min_generator_count = 0
+
+    for e in range(lower_count + 1):
+        c_size = lower_count - e
+        for c_family in lower_by_size.get(c_size, []):
+            c_set = set(c_family)
+            candidate_shifted_subfamilies = [
+                shifted_family
+                for shifted_family in lower_shifted_families
+                if len(shifted_family) <= len(c_family)
+                and all(member in c_set for member in shifted_family)
+            ]
+            for u_family in upper_by_size.get(e, []):
+                boundary = boundary_family(c_family, u_family)
+                adjacency = local_flux_adjacency(c_family, boundary, 1)
+                c_index = {member: index for index, member in enumerate(c_family)}
+                codim1_matching = maximum_matching_size(adjacency, len(boundary))
+                codim1_deficiency = len(c_family) - codim1_matching
+
+                min_generator_count: int | None = None
+                witness_generator_families: Set[Family] = set()
+                for shifted_subfamily in candidate_shifted_subfamilies:
+                    neighborhood: Set[int] = set()
+                    for left in shifted_subfamily:
+                        neighborhood.update(adjacency[c_index[left]])
+                    deficiency = len(shifted_subfamily) - len(neighborhood)
+                    if deficiency != codim1_deficiency:
+                        continue
+                    generators = shifted_family_generators(shifted_subfamily)
+                    generator_count = len(generators)
+                    if min_generator_count is None or generator_count < min_generator_count:
+                        min_generator_count = generator_count
+                        witness_generator_families = {generators}
+                    elif generator_count == min_generator_count:
+                        witness_generator_families.add(generators)
+                if min_generator_count is None:
+                    continue
+                max_min_generator_count = max(max_min_generator_count, min_generator_count)
+                generator_families_by_size.setdefault(min_generator_count, set()).update(
+                    witness_generator_families
+                )
+
+    distinct_generator_family_count_by_size = tuple(
+        sorted(
+            (generator_count, len(generator_families))
+            for generator_count, generator_families in generator_families_by_size.items()
+        )
+    )
+    all_generator_families = sorted(
+        generator_family
+        for generator_families in generator_families_by_size.values()
+        for generator_family in generator_families
+    )
+    max_generator_families = sorted(
+        generator_families_by_size.get(max_min_generator_count, set())
+    )
+    return ShiftedLocalFluxGeneratorPatternSummaryResult(
+        n=n,
+        lower_shifted_family_count=len(lower_shifted_families),
+        upper_shifted_family_count=len(upper_shifted_families),
+        max_min_generator_count=max_min_generator_count,
+        distinct_generator_family_count=len(all_generator_families),
+        distinct_max_generator_family_count=len(max_generator_families),
+        distinct_generator_family_count_by_size=distinct_generator_family_count_by_size,
+        sample_generator_families=tuple(all_generator_families[:8]),
+        sample_max_generator_families=tuple(max_generator_families[:8]),
+    )
+
+
 def exhaustive_two_layer_equal_split_summary(
     n: int,
     max_codim: int,
@@ -4829,6 +4951,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--shifted-two-layer-generator-pattern-summary",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only summary recording how many distinct minimal-generator shifted "
+            "Hall-witness patterns occur."
+        ),
+    )
+    parser.add_argument(
         "--local-flux-max-codim",
         type=int,
         default=2,
@@ -6061,6 +6192,40 @@ def main() -> int:
             )
             print(f"  witness generators={format_family(result.witness_generators)}")
         ok("OK overall: all requested shifted generator-witness summaries completed.")
+        return 0
+
+    if args.shifted_two_layer_generator_pattern_summary is not None:
+        for n in args.shifted_two_layer_generator_pattern_summary:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                return 1
+            result = shifted_two_layer_generator_pattern_summary(n)
+            ok(
+                "OK shifted generator-pattern summary at "
+                f"n={n}: collected {result.distinct_generator_family_count} distinct "
+                "minimal-generator witness patterns."
+            )
+            print(
+                f"  lower_shifted_families={result.lower_shifted_family_count} "
+                f"upper_shifted_families={result.upper_shifted_family_count}"
+            )
+            print(
+                f"  max_min_generator_count={result.max_min_generator_count} "
+                f"distinct_max_generator_families={result.distinct_max_generator_family_count}"
+            )
+            print(
+                "  distinct_generator_family_count_by_size="
+                f"{result.distinct_generator_family_count_by_size}"
+            )
+            print(
+                "  sample_generator_families="
+                f"{format_family_collection(result.sample_generator_families)}"
+            )
+            print(
+                "  sample_max_generator_families="
+                f"{format_family_collection(result.sample_max_generator_families)}"
+            )
+        ok("OK overall: all requested shifted generator-pattern summaries completed.")
         return 0
 
     dimensions = tuple(args.dimensions)

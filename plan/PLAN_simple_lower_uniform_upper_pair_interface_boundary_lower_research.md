@@ -186,6 +186,10 @@ The current computational evidence still points in the right direction:
 - the current exact search tooling appears saturated again on that branch:
   the analogous shifted generator-witness summary for `n = 9` does not return on a short/medium
   run with the current enumerator;
+- the next pattern-level refinement is now sharply split:
+  exact shifted `n = 7` already has `143` distinct minimal-generator witness patterns overall, so
+  there is no tiny global pattern catalogue;
+  but the maximally complex frontier is rigid, with only `2` four-generator patterns;
 - the corrected coupled section inequality
   \[
   |\partial^+(A\cup D)| + |\partial^+(B\cup E)| \ge |A| + |B|

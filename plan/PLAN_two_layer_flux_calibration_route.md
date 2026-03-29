@@ -165,6 +165,11 @@ There is now a positive finite-complexity refinement. Exact shifted diagnostics 
   `4` maximal generators.
 - the analogous exact shifted summary for `n = 9` does not return on a short/medium run with the
   current enumerator, so this small-generator branch is computationally saturated at `n = 7`.
+- but the witness-pattern route is now sharply split:
+  exact shifted `n = 7` has `143` distinct minimal-generator witness patterns overall, so there is
+  no tiny global catalogue of all minimal witnesses;
+  however, the maximally complex frontier is rigid, with only `2` distinct four-generator
+  patterns.
 
 So the shifted witness theorem still appears compatible with a small-generator structural route,
 even though the simplest one-generator shapes are already too rigid in `n = 7`.
@@ -254,6 +259,11 @@ So the next proof target on this branch is no longer â€œsome local flux graph,â€
 - test whether the shifted witness theorem admits a small-generator version:
   the current exact shifted bounds are `1` maximal generator in `n = 5` and `4` maximal
   generators in `n = 7`;
+- do not expect a tiny finite list of all minimal-generator witnesses:
+  exact shifted `n = 7` already has `143` distinct patterns;
+- but the maximally complex witness frontier may still admit a finite classification:
+  exact shifted `n = 7` has only `2` four-generator patterns, so an extremal-pattern theorem is
+  still plausible;
 - understand \(\delta_1(F)\) itself as a genuinely global obstruction, not just a zero-degree
   count;
 - and not just the best one-coordinate contain/avoid cut deficiency;

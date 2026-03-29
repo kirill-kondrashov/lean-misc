@@ -305,6 +305,10 @@ Latest computational sharpening:
 - that generator-witness branch is now computationally saturated again:
   the analogous exact shifted summary for `n = 9` does not return on a short/medium run with the
   current enumerator;
+- the next pattern-level refinement is now sharply split:
+  exact shifted `n = 7` already has `143` distinct minimal-generator witness patterns overall, so
+  there is no tiny global witness catalogue, but only `2` four-generator patterns at the
+  maximally complex frontier;
 - all searched structured uniform-upper classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|,

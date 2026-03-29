@@ -148,6 +148,10 @@ close:
 - That generator-witness branch is now computationally saturated again:
   the analogous exact shifted summary for `n = 9` does not return on a short/medium run with the
   current enumerator.
+- The generator-pattern branch is now sharper:
+  exact shifted `n = 7` already has `143` distinct minimal-generator witness patterns, so the
+  whole witness family does not collapse to a tiny finite list;
+  but the maximally complex frontier is rigid, with only `2` four-generator patterns.
 - The coordinate-section decomposition remains exact, but both standalone reductions suggested by
   it are now archived: the unrestricted even adjacent-layer theorem and the corrected coupled
   section theorem are both false.
