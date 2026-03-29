@@ -155,11 +155,21 @@ More importantly, the shifted `n = 7` extremal picture is already rigid:
 
 - every global first-gap orbit lies at template distance `2` from one of the two equality
   templates.
+- more sharply, the entire shifted distance-`2` shell has now been checked exactly:
+  it consists of `5` orbit types, every one has boundary gap `3`, and these are exactly the
+  `5` global first-gap orbit types.
+
+This shell picture is not dimension-free evidence: in shifted `n = 5`, the distance-`2` shell has
+only `5` orbit types while the global first-gap set has `7` orbit types, so the exact
+distance-`2` characterization is false there.
 
 So the first nontrivial shifted stability theorem now has a sharper candidate shape:
 
 \[
-\text{the minimal strict-gap configurations should be exactly the codimension-}2
+\text{from at least the first genuinely nontrivial shifted dimension onward, the minimal}
+\]
+\[
+\text{strict-gap configurations should be exactly the codimension-}2
 \text{ perturbations of the equality templates.}
 \]
 
@@ -247,8 +257,10 @@ After that, the program can be iterated:
    templates, and plausibly a distance-sensitive lower bound stronger than bare additive `+2`
    near the principal-star template.
 4. Promote the new orbit evidence into a theorem-shaped conjecture:
-   in the shifted `n = 7` model, the global first-gap families are precisely the
-   distance-`2` perturbations of the two equality templates.
+   in the shifted `n = 7` model, the global first-gap families are precisely the full
+   distance-`2` shell around the two equality templates.
+   The `n = 5` computation shows this should be treated as a higher-dimensional phenomenon, not as
+   a statement expected in every odd dimension.
 5. Identify what the transported subcube families would have to look like in order to realize the
    two equality templates, and try to rule that out directly.
 6. Only then move back into Lean:

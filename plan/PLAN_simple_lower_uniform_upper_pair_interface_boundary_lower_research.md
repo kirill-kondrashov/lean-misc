@@ -359,6 +359,11 @@ The global first-gap orbit set is now classified exactly in the shifted world:
 - shifted `n = 5`: the global strict gap `2` is attained by `7` orbit types;
 - shifted `n = 7`: the global strict gap `3` is attained by `5` orbit types;
 - in shifted `n = 7`, every global first-gap orbit already lies at template distance `2`.
+- the new shell test is sharper still:
+  the full shifted distance-`2` shell has exactly `5` orbit types in `n = 7`, all with gap `3`,
+  so in shifted `n = 7` the global first-gap set is exactly the distance-`2` shell;
+  but this is false in shifted `n = 5`, where the distance-`2` shell has only `5` orbit types
+  while the global first-gap set has `7`.
 
 So the stronger-than-middle-binomial program is no longer just a vague stability question. The
 current evidence supports a sharper first theorem target:

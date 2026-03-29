@@ -260,6 +260,11 @@ Latest computational sharpening:
   the global strict gap is attained by `7` shifted orbit types in `n = 5` and `5` shifted orbit
   types in `n = 7`, and in shifted `n = 7` every one of those global first-gap orbits already
   lies at template distance `2`;
+- the near-template picture is now sharper still:
+  the full shifted distance-`2` shell has exactly `5` orbit types in `n = 7`, all with gap `3`,
+  so in shifted `n = 7` the global first-gap set is exactly the distance-`2` shell;
+  this exact shell characterization is false in shifted `n = 5`, so it currently looks like a
+  genuinely higher-dimensional phenomenon rather than a universal odd-dimensional rule;
 - pushing the same brute-force shifted-enumeration idea to `n = 9` no longer looks productive:
   the shifted-family count itself does not return on a short/medium run, so the search side is
   effectively saturated at `n = 7`;
