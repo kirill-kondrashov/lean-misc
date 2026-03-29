@@ -354,6 +354,12 @@ The shifted distance profile is now sharper too:
   `2`;
 - at that distance, the first boundary gap is `2` in `n = 5` and `3` in `n = 7`.
 
+The global first-gap orbit set is now classified exactly in the shifted world:
+
+- shifted `n = 5`: the global strict gap `2` is attained by `7` orbit types;
+- shifted `n = 7`: the global strict gap `3` is attained by `5` orbit types;
+- in shifted `n = 7`, every global first-gap orbit already lies at template distance `2`.
+
 So the stronger-than-middle-binomial program is no longer just a vague stability question. The
 current evidence supports a sharper first theorem target:
 \[

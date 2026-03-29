@@ -144,6 +144,28 @@ This makes the next theorem target more geometric than the earlier additive-gap 
 \quad\text{should be controlled from below by a genuine distance-from-template functional.}
 \]
 
+## Current Global First-Gap Orbit Profile
+
+The first strict-gap orbit set is now exact in the shifted world.
+
+- shifted `n = 5`: the global strict gap `2` is attained by exactly `7` orbit types;
+- shifted `n = 7`: the global strict gap `3` is attained by exactly `5` orbit types.
+
+More importantly, the shifted `n = 7` extremal picture is already rigid:
+
+- every global first-gap orbit lies at template distance `2` from one of the two equality
+  templates.
+
+So the first nontrivial shifted stability theorem now has a sharper candidate shape:
+
+\[
+\text{the minimal strict-gap configurations should be exactly the codimension-}2
+\text{ perturbations of the equality templates.}
+\]
+
+That is still only evidence, but it is much sharper than a bare “positive gap off equality”
+statement.
+
 ## Main Gap Program
 
 ### Step 1. Prove Shifted Equality Classification
@@ -224,9 +246,12 @@ After that, the program can be iterated:
    the shifted odd two-layer problem should satisfy an additive `+2` gap off the equality
    templates, and plausibly a distance-sensitive lower bound stronger than bare additive `+2`
    near the principal-star template.
-4. Identify what the transported subcube families would have to look like in order to realize the
+4. Promote the new orbit evidence into a theorem-shaped conjecture:
+   in the shifted `n = 7` model, the global first-gap families are precisely the
+   distance-`2` perturbations of the two equality templates.
+5. Identify what the transported subcube families would have to look like in order to realize the
    two equality templates, and try to rule that out directly.
-5. Only then move back into Lean:
+6. Only then move back into Lean:
    first with a stronger shifted theorem, then with an exclusion theorem for the transported
    family class, then with the upgraded endpoint.
 

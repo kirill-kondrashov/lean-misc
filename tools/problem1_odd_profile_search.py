@@ -358,6 +358,19 @@ class ShiftedTwoLayerGapDistanceProfileResult:
 
 
 @dataclass(frozen=True)
+class ShiftedTwoLayerGlobalGapOrbitResult:
+    n: int
+    global_strict_gap: int
+    orbit_count: int
+    e: int
+    distance_to_full_lower: int
+    distance_to_principal_star: int
+    distance_to_equality_templates: int
+    c_family: Family
+    u_family: Family
+
+
+@dataclass(frozen=True)
 class ExhaustiveShiftedEvenAdjacentLayerSummaryResult:
     n: int
     r: int
@@ -2949,6 +2962,131 @@ def shifted_two_layer_gap_distance_profile(
                 witness_distance_to_equality_templates=witness_distance_to_equality_templates,
                 witness_c_family=witness_c_family,
                 witness_u_family=witness_u_family,
+            )
+        )
+    return results
+
+
+def shifted_two_layer_global_gap_orbits(
+    n: int,
+) -> List[ShiftedTwoLayerGlobalGapOrbitResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_shifted_families = enumerate_shifted_uniform_families(n, lower_rank, subsets)
+    upper_shifted_families = enumerate_shifted_uniform_families(n, upper_rank, subsets)
+    lower_by_size: Dict[int, List[Family]] = {}
+    upper_by_size: Dict[int, List[Family]] = {}
+    for family in lower_shifted_families:
+        lower_by_size.setdefault(len(family), []).append(family)
+    for family in upper_shifted_families:
+        upper_by_size.setdefault(len(family), []).append(family)
+
+    boundary_cache: Dict[Tuple[Family, Family], int] = {}
+
+    def two_layer_boundary_size(c_family: Family, u_family: Family) -> int:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    perms = tuple(permutations(range(n)))
+
+    def canonical_orbit_rep(c_family: Family, u_family: Family) -> Tuple[Family, Family]:
+        candidates = [
+            (permute_family(c_family, perm), permute_family(u_family, perm))
+            for perm in perms
+        ]
+        return min(candidates)
+
+    full_lower_template = tuple(lower_rank_sets)
+    principal_star_c_family = tuple(subset for subset in lower_rank_sets if subset & 1)
+    principal_star_u_family = tuple(subset for subset in upper_rank_sets if subset & 1)
+
+    def pair_distance(
+        c_family: Family,
+        u_family: Family,
+        template_c_family: Family,
+        template_u_family: Family,
+    ) -> int:
+        return (
+            len(set(c_family).symmetric_difference(template_c_family))
+            + len(set(u_family).symmetric_difference(template_u_family))
+        )
+
+    global_strict_gap: int | None = None
+    witness_pairs: List[Tuple[int, Family, Family]] = []
+    for e in range(lower_count + 1):
+        c_size = lower_count - e
+        for c_family in lower_by_size.get(c_size, []):
+            for u_family in upper_by_size.get(e, []):
+                margin = two_layer_boundary_size(c_family, u_family) - c_size
+                if margin <= 0:
+                    continue
+                if global_strict_gap is None or margin < global_strict_gap:
+                    global_strict_gap = margin
+                    witness_pairs = [(e, c_family, u_family)]
+                elif margin == global_strict_gap:
+                    witness_pairs.append((e, c_family, u_family))
+
+    if global_strict_gap is None:
+        return []
+
+    orbit_data: Dict[Tuple[Family, Family], Tuple[int, int, int, int]] = {}
+    for e, c_family, u_family in witness_pairs:
+        rep = canonical_orbit_rep(c_family, u_family)
+        if rep in orbit_data:
+            continue
+        distance_to_full_lower = pair_distance(c_family, u_family, full_lower_template, ())
+        distance_to_principal_star = pair_distance(
+            c_family,
+            u_family,
+            principal_star_c_family,
+            principal_star_u_family,
+        )
+        orbit_data[rep] = (
+            e,
+            distance_to_full_lower,
+            distance_to_principal_star,
+            min(distance_to_full_lower, distance_to_principal_star),
+        )
+
+    orbit_count = len(orbit_data)
+    results: List[ShiftedTwoLayerGlobalGapOrbitResult] = []
+    for (c_family, u_family), (
+        e,
+        distance_to_full_lower,
+        distance_to_principal_star,
+        distance_to_equality_templates,
+    ) in sorted(
+        orbit_data.items(),
+        key=lambda item: (item[1][0], item[1][3], item[0]),
+    ):
+        results.append(
+            ShiftedTwoLayerGlobalGapOrbitResult(
+                n=n,
+                global_strict_gap=global_strict_gap,
+                orbit_count=orbit_count,
+                e=e,
+                distance_to_full_lower=distance_to_full_lower,
+                distance_to_principal_star=distance_to_principal_star,
+                distance_to_equality_templates=distance_to_equality_templates,
+                c_family=c_family,
+                u_family=u_family,
             )
         )
     return results
@@ -6043,6 +6181,16 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--shifted-two-layer-global-gap-orbits",
+        type=int,
+        nargs="+",
+        help=(
+            "List the orbit types attaining the global first positive boundary gap in the shifted "
+            "odd two-layer problem on the given dimensions, together with their distances to the "
+            "two equality templates."
+        ),
+    )
+    parser.add_argument(
         "--exhaustive-shifted-even-adjacent-layer-summary",
         type=int,
         nargs="+",
@@ -7055,6 +7203,31 @@ def main() -> int:
                 print(
                     f"    witness C={format_family(result.witness_c_family)} "
                     f"U={format_family(result.witness_u_family)}"
+                )
+        return 0
+
+    if args.shifted_two_layer_global_gap_orbits is not None:
+        for n in args.shifted_two_layer_global_gap_orbits:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                return 1
+            results = shifted_two_layer_global_gap_orbits(n)
+            if not results:
+                ok(f"OK shifted global-gap orbit summary at n={n}: no positive-gap witnesses.")
+                continue
+            ok(
+                "OK shifted global-gap orbit summary at "
+                f"n={n}: global_strict_gap={results[0].global_strict_gap} orbit_count={results[0].orbit_count}"
+            )
+            for result in results:
+                print(
+                    f"  e={result.e} dist_templates={result.distance_to_equality_templates} "
+                    f"dist_full_lower={result.distance_to_full_lower} "
+                    f"dist_principal_star={result.distance_to_principal_star}"
+                )
+                print(
+                    f"    C={format_family(result.c_family)} "
+                    f"U={format_family(result.u_family)}"
                 )
         return 0
 

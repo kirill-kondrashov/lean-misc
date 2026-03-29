@@ -256,6 +256,10 @@ Latest computational sharpening:
   in both shifted `n = 5` and shifted `n = 7`, the nearest non-equality pairs lie at distance `2`
   from the equality templates, while the first positive boundary gaps are `2` and `3`
   respectively;
+- the stronger-gap branch now has its first orbit-level near-equality classification:
+  the global strict gap is attained by `7` shifted orbit types in `n = 5` and `5` shifted orbit
+  types in `n = 7`, and in shifted `n = 7` every one of those global first-gap orbits already
+  lies at template distance `2`;
 - pushing the same brute-force shifted-enumeration idea to `n = 9` no longer looks productive:
   the shifted-family count itself does not return on a short/medium run, so the search side is
   effectively saturated at `n = 7`;
