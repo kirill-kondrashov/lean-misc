@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
-from itertools import combinations
+from itertools import combinations, permutations
 from math import comb
 from typing import Dict, Iterable, List, Sequence, Set, Tuple
 
@@ -71,6 +71,181 @@ class StructuredUpperTailPrismGapResult:
     outside_support_ranks: Tuple[int, ...]
     best_destroyed_outside_rank4: int
     min_prism_boundary: int
+
+
+@dataclass(frozen=True)
+class StructuredFirstGapDefectResult:
+    name: str
+    n: int
+    e: int
+    target: int
+    upper_profile: Tuple[int, ...]
+    weighted_upper_tail_gain: int
+    exact_upper_downset_search: bool
+    best_upper_downset_size: int
+    upper_boundary_size: int
+    best_destroyed_outside_rank4: int
+    min_prism_boundary: int
+
+
+@dataclass(frozen=True)
+class StructuredUniformUpperMiddleLayerResult:
+    name: str
+    n: int
+    e: int
+    upper_shadow_size: int
+    max_t_v_outside: int
+    reduced_margin: int
+    best_v: Family
+    best_t_v_outside: Family
+
+
+@dataclass(frozen=True)
+class ColexUniformUpperMiddleLayerResult:
+    n: int
+    e: int
+    upper_shadow_size: int
+    t_v_size: int
+    t_v_outside_size: int
+    reduced_margin: int
+
+
+@dataclass(frozen=True)
+class ColexUniformUpperMiddleLayerSummary:
+    n: int
+    all_reduced_margins_nonnegative: bool
+    all_t_v_outside_zero: bool
+    worst_reduced_margin: int
+    worst_reduced_margin_e: int
+    max_t_v_outside_size: int
+    max_t_v_outside_e: int
+    sample_count: int
+
+
+@dataclass(frozen=True)
+class ExhaustiveColexDefectReductionFailure:
+    n: int
+    e: int
+    colex_delta: int
+    witness_delta: int
+    colex_u_family: Family
+    colex_v_family: Family
+    witness_u_family: Family
+    witness_v_family: Family
+
+
+@dataclass(frozen=True)
+class ExhaustiveTwoLayerBoundaryResult:
+    n: int
+    e: int
+    boundary_size: int
+    c_size: int
+    margin: int
+    witness_u_family: Family
+    witness_v_family: Family
+
+
+@dataclass(frozen=True)
+class ExhaustiveTwoLayerHallShadowResult:
+    n: int
+    e: int
+    upper_shadow_size: int
+    damaged_u_size: int
+    margin: int
+    witness_u_family: Family
+    witness_v_family: Family
+
+
+@dataclass(frozen=True)
+class ExhaustiveTwoLayerShiftedRouteResult:
+    n: int
+    e: int
+    minimal_boundary_size: int
+    lex_shifted_boundary_size: int
+    lex_shifted_gap: int
+    has_shifted_minimizer: bool
+    shifted_witness_c_family: Family | None
+    shifted_witness_u_family: Family | None
+
+
+@dataclass(frozen=True)
+class ExhaustiveTwoLayerMinimizerOrbitResult:
+    n: int
+    e: int
+    minimal_boundary_size: int
+    minimizer_count: int
+    orbit_count: int
+    all_minimizers_in_lex_orbit: bool
+
+
+@dataclass(frozen=True)
+class ExhaustiveTwoLayerCompressionCounterexample:
+    n: int
+    e: int
+    i: int
+    j: int
+    boundary_before: int
+    boundary_after: int
+    c_family: Family
+    u_family: Family
+    compressed_c_family: Family
+    compressed_u_family: Family
+
+
+@dataclass(frozen=True)
+class ExhaustiveShiftedTwoLayerExtremizerResult:
+    n: int
+    e: int
+    minimal_boundary_size: int
+    minimal_margin: int
+    shifted_minimizer_count: int
+    shifted_minimizer_orbit_count: int
+    equality_count: int
+    equality_orbit_count: int
+    witness_c_family: Family
+    witness_u_family: Family
+
+
+@dataclass(frozen=True)
+class ShiftedUniformFamilyCountResult:
+    n: int
+    rank: int
+    family_count: int
+
+
+@dataclass(frozen=True)
+class ExhaustiveShiftedTwoLayerSummaryResult:
+    n: int
+    lower_shifted_family_count: int
+    upper_shifted_family_count: int
+    all_margins_nonnegative: bool
+    worst_margin: int
+    worst_margin_e: int
+    equality_count: int
+
+
+@dataclass(frozen=True)
+class ShiftedTwoLayerEqualityOrbitResult:
+    n: int
+    e: int
+    c_family: Family
+    u_family: Family
+
+
+@dataclass(frozen=True)
+class MiddleLayerCompressionCounterexample:
+    n: int
+    i: int
+    j: int
+    u_family: Family
+    v_family: Family
+    t_v_outside: Family
+    compressed_u_family: Family
+    compressed_v_family: Family
+    compressed_t_v_outside: Family
+    compressed_image_of_t_v_outside: Family
+    delta_before: int
+    delta_after: int
 
 
 def all_subsets(n: int) -> Tuple[int, ...]:
@@ -219,8 +394,134 @@ def total_size(family: Family) -> int:
     return sum(subset_cardinality(subset) for subset in family)
 
 
+def initial_segment_mask(size: int) -> int:
+    return (1 << size) - 1
+
+
+def representative_pair_generators(
+    n: int, left_rank: int, right_rank: int, intersection: int
+) -> Tuple[int, int]:
+    min_intersection = max(0, left_rank + right_rank - n)
+    if intersection < min_intersection or intersection > min(left_rank, right_rank):
+        raise ValueError("invalid intersection size for representative pair")
+    left = initial_segment_mask(left_rank)
+    right = initial_segment_mask(intersection)
+    next_index = left_rank
+    for offset in range(right_rank - intersection):
+        right |= 1 << (next_index + offset)
+    return (left, right)
+
+
 def slice_cardinality(family: Iterable[int], rank: int) -> int:
     return sum(1 for subset in family if subset_cardinality(subset) == rank)
+
+
+def rank_subsets(n: int, rank: int, subsets: Sequence[int]) -> Tuple[int, ...]:
+    del n
+    return tuple(sorted(subset for subset in subsets if subset_cardinality(subset) == rank))
+
+
+def colex_key(mask: int) -> Tuple[int, ...]:
+    elements = [index for index in range(mask.bit_length()) if mask & (1 << index)]
+    return tuple(reversed(elements))
+
+
+def lex_key(mask: int) -> Tuple[int, ...]:
+    return tuple(index for index in range(mask.bit_length()) if mask & (1 << index))
+
+
+def colex_initial_segment(n: int, rank: int, size: int, subsets: Sequence[int]) -> Family:
+    rank_family = rank_subsets(n, rank, subsets)
+    ordered = sorted(rank_family, key=colex_key)
+    return tuple(ordered[:size])
+
+
+def lex_initial_segment(n: int, rank: int, size: int, subsets: Sequence[int]) -> Family:
+    rank_family = rank_subsets(n, rank, subsets)
+    ordered = sorted(rank_family, key=lex_key)
+    return tuple(ordered[:size])
+
+
+def subset_tuple(mask: int) -> Tuple[int, ...]:
+    return tuple(index for index in range(mask.bit_length()) if mask & (1 << index))
+
+
+def shifted_leq(left: int, right: int) -> bool:
+    left_tuple = subset_tuple(left)
+    right_tuple = subset_tuple(right)
+    if len(left_tuple) != len(right_tuple):
+        return False
+    return all(left_item <= right_item for left_item, right_item in zip(left_tuple, right_tuple))
+
+
+def enumerate_shifted_uniform_families(n: int, rank: int, subsets: Sequence[int]) -> List[Family]:
+    rank_family = rank_subsets(n, rank, subsets)
+    order = sorted(rank_family, key=subset_tuple, reverse=True)
+    comparable: Dict[int, Set[int]] = {mask: set() for mask in rank_family}
+    for left in rank_family:
+        for right in rank_family:
+            if shifted_leq(left, right) or shifted_leq(right, left):
+                comparable[left].add(right)
+
+    antichains: List[Tuple[int, ...]] = []
+    chosen: List[int] = []
+
+    def go(index: int, forbidden: Set[int]) -> None:
+        if index == len(order):
+            antichains.append(tuple(chosen))
+            return
+        current = order[index]
+        go(index + 1, forbidden)
+        if current not in forbidden:
+            chosen.append(current)
+            go(index + 1, forbidden | comparable[current])
+            chosen.pop()
+
+    go(0, set())
+    families: List[Family] = []
+    for antichain in antichains:
+        family = tuple(
+            sorted(
+                subset
+                for subset in rank_family
+                if any(shifted_leq(subset, maximal) for maximal in antichain)
+            )
+        )
+        families.append(family)
+    return families
+
+
+def compress_mask(mask: int, i: int, j: int) -> int:
+    if i == j:
+        return mask
+    i_bit = 1 << i
+    j_bit = 1 << j
+    if mask & j_bit and not (mask & i_bit):
+        return (mask ^ j_bit) | i_bit
+    return mask
+
+
+def compress_uniform_family(family: Sequence[int], i: int, j: int) -> Family:
+    family_set = set(family)
+    compressed = set(family_set)
+    for member in family:
+        image = compress_mask(member, i, j)
+        if image != member and image not in family_set:
+            compressed.remove(member)
+            compressed.add(image)
+    return tuple(sorted(compressed))
+
+
+def apply_permutation(mask: int, perm: Sequence[int]) -> int:
+    image = 0
+    for index, target in enumerate(perm):
+        if mask & (1 << index):
+            image |= 1 << target
+    return image
+
+
+def permute_family(family: Sequence[int], perm: Sequence[int]) -> Family:
+    return tuple(sorted(apply_permutation(member, perm) for member in family))
 
 
 def even_lower_half_total_size_in_prism_dimension(n: int) -> int:
@@ -349,6 +650,943 @@ def outside_high_boundary_count_from_upper_downset(
     return count
 
 
+def upper_shadow_of_uniform_middle_family(
+    upper_family: Sequence[int], subsets: Sequence[int]
+) -> Tuple[int, ...]:
+    if not upper_family:
+        return ()
+    upper_family_set = set(upper_family)
+    ambient_rank = subset_cardinality(upper_family[0])
+    target_rank = ambient_rank + 1
+    shadow = [
+        subset
+        for subset in subsets
+        if subset_cardinality(subset) == target_rank
+        and any((member & subset) == member for member in upper_family_set)
+    ]
+    return tuple(sorted(shadow))
+
+
+def t_of_v_rank4_family(v_family: Sequence[int], subsets: Sequence[int]) -> Tuple[int, ...]:
+    v_set = set(v_family)
+    targets = []
+    for subset in subsets:
+        if subset_cardinality(subset) != 4:
+            continue
+        candidates = subset
+        all_triples_present = True
+        while candidates:
+            bit = candidates & -candidates
+            triple = subset ^ bit
+            if triple not in v_set:
+                all_triples_present = False
+                break
+            candidates ^= bit
+        if all_triples_present:
+            targets.append(subset)
+    return tuple(sorted(targets))
+
+
+def t_of_v_family(v_family: Sequence[int], subsets: Sequence[int]) -> Family:
+    if not v_family:
+        return ()
+    source_rank = subset_cardinality(v_family[0])
+    target_rank = source_rank + 1
+    v_set = set(v_family)
+    targets: List[int] = []
+    for subset in subsets:
+        if subset_cardinality(subset) != target_rank:
+            continue
+        candidates = subset
+        all_predecessors_present = True
+        while candidates:
+            bit = candidates & -candidates
+            predecessor = subset ^ bit
+            if predecessor not in v_set:
+                all_predecessors_present = False
+                break
+            candidates ^= bit
+        if all_predecessors_present:
+            targets.append(subset)
+    return tuple(sorted(targets))
+
+
+def middle_layer_badness(u_family: Sequence[int], v_family: Sequence[int], subsets: Sequence[int]) -> int:
+    t_v = t_of_v_family(v_family, subsets)
+    t_v_outside = tuple(subset for subset in t_v if subset not in set(u_family))
+    upper_shadow = upper_shadow_of_uniform_middle_family(u_family, subsets)
+    return len(t_v_outside) - len(upper_shadow)
+
+
+def exhaustive_colex_defect_reduction_failure(
+    n: int,
+) -> ExhaustiveColexDefectReductionFailure | None:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    upper_shadow_sizes: Dict[int, int] = {}
+    t_v_masks: Dict[int, int] = {}
+
+    for u_mask in range(1 << upper_count):
+        u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        upper_shadow_sizes[u_mask] = len(upper_shadow_of_uniform_middle_family(u_family, subsets))
+
+    upper_index = {subset: index for index, subset in enumerate(upper_rank_sets)}
+    for v_mask in range(1 << lower_count):
+        v_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if v_mask & (1 << index)
+        )
+        t_v_family = t_of_v_family(v_family, subsets)
+        t_mask = 0
+        for subset in t_v_family:
+            t_mask |= 1 << upper_index[subset]
+        t_v_masks[v_mask] = t_mask
+
+    colex_u_masks: Dict[int, int] = {}
+    colex_v_masks: Dict[int, int] = {}
+    for e in range(lower_count + 1):
+        colex_u_family = colex_initial_segment(n, upper_rank, e, subsets)
+        colex_v_family = colex_initial_segment(n, lower_rank, e, subsets)
+        u_mask = 0
+        for subset in colex_u_family:
+            u_mask |= 1 << upper_index[subset]
+        v_mask = 0
+        lower_index = {subset: index for index, subset in enumerate(lower_rank_sets)}
+        for subset in colex_v_family:
+            v_mask |= 1 << lower_index[subset]
+        colex_u_masks[e] = u_mask
+        colex_v_masks[e] = v_mask
+
+    for e in range(lower_count + 1):
+        colex_u_mask = colex_u_masks[e]
+        colex_v_mask = colex_v_masks[e]
+        colex_t_outside = (t_v_masks[colex_v_mask] & ~colex_u_mask).bit_count()
+        colex_delta = colex_t_outside - upper_shadow_sizes[colex_u_mask]
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            upper_shadow_size = upper_shadow_sizes[u_mask]
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                witness_delta = (t_v_masks[v_mask] & ~u_mask).bit_count() - upper_shadow_size
+                if witness_delta > colex_delta:
+                    colex_u_family = tuple(
+                        upper_rank_sets[index]
+                        for index in range(upper_count)
+                        if colex_u_mask & (1 << index)
+                    )
+                    colex_v_family = tuple(
+                        lower_rank_sets[index]
+                        for index in range(lower_count)
+                        if colex_v_mask & (1 << index)
+                    )
+                    witness_u_family = tuple(
+                        upper_rank_sets[index]
+                        for index in range(upper_count)
+                        if u_mask & (1 << index)
+                    )
+                    witness_v_family = tuple(
+                        lower_rank_sets[index]
+                        for index in range(lower_count)
+                        if v_mask & (1 << index)
+                    )
+                    return ExhaustiveColexDefectReductionFailure(
+                        n=n,
+                        e=e,
+                        colex_delta=colex_delta,
+                        witness_delta=witness_delta,
+                        colex_u_family=colex_u_family,
+                        colex_v_family=colex_v_family,
+                        witness_u_family=witness_u_family,
+                        witness_v_family=witness_v_family,
+                    )
+    return None
+
+
+def exhaustive_two_layer_middle_boundary_minima(
+    n: int,
+) -> List[ExhaustiveTwoLayerBoundaryResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    boundary_cache: Dict[int, int] = {}
+
+    def two_layer_boundary_size(u_mask: int, v_mask: int) -> int:
+        key = (u_mask << lower_count) | v_mask
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        v_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if v_mask & (1 << index)
+        )
+        c_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if not (v_mask & (1 << index))
+        )
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    results: List[ExhaustiveTwoLayerBoundaryResult] = []
+    for e in range(lower_count + 1):
+        best_boundary: int | None = None
+        best_pair: Tuple[int, int] | None = None
+        c_size = lower_count - e
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                boundary_size = two_layer_boundary_size(u_mask, v_mask)
+                if best_boundary is None or boundary_size < best_boundary:
+                    best_boundary = boundary_size
+                    best_pair = (u_mask, v_mask)
+        if best_boundary is None or best_pair is None:
+            continue
+        u_mask, v_mask = best_pair
+        witness_u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        witness_v_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if v_mask & (1 << index)
+        )
+        results.append(
+            ExhaustiveTwoLayerBoundaryResult(
+                n=n,
+                e=e,
+                boundary_size=best_boundary,
+                c_size=c_size,
+                margin=best_boundary - c_size,
+                witness_u_family=witness_u_family,
+                witness_v_family=witness_v_family,
+            )
+        )
+    return results
+
+
+def exhaustive_two_layer_hall_shadow_minima(
+    n: int,
+) -> List[ExhaustiveTwoLayerHallShadowResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    upper_shadow_sizes: Dict[int, int] = {}
+    t_v_masks: Dict[int, int] = {}
+    upper_index = {subset: index for index, subset in enumerate(upper_rank_sets)}
+
+    for u_mask in range(1 << upper_count):
+        u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        upper_shadow_sizes[u_mask] = len(upper_shadow_of_uniform_middle_family(u_family, subsets))
+
+    for v_mask in range(1 << lower_count):
+        v_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if v_mask & (1 << index)
+        )
+        t_v_family = t_of_v_family(v_family, subsets)
+        t_mask = 0
+        for subset in t_v_family:
+            t_mask |= 1 << upper_index[subset]
+        t_v_masks[v_mask] = t_mask
+
+    results: List[ExhaustiveTwoLayerHallShadowResult] = []
+    for e in range(lower_count + 1):
+        best_margin: int | None = None
+        best_pair: Tuple[int, int] | None = None
+        best_shadow = 0
+        best_damaged = 0
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            upper_shadow_size = upper_shadow_sizes[u_mask]
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                damaged_u_size = (u_mask & ~t_v_masks[v_mask]).bit_count()
+                margin = upper_shadow_size - damaged_u_size
+                if best_margin is None or margin < best_margin:
+                    best_margin = margin
+                    best_pair = (u_mask, v_mask)
+                    best_shadow = upper_shadow_size
+                    best_damaged = damaged_u_size
+        if best_margin is None or best_pair is None:
+            continue
+        u_mask, v_mask = best_pair
+        witness_u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        witness_v_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if v_mask & (1 << index)
+        )
+        results.append(
+            ExhaustiveTwoLayerHallShadowResult(
+                n=n,
+                e=e,
+                upper_shadow_size=best_shadow,
+                damaged_u_size=best_damaged,
+                margin=best_margin,
+                witness_u_family=witness_u_family,
+                witness_v_family=witness_v_family,
+            )
+        )
+    return results
+
+
+def is_shifted_uniform_family(family: Sequence[int], n: int) -> bool:
+    family_tuple = tuple(sorted(family))
+    for i in range(n):
+        for j in range(i + 1, n):
+            if compress_uniform_family(family_tuple, i, j) != family_tuple:
+                return False
+    return True
+
+
+def exhaustive_two_layer_shifted_route_diagnostics(
+    n: int,
+) -> List[ExhaustiveTwoLayerShiftedRouteResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    boundary_cache: Dict[int, int] = {}
+
+    def two_layer_boundary_size(u_mask: int, v_mask: int) -> int:
+        key = (u_mask << lower_count) | v_mask
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        v_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if v_mask & (1 << index)
+        )
+        c_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if not (v_mask & (1 << index))
+        )
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    lower_index = {subset: index for index, subset in enumerate(lower_rank_sets)}
+    upper_index = {subset: index for index, subset in enumerate(upper_rank_sets)}
+    results: List[ExhaustiveTwoLayerShiftedRouteResult] = []
+
+    for e in range(lower_count + 1):
+        best_boundary: int | None = None
+        has_shifted_minimizer = False
+        shifted_witness_c_family: Family | None = None
+        shifted_witness_u_family: Family | None = None
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            u_family = tuple(
+                upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+            )
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                boundary_size = two_layer_boundary_size(u_mask, v_mask)
+                if best_boundary is None or boundary_size < best_boundary:
+                    best_boundary = boundary_size
+                    has_shifted_minimizer = False
+                    shifted_witness_c_family = None
+                    shifted_witness_u_family = None
+                if boundary_size != best_boundary:
+                    continue
+                c_family = tuple(
+                    lower_rank_sets[index]
+                    for index in range(lower_count)
+                    if not (v_mask & (1 << index))
+                )
+                if is_shifted_uniform_family(c_family, n) and is_shifted_uniform_family(u_family, n):
+                    has_shifted_minimizer = True
+                    shifted_witness_c_family = c_family
+                    shifted_witness_u_family = u_family
+        lex_u_family = lex_initial_segment(n, upper_rank, e, subsets)
+        lex_c_family = lex_initial_segment(n, lower_rank, lower_count - e, subsets)
+        lex_u_mask = 0
+        for subset in lex_u_family:
+            lex_u_mask |= 1 << upper_index[subset]
+        lex_c_mask = 0
+        for subset in lex_c_family:
+            lex_c_mask |= 1 << lower_index[subset]
+        lex_v_mask = ((1 << lower_count) - 1) ^ lex_c_mask
+        lex_shifted_boundary = two_layer_boundary_size(lex_u_mask, lex_v_mask)
+        if best_boundary is None:
+            continue
+        results.append(
+            ExhaustiveTwoLayerShiftedRouteResult(
+                n=n,
+                e=e,
+                minimal_boundary_size=best_boundary,
+                lex_shifted_boundary_size=lex_shifted_boundary,
+                lex_shifted_gap=lex_shifted_boundary - best_boundary,
+                has_shifted_minimizer=has_shifted_minimizer,
+                shifted_witness_c_family=shifted_witness_c_family,
+                shifted_witness_u_family=shifted_witness_u_family,
+            )
+        )
+    return results
+
+
+def exhaustive_two_layer_minimizer_orbit_diagnostics(
+    n: int,
+) -> List[ExhaustiveTwoLayerMinimizerOrbitResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    boundary_cache: Dict[int, int] = {}
+
+    def two_layer_boundary_size(u_mask: int, v_mask: int) -> int:
+        key = (u_mask << lower_count) | v_mask
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        v_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if v_mask & (1 << index)
+        )
+        c_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if not (v_mask & (1 << index))
+        )
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    lower_index = {subset: index for index, subset in enumerate(lower_rank_sets)}
+    upper_index = {subset: index for index, subset in enumerate(upper_rank_sets)}
+    perms = tuple(permutations(range(n)))
+
+    def canonical_orbit_rep(c_family: Family, u_family: Family) -> Tuple[Family, Family]:
+        candidates = [
+            (permute_family(c_family, perm), permute_family(u_family, perm))
+            for perm in perms
+        ]
+        return min(candidates)
+
+    results: List[ExhaustiveTwoLayerMinimizerOrbitResult] = []
+    for e in range(lower_count + 1):
+        best_boundary: int | None = None
+        minimizers: List[Tuple[Family, Family]] = []
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            u_family = tuple(
+                upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+            )
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                boundary_size = two_layer_boundary_size(u_mask, v_mask)
+                if best_boundary is None or boundary_size < best_boundary:
+                    best_boundary = boundary_size
+                    minimizers = []
+                if boundary_size != best_boundary:
+                    continue
+                c_family = tuple(
+                    lower_rank_sets[index]
+                    for index in range(lower_count)
+                    if not (v_mask & (1 << index))
+                )
+                minimizers.append((c_family, u_family))
+        if best_boundary is None:
+            continue
+        lex_u_family = lex_initial_segment(n, upper_rank, e, subsets)
+        lex_c_family = lex_initial_segment(n, lower_rank, lower_count - e, subsets)
+        lex_rep = canonical_orbit_rep(lex_c_family, lex_u_family)
+        minimizer_reps = {canonical_orbit_rep(c_family, u_family) for c_family, u_family in minimizers}
+        results.append(
+            ExhaustiveTwoLayerMinimizerOrbitResult(
+                n=n,
+                e=e,
+                minimal_boundary_size=best_boundary,
+                minimizer_count=len(minimizers),
+                orbit_count=len(minimizer_reps),
+                all_minimizers_in_lex_orbit=(minimizer_reps == {lex_rep}),
+            )
+        )
+    return results
+
+
+def exhaustive_two_layer_boundary_compression_counterexample(
+    n: int,
+) -> ExhaustiveTwoLayerCompressionCounterexample | None:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_index = {subset: index for index, subset in enumerate(lower_rank_sets)}
+    upper_index = {subset: index for index, subset in enumerate(upper_rank_sets)}
+    boundary_cache: Dict[int, int] = {}
+
+    def family_from_mask(rank_sets: Sequence[int], mask: int) -> Family:
+        return tuple(
+            rank_sets[index] for index in range(len(rank_sets)) if mask & (1 << index)
+        )
+
+    def mask_from_family(index_map: Dict[int, int], family: Sequence[int]) -> int:
+        mask = 0
+        for subset in family:
+            mask |= 1 << index_map[subset]
+        return mask
+
+    def two_layer_boundary_size(c_mask: int, u_mask: int) -> int:
+        key = (u_mask << lower_count) | c_mask
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        c_family = family_from_mask(lower_rank_sets, c_mask)
+        u_family = family_from_mask(upper_rank_sets, u_mask)
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    for c_mask in range(1 << lower_count):
+        c_size = c_mask.bit_count()
+        e = lower_count - c_size
+        c_family = family_from_mask(lower_rank_sets, c_mask)
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            u_family = family_from_mask(upper_rank_sets, u_mask)
+            boundary_before = two_layer_boundary_size(c_mask, u_mask)
+            for i in range(n):
+                for j in range(i + 1, n):
+                    compressed_c_family = compress_uniform_family(c_family, i, j)
+                    compressed_u_family = compress_uniform_family(u_family, i, j)
+                    compressed_c_mask = mask_from_family(lower_index, compressed_c_family)
+                    compressed_u_mask = mask_from_family(upper_index, compressed_u_family)
+                    boundary_after = two_layer_boundary_size(compressed_c_mask, compressed_u_mask)
+                    if boundary_after > boundary_before:
+                        return ExhaustiveTwoLayerCompressionCounterexample(
+                            n=n,
+                            e=e,
+                            i=i,
+                            j=j,
+                            boundary_before=boundary_before,
+                            boundary_after=boundary_after,
+                            c_family=c_family,
+                            u_family=u_family,
+                            compressed_c_family=compressed_c_family,
+                            compressed_u_family=compressed_u_family,
+                        )
+    return None
+
+
+def exhaustive_shifted_two_layer_extremizers(
+    n: int,
+) -> List[ExhaustiveShiftedTwoLayerExtremizerResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    boundary_cache: Dict[int, int] = {}
+    perms = tuple(permutations(range(n)))
+
+    def two_layer_boundary_size(c_family: Family, u_family: Family) -> int:
+        c_mask = 0
+        for index, subset in enumerate(lower_rank_sets):
+            if subset in set(c_family):
+                c_mask |= 1 << index
+        u_mask = 0
+        for index, subset in enumerate(upper_rank_sets):
+            if subset in set(u_family):
+                u_mask |= 1 << index
+        key = (u_mask << lower_count) | c_mask
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    def canonical_orbit_rep(c_family: Family, u_family: Family) -> Tuple[Family, Family]:
+        candidates = [
+            (permute_family(c_family, perm), permute_family(u_family, perm))
+            for perm in perms
+        ]
+        return min(candidates)
+
+    results: List[ExhaustiveShiftedTwoLayerExtremizerResult] = []
+    for e in range(lower_count + 1):
+        shifted_pairs: List[Tuple[Family, Family, int]] = []
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            u_family = tuple(
+                upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+            )
+            if not is_shifted_uniform_family(u_family, n):
+                continue
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                c_family = tuple(
+                    lower_rank_sets[index]
+                    for index in range(lower_count)
+                    if not (v_mask & (1 << index))
+                )
+                if not is_shifted_uniform_family(c_family, n):
+                    continue
+                shifted_pairs.append((c_family, u_family, two_layer_boundary_size(c_family, u_family)))
+        if not shifted_pairs:
+            continue
+        best_boundary = min(boundary_size for _, _, boundary_size in shifted_pairs)
+        c_size = lower_count - e
+        minimizer_pairs = [
+            (c_family, u_family) for c_family, u_family, boundary_size in shifted_pairs
+            if boundary_size == best_boundary
+        ]
+        equality_pairs = [
+            (c_family, u_family) for c_family, u_family, boundary_size in shifted_pairs
+            if boundary_size == c_size
+        ]
+        minimizer_reps = {canonical_orbit_rep(c_family, u_family) for c_family, u_family in minimizer_pairs}
+        equality_reps = {canonical_orbit_rep(c_family, u_family) for c_family, u_family in equality_pairs}
+        witness_c_family, witness_u_family = minimizer_pairs[0]
+        if equality_pairs:
+            witness_c_family, witness_u_family = equality_pairs[0]
+        results.append(
+            ExhaustiveShiftedTwoLayerExtremizerResult(
+                n=n,
+                e=e,
+                minimal_boundary_size=best_boundary,
+                minimal_margin=best_boundary - c_size,
+                shifted_minimizer_count=len(minimizer_pairs),
+                shifted_minimizer_orbit_count=len(minimizer_reps),
+                equality_count=len(equality_pairs),
+                equality_orbit_count=len(equality_reps),
+                witness_c_family=witness_c_family,
+                witness_u_family=witness_u_family,
+            )
+        )
+    return results
+
+
+def exhaustive_shifted_two_layer_summary(
+    n: int,
+) -> ExhaustiveShiftedTwoLayerSummaryResult:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_shifted_families = enumerate_shifted_uniform_families(n, lower_rank, subsets)
+    upper_shifted_families = enumerate_shifted_uniform_families(n, upper_rank, subsets)
+    lower_by_size: Dict[int, List[Family]] = {}
+    upper_by_size: Dict[int, List[Family]] = {}
+    for family in lower_shifted_families:
+        lower_by_size.setdefault(len(family), []).append(family)
+    for family in upper_shifted_families:
+        upper_by_size.setdefault(len(family), []).append(family)
+
+    boundary_cache: Dict[Tuple[Family, Family], int] = {}
+
+    def two_layer_boundary_size(c_family: Family, u_family: Family) -> int:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    worst_margin: int | None = None
+    worst_margin_e = 0
+    equality_count = 0
+    for e in range(lower_count + 1):
+        c_size = lower_count - e
+        for c_family in lower_by_size.get(c_size, []):
+            for u_family in upper_by_size.get(e, []):
+                margin = two_layer_boundary_size(c_family, u_family) - c_size
+                if worst_margin is None or margin < worst_margin:
+                    worst_margin = margin
+                    worst_margin_e = e
+                if margin == 0:
+                    equality_count += 1
+
+    return ExhaustiveShiftedTwoLayerSummaryResult(
+        n=n,
+        lower_shifted_family_count=len(lower_shifted_families),
+        upper_shifted_family_count=len(upper_shifted_families),
+        all_margins_nonnegative=(worst_margin is not None and worst_margin >= 0),
+        worst_margin=0 if worst_margin is None else worst_margin,
+        worst_margin_e=worst_margin_e,
+        equality_count=equality_count,
+    )
+
+
+def shifted_two_layer_equality_orbits(
+    n: int,
+) -> List[ShiftedTwoLayerEqualityOrbitResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_shifted_families = enumerate_shifted_uniform_families(n, lower_rank, subsets)
+    upper_shifted_families = enumerate_shifted_uniform_families(n, upper_rank, subsets)
+    lower_by_size: Dict[int, List[Family]] = {}
+    upper_by_size: Dict[int, List[Family]] = {}
+    for family in lower_shifted_families:
+        lower_by_size.setdefault(len(family), []).append(family)
+    for family in upper_shifted_families:
+        upper_by_size.setdefault(len(family), []).append(family)
+
+    boundary_cache: Dict[Tuple[Family, Family], int] = {}
+
+    def two_layer_boundary_size(c_family: Family, u_family: Family) -> int:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    perms = tuple(permutations(range(n)))
+
+    def canonical_orbit_rep(c_family: Family, u_family: Family) -> Tuple[Family, Family]:
+        candidates = [
+            (permute_family(c_family, perm), permute_family(u_family, perm))
+            for perm in perms
+        ]
+        return min(candidates)
+
+    orbit_reps: Dict[Tuple[Family, Family], int] = {}
+    for e in range(lower_count + 1):
+        c_size = lower_count - e
+        for c_family in lower_by_size.get(c_size, []):
+            for u_family in upper_by_size.get(e, []):
+                if two_layer_boundary_size(c_family, u_family) != c_size:
+                    continue
+                orbit_reps.setdefault(canonical_orbit_rep(c_family, u_family), e)
+    return [
+        ShiftedTwoLayerEqualityOrbitResult(n=n, e=e, c_family=c_family, u_family=u_family)
+        for (c_family, u_family), e in sorted(orbit_reps.items(), key=lambda item: (item[1], item[0]))
+    ]
+
+
+def canonical_middle_layer_compression_inclusion_counterexample_n7() -> MiddleLayerCompressionCounterexample:
+    n = 7
+    subsets = all_subsets(n)
+    all_rank4_sets = rank_subsets(n, 4, subsets)
+    i, j = 0, 2
+    b = sum(1 << index for index in (2, 3, 4, 5))
+    v_family = tuple(sorted(b ^ (1 << index) for index in (2, 3, 4, 5)))
+    b_compressed = compress_mask(b, i, j)
+    filler = tuple(subset for subset in all_rank4_sets if subset not in {b, b_compressed})
+    u_family = tuple(sorted((b_compressed,) + filler[:3]))
+    t_v_outside = tuple(subset for subset in t_of_v_family(v_family, subsets) if subset not in set(u_family))
+    compressed_u_family = compress_uniform_family(u_family, i, j)
+    compressed_v_family = compress_uniform_family(v_family, i, j)
+    compressed_t_v_outside = tuple(
+        subset
+        for subset in t_of_v_family(compressed_v_family, subsets)
+        if subset not in set(compressed_u_family)
+    )
+    compressed_image_of_t_v_outside = compress_uniform_family(t_v_outside, i, j)
+    return MiddleLayerCompressionCounterexample(
+        n=n,
+        i=i,
+        j=j,
+        u_family=u_family,
+        v_family=v_family,
+        t_v_outside=t_v_outside,
+        compressed_u_family=compressed_u_family,
+        compressed_v_family=compressed_v_family,
+        compressed_t_v_outside=compressed_t_v_outside,
+        compressed_image_of_t_v_outside=compressed_image_of_t_v_outside,
+        delta_before=middle_layer_badness(u_family, v_family, subsets),
+        delta_after=middle_layer_badness(compressed_u_family, compressed_v_family, subsets),
+    )
+
+
+def search_canonical_middle_layer_delta_failure_n7() -> MiddleLayerCompressionCounterexample | None:
+    n = 7
+    subsets = all_subsets(n)
+    all_rank4_sets = rank_subsets(n, 4, subsets)
+    i, j = 0, 2
+    b = sum(1 << index for index in (2, 3, 4, 5))
+    v_family = tuple(sorted(b ^ (1 << index) for index in (2, 3, 4, 5)))
+    for u_family in combinations(all_rank4_sets, len(v_family)):
+        compressed_u_family = compress_uniform_family(u_family, i, j)
+        compressed_v_family = compress_uniform_family(v_family, i, j)
+        delta_before = middle_layer_badness(u_family, v_family, subsets)
+        delta_after = middle_layer_badness(compressed_u_family, compressed_v_family, subsets)
+        if delta_before > delta_after:
+            t_v_outside = tuple(
+                subset for subset in t_of_v_family(v_family, subsets) if subset not in set(u_family)
+            )
+            compressed_t_v_outside = tuple(
+                subset
+                for subset in t_of_v_family(compressed_v_family, subsets)
+                if subset not in set(compressed_u_family)
+            )
+            compressed_image_of_t_v_outside = compress_uniform_family(t_v_outside, i, j)
+            return MiddleLayerCompressionCounterexample(
+                n=n,
+                i=i,
+                j=j,
+                u_family=tuple(sorted(u_family)),
+                v_family=v_family,
+                t_v_outside=t_v_outside,
+                compressed_u_family=compressed_u_family,
+                compressed_v_family=compressed_v_family,
+                compressed_t_v_outside=compressed_t_v_outside,
+                compressed_image_of_t_v_outside=compressed_image_of_t_v_outside,
+                delta_before=delta_before,
+                delta_after=delta_after,
+            )
+    return None
+
+
+def max_destroyed_rank4_targets_by_available_rank3_sets_with_witness(
+    target_rank4_sets: Sequence[int], available_rank3_sets: Sequence[int], budget: int
+) -> Tuple[int, Tuple[int, ...]]:
+    triple_index = {subset: index for index, subset in enumerate(available_rank3_sets)}
+    target_masks: List[int] = []
+    for rank4_set in target_rank4_sets:
+        triple_mask = 0
+        valid_target = True
+        candidates = rank4_set
+        while candidates:
+            bit = candidates & -candidates
+            triple = rank4_set ^ bit
+            triple_position = triple_index.get(triple)
+            if triple_position is None:
+                valid_target = False
+                break
+            triple_mask |= 1 << triple_position
+            candidates ^= bit
+        if valid_target:
+            target_masks.append(triple_mask)
+    dp: Dict[int, int] = {0: 0}
+    for target_mask in target_masks:
+        updates: Dict[int, int] = {}
+        for union_mask, destroyed in dp.items():
+            new_union_mask = union_mask | target_mask
+            if new_union_mask.bit_count() > budget:
+                continue
+            candidate_destroyed = destroyed + 1
+            current = max(dp.get(new_union_mask, -1), updates.get(new_union_mask, -1))
+            if candidate_destroyed > current:
+                updates[new_union_mask] = candidate_destroyed
+        for union_mask, destroyed in updates.items():
+            current = dp.get(union_mask)
+            if current is None or current < destroyed:
+                dp[union_mask] = destroyed
+    best_union_mask, best_destroyed = max(
+        dp.items(), key=lambda item: (item[1], -item[0].bit_count(), item[0])
+    )
+    witness = tuple(
+        available_rank3_sets[index]
+        for index in range(len(available_rank3_sets))
+        if best_union_mask & (1 << index)
+    )
+    return (best_destroyed, witness)
+
+
 def exact_min_prism_boundary_in_rank3_removal_model(
     family_n: Family, subsets: Sequence[int]
 ) -> Tuple[int, int, int]:
@@ -390,6 +1628,42 @@ def exact_min_prism_boundary_in_rank3_removal_model(
     if best_boundary is None:
         return (0, 0, 0)
     return (best_boundary, best_upper_downset_size, best_destroyed)
+
+
+def simple_lower_generator_classes_n7_exact() -> List[Tuple[str, Tuple[int, ...]]]:
+    n = 7
+    subsets = all_subsets(n)
+    lower_half = set(lower_half_family(n, subsets))
+    classes: List[Tuple[str, Tuple[int, ...]]] = []
+    seen_families: Set[Family] = set()
+
+    for rank in range(4, 8):
+        generators = (initial_segment_mask(rank),)
+        family_n = downset_from_generators_above_lower_half(n, subsets, generators)
+        upper_part = tuple(sorted(set(family_n) - lower_half))
+        if len(upper_part) > 12 or family_n in seen_families:
+            continue
+        classes.append((f"single-{rank}", generators))
+        seen_families.add(family_n)
+
+    for left_rank in range(4, 8):
+        for right_rank in range(left_rank, 8):
+            min_intersection = max(0, left_rank + right_rank - n)
+            for intersection in range(min_intersection, min(left_rank, right_rank) + 1):
+                if left_rank == right_rank and intersection == left_rank:
+                    continue
+                generators = representative_pair_generators(
+                    n, left_rank, right_rank, intersection
+                )
+                family_n = downset_from_generators_above_lower_half(n, subsets, generators)
+                upper_part = tuple(sorted(set(family_n) - lower_half))
+                if len(upper_part) > 12 or family_n in seen_families:
+                    continue
+                name = f"pair-{left_rank}-{right_rank}-int{intersection}"
+                classes.append((name, generators))
+                seen_families.add(family_n)
+
+    return classes
 
 
 def structured_upper_tail_prism_gap_results_n7_simple_lower() -> List[StructuredUpperTailPrismGapResult]:
@@ -455,6 +1729,141 @@ def structured_upper_tail_prism_gap_results_n7_simple_lower() -> List[Structured
             )
         )
     return results
+
+
+def structured_first_gap_defect_results_n7_simple_lower() -> List[StructuredFirstGapDefectResult]:
+    n = 7
+    m = n // 2
+    subsets = all_subsets(n)
+    lower_half = set(lower_half_family(n, subsets))
+    target = 2 * comb(n, m)
+    results: List[StructuredFirstGapDefectResult] = []
+    for name, generators in simple_lower_generator_classes_n7_exact():
+        family_n = downset_from_generators_above_lower_half(n, subsets, generators)
+        upper_part = tuple(sorted(set(family_n) - lower_half))
+        upper_boundary = positive_boundary(family_n, subsets)
+        min_interface_boundary, best_upper_downset_size, best_destroyed = (
+            exact_min_prism_boundary_in_rank3_removal_model(family_n, subsets)
+        )
+        upper_profile = tuple(
+            slice_cardinality(upper_part, rank) for rank in range(m + 1, n + 1)
+        )
+        weighted_upper_tail_gain = sum(
+            (rank - (m + 1)) * slice_cardinality(upper_part, rank)
+            for rank in range(m + 2, n + 1)
+        )
+        results.append(
+            StructuredFirstGapDefectResult(
+                name=name,
+                n=n,
+                e=len(upper_part),
+                target=target,
+                upper_profile=upper_profile,
+                weighted_upper_tail_gain=weighted_upper_tail_gain,
+                exact_upper_downset_search=True,
+                best_upper_downset_size=best_upper_downset_size,
+                upper_boundary_size=len(upper_boundary),
+                best_destroyed_outside_rank4=best_destroyed,
+                min_prism_boundary=len(upper_boundary) + min_interface_boundary,
+            )
+        )
+    return sorted(
+        results,
+        key=lambda result: (
+            result.weighted_upper_tail_gain,
+            result.min_prism_boundary,
+            result.e,
+            result.name,
+        ),
+    )
+
+
+def structured_uniform_upper_middle_layer_results_n7() -> List[StructuredUniformUpperMiddleLayerResult]:
+    n = 7
+    subsets = all_subsets(n)
+    lower_half = set(lower_half_family(n, subsets))
+    all_rank3_sets = rank_subsets(n, 3, subsets)
+    all_rank4_sets = rank_subsets(n, 4, subsets)
+    results: List[StructuredUniformUpperMiddleLayerResult] = []
+    for name, generators in simple_lower_generator_classes_n7_exact():
+        family_n = downset_from_generators_above_lower_half(n, subsets, generators)
+        upper_part = tuple(sorted(set(family_n) - lower_half))
+        if any(subset_cardinality(subset) != 4 for subset in upper_part):
+            continue
+        upper_shadow = upper_shadow_of_uniform_middle_family(upper_part, subsets)
+        outside_rank4_targets = [
+            subset for subset in all_rank4_sets if subset not in set(upper_part)
+        ]
+        max_t_v_outside, best_v = max_destroyed_rank4_targets_by_available_rank3_sets_with_witness(
+            outside_rank4_targets, all_rank3_sets, len(upper_part)
+        )
+        best_t_v_outside = tuple(
+            subset
+            for subset in outside_rank4_targets
+            if all((subset ^ bit) in set(best_v) for bit in (1 << i for i in range(subset.bit_length()) if subset & (1 << i)))
+        )
+        results.append(
+            StructuredUniformUpperMiddleLayerResult(
+                name=name,
+                n=n,
+                e=len(upper_part),
+                upper_shadow_size=len(upper_shadow),
+                max_t_v_outside=max_t_v_outside,
+                reduced_margin=len(upper_shadow) - max_t_v_outside,
+                best_v=tuple(sorted(best_v)),
+                best_t_v_outside=tuple(sorted(best_t_v_outside)),
+            )
+        )
+    return sorted(results, key=lambda result: (result.reduced_margin, result.e, result.name))
+
+
+def colex_uniform_upper_middle_layer_results(n: int) -> List[ColexUniformUpperMiddleLayerResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    all_rank_lower_sets = rank_subsets(n, lower_rank, subsets)
+    all_rank_upper_sets = rank_subsets(n, upper_rank, subsets)
+    results: List[ColexUniformUpperMiddleLayerResult] = []
+    for e in range(1, len(all_rank_upper_sets) + 1):
+        u_family = colex_initial_segment(n, upper_rank, e, subsets)
+        v_family = colex_initial_segment(n, lower_rank, e, subsets)
+        upper_shadow = upper_shadow_of_uniform_middle_family(u_family, subsets)
+        t_v = t_of_v_family(v_family, subsets)
+        t_v_outside = tuple(subset for subset in t_v if subset not in set(u_family))
+        results.append(
+            ColexUniformUpperMiddleLayerResult(
+                n=n,
+                e=e,
+                upper_shadow_size=len(upper_shadow),
+                t_v_size=len(t_v),
+                t_v_outside_size=len(t_v_outside),
+                reduced_margin=len(upper_shadow) - len(t_v_outside),
+            )
+        )
+    return results
+
+
+def summarize_colex_uniform_upper_middle_layer(n: int) -> ColexUniformUpperMiddleLayerSummary:
+    results = colex_uniform_upper_middle_layer_results(n)
+    worst_reduced_margin_result = min(
+        results, key=lambda result: (result.reduced_margin, result.e)
+    )
+    worst_t_v_outside_result = max(
+        results, key=lambda result: (result.t_v_outside_size, -result.e)
+    )
+    return ColexUniformUpperMiddleLayerSummary(
+        n=n,
+        all_reduced_margins_nonnegative=all(result.reduced_margin >= 0 for result in results),
+        all_t_v_outside_zero=all(result.t_v_outside_size == 0 for result in results),
+        worst_reduced_margin=worst_reduced_margin_result.reduced_margin,
+        worst_reduced_margin_e=worst_reduced_margin_result.e,
+        max_t_v_outside_size=worst_t_v_outside_result.t_v_outside_size,
+        max_t_v_outside_e=worst_t_v_outside_result.e,
+        sample_count=len(results),
+    )
 
 
 def search_pair_interface_counterexample(
@@ -736,6 +2145,138 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--structured-first-gap-defect-n7-simple-lower",
+        action="store_true",
+        help=(
+            "Run the exact structured n=7 first-gap defect search in the simple-lower model "
+            "over single/pair generator orbit classes with upper part size at most 12."
+        ),
+    )
+    parser.add_argument(
+        "--structured-uniform-upper-middle-layer-n7",
+        action="store_true",
+        help=(
+            "Run the exact structured n=7 search for the reduced middle-layer inequality "
+            "|∂^up U| >= |T(V) \\ U| on uniform-upper simple-lower classes."
+        ),
+    )
+    parser.add_argument(
+        "--colex-uniform-upper-middle-layer-n7",
+        action="store_true",
+        help=(
+            "Tabulate the reduced middle-layer quantity |∂^up U| - |T(V) \\ U| "
+            "for colex-initial rank-4/rank-3 segments in n=7."
+        ),
+    )
+    parser.add_argument(
+        "--colex-uniform-upper-middle-layer-odd-dimensions",
+        type=int,
+        nargs="+",
+        help=(
+            "Summarize the colex compressed middle-layer inequality on the given odd dimensions. "
+            "For each odd n, report whether all colex equal-size middle-layer pairs satisfy "
+            "T(V*) \\ U* = ∅ and the reduced inequality."
+        ),
+    )
+    parser.add_argument(
+        "--middle-layer-compression-counterexample-n7",
+        action="store_true",
+        help=(
+            "Exhibit the canonical n=7 counterexample to the strong compression inclusion "
+            "C_ij(T(V) \\ U) ⊆ T(C_ij V) \\ C_ij U, and test the weaker Δ-monotonicity on the "
+            "same canonical V."
+        ),
+    )
+    parser.add_argument(
+        "--exhaustive-colex-defect-reduction-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 test of the weaker colex-reduction theorem for "
+            "Δ(U,V)=|T(V)\\\\U|-|∂^up U|. This checks whether every equal-size middle-layer pair "
+            "is dominated by the equal-size colex pair."
+        ),
+    )
+    parser.add_argument(
+        "--exhaustive-two-layer-middle-boundary-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 test of the direct two-layer boundary inequality "
+            "|∂^+((([n] choose m) \\\\ V) ∪ U)| >= |([n] choose m) \\\\ V| over all equal-size "
+            "middle-layer pairs."
+        ),
+    )
+    parser.add_argument(
+        "--exhaustive-two-layer-hall-shadow-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 test of the stronger Hall-shadow sufficient criterion "
+            "|∂^up U| >= |U \\\\ T(V)| over all equal-size middle-layer pairs."
+        ),
+    )
+    parser.add_argument(
+        "--exhaustive-two-layer-compression-route-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 diagnostics for the new compression-based direct route: "
+            "check whether the lex/shifted model attains the minimum two-layer boundary and whether "
+            "some boundary minimizer has shifted lower and upper slices."
+        ),
+    )
+    parser.add_argument(
+        "--exhaustive-two-layer-minimizer-orbits-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 orbit classification of all two-layer boundary minimizers: "
+            "check whether every minimizer lies in the lex/shifted orbit."
+        ),
+    )
+    parser.add_argument(
+        "--exhaustive-two-layer-compression-monotonicity-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 test of the actual two-layer compression lemma: "
+            "check whether every layer-preserving shift weakly decreases |∂^+ F| "
+            "for equal-size middle-layer pairs F = ((([n] choose m) \\\\ V) ∪ U)."
+        ),
+    )
+    parser.add_argument(
+        "--exhaustive-shifted-two-layer-extremizers-n5",
+        action="store_true",
+        help=(
+            "Classify the exact n=5 shifted two-layer extremizers: for each e, report the "
+            "minimal shifted boundary margin, the number of shifted minimizer orbits, "
+            "and the shifted equality-orbit count."
+        ),
+    )
+    parser.add_argument(
+        "--shifted-uniform-family-counts",
+        type=int,
+        nargs="+",
+        help=(
+            "Count shifted uniform families on the given odd dimensions. "
+            "For each odd n, report the number of shifted families in the middle ranks m and m+1."
+        ),
+    )
+    parser.add_argument(
+        "--exhaustive-shifted-two-layer-summary",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only two-layer boundary summary on the given odd dimensions. "
+            "For each odd n, enumerate all shifted middle-layer families, then report the "
+            "worst shifted margin and equality count for |∂^+ F| >= |F ∩ ([n] choose m)|."
+        ),
+    )
+    parser.add_argument(
+        "--shifted-two-layer-equality-orbits",
+        type=int,
+        nargs="+",
+        help=(
+            "List the equality orbits in the shifted two-layer problem on the given odd dimensions. "
+            "For each odd n, enumerate all shifted equality pairs up to permutation."
+        ),
+    )
+    parser.add_argument(
         "--dimensions",
         type=int,
         nargs="+",
@@ -782,6 +2323,437 @@ def main() -> int:
             warn("WARNING overall: structured n=7 upper-tail search found a candidate.")
             return 1
         ok("OK overall: no structured n=7 simple-lower upper-tail counterexample found.")
+        return 0
+
+    if args.structured_first_gap_defect_n7_simple_lower:
+        any_warning = False
+        results = structured_first_gap_defect_results_n7_simple_lower()
+        for result in results:
+            boundary_margin = result.min_prism_boundary - result.target
+            if result.min_prism_boundary <= result.target:
+                any_warning = True
+                warn(
+                    "WARNING structured n=7 first-gap defect candidate found in class "
+                    f"{result.name}: min_boundary={result.min_prism_boundary} <= target={result.target}"
+                )
+            else:
+                ok(
+                    "OK structured n=7 first-gap class "
+                    f"{result.name}: min_boundary={result.min_prism_boundary} > target={result.target}"
+                )
+            print(
+                f"  e={result.e} upper_profile={list(result.upper_profile)} "
+                f"weighted_gain={result.weighted_upper_tail_gain} "
+                f"boundary_margin={boundary_margin} "
+                f"best_upper_size={result.best_upper_downset_size} "
+                f"upper_boundary={result.upper_boundary_size} "
+                f"best_destroyed_outside_rank4={result.best_destroyed_outside_rank4}"
+            )
+        zero_gain_results = [
+            result for result in results if result.weighted_upper_tail_gain == 0
+        ]
+        if zero_gain_results:
+            tightest_zero_gain = min(
+                zero_gain_results, key=lambda result: result.min_prism_boundary
+            )
+            print(
+                "TIGHTEST zero-gain class: "
+                f"{tightest_zero_gain.name} with min_boundary={tightest_zero_gain.min_prism_boundary} "
+                f"(target={tightest_zero_gain.target}, margin={tightest_zero_gain.min_prism_boundary - tightest_zero_gain.target})"
+            )
+        tightest_overall = min(results, key=lambda result: result.min_prism_boundary)
+        print(
+            "TIGHTEST overall exact class: "
+            f"{tightest_overall.name} with upper_profile={list(tightest_overall.upper_profile)} "
+            f"weighted_gain={tightest_overall.weighted_upper_tail_gain} "
+            f"min_boundary={tightest_overall.min_prism_boundary} "
+            f"(target={tightest_overall.target}, margin={tightest_overall.min_prism_boundary - tightest_overall.target})"
+        )
+        if any_warning:
+            warn("WARNING overall: structured n=7 first-gap defect search found a candidate.")
+            return 1
+        ok(
+            "OK overall: no exact structured n=7 simple-lower first-gap defect candidate found."
+        )
+        return 0
+
+    if args.structured_uniform_upper_middle_layer_n7:
+        any_warning = False
+        results = structured_uniform_upper_middle_layer_results_n7()
+        for result in results:
+            if result.reduced_margin < 0:
+                any_warning = True
+                warn(
+                    "WARNING structured n=7 uniform-upper middle-layer failure found in class "
+                    f"{result.name}: shadow={result.upper_shadow_size} < Tout={result.max_t_v_outside}"
+                )
+            else:
+                ok(
+                    "OK structured n=7 uniform-upper class "
+                    f"{result.name}: shadow={result.upper_shadow_size} >= Tout={result.max_t_v_outside}"
+                )
+            print(
+                f"  e={result.e} reduced_margin={result.reduced_margin} "
+                f"best_v_size={len(result.best_v)} best_t_v_outside={len(result.best_t_v_outside)}"
+            )
+            if result.best_v:
+                print(f"  best V = {format_family(result.best_v)}")
+            if result.best_t_v_outside:
+                print(f"  best T(V)\\\\U = {format_family(result.best_t_v_outside)}")
+        if any_warning:
+            warn("WARNING overall: structured n=7 uniform-upper middle-layer search found a candidate.")
+            return 1
+        ok("OK overall: no structured n=7 uniform-upper middle-layer counterexample found.")
+        return 0
+
+    if args.colex_uniform_upper_middle_layer_n7:
+        any_warning = False
+        results = colex_uniform_upper_middle_layer_results(7)
+        for result in results:
+            if result.reduced_margin < 0:
+                any_warning = True
+                warn(
+                    "WARNING colex n=7 middle-layer failure at "
+                    f"e={result.e}: shadow={result.upper_shadow_size} < Tout={result.t_v_outside_size}"
+                )
+            else:
+                ok(
+                    "OK colex n=7 e="
+                    f"{result.e}: shadow={result.upper_shadow_size} >= Tout={result.t_v_outside_size}"
+                )
+            print(
+                f"  T(V)={result.t_v_size} T(V)\\\\U={result.t_v_outside_size} "
+                f"reduced_margin={result.reduced_margin}"
+            )
+        if any_warning:
+            warn("WARNING overall: a colex n=7 middle-layer candidate failed.")
+            return 1
+        ok("OK overall: all colex n=7 middle-layer samples satisfy the reduced inequality.")
+        return 0
+
+    if args.colex_uniform_upper_middle_layer_odd_dimensions is not None:
+        any_warning = False
+        for n in args.colex_uniform_upper_middle_layer_odd_dimensions:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                any_warning = True
+                continue
+            summary = summarize_colex_uniform_upper_middle_layer(n)
+            if not summary.all_reduced_margins_nonnegative:
+                any_warning = True
+                warn(
+                    "WARNING colex odd middle-layer failure at "
+                    f"n={n}: worst_reduced_margin={summary.worst_reduced_margin} "
+                    f"at e={summary.worst_reduced_margin_e}"
+                )
+            else:
+                ok(
+                    "OK colex odd middle-layer reduced inequality at "
+                    f"n={n}: worst_reduced_margin={summary.worst_reduced_margin} "
+                    f"at e={summary.worst_reduced_margin_e}"
+                )
+            if summary.all_t_v_outside_zero:
+                ok(
+                    "OK colex odd middle-layer containment at "
+                    f"n={n}: T(V*)\\\\U*=∅ for all e in 1..{summary.sample_count}"
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING colex odd middle-layer containment fails at "
+                    f"n={n}: max T(V*)\\\\U* size={summary.max_t_v_outside_size} "
+                    f"at e={summary.max_t_v_outside_e}"
+                )
+        if any_warning:
+            warn("WARNING overall: some requested odd-dimension colex summaries failed.")
+            return 1
+        ok("OK overall: all requested odd-dimension colex summaries survived.")
+        return 0
+
+    if args.middle_layer_compression_counterexample_n7:
+        result = canonical_middle_layer_compression_inclusion_counterexample_n7()
+        image_set = set(result.compressed_image_of_t_v_outside)
+        target_set = set(result.compressed_t_v_outside)
+        if image_set.issubset(target_set):
+            ok(
+                "OK canonical n=7 example: the strong compression inclusion unexpectedly survives."
+            )
+        else:
+            warn(
+                "WARNING canonical n=7 example falsifies the strong compression inclusion "
+                "C_ij(T(V) \\ U) ⊆ T(C_ij V) \\ C_ij U."
+            )
+        print(f"  n={result.n} compression=(i,j)=({result.i},{result.j})")
+        print(f"  V = {format_family(result.v_family)}")
+        print(f"  U = {format_family(result.u_family)}")
+        print(f"  T(V)\\\\U = {format_family(result.t_v_outside)}")
+        print(f"  C(U) = {format_family(result.compressed_u_family)}")
+        print(f"  C(V) = {format_family(result.compressed_v_family)}")
+        print(f"  C(T(V)\\\\U) = {format_family(result.compressed_image_of_t_v_outside)}")
+        print(f"  T(C(V))\\\\C(U) = {format_family(result.compressed_t_v_outside)}")
+        print(
+            f"  delta_before={result.delta_before} delta_after={result.delta_after}"
+        )
+
+        delta_failure = search_canonical_middle_layer_delta_failure_n7()
+        if delta_failure is None:
+            ok(
+                "OK canonical n=7 e=4 sweep: no Δ-monotonicity failure found for the fixed witness V."
+            )
+            return 0
+        warn(
+            "WARNING canonical n=7 e=4 sweep found a Δ-monotonicity failure for the fixed witness V."
+        )
+        print(f"  failing U = {format_family(delta_failure.u_family)}")
+        print(f"  delta_before={delta_failure.delta_before} delta_after={delta_failure.delta_after}")
+        return 1
+
+    if args.exhaustive_colex_defect_reduction_n5:
+        result = exhaustive_colex_defect_reduction_failure(5)
+        if result is None:
+            ok(
+                "OK exact n=5: the weaker colex defect-reduction theorem survives exhaustive search."
+            )
+            return 0
+        warn("WARNING exact n=5: the weaker colex defect-reduction theorem fails.")
+        print(
+            f"  e={result.e} colex_delta={result.colex_delta} witness_delta={result.witness_delta}"
+        )
+        print(f"  colex U* = {format_family(result.colex_u_family)}")
+        print(f"  colex V* = {format_family(result.colex_v_family)}")
+        print(f"  witness U = {format_family(result.witness_u_family)}")
+        print(f"  witness V = {format_family(result.witness_v_family)}")
+        return 1
+
+    if args.exhaustive_two_layer_middle_boundary_n5:
+        any_warning = False
+        results = exhaustive_two_layer_middle_boundary_minima(5)
+        for result in results:
+            if result.margin < 0:
+                any_warning = True
+                warn(
+                    "WARNING exact n=5 two-layer boundary failure at "
+                    f"e={result.e}: boundary={result.boundary_size} < |C|={result.c_size}"
+                )
+            else:
+                ok(
+                    "OK exact n=5 two-layer boundary at "
+                    f"e={result.e}: boundary={result.boundary_size} >= |C|={result.c_size}"
+                )
+            print(
+                f"  margin={result.margin} |C|={result.c_size} "
+                f"U={format_family(result.witness_u_family)} "
+                f"V={format_family(result.witness_v_family)}"
+            )
+        tightest = min(results, key=lambda result: (result.margin, result.e))
+        print(
+            "TIGHTEST exact n=5 class: "
+            f"e={tightest.e} boundary={tightest.boundary_size} |C|={tightest.c_size} "
+            f"margin={tightest.margin}"
+        )
+        if any_warning:
+            warn("WARNING overall: the exact n=5 two-layer boundary inequality fails.")
+            return 1
+        ok("OK overall: the exact n=5 two-layer boundary inequality survives exhaustive search.")
+        return 0
+
+    if args.exhaustive_two_layer_hall_shadow_n5:
+        any_warning = False
+        results = exhaustive_two_layer_hall_shadow_minima(5)
+        for result in results:
+            if result.margin < 0:
+                any_warning = True
+                warn(
+                    "WARNING exact n=5 Hall-shadow criterion failure at "
+                    f"e={result.e}: shadow={result.upper_shadow_size} < damaged={result.damaged_u_size}"
+                )
+            else:
+                ok(
+                    "OK exact n=5 Hall-shadow criterion at "
+                    f"e={result.e}: shadow={result.upper_shadow_size} >= damaged={result.damaged_u_size}"
+                )
+            print(
+                f"  margin={result.margin} shadow={result.upper_shadow_size} "
+                f"damaged={result.damaged_u_size} "
+                f"U={format_family(result.witness_u_family)} "
+                f"V={format_family(result.witness_v_family)}"
+            )
+        tightest = min(results, key=lambda result: (result.margin, result.e))
+        print(
+            "TIGHTEST exact n=5 Hall-shadow class: "
+            f"e={tightest.e} shadow={tightest.upper_shadow_size} damaged={tightest.damaged_u_size} "
+            f"margin={tightest.margin}"
+        )
+        if any_warning:
+            warn("WARNING overall: the exact n=5 Hall-shadow criterion fails.")
+            return 1
+        ok("OK overall: the exact n=5 Hall-shadow criterion survives exhaustive search.")
+        return 0
+
+    if args.exhaustive_two_layer_compression_route_n5:
+        any_warning = False
+        results = exhaustive_two_layer_shifted_route_diagnostics(5)
+        for result in results:
+            if result.lex_shifted_gap == 0:
+                ok(
+                    "OK exact n=5 shifted route at "
+                    f"e={result.e}: lex/shifted boundary matches the minimum {result.minimal_boundary_size}"
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING exact n=5 shifted route at "
+                    f"e={result.e}: lex/shifted boundary={result.lex_shifted_boundary_size} "
+                    f"> minimum={result.minimal_boundary_size}"
+                )
+            print(
+                f"lex_shifted_gap={result.lex_shifted_gap} "
+                f"has_shifted_minimizer={result.has_shifted_minimizer}"
+            )
+            if result.has_shifted_minimizer and result.shifted_witness_u_family is not None:
+                print(
+                    f"  shifted minimizer C={format_family(result.shifted_witness_c_family or ())} "
+                    f"U={format_family(result.shifted_witness_u_family)}"
+                )
+        if any_warning:
+            warn(
+                "WARNING overall: the exact n=5 data do not support the naive lex/shifted model "
+                "for the direct compression route."
+            )
+            return 1
+        ok(
+            "OK overall: exact n=5 data support the shifted-minimizer picture for the direct route."
+        )
+        return 0
+
+    if args.exhaustive_two_layer_minimizer_orbits_n5:
+        any_warning = False
+        results = exhaustive_two_layer_minimizer_orbit_diagnostics(5)
+        for result in results:
+            if result.all_minimizers_in_lex_orbit:
+                ok(
+                    "OK exact n=5 minimizer orbit at "
+                    f"e={result.e}: all {result.minimizer_count} minimizers lie in one lex orbit"
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING exact n=5 minimizer orbit at "
+                    f"e={result.e}: {result.orbit_count} minimizer orbits occur"
+                )
+            print(
+                f"  min_boundary={result.minimal_boundary_size} "
+                f"minimizer_count={result.minimizer_count} orbit_count={result.orbit_count}"
+            )
+        if any_warning:
+            warn(
+                "WARNING overall: exact n=5 data do not support uniqueness of the lex/shifted orbit."
+            )
+            return 1
+        ok(
+            "OK overall: exact n=5 data support lex/shifted orbit uniqueness for the direct route."
+        )
+        return 0
+
+    if args.exhaustive_two_layer_compression_monotonicity_n5:
+        result = exhaustive_two_layer_boundary_compression_counterexample(5)
+        if result is None:
+            ok(
+                "OK exact n=5: every layer-preserving two-layer shift weakly decreases |∂^+ F|."
+            )
+            return 0
+        warn("WARNING exact n=5: the actual two-layer compression lemma fails.")
+        print(
+            f"  e={result.e} compression=(i,j)=({result.i},{result.j}) "
+            f"boundary_before={result.boundary_before} boundary_after={result.boundary_after}"
+        )
+        print(f"  C = {format_family(result.c_family)}")
+        print(f"  U = {format_family(result.u_family)}")
+        print(f"  C' = {format_family(result.compressed_c_family)}")
+        print(f"  U' = {format_family(result.compressed_u_family)}")
+        return 1
+
+    if args.exhaustive_shifted_two_layer_extremizers_n5:
+        results = exhaustive_shifted_two_layer_extremizers(5)
+        for result in results:
+            if result.equality_count > 0:
+                ok(
+                    "OK exact n=5 shifted equality at "
+                    f"e={result.e}: equality_orbits={result.equality_orbit_count}"
+                )
+            else:
+                ok(
+                    "OK exact n=5 shifted minimum at "
+                    f"e={result.e}: min_margin={result.minimal_margin}"
+                )
+            print(
+                f"  min_margin={result.minimal_margin} "
+                f"shifted_minimizers={result.shifted_minimizer_count} "
+                f"shifted_minimizer_orbits={result.shifted_minimizer_orbit_count} "
+                f"equality_count={result.equality_count} "
+                f"equality_orbits={result.equality_orbit_count}"
+            )
+            print(
+                f"  witness C={format_family(result.witness_c_family)} "
+                f"U={format_family(result.witness_u_family)}"
+            )
+        ok("OK overall: exact n=5 shifted two-layer extremizers classified.")
+        return 0
+
+    if args.shifted_uniform_family_counts is not None:
+        for n in args.shifted_uniform_family_counts:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                return 1
+            subsets = all_subsets(n)
+            middle = n // 2
+            lower_count = len(enumerate_shifted_uniform_families(n, middle, subsets))
+            upper_count = len(enumerate_shifted_uniform_families(n, middle + 1, subsets))
+            ok(
+                f"OK shifted-family counts at n={n}: "
+                f"rank-{middle}={lower_count}, rank-{middle + 1}={upper_count}"
+            )
+        return 0
+
+    if args.exhaustive_shifted_two_layer_summary is not None:
+        any_warning = False
+        for n in args.exhaustive_shifted_two_layer_summary:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                any_warning = True
+                continue
+            result = exhaustive_shifted_two_layer_summary(n)
+            if result.all_margins_nonnegative:
+                ok(
+                    "OK shifted two-layer summary at "
+                    f"n={n}: worst_margin={result.worst_margin} at e={result.worst_margin_e}"
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING shifted two-layer failure at "
+                    f"n={n}: worst_margin={result.worst_margin} at e={result.worst_margin_e}"
+                )
+            print(
+                f"  lower_shifted_families={result.lower_shifted_family_count} "
+                f"upper_shifted_families={result.upper_shifted_family_count} "
+                f"equality_count={result.equality_count}"
+            )
+        if any_warning:
+            warn("WARNING overall: some shifted two-layer summaries failed.")
+            return 1
+        ok("OK overall: all requested shifted two-layer summaries survived.")
+        return 0
+
+    if args.shifted_two_layer_equality_orbits is not None:
+        for n in args.shifted_two_layer_equality_orbits:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                return 1
+            results = shifted_two_layer_equality_orbits(n)
+            ok(f"OK shifted two-layer equality orbits at n={n}: orbit_count={len(results)}")
+            for result in results:
+                print(f"  e={result.e} C={format_family(result.c_family)} U={format_family(result.u_family)}")
         return 0
 
     dimensions = tuple(args.dimensions)
