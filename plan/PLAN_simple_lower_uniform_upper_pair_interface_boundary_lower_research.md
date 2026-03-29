@@ -147,6 +147,9 @@ The current computational evidence still points in the right direction:
   \[
   T(V^\ast)\subseteq U^\ast.
   \]
+- on the flux side, exact `n = 5` now sharply separates the first naive local transport models:
+  the codimension-`1` local Hall condition fails, but the codimension-`2` local Hall condition
+  survives over all equal-size middle-layer pairs;
 - the corrected coupled section inequality
   \[
   |\partial^+(A\cup D)| + |\partial^+(B\cup E)| \ge |A| + |B|

@@ -88,6 +88,17 @@ Summing over \(A\) and \(B\) would give
   \]
   are exactly the sort of rigid shapes where a flux proof might be sharp.
 
+## Current Exact Evidence
+
+- The codimension-`1` local transport graph is too small: exact `n = 5` already finds a Hall
+  failure at `e = 3`.
+- The codimension-`2` local transport graph survives exact `n = 5`: every equal-size middle-layer
+  pair admits a Hall-satisfying local transport graph when each lower cell is allowed to connect to
+  boundary cells one or two ranks above it.
+
+So the first viable local candidate is not the pure upward-edge graph, but the codimension-`2`
+version suggested by the geometry of the odd boundary.
+
 ## Concrete Program
 
 ### 1. Choose The Right Transport Graph

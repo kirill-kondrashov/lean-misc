@@ -266,6 +266,10 @@ Latest computational sharpening:
   |\partial^+(A\cup D)| + |\partial^+(B\cup E)| = 1 < 6 = |A| + |B|;
   \]
   so sectioning remains useful only as an exact identity, not as an active reduction theorem;
+- the flux route now has its first positive exact evidence:
+  the naive codimension-`1` local Hall graph already fails in exact `n = 5`, but the
+  codimension-`2` local Hall graph survives exact `n = 5` across all equal-size middle-layer
+  pairs;
 - all searched structured uniform-upper classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|,

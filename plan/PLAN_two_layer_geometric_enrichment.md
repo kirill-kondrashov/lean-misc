@@ -145,4 +145,4 @@ active concrete routes:
 - [PLAN_two_layer_flux_calibration_route.md](./PLAN_two_layer_flux_calibration_route.md)
 
 The archived section branch is recorded in
-[PLAN_even_adjacent_layer_section_route.md](./PLAN_even_adjacent_layer_section_route.md).
+[STUCK_PLANS.md](./STUCK_PLANS.md).

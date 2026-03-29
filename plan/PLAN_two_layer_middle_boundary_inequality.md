@@ -111,6 +111,9 @@ close:
   \]
   is now archived: it would imply \((B)\) by Hall in the balanced middle-layer inclusion graph,
   but exact `n = 5` search falsifies it.
+- On the flux side, the first local transport picture is now sharper:
+  exact `n = 5` shows that the codimension-`1` local Hall graph fails, but the codimension-`2`
+  local Hall graph survives across all equal-size middle-layer pairs.
 - The coordinate-section decomposition remains exact, but both standalone reductions suggested by
   it are now archived: the unrestricted even adjacent-layer theorem and the corrected coupled
   section theorem are both false.
@@ -126,7 +129,7 @@ The direct route now has two active geometric proof paths and one archived heuri
 - [PLAN_two_layer_flux_calibration_route.md](./PLAN_two_layer_flux_calibration_route.md)
   records the divergence-style route, replacing rigid matching by fractional transport from
   \(C\) to \(\partial^+F\).
-- [PLAN_even_adjacent_layer_section_route.md](./PLAN_even_adjacent_layer_section_route.md)
+- [STUCK_PLANS.md](./STUCK_PLANS.md)
   records the archived coarea / section branch and its counterexamples.
 
 ## Current Research Program
@@ -224,8 +227,8 @@ formula are now archived:
 
 So sectioning is no longer an active reduction theorem for the project. It remains a useful way to
 organize the geometry of the problem, but the live proof search has to control the direct boundary
-functional \(|\partial^+F|\) itself. The archived branch is recorded in
-[PLAN_even_adjacent_layer_section_route.md](./PLAN_even_adjacent_layer_section_route.md).
+functional \(|\partial^+F|\) itself. The archived branch is summarized in
+[STUCK_PLANS.md](./STUCK_PLANS.md).
 
 ### 5A. Try A Flux / Calibration Proof In Parallel
 

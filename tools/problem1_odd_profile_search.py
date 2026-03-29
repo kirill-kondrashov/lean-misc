@@ -286,6 +286,18 @@ class ShiftedCoupledSectionSummaryResult:
 
 
 @dataclass(frozen=True)
+class TwoLayerLocalFluxCounterexample:
+    n: int
+    e: int
+    max_codim: int
+    violating_left_family: Family
+    violating_neighbor_family: Family
+    c_family: Family
+    u_family: Family
+    boundary_family: Family
+
+
+@dataclass(frozen=True)
 class MiddleLayerCompressionCounterexample:
     n: int
     i: int
@@ -1761,6 +1773,93 @@ def shifted_coupled_section_summary(
     )
 
 
+def exhaustive_two_layer_local_flux_counterexample(
+    n: int,
+    max_codim: int,
+) -> TwoLayerLocalFluxCounterexample | None:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    if max_codim <= 0:
+        raise ValueError("max_codim must be positive")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank_sets = rank_subsets(n, middle, subsets)
+    upper_rank_sets = rank_subsets(n, middle + 1, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    boundary_cache: Dict[Tuple[Family, Family], Family] = {}
+
+    def boundary_family(c_family: Family, u_family: Family) -> Family:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = tuple(sorted(positive_boundary(family, subsets)))
+        boundary_cache[key] = value
+        return value
+
+    for e in range(lower_count + 1):
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            u_family = tuple(
+                upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+            )
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                c_family = tuple(
+                    lower_rank_sets[index]
+                    for index in range(lower_count)
+                    if not (v_mask & (1 << index))
+                )
+                boundary = boundary_family(c_family, u_family)
+                boundary_index = {member: index for index, member in enumerate(boundary)}
+                neighbor_masks: List[int] = []
+                for left in c_family:
+                    neighborhood_mask = 0
+                    for right in boundary:
+                        if left & right == left:
+                            codim = subset_cardinality(right) - subset_cardinality(left)
+                            if 1 <= codim <= max_codim:
+                                neighborhood_mask |= 1 << boundary_index[right]
+                    neighbor_masks.append(neighborhood_mask)
+                left_count = len(c_family)
+                for left_subset_mask in range(1, 1 << left_count):
+                    neighborhood_mask = 0
+                    left_subset: List[int] = []
+                    for index, neighborhood in enumerate(neighbor_masks):
+                        if left_subset_mask & (1 << index):
+                            neighborhood_mask |= neighborhood
+                            left_subset.append(c_family[index])
+                    if neighborhood_mask.bit_count() < len(left_subset):
+                        violating_neighbor_family = tuple(
+                            boundary[index]
+                            for index in range(len(boundary))
+                            if neighborhood_mask & (1 << index)
+                        )
+                        v_family = tuple(
+                            lower_rank_sets[index]
+                            for index in range(lower_count)
+                            if v_mask & (1 << index)
+                        )
+                        return TwoLayerLocalFluxCounterexample(
+                            n=n,
+                            e=e,
+                            max_codim=max_codim,
+                            violating_left_family=tuple(left_subset),
+                            violating_neighbor_family=violating_neighbor_family,
+                            c_family=c_family,
+                            u_family=u_family,
+                            boundary_family=boundary,
+                        )
+    return None
+
+
 def shifted_even_adjacent_layer_equality_orbits(
     n: int,
 ) -> List[ShiftedEvenAdjacentLayerEqualityOrbitResult]:
@@ -2654,6 +2753,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-two-layer-local-flux-n5",
+        type=int,
+        default=None,
+        help=(
+            "Run the exact n=5 Hall test for the naive local flux graph using predecessors of "
+            "codimension at most the given value."
+        ),
+    )
+    parser.add_argument(
         "--dimensions",
         type=int,
         nargs="+",
@@ -3248,6 +3356,25 @@ def main() -> int:
             return 1
         ok("OK overall: all requested shifted coupled section summaries survived.")
         return 0
+
+    if args.exhaustive_two_layer_local_flux_n5 is not None:
+        result = exhaustive_two_layer_local_flux_counterexample(5, args.exhaustive_two_layer_local_flux_n5)
+        if result is None:
+            ok(
+                "OK exact n=5: the naive local flux Hall condition survives "
+                f"for max_codim={args.exhaustive_two_layer_local_flux_n5}."
+            )
+            return 0
+        warn(
+            "WARNING exact n=5: the naive local flux Hall condition fails "
+            f"for max_codim={result.max_codim} at e={result.e}."
+        )
+        print(f"  violating left family={format_family(result.violating_left_family)}")
+        print(f"  violating neighborhood={format_family(result.violating_neighbor_family)}")
+        print(f"  C={format_family(result.c_family)}")
+        print(f"  U={format_family(result.u_family)}")
+        print(f"  boundary={format_family(result.boundary_family)}")
+        return 1
 
     dimensions = tuple(args.dimensions)
     total_steps = len(dimensions) * 8
