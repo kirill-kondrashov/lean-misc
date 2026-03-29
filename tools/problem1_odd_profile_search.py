@@ -227,6 +227,25 @@ class ExhaustiveShiftedTwoLayerSummaryResult:
 
 
 @dataclass(frozen=True)
+class ShiftedTwoLayerCompressionSummaryResult:
+    n: int
+    lower_shifted_family_count: int
+    upper_shifted_family_count: int
+    checked_pair_count: int
+    checked_shift_count: int
+    all_shifted_pairs_survive: bool
+    witness_e: int
+    witness_i: int
+    witness_j: int
+    witness_boundary_before: int
+    witness_boundary_after: int
+    witness_c_family: Family
+    witness_u_family: Family
+    witness_compressed_c_family: Family
+    witness_compressed_u_family: Family
+
+
+@dataclass(frozen=True)
 class ShiftedTwoLayerEqualityOrbitResult:
     n: int
     e: int
@@ -1690,6 +1709,95 @@ def exhaustive_shifted_two_layer_summary(
         worst_margin=0 if worst_margin is None else worst_margin,
         worst_margin_e=worst_margin_e,
         equality_count=equality_count,
+    )
+
+
+def shifted_two_layer_compression_summary(
+    n: int,
+) -> ShiftedTwoLayerCompressionSummaryResult:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_count = comb(n, lower_rank)
+    upper_count = comb(n, upper_rank)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_shifted_families = enumerate_shifted_uniform_families(n, lower_rank, subsets)
+    upper_shifted_families = enumerate_shifted_uniform_families(n, upper_rank, subsets)
+    lower_by_size: Dict[int, List[Family]] = {}
+    upper_by_size: Dict[int, List[Family]] = {}
+    for family in lower_shifted_families:
+        lower_by_size.setdefault(len(family), []).append(family)
+    for family in upper_shifted_families:
+        upper_by_size.setdefault(len(family), []).append(family)
+
+    boundary_cache: Dict[Tuple[Family, Family], int] = {}
+
+    def two_layer_boundary_size(c_family: Family, u_family: Family) -> int:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    checked_pair_count = 0
+    checked_shift_count = 0
+    for e in range(lower_count + 1):
+        c_size = lower_count - e
+        for c_family in lower_by_size.get(c_size, []):
+            for u_family in upper_by_size.get(e, []):
+                checked_pair_count += 1
+                boundary_before = two_layer_boundary_size(c_family, u_family)
+                for i in range(n):
+                    for j in range(i + 1, n):
+                        checked_shift_count += 1
+                        compressed_c_family = compress_uniform_family(c_family, i, j)
+                        compressed_u_family = compress_uniform_family(u_family, i, j)
+                        boundary_after = two_layer_boundary_size(
+                            compressed_c_family, compressed_u_family
+                        )
+                        if boundary_after > boundary_before:
+                            return ShiftedTwoLayerCompressionSummaryResult(
+                                n=n,
+                                lower_shifted_family_count=len(lower_shifted_families),
+                                upper_shifted_family_count=len(upper_shifted_families),
+                                checked_pair_count=checked_pair_count,
+                                checked_shift_count=checked_shift_count,
+                                all_shifted_pairs_survive=False,
+                                witness_e=e,
+                                witness_i=i,
+                                witness_j=j,
+                                witness_boundary_before=boundary_before,
+                                witness_boundary_after=boundary_after,
+                                witness_c_family=c_family,
+                                witness_u_family=u_family,
+                                witness_compressed_c_family=compressed_c_family,
+                                witness_compressed_u_family=compressed_u_family,
+                            )
+
+    return ShiftedTwoLayerCompressionSummaryResult(
+        n=n,
+        lower_shifted_family_count=len(lower_shifted_families),
+        upper_shifted_family_count=len(upper_shifted_families),
+        checked_pair_count=checked_pair_count,
+        checked_shift_count=checked_shift_count,
+        all_shifted_pairs_survive=True,
+        witness_e=0,
+        witness_i=0,
+        witness_j=0,
+        witness_boundary_before=0,
+        witness_boundary_after=0,
+        witness_c_family=(),
+        witness_u_family=(),
+        witness_compressed_c_family=(),
+        witness_compressed_u_family=(),
     )
 
 
@@ -4750,6 +4858,16 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--shifted-two-layer-compression-summary",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only summary for the actual two-layer compression lemma on the given "
+            "odd dimensions. For each odd n, test every shifted middle-layer pair and every "
+            "layer-preserving shift."
+        ),
+    )
+    parser.add_argument(
         "--shifted-two-layer-equality-orbits",
         type=int,
         nargs="+",
@@ -5432,6 +5550,49 @@ def main() -> int:
             warn("WARNING overall: some shifted two-layer summaries failed.")
             return 1
         ok("OK overall: all requested shifted two-layer summaries survived.")
+        return 0
+
+    if args.shifted_two_layer_compression_summary is not None:
+        any_warning = False
+        for n in args.shifted_two_layer_compression_summary:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                any_warning = True
+                continue
+            result = shifted_two_layer_compression_summary(n)
+            if result.all_shifted_pairs_survive:
+                ok(
+                    "OK shifted two-layer compression summary at "
+                    f"n={n}: all tested shifted pairs survive."
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING shifted two-layer compression failure at "
+                    f"n={n}: e={result.witness_e} shift=({result.witness_i},{result.witness_j}) "
+                    f"raises boundary {result.witness_boundary_before}->{result.witness_boundary_after}."
+                )
+            print(
+                f"  lower_shifted_families={result.lower_shifted_family_count} "
+                f"upper_shifted_families={result.upper_shifted_family_count}"
+            )
+            print(
+                f"  checked_pair_count={result.checked_pair_count} "
+                f"checked_shift_count={result.checked_shift_count}"
+            )
+            if not result.all_shifted_pairs_survive:
+                print(
+                    f"  witness C={format_family(result.witness_c_family)} "
+                    f"U={format_family(result.witness_u_family)}"
+                )
+                print(
+                    f"  witness C'={format_family(result.witness_compressed_c_family)} "
+                    f"U'={format_family(result.witness_compressed_u_family)}"
+                )
+        if any_warning:
+            warn("WARNING overall: some shifted two-layer compression summaries failed.")
+            return 1
+        ok("OK overall: all requested shifted two-layer compression summaries survived.")
         return 0
 
     if args.shifted_two_layer_equality_orbits is not None:

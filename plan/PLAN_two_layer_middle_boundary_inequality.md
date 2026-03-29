@@ -92,6 +92,9 @@ close:
   \[
   |\partial^+(S_{ij}F)| \le |\partial^+F|.
   \]
+- That compression evidence now extends exactly to the shifted `n = 7` problem:
+  across all `5164` shifted pairs and all `108444` layer-preserving shifts, no counterexample to
+  the actual two-layer compression lemma appears.
 - Exact shifted classification in `n = 5` is now sharper as well:
   among shifted two-layer families, equality in \((B)\) occurs only in two orbits:
   the trivial full lower layer at `e = 0`, and the principal-star two-layer family at `e = 6`

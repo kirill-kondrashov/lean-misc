@@ -203,6 +203,9 @@ Latest computational sharpening:
   compression target, and that check finds no counterexample:
   every layer-preserving shift of a two-layer family \(F\) weakly decreases \(|\partial^+F|\)
   across all equal-size middle-layer pairs;
+- that compression evidence now extends exactly to shifted `n = 7` as well:
+  across all `5164` shifted pairs and all `108444` layer-preserving shifts, no counterexample to
+  the actual two-layer compression lemma appears;
 - exact shifted `n = 5` classification now sharpens the equality picture too:
   within shifted two-layer families, equality in
   \[
