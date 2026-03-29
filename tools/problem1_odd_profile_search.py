@@ -333,6 +333,19 @@ class ShiftedTwoLayerEqualityOrbitResult:
 
 
 @dataclass(frozen=True)
+class ShiftedTwoLayerGapProfileResult:
+    n: int
+    e: int
+    equality_count: int
+    equality_orbit_count: int
+    minimal_positive_margin: int | None
+    minimal_positive_count: int
+    minimal_positive_orbit_count: int
+    witness_c_family: Family
+    witness_u_family: Family
+
+
+@dataclass(frozen=True)
 class ExhaustiveShiftedEvenAdjacentLayerSummaryResult:
     n: int
     r: int
@@ -2725,6 +2738,97 @@ def shifted_two_layer_equality_orbits(
         ShiftedTwoLayerEqualityOrbitResult(n=n, e=e, c_family=c_family, u_family=u_family)
         for (c_family, u_family), e in sorted(orbit_reps.items(), key=lambda item: (item[1], item[0]))
     ]
+
+
+def shifted_two_layer_gap_profile(
+    n: int,
+) -> List[ShiftedTwoLayerGapProfileResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_shifted_families = enumerate_shifted_uniform_families(n, lower_rank, subsets)
+    upper_shifted_families = enumerate_shifted_uniform_families(n, upper_rank, subsets)
+    lower_by_size: Dict[int, List[Family]] = {}
+    upper_by_size: Dict[int, List[Family]] = {}
+    for family in lower_shifted_families:
+        lower_by_size.setdefault(len(family), []).append(family)
+    for family in upper_shifted_families:
+        upper_by_size.setdefault(len(family), []).append(family)
+
+    boundary_cache: Dict[Tuple[Family, Family], int] = {}
+
+    def two_layer_boundary_size(c_family: Family, u_family: Family) -> int:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    perms = tuple(permutations(range(n)))
+
+    def canonical_orbit_rep(c_family: Family, u_family: Family) -> Tuple[Family, Family]:
+        candidates = [
+            (permute_family(c_family, perm), permute_family(u_family, perm))
+            for perm in perms
+        ]
+        return min(candidates)
+
+    results: List[ShiftedTwoLayerGapProfileResult] = []
+    for e in range(lower_count + 1):
+        c_size = lower_count - e
+        equality_pairs: List[Tuple[Family, Family]] = []
+        minimal_positive_margin: int | None = None
+        minimal_positive_pairs: List[Tuple[Family, Family]] = []
+        for c_family in lower_by_size.get(c_size, []):
+            for u_family in upper_by_size.get(e, []):
+                margin = two_layer_boundary_size(c_family, u_family) - c_size
+                if margin == 0:
+                    equality_pairs.append((c_family, u_family))
+                    continue
+                if minimal_positive_margin is None or margin < minimal_positive_margin:
+                    minimal_positive_margin = margin
+                    minimal_positive_pairs = [(c_family, u_family)]
+                    continue
+                if margin == minimal_positive_margin:
+                    minimal_positive_pairs.append((c_family, u_family))
+        equality_reps = {
+            canonical_orbit_rep(c_family, u_family) for c_family, u_family in equality_pairs
+        }
+        minimal_positive_reps = {
+            canonical_orbit_rep(c_family, u_family)
+            for c_family, u_family in minimal_positive_pairs
+        }
+        witness_c_family: Family = ()
+        witness_u_family: Family = ()
+        if minimal_positive_pairs:
+            witness_c_family, witness_u_family = minimal_positive_pairs[0]
+        results.append(
+            ShiftedTwoLayerGapProfileResult(
+                n=n,
+                e=e,
+                equality_count=len(equality_pairs),
+                equality_orbit_count=len(equality_reps),
+                minimal_positive_margin=minimal_positive_margin,
+                minimal_positive_count=len(minimal_positive_pairs),
+                minimal_positive_orbit_count=len(minimal_positive_reps),
+                witness_c_family=witness_c_family,
+                witness_u_family=witness_u_family,
+            )
+        )
+    return results
 
 
 def exhaustive_shifted_even_adjacent_layer_summary(
@@ -5796,6 +5900,16 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--shifted-two-layer-gap-profile",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only strict-gap profile on the given odd dimensions. "
+            "For each odd n and each e, report the first positive boundary margin away from the "
+            "shifted equality templates."
+        ),
+    )
+    parser.add_argument(
         "--exhaustive-shifted-even-adjacent-layer-summary",
         type=int,
         nargs="+",
@@ -6751,6 +6865,41 @@ def main() -> int:
             ok(f"OK shifted two-layer equality orbits at n={n}: orbit_count={len(results)}")
             for result in results:
                 print(f"  e={result.e} C={format_family(result.c_family)} U={format_family(result.u_family)}")
+        return 0
+
+    if args.shifted_two_layer_gap_profile is not None:
+        for n in args.shifted_two_layer_gap_profile:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                return 1
+            results = shifted_two_layer_gap_profile(n)
+            strict_gap_values = [
+                result.minimal_positive_margin
+                for result in results
+                if result.minimal_positive_margin is not None
+            ]
+            global_strict_gap = min(strict_gap_values) if strict_gap_values else None
+            ok(
+                "OK shifted two-layer gap profile at "
+                f"n={n}: global_strict_gap={global_strict_gap}"
+            )
+            for result in results:
+                if result.minimal_positive_margin is None:
+                    print(
+                        f"  e={result.e} equality_orbits={result.equality_orbit_count} "
+                        "strict_gap=none"
+                    )
+                    continue
+                print(
+                    f"  e={result.e} equality_orbits={result.equality_orbit_count} "
+                    f"strict_gap={result.minimal_positive_margin} "
+                    f"strict_gap_count={result.minimal_positive_count} "
+                    f"strict_gap_orbits={result.minimal_positive_orbit_count}"
+                )
+                print(
+                    f"    witness C={format_family(result.witness_c_family)} "
+                    f"U={format_family(result.witness_u_family)}"
+                )
         return 0
 
     if args.exhaustive_shifted_even_adjacent_layer_summary is not None:

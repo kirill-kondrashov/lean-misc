@@ -7,6 +7,7 @@ This note records the active plan for the last remaining simple-lower bottleneck
 The active documentation set for this route is:
 
 - [PLAN_two_layer_middle_boundary_inequality.md](./PLAN_two_layer_middle_boundary_inequality.md)
+- [PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](./PLAN_stronger_than_middle_binomial_via_two_layer_gap.md)
 - [PROOF_two_layer_middle_boundary_inequality.md](./PROOF_two_layer_middle_boundary_inequality.md)
 - [PLAN_two_layer_geometric_enrichment.md](./PLAN_two_layer_geometric_enrichment.md)
 - [PLAN_two_layer_flux_calibration_route.md](./PLAN_two_layer_flux_calibration_route.md)
@@ -78,6 +79,23 @@ T(V)
 Everything downstream of this inequality is already wired in Lean. No further theorem packaging is
 needed.
 
+## Critical Review Of The Current Route
+
+The present route is extremely successful as a reduction of the *exact* middle-binomial endpoint,
+but it does **not** by itself go beyond the current published lower bound
+\[
+N \ge \binom{n}{\lfloor n/2\rfloor}.
+\]
+
+In particular:
+
+- if we prove the current two-layer theorem exactly as stated, we recover the Dubroff-Fox-Xu
+  lower bound through the existing closure graph;
+- but that alone would still be only the literature-level exact middle-binomial lower bound, not a
+  genuinely stronger result toward the open conjecture \(N \gg 2^n\);
+- so the next research direction has to be a *gap/stability strengthening* of the current
+  reduction, not just completion of the exact-bound bottleneck.
+
 ## Active Route
 
 The only active route is the direct two-layer boundary route.
@@ -105,6 +123,16 @@ This route is recorded in:
 - [PLAN_two_layer_geometric_enrichment.md](./PLAN_two_layer_geometric_enrichment.md)
 - [PLAN_two_layer_flux_calibration_route.md](./PLAN_two_layer_flux_calibration_route.md)
 - [STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md](./STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md)
+
+This route should now be read in two layers:
+
+1. prove the exact two-layer theorem
+   \[
+   |\partial^+F| \ge |C|;
+   \]
+2. strengthen it, on the families coming from the sum-distinct subcube transport, to obtain a
+   positive gap beyond equality. That new direction is recorded in
+   [PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](./PLAN_stronger_than_middle_binomial_via_two_layer_gap.md).
 
 ## Archived Routes
 
@@ -308,6 +336,29 @@ These geometric routes are recorded separately in:
 
 - [PLAN_two_layer_geometric_enrichment.md](./PLAN_two_layer_geometric_enrichment.md)
 - [PLAN_two_layer_flux_calibration_route.md](./PLAN_two_layer_flux_calibration_route.md)
+- [PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](./PLAN_stronger_than_middle_binomial_via_two_layer_gap.md)
+
+## Quantitative Upgrade Direction
+
+The exact route above remains the active formal bottleneck, but the first quantitative upgrade
+beyond the literature-level middle-binomial bound is now more concrete.
+
+Exact shifted diagnostics now show:
+
+- shifted `n = 5`: off the two equality templates, the first positive boundary gap is `2`;
+- shifted `n = 7`: off the same templates, the first positive boundary gap is `3`.
+
+So the stronger-than-middle-binomial program is no longer just a vague stability question. The
+current evidence supports a sharper first theorem target:
+\[
+F \notin \mathcal E
+\quad\Longrightarrow\quad
+|\partial^+F| \ge |C| + 2
+\]
+for shifted odd two-layer families, where \(\mathcal E\) is the pair of equality templates.
+
+That target is recorded separately in
+[PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](./PLAN_stronger_than_middle_binomial_via_two_layer_gap.md).
 
 ## Practical Success Criterion
 

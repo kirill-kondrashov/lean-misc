@@ -90,6 +90,20 @@ The remaining work is no longer packaging. The theorem graph is in place, and th
 first-gap problem has already been normalized to the simple-lower uniform-upper regime. The actual
 missing piece is now one middle-layer compression/isoperimetric lemma.
 
+Critical review:
+
+- completing the current exact route would recover the exact middle-binomial lower bound
+  \[
+  N \ge \binom{n}{\lfloor n/2\rfloor},
+  \]
+  matching the published Dubroff-Fox-Xu benchmark already formalized in
+  `Problem1Literature.lean`;
+- so the exact route should now be treated as foundational infrastructure, not the final research
+  destination;
+- the genuinely new direction is to strengthen the same two-layer route to a positive gap beyond
+  equality, as recorded in
+  [PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](/home/kir/pers/erdos/lean-misc/plan/PLAN_stronger_than_middle_binomial_via_two_layer_gap.md).
+
 Latest step:
 
 Added a targeted exact `n = 7` simple-lower first-gap defect search mode in
@@ -234,6 +248,10 @@ Latest computational sharpening:
   the shifted-only search over all `352 × 352` middle-layer families finds no counterexample, and
   the only shifted equality orbits are again the full lower-layer orbit and the principal-star
   orbit;
+- the stronger-gap branch now has its first exact profile:
+  among shifted two-layer families, the first positive boundary gap off those equality templates is
+  `2` in `n = 5` and `3` in `n = 7`, so the quantitative program is now aiming beyond the
+  naive additive `+1` target;
 - pushing the same brute-force shifted-enumeration idea to `n = 9` no longer looks productive:
   the shifted-family count itself does not return on a short/medium run, so the search side is
   effectively saturated at `n = 7`;

@@ -70,6 +70,29 @@ close:
 - the canonical defect bottleneck,
 - and the current prism-theorem route.
 
+## Critical Review
+
+This exact route is mathematically sharp *for the currently formalized endpoint*, but not yet for
+the larger research goal.
+
+If \((B)\) is proved exactly as stated, the current closure graph recovers only the exact
+middle-binomial lower bound
+\[
+N \ge \binom{n}{\lfloor n/2\rfloor},
+\]
+which is already the published Dubroff-Fox-Xu benchmark formalized in
+[Problem1Literature.lean](../ErdosProblems/Problem1Literature.lean).
+
+So:
+
+- proving \((B)\) is still necessary for the current formal route;
+- but proving \((B)\) alone does **not** give a stronger lower bound than the literature;
+- to move toward a genuinely new result, the route must be strengthened to a *gap theorem* beyond
+  equality.
+
+That stronger direction is now tracked in
+[PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](./PLAN_stronger_than_middle_binomial_via_two_layer_gap.md).
+
 ## Current Status
 
 - The equivalence between \((B)\) and the reduced middle-layer inequality is proved on paper.
@@ -107,6 +130,9 @@ close:
   there are only `352` shifted families in each middle rank, exhaustive shifted enumeration shows
   no counterexample to \((B)\), and the only shifted equality orbits are again the trivial full
   lower layer (`e = 0`) and the principal-star two-layer family (`e = 20`).
+- The shifted strict-gap profile is now exact in both tested dimensions:
+  away from those two equality templates, the smallest observed boundary gap is `2` in shifted
+  `n = 5` and `3` in shifted `n = 7`.
 - With the current brute-force search tool, this exact shifted-enumeration strategy appears to top
   out at `n = 7`: an analogous `n = 9` shifted-family count does not finish on a short/medium
   run, so deeper exhaustive search is no longer the right next step.
@@ -360,6 +386,20 @@ Once the paper proof is stable, the formalization order should be:
 
 After that, the existing closure graph should finish the simple-lower bottleneck and the current
 Erdős #1 route automatically.
+
+## Next Layer Beyond The Exact Bound
+
+The current exact theorem \((B)\) should now be treated as the base case for a stronger
+stability/gap program:
+
+\[
+|\partial^+F| \ge |C| + \Gamma(F),
+\]
+
+where \(\Gamma(F)\ge 0\) and is positive for the transported sum-distinct families of interest.
+
+That next layer is not developed in this note. It is tracked separately in
+[PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](./PLAN_stronger_than_middle_binomial_via_two_layer_gap.md).
 
 ## What Not To Pursue
 
