@@ -130,6 +130,11 @@ close:
   component containing a shifted pair.
   Failures already occur at `e = 5` and `e = 6`, so the active route cannot be simplified to
   “strict descent first, then plateau rigidity.”
+- However, the quotient-level plateau picture is better:
+  exact `n = 5` now shows that for every `e`, the graph of equal-boundary shift components has a
+  unique sink component, and that sink component contains shifted pairs.
+  So while strict local minima need not already lie in shifted plateaus, the full weak-compression
+  quotient still appears to have a canonical shifted terminal component.
 - A tempting stronger sufficient condition,
   \[
   |\partial^\uparrow U| \ge |U\setminus T(V)|,
@@ -243,12 +248,14 @@ The current exact `n = 5` evidence suggests the reduction theorem should not be 
 descent. The stronger strict-compression shortcut is false, and even the cleaner strict-local-
 minimum variant is false: not every strict local minimum lies in a boundary-preserving plateau
 component containing a shifted pair. But the weaker global reachability statement survives:
-every exact `n = 5` pair reaches a shifted pair by nonincreasing shifts. So the likely proof
+every exact `n = 5` pair reaches a shifted pair by nonincreasing shifts, and the exact `n = 5`
+plateau quotient even has a unique shifted sink component for every `e`. So the likely proof
 shape is:
 
 - weak compression monotonicity for all two-layer families;
 - global reachability of every family to the shifted world by nonincreasing shifts;
-- then a more global rigidity theorem on nonincreasing paths, not just on strict local minima;
+- then a quotient-level rigidity theorem: the equal-boundary component graph has a canonical
+  shifted sink;
 - then the shifted extremal classification.
 
 ### 4. Classify The Shifted Extremizers

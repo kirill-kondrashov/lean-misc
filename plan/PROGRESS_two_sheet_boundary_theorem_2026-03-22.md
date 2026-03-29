@@ -227,6 +227,9 @@ Latest computational sharpening:
   exact `n = 5` has strict local minima at `e = 5,6` whose boundary-preserving shift components
   contain no shifted pair, so the route cannot be simplified to strict descent followed by a
   plateau argument;
+- however, the quotient-level structure is better:
+  exact `n = 5` now shows that for every `e`, the graph of equal-boundary shift components has a
+  unique sink component, and that sink component contains shifted pairs;
 - exact shifted `n = 7` enumeration now matches the same picture:
   the shifted-only search over all `352 × 352` middle-layer families finds no counterexample, and
   the only shifted equality orbits are again the full lower-layer orbit and the principal-star

@@ -155,6 +155,9 @@ The current computational evidence still points in the right direction:
   exact `n = 5` has strict local minima at `e = 5,6` whose boundary-preserving shift components
   contain no shifted pair, so the active route has to work with genuinely interleaved
   nonincreasing paths rather than a strict phase followed by a plateau phase;
+- however, the quotient-level weak-compression picture is still positive:
+  exact `n = 5` now shows that for every `e`, the equal-boundary component graph has a unique
+  sink component and that sink component contains shifted pairs;
 - structured uniform-upper `n = 7` classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|

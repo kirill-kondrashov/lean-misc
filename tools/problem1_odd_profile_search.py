@@ -231,6 +231,19 @@ class ExhaustiveTwoLayerStrictLocalMinimumPlateauCoverageResult:
 
 
 @dataclass(frozen=True)
+class ExhaustiveTwoLayerPlateauSinkStructureResult:
+    n: int
+    e: int
+    component_count: int
+    sink_component_count: int
+    shifted_sink_component_count: int
+    unique_sink_component: bool
+    all_sink_components_shifted: bool
+    witness_c_family: Family
+    witness_u_family: Family
+
+
+@dataclass(frozen=True)
 class ExhaustiveTwoLayerCompressionCounterexample:
     n: int
     e: int
@@ -2063,6 +2076,162 @@ def exhaustive_two_layer_strict_local_minimum_plateau_coverage(
                 strict_local_minimum_count=len(strict_local_minima),
                 covered_strict_local_minimum_count=len(covered),
                 all_strict_local_minima_connect_to_shifted=all_covered,
+                witness_c_family=witness_c_family,
+                witness_u_family=witness_u_family,
+            )
+        )
+    return results
+
+
+def exhaustive_two_layer_plateau_sink_structure(
+    n: int,
+) -> List[ExhaustiveTwoLayerPlateauSinkStructureResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    boundary_cache: Dict[int, int] = {}
+    full_lower_mask = (1 << lower_count) - 1
+    lower_family_to_c_mask: Dict[Family, int] = {}
+    for c_mask in range(1 << lower_count):
+        c_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if c_mask & (1 << index)
+        )
+        lower_family_to_c_mask[c_family] = c_mask
+    upper_family_to_u_mask: Dict[Family, int] = {}
+    for u_mask in range(1 << upper_count):
+        u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        upper_family_to_u_mask[u_family] = u_mask
+
+    def two_layer_boundary_size(u_mask: int, v_mask: int) -> int:
+        key = (u_mask << lower_count) | v_mask
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        c_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if not (v_mask & (1 << index))
+        )
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    results: List[ExhaustiveTwoLayerPlateauSinkStructureResult] = []
+    for e in range(lower_count + 1):
+        u_masks = [u_mask for u_mask in range(1 << upper_count) if u_mask.bit_count() == e]
+        v_masks = [v_mask for v_mask in range(1 << lower_count) if v_mask.bit_count() == e]
+        state_keys = [(u_mask << lower_count) | v_mask for u_mask in u_masks for v_mask in v_masks]
+
+        adjacency_equal: Dict[int, Set[int]] = {key: set() for key in state_keys}
+        outgoing_lower: Dict[int, Set[int]] = {key: set() for key in state_keys}
+        c_family_by_key: Dict[int, Family] = {}
+        u_family_by_key: Dict[int, Family] = {}
+        shifted_keys: Set[int] = set()
+
+        for u_mask in u_masks:
+            u_family = tuple(
+                upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+            )
+            u_shifted = is_shifted_uniform_family(u_family, n)
+            for v_mask in v_masks:
+                c_family = tuple(
+                    lower_rank_sets[index]
+                    for index in range(lower_count)
+                    if not (v_mask & (1 << index))
+                )
+                key = (u_mask << lower_count) | v_mask
+                c_family_by_key[key] = c_family
+                u_family_by_key[key] = u_family
+                boundary_before = two_layer_boundary_size(u_mask, v_mask)
+                if u_shifted and is_shifted_uniform_family(c_family, n):
+                    shifted_keys.add(key)
+                for i in range(n):
+                    for j in range(i + 1, n):
+                        compressed_c_family = compress_uniform_family(c_family, i, j)
+                        compressed_u_family = compress_uniform_family(u_family, i, j)
+                        if compressed_c_family == c_family and compressed_u_family == u_family:
+                            continue
+                        compressed_c_mask = lower_family_to_c_mask[compressed_c_family]
+                        compressed_v_mask = full_lower_mask ^ compressed_c_mask
+                        compressed_u_mask = upper_family_to_u_mask[compressed_u_family]
+                        neighbor_key = (compressed_u_mask << lower_count) | compressed_v_mask
+                        boundary_after = two_layer_boundary_size(
+                            compressed_u_mask, compressed_v_mask
+                        )
+                        if boundary_after == boundary_before:
+                            adjacency_equal[key].add(neighbor_key)
+                            adjacency_equal[neighbor_key].add(key)
+                        elif boundary_after < boundary_before:
+                            outgoing_lower[key].add(neighbor_key)
+
+        component_of: Dict[int, int] = {}
+        components: List[Set[int]] = []
+        unseen = set(state_keys)
+        while unseen:
+            start = unseen.pop()
+            component = {start}
+            frontier = [start]
+            while frontier:
+                key = frontier.pop()
+                for neighbor in adjacency_equal[key]:
+                    if neighbor in unseen:
+                        unseen.remove(neighbor)
+                        component.add(neighbor)
+                        frontier.append(neighbor)
+            component_id = len(components)
+            for key in component:
+                component_of[key] = component_id
+            components.append(component)
+
+        sink_components: List[int] = []
+        shifted_sink_component_count = 0
+        all_sink_components_shifted = True
+        witness_c_family: Family = ()
+        witness_u_family: Family = ()
+
+        for component_id, component in enumerate(components):
+            targets = {
+                component_of[neighbor]
+                for key in component
+                for neighbor in outgoing_lower[key]
+                if component_of[neighbor] != component_id
+            }
+            if targets:
+                continue
+            sink_components.append(component_id)
+            has_shifted = any(key in shifted_keys for key in component)
+            if has_shifted:
+                shifted_sink_component_count += 1
+            else:
+                all_sink_components_shifted = False
+                if not witness_c_family:
+                    key = min(component)
+                    witness_c_family = c_family_by_key[key]
+                    witness_u_family = u_family_by_key[key]
+
+        results.append(
+            ExhaustiveTwoLayerPlateauSinkStructureResult(
+                n=n,
+                e=e,
+                component_count=len(components),
+                sink_component_count=len(sink_components),
+                shifted_sink_component_count=shifted_sink_component_count,
+                unique_sink_component=(len(sink_components) == 1),
+                all_sink_components_shifted=all_sink_components_shifted,
                 witness_c_family=witness_c_family,
                 witness_u_family=witness_u_family,
             )
@@ -5554,6 +5723,14 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-two-layer-plateau-sinks-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 plateau-sink test: compute equal-boundary shift components and "
+            "check whether sink components are shifted and whether the sink is unique."
+        ),
+    )
+    parser.add_argument(
         "--exhaustive-two-layer-compression-monotonicity-n5",
         action="store_true",
         help=(
@@ -6355,6 +6532,52 @@ def main() -> int:
         ok(
             "OK overall: exact n=5 data support strict descent to a boundary plateau containing "
             "shifted pairs."
+        )
+        return 0
+
+    if args.exhaustive_two_layer_plateau_sinks_n5:
+        any_warning = False
+        unique_sink_warning = False
+        results = exhaustive_two_layer_plateau_sink_structure(5)
+        for result in results:
+            if result.all_sink_components_shifted:
+                ok(
+                    "OK exact n=5 plateau sinks at "
+                    f"e={result.e}: every sink component contains a shifted pair."
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING exact n=5 plateau sinks at "
+                    f"e={result.e}: some sink component contains no shifted pair."
+                )
+            if not result.unique_sink_component:
+                unique_sink_warning = True
+            print(
+                f"  components={result.component_count} "
+                f"sink_components={result.sink_component_count} "
+                f"shifted_sink_components={result.shifted_sink_component_count}"
+            )
+            if not result.all_sink_components_shifted:
+                print(
+                    f"  witness C={format_family(result.witness_c_family)} "
+                    f"U={format_family(result.witness_u_family)}"
+                )
+        if any_warning:
+            warn(
+                "WARNING overall: exact n=5 data do not support shifted coverage of all plateau "
+                "sink components."
+            )
+            return 1
+        if unique_sink_warning:
+            warn(
+                "WARNING overall: exact n=5 plateau sinks are all shifted, but uniqueness of the "
+                "sink component fails for some e."
+            )
+            return 0
+        ok(
+            "OK overall: exact n=5 plateau sink structure is canonical: every sink component is "
+            "shifted and the sink is unique."
         )
         return 0
 
