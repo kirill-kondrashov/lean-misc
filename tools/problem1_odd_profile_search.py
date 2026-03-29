@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import heapq
 from dataclasses import dataclass
 from fractions import Fraction
 from itertools import combinations, permutations
@@ -355,6 +356,22 @@ class LocalFluxGreedySummaryResult:
     witness_u_family: Family
     witness_boundary_family: Family
     unmatched_left_family: Family
+
+
+@dataclass(frozen=True)
+class LocalFluxMinCodim2SummaryResult:
+    n: int
+    max_codim: int
+    exact_mode: bool
+    all_pairs_have_perfect_matching: bool
+    all_pairs_sharp_against_codim1_deficiency: bool
+    worst_excess_over_codim1_deficiency: int
+    worst_excess_e: int
+    witness_c_family: Family
+    witness_u_family: Family
+    witness_boundary_family: Family
+    witness_codim1_deficiency: int
+    witness_min_codim2_cost: int
 
 
 @dataclass(frozen=True)
@@ -2302,6 +2319,252 @@ def shifted_two_layer_greedy_local_flux_summaries(
     return results
 
 
+def minimum_codim_cost_full_matching(
+    c_family: Sequence[int],
+    boundary: Sequence[int],
+    max_codim: int,
+) -> int | None:
+    left_size = len(c_family)
+    right_size = len(boundary)
+    source = 0
+    left_start = 1
+    right_start = left_start + left_size
+    sink = right_start + right_size
+    node_count = sink + 1
+    graph: List[List[List[int]]] = [[] for _ in range(node_count)]
+
+    def add_edge(frm: int, to: int, cap: int, cost: int) -> None:
+        graph[frm].append([to, len(graph[to]), cap, cost])
+        graph[to].append([frm, len(graph[frm]) - 1, 0, -cost])
+
+    for left_index in range(left_size):
+        add_edge(source, left_start + left_index, 1, 0)
+    for right_index in range(right_size):
+        add_edge(right_start + right_index, sink, 1, 0)
+    for left_index, left in enumerate(c_family):
+        for right_index, right in enumerate(boundary):
+            if left & right != left:
+                continue
+            codim = subset_cardinality(right) - subset_cardinality(left)
+            if 1 <= codim <= max_codim:
+                add_edge(left_start + left_index, right_start + right_index, 1, codim - 1)
+
+    flow = 0
+    cost = 0
+    potential = [0] * node_count
+    while flow < left_size:
+        dist = [10**9] * node_count
+        prev_node = [-1] * node_count
+        prev_edge = [-1] * node_count
+        dist[source] = 0
+        heap: List[Tuple[int, int]] = [(0, source)]
+        while heap:
+            current_dist, node = heapq.heappop(heap)
+            if current_dist != dist[node]:
+                continue
+            for edge_index, edge in enumerate(graph[node]):
+                to, _, cap, edge_cost = edge
+                if cap <= 0:
+                    continue
+                new_dist = current_dist + edge_cost + potential[node] - potential[to]
+                if new_dist < dist[to]:
+                    dist[to] = new_dist
+                    prev_node[to] = node
+                    prev_edge[to] = edge_index
+                    heapq.heappush(heap, (new_dist, to))
+        if dist[sink] == 10**9:
+            return None
+        for node in range(node_count):
+            if dist[node] < 10**9:
+                potential[node] += dist[node]
+        add_flow = 1
+        node = sink
+        while node != source:
+            edge = graph[prev_node[node]][prev_edge[node]]
+            add_flow = min(add_flow, edge[2])
+            node = prev_node[node]
+        node = sink
+        while node != source:
+            edge = graph[prev_node[node]][prev_edge[node]]
+            reverse_edge = graph[node][edge[1]]
+            edge[2] -= add_flow
+            reverse_edge[2] += add_flow
+            node = prev_node[node]
+        flow += add_flow
+        cost += add_flow * potential[sink]
+    return cost
+
+
+def exhaustive_two_layer_min_codim2_summary(
+    n: int,
+    max_codim: int,
+) -> LocalFluxMinCodim2SummaryResult:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank_sets = rank_subsets(n, middle, subsets)
+    upper_rank_sets = rank_subsets(n, middle + 1, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    boundary_cache: Dict[Tuple[Family, Family], Family] = {}
+
+    def boundary_family(c_family: Family, u_family: Family) -> Family:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = tuple(sorted(positive_boundary(family, subsets)))
+        boundary_cache[key] = value
+        return value
+
+    any_missing_matching = False
+    worst_excess = -10**9
+    worst_excess_e = 0
+    witness_c_family: Family = ()
+    witness_u_family: Family = ()
+    witness_boundary_family: Family = ()
+    witness_codim1_deficiency = 0
+    witness_min_codim2_cost = 0
+
+    for e in range(lower_count + 1):
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            u_family = tuple(
+                upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+            )
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                c_family = tuple(
+                    lower_rank_sets[index]
+                    for index in range(lower_count)
+                    if not (v_mask & (1 << index))
+                )
+                boundary = boundary_family(c_family, u_family)
+                codim1_matching = maximum_matching_size(
+                    local_flux_adjacency(c_family, boundary, 1), len(boundary)
+                )
+                codim1_deficiency = len(c_family) - codim1_matching
+                min_codim2_cost = minimum_codim_cost_full_matching(c_family, boundary, max_codim)
+                if min_codim2_cost is None:
+                    any_missing_matching = True
+                    min_codim2_cost = len(c_family) + 1
+                excess = min_codim2_cost - codim1_deficiency
+                if excess > worst_excess:
+                    worst_excess = excess
+                    worst_excess_e = e
+                    witness_c_family = c_family
+                    witness_u_family = u_family
+                    witness_boundary_family = boundary
+                    witness_codim1_deficiency = codim1_deficiency
+                    witness_min_codim2_cost = min_codim2_cost
+
+    return LocalFluxMinCodim2SummaryResult(
+        n=n,
+        max_codim=max_codim,
+        exact_mode=True,
+        all_pairs_have_perfect_matching=not any_missing_matching,
+        all_pairs_sharp_against_codim1_deficiency=(not any_missing_matching and worst_excess <= 0),
+        worst_excess_over_codim1_deficiency=worst_excess,
+        worst_excess_e=worst_excess_e,
+        witness_c_family=witness_c_family,
+        witness_u_family=witness_u_family,
+        witness_boundary_family=witness_boundary_family,
+        witness_codim1_deficiency=witness_codim1_deficiency,
+        witness_min_codim2_cost=witness_min_codim2_cost,
+    )
+
+
+def shifted_two_layer_min_codim2_summary(
+    n: int,
+    max_codim: int,
+) -> LocalFluxMinCodim2SummaryResult:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_count = comb(n, lower_rank)
+    upper_count = comb(n, upper_rank)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_shifted_families = enumerate_shifted_uniform_families(n, lower_rank, subsets)
+    upper_shifted_families = enumerate_shifted_uniform_families(n, upper_rank, subsets)
+    lower_by_size: Dict[int, List[Family]] = {}
+    upper_by_size: Dict[int, List[Family]] = {}
+    for family in lower_shifted_families:
+        lower_by_size.setdefault(len(family), []).append(family)
+    for family in upper_shifted_families:
+        upper_by_size.setdefault(len(family), []).append(family)
+
+    boundary_cache: Dict[Tuple[Family, Family], Family] = {}
+
+    def boundary_family(c_family: Family, u_family: Family) -> Family:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = tuple(sorted(positive_boundary(family, subsets)))
+        boundary_cache[key] = value
+        return value
+
+    any_missing_matching = False
+    worst_excess = -10**9
+    worst_excess_e = 0
+    witness_c_family: Family = ()
+    witness_u_family: Family = ()
+    witness_boundary_family: Family = ()
+    witness_codim1_deficiency = 0
+    witness_min_codim2_cost = 0
+
+    for e in range(lower_count + 1):
+        c_size = lower_count - e
+        for c_family in lower_by_size.get(c_size, []):
+            for u_family in upper_by_size.get(e, []):
+                boundary = boundary_family(c_family, u_family)
+                codim1_matching = maximum_matching_size(
+                    local_flux_adjacency(c_family, boundary, 1), len(boundary)
+                )
+                codim1_deficiency = len(c_family) - codim1_matching
+                min_codim2_cost = minimum_codim_cost_full_matching(c_family, boundary, max_codim)
+                if min_codim2_cost is None:
+                    any_missing_matching = True
+                    min_codim2_cost = len(c_family) + 1
+                excess = min_codim2_cost - codim1_deficiency
+                if excess > worst_excess:
+                    worst_excess = excess
+                    worst_excess_e = e
+                    witness_c_family = c_family
+                    witness_u_family = u_family
+                    witness_boundary_family = boundary
+                    witness_codim1_deficiency = codim1_deficiency
+                    witness_min_codim2_cost = min_codim2_cost
+
+    return LocalFluxMinCodim2SummaryResult(
+        n=n,
+        max_codim=max_codim,
+        exact_mode=False,
+        all_pairs_have_perfect_matching=not any_missing_matching,
+        all_pairs_sharp_against_codim1_deficiency=(not any_missing_matching and worst_excess <= 0),
+        worst_excess_over_codim1_deficiency=worst_excess,
+        worst_excess_e=worst_excess_e,
+        witness_c_family=witness_c_family,
+        witness_u_family=witness_u_family,
+        witness_boundary_family=witness_boundary_family,
+        witness_codim1_deficiency=witness_codim1_deficiency,
+        witness_min_codim2_cost=witness_min_codim2_cost,
+    )
+
+
 def exhaustive_two_layer_equal_split_summary(
     n: int,
     max_codim: int,
@@ -3572,6 +3835,23 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-two-layer-min-codim2-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 codimension-2 matching-cost summary, minimizing the number of "
+            "codimension-2 edges among perfect local matchings."
+        ),
+    )
+    parser.add_argument(
+        "--shifted-two-layer-min-codim2-summary",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only codimension-2 matching-cost summary on the given odd "
+            "dimensions."
+        ),
+    )
+    parser.add_argument(
         "--local-flux-max-codim",
         type=int,
         default=2,
@@ -4411,6 +4691,86 @@ def main() -> int:
             warn("WARNING overall: some shifted greedy local matching rules failed.")
             return 1
         ok("OK overall: all requested shifted greedy local matching rules survived.")
+        return 0
+
+    if args.exhaustive_two_layer_min_codim2_n5:
+        result = exhaustive_two_layer_min_codim2_summary(5, args.local_flux_max_codim)
+        if result.all_pairs_have_perfect_matching:
+            if result.all_pairs_sharp_against_codim1_deficiency:
+                ok(
+                    "OK exact n=5 min-codim2 summary at "
+                    f"max_codim={result.max_codim}: "
+                    "minimum codim-2 cost always equals codim-1 deficiency."
+                )
+            else:
+                warn(
+                    "WARNING exact n=5 min-codim2 summary at "
+                    f"max_codim={result.max_codim}: "
+                    "some pairs need more codim-2 edges than the codim-1 deficiency lower bound."
+                )
+        else:
+            warn(
+                "WARNING exact n=5 min-codim2 summary at "
+                f"max_codim={result.max_codim}: some pairs have no perfect matching."
+            )
+        print(
+            f"  worst_excess={result.worst_excess_over_codim1_deficiency} "
+            f"at e={result.worst_excess_e}"
+        )
+        print(
+            f"  codim1_deficiency={result.witness_codim1_deficiency} "
+            f"min_codim2_cost={result.witness_min_codim2_cost}"
+        )
+        print(f"  witness C={format_family(result.witness_c_family)}")
+        print(f"  witness U={format_family(result.witness_u_family)}")
+        print(f"  witness boundary={format_family(result.witness_boundary_family)}")
+        return 0 if result.all_pairs_sharp_against_codim1_deficiency else 1
+
+    if args.shifted_two_layer_min_codim2_summary is not None:
+        any_warning = False
+        for n in args.shifted_two_layer_min_codim2_summary:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                any_warning = True
+                continue
+            result = shifted_two_layer_min_codim2_summary(n, args.local_flux_max_codim)
+            if result.all_pairs_have_perfect_matching:
+                if result.all_pairs_sharp_against_codim1_deficiency:
+                    ok(
+                        "OK shifted min-codim2 summary at "
+                        f"n={n}, max_codim={result.max_codim}: "
+                        "minimum codim-2 cost always equals codim-1 deficiency."
+                    )
+                else:
+                    any_warning = True
+                    warn(
+                        "WARNING shifted min-codim2 summary at "
+                        f"n={n}, max_codim={result.max_codim}: "
+                        "some pairs need more codim-2 edges than the codim-1 deficiency lower bound."
+                    )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING shifted min-codim2 summary at "
+                    f"n={n}, max_codim={result.max_codim}: some pairs have no perfect matching."
+                )
+            print(
+                f"  worst_excess={result.worst_excess_over_codim1_deficiency} "
+                f"at e={result.worst_excess_e}"
+            )
+            print(
+                f"  codim1_deficiency={result.witness_codim1_deficiency} "
+                f"min_codim2_cost={result.witness_min_codim2_cost}"
+            )
+            print(
+                f"  witness C={format_family(result.witness_c_family)} "
+                f"U={format_family(result.witness_u_family)}"
+            )
+            print(f"  witness boundary={format_family(result.witness_boundary_family)}")
+        if any_warning:
+            warn("WARNING overall: some shifted min-codim2 summaries failed.")
+            return 1
+        ok("OK overall: all requested shifted min-codim2 summaries survived.")
         return 0
 
     dimensions = tuple(args.dimensions)

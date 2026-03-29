@@ -125,6 +125,9 @@ close:
 - The first finite family of canonical codimension-`2` greedy injections is dead as well:
   all eight tested greedy rules fail already in exact `n = 5`, so the matching route cannot be
   closed by a fixed local priority rule.
+- But the codimension-`2` matching route has a new exact invariant:
+  in exact `n = 5` and in shifted `n = 7`, the minimum number of codimension-`2` edges required
+  by a perfect local matching always equals the codimension-`1` Hall deficiency.
 - The coordinate-section decomposition remains exact, but both standalone reductions suggested by
   it are now archived: the unrestricted even adjacent-layer theorem and the corrected coupled
   section theorem are both false.

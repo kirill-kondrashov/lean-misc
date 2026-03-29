@@ -161,6 +161,9 @@ The current computational evidence still points in the right direction:
 - the first finite family of canonical codimension-`2` greedy injections is ruled out as well:
   all eight tested rules fail already in exact `n = 5`, even though one of them survives over all
   shifted pairs in `n = 7`;
+- but the codimension-`2` matching route now has a sharper positive invariant:
+  in exact `n = 5` and in shifted `n = 7`, the minimum number of codimension-`2` edges needed in a
+  perfect local matching always equals the codimension-`1` Hall deficiency lower bound;
 - the corrected coupled section inequality
   \[
   |\partial^+(A\cup D)| + |\partial^+(B\cup E)| \ge |A| + |B|

@@ -109,6 +109,22 @@ So the first viable local candidate is not the pure upward-edge graph, but the c
 transport graph suggested by the geometry of the odd boundary. However, it needs a genuinely
 nonuniform weighting rule.
 
+There is now a sharper exact pattern behind that graph. Let
+\[
+\nu_1(F)
+\]
+be the maximum matching size in the codimension-`1` local graph, and let
+\[
+\delta_1(F):=|C|-\nu_1(F)
+\]
+be the codimension-`1` Hall deficiency. Then exact `n = 5` and shifted `n = 7` both satisfy:
+\[
+\min\{\text{number of codim-2 edges in a perfect local matching}\} = \delta_1(F).
+\]
+So the surviving codimension-`2` route is no longer just “some perfect matching exists.” On the
+tested domains, the codimension-`2` usage is exactly the amount forced by the codimension-`1`
+defect.
+
 ## Concrete Program
 
 ### 1. Choose The Right Transport Graph
@@ -179,6 +195,11 @@ proof on shifted \(F\). The current computational checkpoint is now:
 So the next proof target on this branch is no longer “some local flux graph,” but specifically:
 
 - prove the codimension-`2` Hall/matching property for shifted \(F\);
+- prove the sharpened codimension-`2` matching-cost theorem
+  \[
+  \min\{\text{codim-2 edges in a perfect local matching}\} = \delta_1(F)
+  \]
+  first for shifted \(F\);
 - then convert that matching into an actual fractional calibration;
 - equivalently, find a genuinely nontrivial codimension-`2` weighting rule, since both the
   equal-split and inverse-degree local rules are already falsified;
