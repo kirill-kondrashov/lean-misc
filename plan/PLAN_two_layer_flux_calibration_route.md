@@ -95,6 +95,9 @@ Summing over \(A\) and \(B\) would give
 - The codimension-`2` local transport graph survives exact `n = 5`: every equal-size middle-layer
   pair admits a Hall-satisfying local transport graph when each lower cell is allowed to connect to
   boundary cells one or two ranks above it.
+- The same qualitative split now survives in the shifted `n = 7` model:
+  the codimension-`1` local Hall graph fails with worst deficiency `-15` at `e = 20`, while the
+  codimension-`2` local Hall graph survives across all shifted pairs.
 
 So the first viable local candidate is not the pure upward-edge graph, but the codimension-`2`
 version suggested by the geometry of the odd boundary.
@@ -133,7 +136,19 @@ If the candidate weighting is not sharp there, it is likely the wrong object.
 ### 4. Push Through Shifted Families First
 
 Because shifted extremizers are the only equality cases known in `n = 5` and `n = 7`, first seek a
-proof on shifted \(F\). Then either:
+proof on shifted \(F\). The current computational checkpoint is now:
+
+\[
+\text{codim-1 fails in shifted } n=7,\qquad \text{codim-2 survives in shifted } n=7.
+\]
+
+So the next proof target on this branch is no longer “some local flux graph,” but specifically:
+
+- prove the codimension-`2` Hall/matching property for shifted \(F\);
+- then convert that matching into an actual fractional calibration;
+- then either extend the calibration to arbitrary \(F\), or combine it with compression.
+
+After that either:
 
 - extend the calibration to arbitrary \(F\), or
 - combine it with the compression route once the latter is formalized.

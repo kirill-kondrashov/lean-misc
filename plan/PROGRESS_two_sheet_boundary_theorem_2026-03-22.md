@@ -270,6 +270,9 @@ Latest computational sharpening:
   the naive codimension-`1` local Hall graph already fails in exact `n = 5`, but the
   codimension-`2` local Hall graph survives exact `n = 5` across all equal-size middle-layer
   pairs;
+- that split is now stable in the shifted `n = 7` model as well:
+  codimension-`1` fails with worst deficiency `-15` at `e = 20`, while the codimension-`2` local
+  Hall graph survives across all shifted pairs;
 - all searched structured uniform-upper classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|,

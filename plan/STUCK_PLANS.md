@@ -111,7 +111,18 @@ boundary program centered on
   \]
 - Consequence: the active boundary theorem cannot be reduced to a Hall-style argument of this form.
 
-### 5. Unique Lex/Shifted Minimizer Orbit
+### 5. Codimension-1 Local Flux Graph
+
+- Proposed local transport graph: connect \(A \in C\) only to boundary cells \(B \in \partial^+F\)
+  with \(A \subset B\) and \(|B|=|A|+1\).
+- Status: `falsified`.
+- Exact failures:
+  - full `n=5` fails already at `e=3`;
+  - shifted `n=7` fails with worst deficiency `-15` at `e=20`.
+- Consequence: the first viable flux candidate has to allow codimension-`2` transport, not just
+  single upward edges.
+
+### 6. Unique Lex/Shifted Minimizer Orbit
 
 - Conjecture: every minimizer of the two-layer boundary functional lies in the same permutation
   orbit as the lex/shifted model.
@@ -120,7 +131,7 @@ boundary program centered on
   `e=1` has `3` orbits, `e=2` has `17`, `e=4` has `32`.
 - Consequence: only existence of shifted minimizers remains plausible, not uniqueness.
 
-### 6. Colex Paper-Proof Formalization
+### 7. Colex Paper-Proof Formalization
 
 - Mathematical statement:
   \[

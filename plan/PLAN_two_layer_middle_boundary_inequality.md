@@ -114,6 +114,9 @@ close:
 - On the flux side, the first local transport picture is now sharper:
   exact `n = 5` shows that the codimension-`1` local Hall graph fails, but the codimension-`2`
   local Hall graph survives across all equal-size middle-layer pairs.
+- This is no longer only a tiny-dimensional phenomenon:
+  in the shifted `n = 7` model, codimension-`1` still fails, while codimension-`2` survives across
+  all shifted pairs.
 - The coordinate-section decomposition remains exact, but both standalone reductions suggested by
   it are now archived: the unrestricted even adjacent-layer theorem and the corrected coupled
   section theorem are both false.

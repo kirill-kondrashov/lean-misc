@@ -298,6 +298,20 @@ class TwoLayerLocalFluxCounterexample:
 
 
 @dataclass(frozen=True)
+class ShiftedTwoLayerLocalFluxSummaryResult:
+    n: int
+    max_codim: int
+    lower_shifted_family_count: int
+    upper_shifted_family_count: int
+    all_pairs_have_matching: bool
+    worst_deficiency: int
+    worst_deficiency_e: int
+    witness_c_family: Family
+    witness_u_family: Family
+    witness_boundary_family: Family
+
+
+@dataclass(frozen=True)
 class MiddleLayerCompressionCounterexample:
     n: int
     i: int
@@ -1860,6 +1874,112 @@ def exhaustive_two_layer_local_flux_counterexample(
     return None
 
 
+def maximum_matching_size(adjacency: Sequence[Tuple[int, ...]], right_size: int) -> int:
+    match_to_left = [-1] * right_size
+
+    def augment(left: int, seen: List[bool]) -> bool:
+        for right in adjacency[left]:
+            if seen[right]:
+                continue
+            seen[right] = True
+            current = match_to_left[right]
+            if current == -1 or augment(current, seen):
+                match_to_left[right] = left
+                return True
+        return False
+
+    matched = 0
+    for left in range(len(adjacency)):
+        seen = [False] * right_size
+        if augment(left, seen):
+            matched += 1
+    return matched
+
+
+def shifted_two_layer_local_flux_summary(
+    n: int,
+    max_codim: int,
+) -> ShiftedTwoLayerLocalFluxSummaryResult:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    if max_codim <= 0:
+        raise ValueError("max_codim must be positive")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_shifted_families = enumerate_shifted_uniform_families(n, lower_rank, subsets)
+    upper_shifted_families = enumerate_shifted_uniform_families(n, upper_rank, subsets)
+    lower_by_size: Dict[int, List[Family]] = {}
+    upper_by_size: Dict[int, List[Family]] = {}
+    for family in lower_shifted_families:
+        lower_by_size.setdefault(len(family), []).append(family)
+    for family in upper_shifted_families:
+        upper_by_size.setdefault(len(family), []).append(family)
+
+    boundary_cache: Dict[Tuple[Family, Family], Family] = {}
+
+    def boundary_family(c_family: Family, u_family: Family) -> Family:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = tuple(sorted(positive_boundary(family, subsets)))
+        boundary_cache[key] = value
+        return value
+
+    worst_deficiency: int | None = None
+    worst_deficiency_e = 0
+    witness_c_family: Family = ()
+    witness_u_family: Family = ()
+    witness_boundary_family: Family = ()
+
+    for e in range(lower_count + 1):
+        c_size = lower_count - e
+        for c_family in lower_by_size.get(c_size, []):
+            for u_family in upper_by_size.get(e, []):
+                boundary = boundary_family(c_family, u_family)
+                boundary_index = {member: index for index, member in enumerate(boundary)}
+                adjacency: List[Tuple[int, ...]] = []
+                for left in c_family:
+                    neighbors: List[int] = []
+                    for right in boundary:
+                        if left & right == left:
+                            codim = subset_cardinality(right) - subset_cardinality(left)
+                            if 1 <= codim <= max_codim:
+                                neighbors.append(boundary_index[right])
+                    adjacency.append(tuple(neighbors))
+                matching_size = maximum_matching_size(adjacency, len(boundary))
+                deficiency = matching_size - len(c_family)
+                if worst_deficiency is None or deficiency < worst_deficiency:
+                    worst_deficiency = deficiency
+                    worst_deficiency_e = e
+                    witness_c_family = c_family
+                    witness_u_family = u_family
+                    witness_boundary_family = boundary
+
+    return ShiftedTwoLayerLocalFluxSummaryResult(
+        n=n,
+        max_codim=max_codim,
+        lower_shifted_family_count=len(lower_shifted_families),
+        upper_shifted_family_count=len(upper_shifted_families),
+        all_pairs_have_matching=(worst_deficiency is not None and worst_deficiency >= 0),
+        worst_deficiency=0 if worst_deficiency is None else worst_deficiency,
+        worst_deficiency_e=worst_deficiency_e,
+        witness_c_family=witness_c_family,
+        witness_u_family=witness_u_family,
+        witness_boundary_family=witness_boundary_family,
+    )
+
+
 def shifted_even_adjacent_layer_equality_orbits(
     n: int,
 ) -> List[ShiftedEvenAdjacentLayerEqualityOrbitResult]:
@@ -2762,6 +2882,21 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--shifted-two-layer-local-flux-summary",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only summary for the local flux Hall graph on the given odd "
+            "dimensions."
+        ),
+    )
+    parser.add_argument(
+        "--local-flux-max-codim",
+        type=int,
+        default=2,
+        help="Maximum predecessor codimension used by the local flux graph diagnostics.",
+    )
+    parser.add_argument(
         "--dimensions",
         type=int,
         nargs="+",
@@ -3375,6 +3510,42 @@ def main() -> int:
         print(f"  U={format_family(result.u_family)}")
         print(f"  boundary={format_family(result.boundary_family)}")
         return 1
+
+    if args.shifted_two_layer_local_flux_summary is not None:
+        any_warning = False
+        for n in args.shifted_two_layer_local_flux_summary:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                any_warning = True
+                continue
+            result = shifted_two_layer_local_flux_summary(n, args.local_flux_max_codim)
+            if result.all_pairs_have_matching:
+                ok(
+                    "OK shifted local flux summary at "
+                    f"n={n}, max_codim={result.max_codim}: "
+                    f"worst_deficiency={result.worst_deficiency} at e={result.worst_deficiency_e}"
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING shifted local flux failure at "
+                    f"n={n}, max_codim={result.max_codim}: "
+                    f"worst_deficiency={result.worst_deficiency} at e={result.worst_deficiency_e}"
+                )
+            print(
+                f"  lower_shifted_families={result.lower_shifted_family_count} "
+                f"upper_shifted_families={result.upper_shifted_family_count}"
+            )
+            print(
+                f"  witness C={format_family(result.witness_c_family)} "
+                f"U={format_family(result.witness_u_family)}"
+            )
+            print(f"  witness boundary={format_family(result.witness_boundary_family)}")
+        if any_warning:
+            warn("WARNING overall: some shifted local flux summaries failed.")
+            return 1
+        ok("OK overall: all requested shifted local flux summaries survived.")
+        return 0
 
     dimensions = tuple(args.dimensions)
     total_steps = len(dimensions) * 8
