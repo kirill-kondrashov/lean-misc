@@ -125,6 +125,11 @@ close:
   nonincreasing layer-preserving shifts.
   So in exact `n = 5`, weak compression really does reduce the full problem to the shifted world,
   not just the minimizer plateau.
+- But the clean two-phase strengthening is now ruled out:
+  exact `n = 5` shows that not every strict local minimum lies in a boundary-preserving shift
+  component containing a shifted pair.
+  Failures already occur at `e = 5` and `e = 6`, so the active route cannot be simplified to
+  “strict descent first, then plateau rigidity.”
 - A tempting stronger sufficient condition,
   \[
   |\partial^\uparrow U| \ge |U\setminus T(V)|,
@@ -235,14 +240,15 @@ F\subseteq \binom{[n]}{m}\sqcup \binom{[n]}{m+1}.
 \]
 
 The current exact `n = 5` evidence suggests the reduction theorem should not be phrased as strict
-descent. The stronger strict-compression shortcut is false, but the weaker minimizer-plateau
-connectivity survives: every exact `n = 5` minimizer lies in the boundary-preserving shift
-component of a shifted minimizer, and in fact that component is the whole minimizer graph. So the
-likely proof shape is:
+descent. The stronger strict-compression shortcut is false, and even the cleaner strict-local-
+minimum variant is false: not every strict local minimum lies in a boundary-preserving plateau
+component containing a shifted pair. But the weaker global reachability statement survives:
+every exact `n = 5` pair reaches a shifted pair by nonincreasing shifts. So the likely proof
+shape is:
 
 - weak compression monotonicity for all two-layer families;
 - global reachability of every family to the shifted world by nonincreasing shifts;
-- then a plateau-connectivity / rigidity theorem on minimizers;
+- then a more global rigidity theorem on nonincreasing paths, not just on strict local minima;
 - then the shifted extremal classification.
 
 ### 4. Classify The Shifted Extremizers

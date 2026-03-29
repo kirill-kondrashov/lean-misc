@@ -223,6 +223,10 @@ Latest computational sharpening:
 - stronger again, for every `e`, every exact `n = 5` equal-size two-layer pair reaches a shifted
   pair by a chain of nonincreasing layer-preserving shifts, so the full weak-compression
   reduction to the shifted world now survives exactly in `n = 5`;
+- but the cleaner two-phase variant is now falsified:
+  exact `n = 5` has strict local minima at `e = 5,6` whose boundary-preserving shift components
+  contain no shifted pair, so the route cannot be simplified to strict descent followed by a
+  plateau argument;
 - exact shifted `n = 7` enumeration now matches the same picture:
   the shifted-only search over all `352 × 352` middle-layer families finds no counterexample, and
   the only shifted equality orbits are again the full lower-layer orbit and the principal-star

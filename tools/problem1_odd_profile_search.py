@@ -220,6 +220,17 @@ class ExhaustiveTwoLayerNonincreasingShiftReachabilityResult:
 
 
 @dataclass(frozen=True)
+class ExhaustiveTwoLayerStrictLocalMinimumPlateauCoverageResult:
+    n: int
+    e: int
+    strict_local_minimum_count: int
+    covered_strict_local_minimum_count: int
+    all_strict_local_minima_connect_to_shifted: bool
+    witness_c_family: Family
+    witness_u_family: Family
+
+
+@dataclass(frozen=True)
 class ExhaustiveTwoLayerCompressionCounterexample:
     n: int
     e: int
@@ -1906,6 +1917,152 @@ def exhaustive_two_layer_nonincreasing_shift_reachability(
                 shifted_pair_count=len(shifted_keys),
                 reachable_pair_count=len(reachable),
                 all_pairs_reach_shifted=all_reachable,
+                witness_c_family=witness_c_family,
+                witness_u_family=witness_u_family,
+            )
+        )
+    return results
+
+
+def exhaustive_two_layer_strict_local_minimum_plateau_coverage(
+    n: int,
+) -> List[ExhaustiveTwoLayerStrictLocalMinimumPlateauCoverageResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    boundary_cache: Dict[int, int] = {}
+    full_lower_mask = (1 << lower_count) - 1
+    lower_family_to_c_mask: Dict[Family, int] = {}
+    for c_mask in range(1 << lower_count):
+        c_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if c_mask & (1 << index)
+        )
+        lower_family_to_c_mask[c_family] = c_mask
+    upper_family_to_u_mask: Dict[Family, int] = {}
+    for u_mask in range(1 << upper_count):
+        u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        upper_family_to_u_mask[u_family] = u_mask
+
+    def two_layer_boundary_size(u_mask: int, v_mask: int) -> int:
+        key = (u_mask << lower_count) | v_mask
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        c_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if not (v_mask & (1 << index))
+        )
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    results: List[ExhaustiveTwoLayerStrictLocalMinimumPlateauCoverageResult] = []
+    for e in range(lower_count + 1):
+        u_masks = [u_mask for u_mask in range(1 << upper_count) if u_mask.bit_count() == e]
+        v_masks = [v_mask for v_mask in range(1 << lower_count) if v_mask.bit_count() == e]
+        state_keys = [(u_mask << lower_count) | v_mask for u_mask in u_masks for v_mask in v_masks]
+
+        boundary_by_key: Dict[int, int] = {}
+        c_family_by_key: Dict[int, Family] = {}
+        u_family_by_key: Dict[int, Family] = {}
+        shifted_keys: Set[int] = set()
+        adjacency_equal: Dict[int, Set[int]] = {key: set() for key in state_keys}
+        strict_local_minima: Set[int] = set(state_keys)
+
+        for u_mask in u_masks:
+            u_family = tuple(
+                upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+            )
+            u_shifted = is_shifted_uniform_family(u_family, n)
+            for v_mask in v_masks:
+                c_family = tuple(
+                    lower_rank_sets[index]
+                    for index in range(lower_count)
+                    if not (v_mask & (1 << index))
+                )
+                key = (u_mask << lower_count) | v_mask
+                c_family_by_key[key] = c_family
+                u_family_by_key[key] = u_family
+                boundary_before = two_layer_boundary_size(u_mask, v_mask)
+                boundary_by_key[key] = boundary_before
+                if u_shifted and is_shifted_uniform_family(c_family, n):
+                    shifted_keys.add(key)
+
+                for i in range(n):
+                    for j in range(i + 1, n):
+                        compressed_c_family = compress_uniform_family(c_family, i, j)
+                        compressed_u_family = compress_uniform_family(u_family, i, j)
+                        if compressed_c_family == c_family and compressed_u_family == u_family:
+                            continue
+                        compressed_c_mask = lower_family_to_c_mask[compressed_c_family]
+                        compressed_v_mask = full_lower_mask ^ compressed_c_mask
+                        compressed_u_mask = upper_family_to_u_mask[compressed_u_family]
+                        neighbor_key = (compressed_u_mask << lower_count) | compressed_v_mask
+                        boundary_after = two_layer_boundary_size(
+                            compressed_u_mask, compressed_v_mask
+                        )
+                        if boundary_after < boundary_before:
+                            strict_local_minima.discard(key)
+                        elif boundary_after == boundary_before:
+                            adjacency_equal[key].add(neighbor_key)
+                            adjacency_equal[neighbor_key].add(key)
+
+        component_of: Dict[int, int] = {}
+        components: List[Set[int]] = []
+        unseen = set(state_keys)
+        while unseen:
+            start = unseen.pop()
+            component = {start}
+            frontier = [start]
+            while frontier:
+                key = frontier.pop()
+                for neighbor in adjacency_equal[key]:
+                    if neighbor in unseen:
+                        unseen.remove(neighbor)
+                        component.add(neighbor)
+                        frontier.append(neighbor)
+            component_id = len(components)
+            for key in component:
+                component_of[key] = component_id
+            components.append(component)
+
+        shifted_component_ids = {component_of[key] for key in shifted_keys}
+        covered = {
+            key for key in strict_local_minima if component_of[key] in shifted_component_ids
+        }
+        all_covered = len(covered) == len(strict_local_minima)
+
+        witness_c_family: Family = ()
+        witness_u_family: Family = ()
+        if not all_covered:
+            for key in strict_local_minima:
+                if key not in covered:
+                    witness_c_family = c_family_by_key[key]
+                    witness_u_family = u_family_by_key[key]
+                    break
+
+        results.append(
+            ExhaustiveTwoLayerStrictLocalMinimumPlateauCoverageResult(
+                n=n,
+                e=e,
+                strict_local_minimum_count=len(strict_local_minima),
+                covered_strict_local_minimum_count=len(covered),
+                all_strict_local_minima_connect_to_shifted=all_covered,
                 witness_c_family=witness_c_family,
                 witness_u_family=witness_u_family,
             )
@@ -5388,6 +5545,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-two-layer-strict-local-minimum-plateau-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 strict-local-minimum test: check whether every strict "
+            "boundary-local minimum lies in a boundary-preserving shift component containing a "
+            "shifted pair."
+        ),
+    )
+    parser.add_argument(
         "--exhaustive-two-layer-compression-monotonicity-n5",
         action="store_true",
         help=(
@@ -6150,6 +6316,45 @@ def main() -> int:
         ok(
             "OK overall: exact n=5 data support global reachability to the shifted world under "
             "nonincreasing layer-preserving shifts."
+        )
+        return 0
+
+    if args.exhaustive_two_layer_strict_local_minimum_plateau_n5:
+        any_warning = False
+        results = exhaustive_two_layer_strict_local_minimum_plateau_coverage(5)
+        for result in results:
+            if result.all_strict_local_minima_connect_to_shifted:
+                ok(
+                    "OK exact n=5 strict local minima at "
+                    f"e={result.e}: all {result.strict_local_minimum_count} strict local minima "
+                    "connect to shifted pairs inside their boundary plateau."
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING exact n=5 strict local minima at "
+                    f"e={result.e}: only {result.covered_strict_local_minimum_count} of "
+                    f"{result.strict_local_minimum_count} strict local minima connect to shifted "
+                    "pairs inside their boundary plateau."
+                )
+            print(
+                f"  strict_local_minima={result.strict_local_minimum_count} "
+                f"covered={result.covered_strict_local_minimum_count}"
+            )
+            if not result.all_strict_local_minima_connect_to_shifted:
+                print(
+                    f"  witness C={format_family(result.witness_c_family)} "
+                    f"U={format_family(result.witness_u_family)}"
+                )
+        if any_warning:
+            warn(
+                "WARNING overall: exact n=5 data do not support the strict-descent-plus-plateau "
+                "version of the weak-compression route."
+            )
+            return 1
+        ok(
+            "OK overall: exact n=5 data support strict descent to a boundary plateau containing "
+            "shifted pairs."
         )
         return 0
 

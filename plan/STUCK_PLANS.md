@@ -174,7 +174,25 @@ boundary program centered on
 - Consequence: the compression route cannot be driven by a strictly descending potential alone;
   it needs weak monotonicity plus a separate rigidity/equality argument.
 
-### 9. Inverse-Degree Codimension-2 Flux Rule
+### 9. Strict-Local-Minimum Plateau Route
+
+- Proposed strengthening:
+  every strict local minimum for the layer-preserving shift dynamics lies in a
+  boundary-preserving shift component containing a shifted pair.
+- Status: `falsified`.
+- Exact `n=5` failures already occur at `e=5` and `e=6`.
+- Representative `e=5` witness:
+  \[
+  C=\{\{1,2\},\{0,3\},\{1,3\},\{0,4\},\{2,4\}\},
+  \]
+  \[
+  U=\{\{0,1,2\},\{0,2,3\},\{0,1,4\},\{1,3,4\},\{2,3,4\}\}.
+  \]
+- Consequence: the active weak-compression route cannot be decomposed into “strict descent first,
+  then plateau rigidity.” Any proof has to use genuinely interleaved nonincreasing paths or a
+  more global monotone invariant.
+
+### 10. Inverse-Degree Codimension-2 Flux Rule
 
 - Proposed rule: on the codimension-`2` local transport graph, weight the contribution to a
   boundary cell \(B\) proportionally to \(1/\deg(B)\).
@@ -200,7 +218,7 @@ boundary program centered on
   currently viable; any successful calibration must use a genuinely nonuniform construction, or be
   extracted from matching/Hall data by a subtler argument.
 
-### 10. Canonical Greedy Codimension-2 Matching Rules
+### 11. Canonical Greedy Codimension-2 Matching Rules
 
 - Tested family: all eight rules obtained by choosing
   - left order ascending / descending,
@@ -227,7 +245,7 @@ boundary program centered on
 - Consequence: the codimension-`2` matching branch remains alive only at the Hall/augmenting-path
   level; it cannot currently be reduced to a fixed local greedy injection rule.
 
-### 11. Colex Paper-Proof Formalization
+### 12. Colex Paper-Proof Formalization
 
 - Mathematical statement:
   \[
