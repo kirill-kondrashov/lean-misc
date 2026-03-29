@@ -128,6 +128,9 @@ close:
 - But the codimension-`2` matching route has a new exact invariant:
   in exact `n = 5` and in shifted `n = 7`, the minimum number of codimension-`2` edges required
   by a perfect local matching always equals the codimension-`1` Hall deficiency.
+- That invariant is not explained by the simplest local obstruction:
+  in exact `n = 5` and in shifted `n = 7`, the codimension-`1` Hall deficiency can be strictly
+  larger than the number of zero-degree lower cells in the codimension-`1` local graph.
 - The coordinate-section decomposition remains exact, but both standalone reductions suggested by
   it are now archived: the unrestricted even adjacent-layer theorem and the corrected coupled
   section theorem are both false.

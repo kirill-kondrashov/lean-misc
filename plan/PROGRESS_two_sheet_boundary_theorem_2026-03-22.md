@@ -285,6 +285,9 @@ Latest computational sharpening:
 - the codimension-`2` matching route nevertheless sharpens positively:
   in exact `n = 5` and in shifted `n = 7`, the minimum number of codimension-`2` edges needed in a
   perfect local matching always equals the codimension-`1` Hall deficiency lower bound;
+- the first naive explanation of that deficiency is now ruled out:
+  in exact `n = 5` and in shifted `n = 7`, the codimension-`1` deficiency can be strictly larger
+  than the number of lower cells with no codimension-`1` boundary neighbor;
 - all searched structured uniform-upper classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|,

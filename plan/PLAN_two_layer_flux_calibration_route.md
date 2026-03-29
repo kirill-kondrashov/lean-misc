@@ -125,6 +125,15 @@ So the surviving codimension-`2` route is no longer just “some perfect matchin
 tested domains, the codimension-`2` usage is exactly the amount forced by the codimension-`1`
 defect.
 
+The first naive explanation of that defect is now archived. Exact `n = 5` and shifted `n = 7`
+both show that
+\[
+\delta_1(F)
+\]
+can be strictly larger than the number of lower cells with no codimension-`1` neighbor in the
+local graph. So the matching-cost identity is not just measuring isolated lower cells; it is a
+more genuinely global Hall obstruction.
+
 ## Concrete Program
 
 ### 1. Choose The Right Transport Graph
@@ -200,6 +209,8 @@ So the next proof target on this branch is no longer “some local flux graph,�
   \min\{\text{codim-2 edges in a perfect local matching}\} = \delta_1(F)
   \]
   first for shifted \(F\);
+- understand \(\delta_1(F)\) itself as a genuinely global obstruction, not just a zero-degree
+  count;
 - then convert that matching into an actual fractional calibration;
 - equivalently, find a genuinely nontrivial codimension-`2` weighting rule, since both the
   equal-split and inverse-degree local rules are already falsified;

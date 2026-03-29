@@ -164,6 +164,9 @@ The current computational evidence still points in the right direction:
 - but the codimension-`2` matching route now has a sharper positive invariant:
   in exact `n = 5` and in shifted `n = 7`, the minimum number of codimension-`2` edges needed in a
   perfect local matching always equals the codimension-`1` Hall deficiency lower bound;
+- that invariant is now known to be genuinely global:
+  exact `n = 5` and shifted `n = 7` both show that the codimension-`1` deficiency can be strictly
+  larger than the number of lower cells with no codimension-`1` boundary neighbor;
 - the corrected coupled section inequality
   \[
   |\partial^+(A\cup D)| + |\partial^+(B\cup E)| \ge |A| + |B|

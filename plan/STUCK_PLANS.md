@@ -215,6 +215,25 @@ boundary program centered on
   and the balanced local-LYM packaging.
 - Consequence: useful background evidence, but not part of the active proof route.
 
+### 11. Zero-Degree Explanation Of Codimension-1 Deficiency
+
+- Proposed explanation:
+  \[
+  \delta_1(F)=\#\{\text{lower cells with no codim-1 boundary neighbor}\}.
+  \]
+- Status: `falsified`.
+- Exact failures:
+  - in exact `n = 5`, worst excess is `2` at `e = 4`, with
+    \[
+    \delta_1(F)=2,\qquad \text{zero-degree count}=0;
+    \]
+  - in shifted `n = 7`, worst excess is `6` at `e = 13`, with
+    \[
+    \delta_1(F)=6,\qquad \text{zero-degree count}=0.
+    \]
+- Consequence: the codimension-`1` Hall deficiency is a genuinely global obstruction, not just the
+  count of isolated lower cells.
+
 ## Current Use
 
 These branches are archived. They should be cited only as:
