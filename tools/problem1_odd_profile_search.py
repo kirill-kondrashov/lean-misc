@@ -421,6 +421,31 @@ class ShiftedLocalFluxShiftedWitnessSummaryResult:
 
 
 @dataclass(frozen=True)
+class ShiftedLocalFluxPrefixWitnessSummaryResult:
+    n: int
+    lower_shifted_family_count: int
+    upper_shifted_family_count: int
+    all_pairs_have_lex_prefix_witness: bool
+    worst_excess_over_lex_prefix: int
+    worst_excess_lex_e: int
+    witness_lex_c_family: Family
+    witness_lex_u_family: Family
+    witness_lex_boundary_family: Family
+    witness_lex_codim1_deficiency: int
+    witness_lex_prefix_deficiency: int
+    witness_lex_prefix: Family
+    all_pairs_have_colex_prefix_witness: bool
+    worst_excess_over_colex_prefix: int
+    worst_excess_colex_e: int
+    witness_colex_c_family: Family
+    witness_colex_u_family: Family
+    witness_colex_boundary_family: Family
+    witness_colex_codim1_deficiency: int
+    witness_colex_prefix_deficiency: int
+    witness_colex_prefix: Family
+
+
+@dataclass(frozen=True)
 class MiddleLayerCompressionCounterexample:
     n: int
     i: int
@@ -3062,6 +3087,132 @@ def shifted_two_layer_shifted_witness_summary(
     )
 
 
+def shifted_two_layer_prefix_witness_summary(
+    n: int,
+) -> ShiftedLocalFluxPrefixWitnessSummaryResult:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_count = comb(n, lower_rank)
+    upper_count = comb(n, upper_rank)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_shifted_families = enumerate_shifted_uniform_families(n, lower_rank, subsets)
+    upper_shifted_families = enumerate_shifted_uniform_families(n, upper_rank, subsets)
+    lower_by_size: Dict[int, List[Family]] = {}
+    upper_by_size: Dict[int, List[Family]] = {}
+    for family in lower_shifted_families:
+        lower_by_size.setdefault(len(family), []).append(family)
+    for family in upper_shifted_families:
+        upper_by_size.setdefault(len(family), []).append(family)
+
+    boundary_cache: Dict[Tuple[Family, Family], Family] = {}
+
+    def boundary_family(c_family: Family, u_family: Family) -> Family:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = tuple(sorted(positive_boundary(family, subsets)))
+        boundary_cache[key] = value
+        return value
+
+    worst_lex_excess = -10**9
+    worst_lex_e = 0
+    witness_lex_c_family: Family = ()
+    witness_lex_u_family: Family = ()
+    witness_lex_boundary_family: Family = ()
+    witness_lex_codim1_deficiency = 0
+    witness_lex_prefix_deficiency = 0
+    witness_lex_prefix: Family = ()
+
+    worst_colex_excess = -10**9
+    worst_colex_e = 0
+    witness_colex_c_family: Family = ()
+    witness_colex_u_family: Family = ()
+    witness_colex_boundary_family: Family = ()
+    witness_colex_codim1_deficiency = 0
+    witness_colex_prefix_deficiency = 0
+    witness_colex_prefix: Family = ()
+
+    for e in range(lower_count + 1):
+        c_size = lower_count - e
+        for c_family in lower_by_size.get(c_size, []):
+            for u_family in upper_by_size.get(e, []):
+                boundary = boundary_family(c_family, u_family)
+                adjacency = local_flux_adjacency(c_family, boundary, 1)
+                c_index = {member: index for index, member in enumerate(c_family)}
+                codim1_matching = maximum_matching_size(adjacency, len(boundary))
+                codim1_deficiency = len(c_family) - codim1_matching
+
+                def prefix_deficiency_from_key(key_fn) -> Tuple[int, Family]:
+                    ordered = tuple(sorted(c_family, key=key_fn))
+                    neighborhood: Set[int] = set()
+                    best_deficiency = 0
+                    best_prefix: Family = ()
+                    for prefix_size, left in enumerate(ordered, start=1):
+                        neighborhood.update(adjacency[c_index[left]])
+                        deficiency = prefix_size - len(neighborhood)
+                        if deficiency > best_deficiency:
+                            best_deficiency = deficiency
+                            best_prefix = ordered[:prefix_size]
+                    return (best_deficiency, best_prefix)
+
+                lex_prefix_deficiency, lex_prefix = prefix_deficiency_from_key(lex_key)
+                colex_prefix_deficiency, colex_prefix = prefix_deficiency_from_key(colex_key)
+
+                lex_excess = codim1_deficiency - lex_prefix_deficiency
+                if lex_excess > worst_lex_excess:
+                    worst_lex_excess = lex_excess
+                    worst_lex_e = e
+                    witness_lex_c_family = c_family
+                    witness_lex_u_family = u_family
+                    witness_lex_boundary_family = boundary
+                    witness_lex_codim1_deficiency = codim1_deficiency
+                    witness_lex_prefix_deficiency = lex_prefix_deficiency
+                    witness_lex_prefix = lex_prefix
+
+                colex_excess = codim1_deficiency - colex_prefix_deficiency
+                if colex_excess > worst_colex_excess:
+                    worst_colex_excess = colex_excess
+                    worst_colex_e = e
+                    witness_colex_c_family = c_family
+                    witness_colex_u_family = u_family
+                    witness_colex_boundary_family = boundary
+                    witness_colex_codim1_deficiency = codim1_deficiency
+                    witness_colex_prefix_deficiency = colex_prefix_deficiency
+                    witness_colex_prefix = colex_prefix
+
+    return ShiftedLocalFluxPrefixWitnessSummaryResult(
+        n=n,
+        lower_shifted_family_count=len(lower_shifted_families),
+        upper_shifted_family_count=len(upper_shifted_families),
+        all_pairs_have_lex_prefix_witness=(worst_lex_excess <= 0),
+        worst_excess_over_lex_prefix=worst_lex_excess,
+        worst_excess_lex_e=worst_lex_e,
+        witness_lex_c_family=witness_lex_c_family,
+        witness_lex_u_family=witness_lex_u_family,
+        witness_lex_boundary_family=witness_lex_boundary_family,
+        witness_lex_codim1_deficiency=witness_lex_codim1_deficiency,
+        witness_lex_prefix_deficiency=witness_lex_prefix_deficiency,
+        witness_lex_prefix=witness_lex_prefix,
+        all_pairs_have_colex_prefix_witness=(worst_colex_excess <= 0),
+        worst_excess_over_colex_prefix=worst_colex_excess,
+        worst_excess_colex_e=worst_colex_e,
+        witness_colex_c_family=witness_colex_c_family,
+        witness_colex_u_family=witness_colex_u_family,
+        witness_colex_boundary_family=witness_colex_boundary_family,
+        witness_colex_codim1_deficiency=witness_colex_codim1_deficiency,
+        witness_colex_prefix_deficiency=witness_colex_prefix_deficiency,
+        witness_colex_prefix=witness_colex_prefix,
+    )
+
+
 def exhaustive_two_layer_equal_split_summary(
     n: int,
     max_codim: int,
@@ -4392,6 +4543,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--shifted-two-layer-prefix-witness-summary",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only summary testing whether the codimension-1 Hall deficiency is "
+            "witnessed by a lex or colex prefix of the shifted lower family."
+        ),
+    )
+    parser.add_argument(
         "--local-flux-max-codim",
         type=int,
         default=2,
@@ -5487,6 +5647,68 @@ def main() -> int:
             warn("WARNING overall: some shifted Hall-witness summaries failed.")
             return 1
         ok("OK overall: all requested shifted Hall-witness summaries survived.")
+        return 0
+
+    if args.shifted_two_layer_prefix_witness_summary is not None:
+        any_warning = False
+        for n in args.shifted_two_layer_prefix_witness_summary:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                any_warning = True
+                continue
+            result = shifted_two_layer_prefix_witness_summary(n)
+            if result.all_pairs_have_lex_prefix_witness:
+                ok(
+                    "OK shifted lex-prefix witness summary at "
+                    f"n={n}: codim-1 deficiency is always witnessed by a lex prefix."
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING shifted lex-prefix witness summary at "
+                    f"n={n}: some pairs need a non-prefix lex witness."
+                )
+            print(
+                f"  lex worst_excess={result.worst_excess_over_lex_prefix} "
+                f"at e={result.worst_excess_lex_e}"
+            )
+            print(
+                f"  lex codim1_deficiency={result.witness_lex_codim1_deficiency} "
+                f"prefix_deficiency={result.witness_lex_prefix_deficiency}"
+            )
+            print(
+                f"  lex witness C={format_family(result.witness_lex_c_family)} "
+                f"U={format_family(result.witness_lex_u_family)}"
+            )
+            print(f"  lex witness prefix={format_family(result.witness_lex_prefix)}")
+            if result.all_pairs_have_colex_prefix_witness:
+                ok(
+                    "OK shifted colex-prefix witness summary at "
+                    f"n={n}: codim-1 deficiency is always witnessed by a colex prefix."
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING shifted colex-prefix witness summary at "
+                    f"n={n}: some pairs need a non-prefix colex witness."
+                )
+            print(
+                f"  colex worst_excess={result.worst_excess_over_colex_prefix} "
+                f"at e={result.worst_excess_colex_e}"
+            )
+            print(
+                f"  colex codim1_deficiency={result.witness_colex_codim1_deficiency} "
+                f"prefix_deficiency={result.witness_colex_prefix_deficiency}"
+            )
+            print(
+                f"  colex witness C={format_family(result.witness_colex_c_family)} "
+                f"U={format_family(result.witness_colex_u_family)}"
+            )
+            print(f"  colex witness prefix={format_family(result.witness_colex_prefix)}")
+        if any_warning:
+            warn("WARNING overall: some shifted prefix-witness summaries failed.")
+            return 1
+        ok("OK overall: all requested shifted prefix-witness summaries survived.")
         return 0
 
     dimensions = tuple(args.dimensions)

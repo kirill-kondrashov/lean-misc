@@ -147,6 +147,14 @@ shifted `n = 7`, the codimension-`1` Hall deficiency is always witnessed by a sh
 subfamily. So while \(\delta_1(F)\) is more global than a single cut, it still appears compatible
 with compression on the shifted subproblem.
 
+The next canonical strengthening is now partly archived. Exact shifted diagnostics show:
+
+- a colex-prefix witness theorem is false already in shifted `n = 5`;
+- a lex-prefix witness theorem survives shifted `n = 5` but is false in shifted `n = 7`.
+
+So the shifted Hall witness can be canonicalized to a shifted lower subfamily, but not all the way
+to a simple lex/colex prefix of the lower sheet.
+
 ## Concrete Program
 
 ### 1. Choose The Right Transport Graph
@@ -224,6 +232,9 @@ So the next proof target on this branch is no longer â€œsome local flux graph,â€
   first for shifted \(F\);
 - prove that for shifted \(F\), the codimension-`1` Hall deficiency \(\delta_1(F)\) is witnessed
   by a shifted lower subfamily;
+- do not try to strengthen that immediately to a lex/colex-prefix witness theorem:
+  colex-prefix is already falsified in shifted `n = 5`, and lex-prefix is already falsified in
+  shifted `n = 7`;
 - understand \(\delta_1(F)\) itself as a genuinely global obstruction, not just a zero-degree
   count;
 - and not just the best one-coordinate contain/avoid cut deficiency;

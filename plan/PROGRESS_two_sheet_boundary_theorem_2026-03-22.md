@@ -294,6 +294,9 @@ Latest computational sharpening:
 - but the shifted Hall route sharpens positively:
   in shifted `n = 5` and shifted `n = 7`, the codimension-`1` deficiency is always witnessed by a
   shifted lower subfamily;
+- the obvious prefix simplifications are now partly archived:
+  colex-prefix witnesses fail already in shifted `n = 5`, and lex-prefix witnesses fail in shifted
+  `n = 7`;
 - all searched structured uniform-upper classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|,

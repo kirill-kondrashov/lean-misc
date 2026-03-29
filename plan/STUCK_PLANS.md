@@ -254,6 +254,18 @@ boundary program centered on
 - Consequence: the codimension-`1` Hall deficiency is not captured by any single principal
   contain/avoid cut; it is more global than that.
 
+### 13. Lex/Colex Prefix Witness Simplification
+
+- Proposed strengthening of the shifted Hall witness route:
+  require the codimension-`1` Hall deficiency to be witnessed by a lex or colex prefix of the
+  shifted lower family \(C\).
+- Status: `falsified`.
+- Exact shifted failures:
+  - colex-prefix already fails in shifted `n = 5`, with worst excess `1` at `e = 3`;
+  - lex-prefix fails in shifted `n = 7`, with worst excess `1` at `e = 12`.
+- Consequence: the shifted Hall witness can still be taken shifted, but not reduced all the way to
+  a simple boundary-order prefix theorem.
+
 ## Current Use
 
 These branches are archived. They should be cited only as:

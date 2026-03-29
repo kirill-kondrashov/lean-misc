@@ -137,6 +137,9 @@ close:
 - But the shifted route now has a positive structural witness:
   in shifted `n = 5` and shifted `n = 7`, the codimension-`1` Hall deficiency is always witnessed
   by a shifted lower subfamily.
+- The next canonical witness simplification is now partially ruled out:
+  colex-prefix witnesses fail already in shifted `n = 5`, and lex-prefix witnesses fail in shifted
+  `n = 7`.
 - The coordinate-section decomposition remains exact, but both standalone reductions suggested by
   it are now archived: the unrestricted even adjacent-layer theorem and the corrected coupled
   section theorem are both false.
