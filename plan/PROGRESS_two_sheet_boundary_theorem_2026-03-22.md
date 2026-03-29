@@ -265,9 +265,21 @@ Latest computational sharpening:
   so in shifted `n = 7` the global first-gap set is exactly the distance-`2` shell;
   this exact shell characterization is false in shifted `n = 5`, so it currently looks like a
   genuinely higher-dimensional phenomenon rather than a universal odd-dimensional rule;
+- the shifted shell ladder is now partially exact beyond the first shell:
+  shifted `n = 5` has shell gaps
+  `0, 2, 3, [2..4], 5`
+  at template distances `0, 2, 4, 6, 8`;
+  shifted `n = 7` has shell gap `5` uniformly on the full distance-`4` shell, while the
+  distance-`6` shell already splits with gaps `6` and `7`;
+  so the first two nontrivial shells are rigid in shifted `n = 7`, but shell rigidity already
+  breaks by distance `6`;
 - pushing the same brute-force shifted-enumeration idea to `n = 9` no longer looks productive:
   the shifted-family count itself does not return on a short/medium run, so the search side is
   effectively saturated at `n = 7`;
+- the same saturation issue now appears on the stronger branch as well:
+  the full shifted `n = 7` shell-profile enumeration does not look worth pushing further with the
+  current brute-force tool, so the next step has to be theorem-level work on shifted shell/gap
+  rigidity rather than deeper shell scans;
 - the proof note now contains an exact coordinate-section reduction:
   for
   \[

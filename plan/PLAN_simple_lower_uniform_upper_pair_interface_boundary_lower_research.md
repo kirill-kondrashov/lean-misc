@@ -364,6 +364,19 @@ The global first-gap orbit set is now classified exactly in the shifted world:
   so in shifted `n = 7` the global first-gap set is exactly the distance-`2` shell;
   but this is false in shifted `n = 5`, where the distance-`2` shell has only `5` orbit types
   while the global first-gap set has `7`.
+- the shell ladder is now sharper again:
+  shifted `n = 5` has exact shell gaps
+  `0, 2, 3, [2..4], 5`
+  at template distances `0, 2, 4, 6, 8` respectively;
+  shifted `n = 7` has exact shell gaps
+  `3` at distance `2`,
+  `5` at distance `4`,
+  and `[6..7]` at distance `6`;
+  so in the first genuinely nontrivial shifted dimension the first two shells are rigid, but
+  shell rigidity already breaks by distance `6`;
+- the full shifted `n = 7` shell-profile enumeration is now computationally saturated with the
+  current tool, so this branch has reached a paper-proof boundary again rather than a missing-data
+  boundary.
 
 So the stronger-than-middle-binomial program is no longer just a vague stability question. The
 current evidence supports a sharper first theorem target:

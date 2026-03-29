@@ -388,6 +388,16 @@ class ShiftedTwoLayerTemplateShellSummaryResult:
 
 
 @dataclass(frozen=True)
+class ShiftedTwoLayerTemplateShellProfileEntry:
+    n: int
+    shell_distance: int
+    pair_count: int
+    orbit_count: int
+    minimal_margin: int
+    maximal_margin: int
+
+
+@dataclass(frozen=True)
 class ExhaustiveShiftedEvenAdjacentLayerSummaryResult:
     n: int
     r: int
@@ -3226,6 +3236,37 @@ def shifted_two_layer_template_shell_summary(
         witness_c_family=witness_c_family,
         witness_u_family=witness_u_family,
     )
+
+
+def shifted_two_layer_template_shell_profile(
+    n: int,
+) -> List[ShiftedTwoLayerTemplateShellProfileEntry]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    profile: List[ShiftedTwoLayerTemplateShellProfileEntry] = []
+    max_shell_distance = 2 * (len(lower_rank_sets) + len(upper_rank_sets))
+    for shell_distance in range(max_shell_distance + 1):
+        try:
+            result = shifted_two_layer_template_shell_summary(n, shell_distance)
+        except ValueError:
+            continue
+        profile.append(
+            ShiftedTwoLayerTemplateShellProfileEntry(
+                n=n,
+                shell_distance=shell_distance,
+                pair_count=result.pair_count,
+                orbit_count=result.orbit_count,
+                minimal_margin=result.minimal_margin,
+                maximal_margin=result.maximal_margin,
+            )
+        )
+    return profile
 
 
 def exhaustive_shifted_even_adjacent_layer_summary(
@@ -6336,6 +6377,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--shifted-two-layer-template-shell-profile",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only shell profile on the given odd dimensions, listing the "
+            "minimum and maximum boundary margins on every nonempty template-distance shell."
+        ),
+    )
+    parser.add_argument(
         "--template-shell-distance",
         type=int,
         default=2,
@@ -7411,6 +7461,21 @@ def main() -> int:
                 f"  witness C={format_family(result.witness_c_family)} "
                 f"U={format_family(result.witness_u_family)}"
             )
+        return 0
+
+    if args.shifted_two_layer_template_shell_profile is not None:
+        for n in args.shifted_two_layer_template_shell_profile:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                return 1
+            results = shifted_two_layer_template_shell_profile(n)
+            ok(f"OK shifted template-shell profile at n={n}: shell_count={len(results)}")
+            for result in results:
+                print(
+                    f"  d={result.shell_distance} pair_count={result.pair_count} "
+                    f"orbit_count={result.orbit_count} "
+                    f"min_margin={result.minimal_margin} max_margin={result.maximal_margin}"
+                )
         return 0
 
     if args.exhaustive_shifted_even_adjacent_layer_summary is not None:

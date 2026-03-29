@@ -163,6 +163,33 @@ This shell picture is not dimension-free evidence: in shifted `n = 5`, the dista
 only `5` orbit types while the global first-gap set has `7` orbit types, so the exact
 distance-`2` characterization is false there.
 
+## Current Shifted Shell-Ladder Profile
+
+The shifted gap picture is now refined beyond the first shell.
+
+- shifted `n = 5`: the full template-shell profile is now exact:
+  - distance `0`: gap `0`
+  - distance `2`: every shifted pair has gap `2`
+  - distance `4`: every shifted pair has gap `3`
+  - distance `6`: shell gaps range from `2` to `4`
+  - distance `8`: every shifted pair has gap `5`
+- shifted `n = 7`: the low shells are now exact:
+  - distance `2`: all `5` shell orbits have gap `3`
+  - distance `4`: all `10` shell orbits have gap `5`
+  - distance `6`: the `40` shell orbits have gaps ranging from `6` to `7`
+
+So the shifted higher-dimensional picture is sharper again:
+
+\[
+\text{the first two nontrivial shells in shifted } n = 7 \text{ are rigid,}
+\]
+\[
+\text{but shell rigidity already breaks by distance } 6.
+\]
+
+The full shifted `n = 7` shell-profile enumeration is now computationally saturated with the
+current tool, so the next step has to be theorem-level work, not deeper brute-force shell scans.
+
 So the first nontrivial shifted stability theorem now has a sharper candidate shape:
 
 \[
@@ -261,9 +288,14 @@ After that, the program can be iterated:
    distance-`2` shell around the two equality templates.
    The `n = 5` computation shows this should be treated as a higher-dimensional phenomenon, not as
    a statement expected in every odd dimension.
-5. Identify what the transported subcube families would have to look like in order to realize the
+5. Promote the new shell-ladder evidence into a stronger stability conjecture:
+   in the shifted `n = 7` model, the distance-`4` shell is also rigid with exact gap `5`,
+   while the distance-`6` shell already splits with gaps `6` and `7`.
+   So a realistic next theorem is not “every shell is rigid”, but “the first few shells admit
+   exact gap formulas before higher-shell splitting begins”.
+6. Identify what the transported subcube families would have to look like in order to realize the
    two equality templates, and try to rule that out directly.
-6. Only then move back into Lean:
+7. Only then move back into Lean:
    first with a stronger shifted theorem, then with an exclusion theorem for the transported
    family class, then with the upgraded endpoint.
 
