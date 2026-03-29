@@ -119,6 +119,12 @@ close:
   layer shifts is connected.
   So the minimizer plateau does not collapse to one orbit, but it is still a single connected
   weak-compression plateau leading to the shifted world.
+- More strongly still, the whole exact `n = 5` state space now supports the weak-compression
+  program:
+  for every `e`, every equal-size two-layer pair reaches some shifted pair by a chain of
+  nonincreasing layer-preserving shifts.
+  So in exact `n = 5`, weak compression really does reduce the full problem to the shifted world,
+  not just the minimizer plateau.
 - A tempting stronger sufficient condition,
   \[
   |\partial^\uparrow U| \ge |U\setminus T(V)|,
@@ -235,6 +241,7 @@ component of a shifted minimizer, and in fact that component is the whole minimi
 likely proof shape is:
 
 - weak compression monotonicity for all two-layer families;
+- global reachability of every family to the shifted world by nonincreasing shifts;
 - then a plateau-connectivity / rigidity theorem on minimizers;
 - then the shifted extremal classification.
 

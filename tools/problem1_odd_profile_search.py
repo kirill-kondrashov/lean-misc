@@ -208,6 +208,18 @@ class ExhaustiveTwoLayerMinimizerPlateauComponentsResult:
 
 
 @dataclass(frozen=True)
+class ExhaustiveTwoLayerNonincreasingShiftReachabilityResult:
+    n: int
+    e: int
+    pair_count: int
+    shifted_pair_count: int
+    reachable_pair_count: int
+    all_pairs_reach_shifted: bool
+    witness_c_family: Family
+    witness_u_family: Family
+
+
+@dataclass(frozen=True)
 class ExhaustiveTwoLayerCompressionCounterexample:
     n: int
     e: int
@@ -1756,6 +1768,144 @@ def exhaustive_two_layer_minimizer_plateau_components(
                 shifted_component_count=shifted_component_count,
                 all_shifted_minimizers_in_one_component=all_shifted_in_one_component,
                 all_components_have_shifted_minimizer=all_components_have_shifted,
+                witness_c_family=witness_c_family,
+                witness_u_family=witness_u_family,
+            )
+        )
+    return results
+
+
+def exhaustive_two_layer_nonincreasing_shift_reachability(
+    n: int,
+) -> List[ExhaustiveTwoLayerNonincreasingShiftReachabilityResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    full_lower_mask = (1 << lower_count) - 1
+    lower_family_to_c_mask: Dict[Family, int] = {}
+    for c_mask in range(1 << lower_count):
+        c_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if c_mask & (1 << index)
+        )
+        lower_family_to_c_mask[c_family] = c_mask
+    upper_family_to_u_mask: Dict[Family, int] = {}
+    for u_mask in range(1 << upper_count):
+        u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        upper_family_to_u_mask[u_family] = u_mask
+
+    boundary_cache: Dict[int, int] = {}
+
+    def two_layer_boundary_size(u_mask: int, v_mask: int) -> int:
+        key = (u_mask << lower_count) | v_mask
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        c_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if not (v_mask & (1 << index))
+        )
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    results: List[ExhaustiveTwoLayerNonincreasingShiftReachabilityResult] = []
+    for e in range(lower_count + 1):
+        u_masks = [u_mask for u_mask in range(1 << upper_count) if u_mask.bit_count() == e]
+        v_masks = [v_mask for v_mask in range(1 << lower_count) if v_mask.bit_count() == e]
+        u_families = {
+            u_mask: tuple(
+                upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+            )
+            for u_mask in u_masks
+        }
+        c_families = {
+            v_mask: tuple(
+                lower_rank_sets[index]
+                for index in range(lower_count)
+                if not (v_mask & (1 << index))
+            )
+            for v_mask in v_masks
+        }
+
+        state_keys = [(u_mask << lower_count) | v_mask for u_mask in u_masks for v_mask in v_masks]
+        reverse_adjacency: Dict[int, Set[int]] = {key: set() for key in state_keys}
+        shifted_keys: Set[int] = set()
+
+        for u_mask in u_masks:
+            u_family = u_families[u_mask]
+            u_shifted = is_shifted_uniform_family(u_family, n)
+            for v_mask in v_masks:
+                c_family = c_families[v_mask]
+                key = (u_mask << lower_count) | v_mask
+                if u_shifted and is_shifted_uniform_family(c_family, n):
+                    shifted_keys.add(key)
+
+                boundary_before = two_layer_boundary_size(u_mask, v_mask)
+                for i in range(n):
+                    for j in range(i + 1, n):
+                        compressed_c_family = compress_uniform_family(c_family, i, j)
+                        compressed_u_family = compress_uniform_family(u_family, i, j)
+                        if compressed_c_family == c_family and compressed_u_family == u_family:
+                            continue
+                        compressed_c_mask = lower_family_to_c_mask[compressed_c_family]
+                        compressed_v_mask = full_lower_mask ^ compressed_c_mask
+                        compressed_u_mask = upper_family_to_u_mask[compressed_u_family]
+                        boundary_after = two_layer_boundary_size(
+                            compressed_u_mask, compressed_v_mask
+                        )
+                        if boundary_after <= boundary_before:
+                            neighbor_key = (compressed_u_mask << lower_count) | compressed_v_mask
+                            reverse_adjacency[neighbor_key].add(key)
+
+        reachable: Set[int] = set()
+        frontier = list(shifted_keys)
+        while frontier:
+            key = frontier.pop()
+            if key in reachable:
+                continue
+            reachable.add(key)
+            frontier.extend(
+                predecessor
+                for predecessor in reverse_adjacency[key]
+                if predecessor not in reachable
+            )
+
+        all_reachable = len(reachable) == len(state_keys)
+        witness_c_family: Family = ()
+        witness_u_family: Family = ()
+        if not all_reachable:
+            for key in state_keys:
+                if key in reachable:
+                    continue
+                u_mask = key >> lower_count
+                v_mask = key & full_lower_mask
+                witness_c_family = c_families[v_mask]
+                witness_u_family = u_families[u_mask]
+                break
+
+        results.append(
+            ExhaustiveTwoLayerNonincreasingShiftReachabilityResult(
+                n=n,
+                e=e,
+                pair_count=len(state_keys),
+                shifted_pair_count=len(shifted_keys),
+                reachable_pair_count=len(reachable),
+                all_pairs_reach_shifted=all_reachable,
                 witness_c_family=witness_c_family,
                 witness_u_family=witness_u_family,
             )
@@ -5229,6 +5379,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-two-layer-nonincreasing-shift-reachability-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 weak-compression reachability test: check whether every equal-size "
+            "middle-layer pair reaches a shifted pair by a chain of nonincreasing "
+            "layer-preserving shifts."
+        ),
+    )
+    parser.add_argument(
         "--exhaustive-two-layer-compression-monotonicity-n5",
         action="store_true",
         help=(
@@ -5953,6 +6112,44 @@ def main() -> int:
         ok(
             "OK overall: exact n=5 data support component-wise shifted coverage of the minimizer "
             "plateau."
+        )
+        return 0
+
+    if args.exhaustive_two_layer_nonincreasing_shift_reachability_n5:
+        any_warning = False
+        results = exhaustive_two_layer_nonincreasing_shift_reachability(5)
+        for result in results:
+            if result.all_pairs_reach_shifted:
+                ok(
+                    "OK exact n=5 weak-compression reachability at "
+                    f"e={result.e}: all {result.pair_count} pairs reach a shifted pair."
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING exact n=5 weak-compression reachability at "
+                    f"e={result.e}: only {result.reachable_pair_count} of {result.pair_count} "
+                    "pairs reach a shifted pair."
+                )
+            print(
+                f"  shifted_pairs={result.shifted_pair_count} "
+                f"reachable_pairs={result.reachable_pair_count} "
+                f"pair_count={result.pair_count}"
+            )
+            if not result.all_pairs_reach_shifted:
+                print(
+                    f"  witness C={format_family(result.witness_c_family)} "
+                    f"U={format_family(result.witness_u_family)}"
+                )
+        if any_warning:
+            warn(
+                "WARNING overall: exact n=5 data do not support global reachability to shifted "
+                "pairs under nonincreasing layer-preserving shifts."
+            )
+            return 1
+        ok(
+            "OK overall: exact n=5 data support global reachability to the shifted world under "
+            "nonincreasing layer-preserving shifts."
         )
         return 0
 

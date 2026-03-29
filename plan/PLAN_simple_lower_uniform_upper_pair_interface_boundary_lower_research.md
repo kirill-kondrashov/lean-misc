@@ -148,6 +148,9 @@ The current computational evidence still points in the right direction:
   layer-preserving shifts;
 - more strongly, for every `e`, the exact `n = 5` minimizer graph under boundary-preserving
   layer shifts is connected;
+- stronger again, for every `e`, every exact `n = 5` equal-size two-layer pair reaches a shifted
+  pair by a chain of nonincreasing layer-preserving shifts, so the weak-compression reduction to
+  the shifted world now survives exactly on the full `n = 5` state space;
 - structured uniform-upper `n = 7` classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|
