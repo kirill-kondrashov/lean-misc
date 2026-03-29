@@ -140,6 +140,8 @@ close:
 - The next canonical witness simplification is now partially ruled out:
   colex-prefix witnesses fail already in shifted `n = 5`, and lex-prefix witnesses fail in shifted
   `n = 7`.
+- The next principal-star simplification is ruled out as well:
+  initial-principal-star witnesses survive shifted `n = 5` but fail in shifted `n = 7`.
 - The coordinate-section decomposition remains exact, but both standalone reductions suggested by
   it are now archived: the unrestricted even adjacent-layer theorem and the corrected coupled
   section theorem are both false.

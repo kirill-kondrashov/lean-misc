@@ -266,6 +266,25 @@ boundary program centered on
 - Consequence: the shifted Hall witness can still be taken shifted, but not reduced all the way to
   a simple boundary-order prefix theorem.
 
+### 14. Initial Principal-Star Witness Simplification
+
+- Proposed strengthening of the shifted Hall witness route:
+  require the codimension-`1` Hall deficiency to be witnessed by
+  \[
+  C \cap \{A : \{0,\dots,t-1\}\subseteq A\}
+  \]
+  for some \(t\).
+- Status: `falsified`.
+- Exact shifted behavior:
+  - the statement survives in shifted `n = 5`;
+  - it fails in shifted `n = 7`, with worst excess `3` at `e = 16`.
+- Witness data at `n = 7`, `e = 16`:
+  \[
+  \delta_1(F)=7,\qquad \text{best initial-star deficiency}=4.
+  \]
+- Consequence: the shifted Hall witness can still be taken shifted, but not reduced to a single
+  principal-star cut.
+
 ## Current Use
 
 These branches are archived. They should be cited only as:

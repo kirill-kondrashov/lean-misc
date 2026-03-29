@@ -177,6 +177,9 @@ The current computational evidence still points in the right direction:
   colex-prefix witnesses are false already in shifted `n = 5`, and lex-prefix witnesses are false
   in shifted `n = 7`, so the active shifted Hall route stops at “shifted subfamily witness,” not a
   simple boundary-order prefix theorem;
+- the next geometric simplification is limited as well:
+  initial-principal-star witnesses survive shifted `n = 5` but are false in shifted `n = 7`, so
+  the active shifted Hall route also does not reduce to a single principal-star witness theorem;
 - the corrected coupled section inequality
   \[
   |\partial^+(A\cup D)| + |\partial^+(B\cup E)| \ge |A| + |B|

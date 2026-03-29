@@ -151,9 +151,11 @@ The next canonical strengthening is now partly archived. Exact shifted diagnosti
 
 - a colex-prefix witness theorem is false already in shifted `n = 5`;
 - a lex-prefix witness theorem survives shifted `n = 5` but is false in shifted `n = 7`.
+- an initial-principal-star witness theorem survives shifted `n = 5` but is false in shifted
+  `n = 7`.
 
 So the shifted Hall witness can be canonicalized to a shifted lower subfamily, but not all the way
-to a simple lex/colex prefix of the lower sheet.
+to a simple lex/colex prefix or initial principal star of the lower sheet.
 
 ## Concrete Program
 
@@ -235,6 +237,8 @@ So the next proof target on this branch is no longer â€œsome local flux graph,â€
 - do not try to strengthen that immediately to a lex/colex-prefix witness theorem:
   colex-prefix is already falsified in shifted `n = 5`, and lex-prefix is already falsified in
   shifted `n = 7`;
+- do not try to replace the shifted witness theorem by a single initial-principal-star theorem
+  either: that survives shifted `n = 5` but is already falsified in shifted `n = 7`;
 - understand \(\delta_1(F)\) itself as a genuinely global obstruction, not just a zero-degree
   count;
 - and not just the best one-coordinate contain/avoid cut deficiency;

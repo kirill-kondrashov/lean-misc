@@ -297,6 +297,8 @@ Latest computational sharpening:
 - the obvious prefix simplifications are now partly archived:
   colex-prefix witnesses fail already in shifted `n = 5`, and lex-prefix witnesses fail in shifted
   `n = 7`;
+- the next principal-star simplification is archived too:
+  initial-principal-star witnesses survive shifted `n = 5` but fail in shifted `n = 7`;
 - all searched structured uniform-upper classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|,
