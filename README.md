@@ -386,7 +386,7 @@ where
 ```math
 \partial^\uparrow U
 :=
-\{T \in \tbinom{[n]}{m+2} : \exists s \in U,\ s \subset T\},
+\{T \in \binom{[n]}{m+2} : \exists s \in U,\ s \subset T\},
 ```
 
 and
@@ -438,6 +438,180 @@ G \subseteq \binom{[2m]}{r}\sqcup \binom{[2m]}{r+1}.
 ```
 
 This is the current combinatorial bottleneck.
+
+Topological meaning of the last frontier:
+
+Here "topological" means the discrete topology of the cube graph: vertices are subsets, and two
+vertices are adjacent when they differ by one element.
+
+In the two-layer form, the family
+
+```math
+F = C \cup U \subseteq \binom{[n]}{m}\sqcup \binom{[n]}{m+1}
+```
+
+is a discrete hypersurface near the equator of the odd cube. The lower slice \(C\) is the part of
+that hypersurface on rank \(m\), and the upper slice \(U\) is the part on rank \(m+1\). Its
+positive boundary
+
+```math
+\partial^+F
+=
+\{A \notin F : \exists x \in A,\ A \setminus \{x\} \in F\}
+```
+
+is the set of vertices just outside the membrane, seen from above.
+
+So the inequality
+
+```math
+|\partial^+F| \ge |C|
+```
+
+says that a balanced middle-layer membrane cannot hide from the outside: if one removes some
+\(m\)-cells from the lower middle layer and replaces them by the same number of \((m+1)\)-cells in
+the upper middle layer, then the resulting interface still has at least \(|C|\) outward-facing
+cells above it.
+
+After sectioning by one coordinate, the remaining frontier becomes the even-cube adjacent-layer
+statement
+
+```math
+|\partial^+G| \ge |G_r|,
+\qquad
+G \subseteq \binom{[2m]}{r}\sqcup \binom{[2m]}{r+1},
+```
+
+which says: any family supported on two adjacent layers of an even cube has positive boundary at
+least as large as its lower layer. This is the cleanest current topological form of the remaining
+Erdős #1 bottleneck.
+
+Concrete cube picture:
+
+Take the smallest odd case
+
+```math
+n = 3,
+\qquad
+m = 1,
+\qquad
+V = \{\{0\}\},
+\qquad
+U = \{\{0,1\}\}.
+```
+
+Then
+
+```math
+C = \binom{[3]}{1}\setminus V = \{\{1\},\{2\}\},
+\qquad
+F = C \cup U = \{\{1\},\{2\},\{0,1\}\}.
+```
+
+Its positive boundary is
+
+```math
+\partial^+F = \{\{1,2\},\{0,2\},\{0,1,2\}\}.
+```
+
+So in this concrete cube we are proving
+
+```math
+|\partial^+F| = 3 \ge 2 = |C|.
+```
+
+Illustration of this example:
+
+```mermaid
+graph TD
+  n000["∅"]
+  n100["{0}"]
+  n010["{1}"]
+  n001["{2}"]
+  n110["{0,1}"]
+  n101["{0,2}"]
+  n011["{1,2}"]
+  n111["{0,1,2}"]
+
+  n000 --- n100
+  n000 --- n010
+  n000 --- n001
+  n100 --- n110
+  n100 --- n101
+  n010 --- n110
+  n010 --- n011
+  n001 --- n101
+  n001 --- n011
+  n110 --- n111
+  n101 --- n111
+  n011 --- n111
+
+  classDef family fill:#0b6e4f,stroke:#0b6e4f,color:#ffffff;
+  classDef boundary fill:#d9f0ff,stroke:#1c6ea4,color:#111111;
+  classDef other fill:#f2f2f2,stroke:#999999,color:#111111;
+
+  class n010,n001,n110 family;
+  class n101,n011,n111 boundary;
+  class n000,n100 other;
+```
+
+In this picture:
+
+- green vertices are the active two-layer family $F$;
+- blue vertices are the positive boundary $\partial^+F$;
+- gray vertices are outside both $F$ and $\partial^+F$.
+
+Read the illustration in four steps:
+
+1. The odd cube is $\mathcal P([3])$, with layers
+
+   ```math
+   \binom{[3]}{0},\ \binom{[3]}{1},\ \binom{[3]}{2},\ \binom{[3]}{3}.
+   ```
+
+2. The two middle layers are
+
+   ```math
+   \binom{[3]}{1} = \{\{0\},\{1\},\{2\}\},
+   \qquad
+   \binom{[3]}{2} = \{\{0,1\},\{0,2\},\{1,2\}\}.
+   ```
+
+3. The green lower-middle part is
+
+   ```math
+   C = \{\{1\},\{2\}\},
+   ```
+
+   and the green upper-middle part is
+
+   ```math
+   U = \{\{0,1\}\},
+   ```
+
+   so the full green family is
+
+   ```math
+   F = C \cup U.
+   ```
+
+4. The blue vertices are exactly the sets outside $F$ that lie one upward cube-edge away from a
+   green vertex:
+
+   ```math
+   \partial^+F = \{\{1,2\},\{0,2\},\{0,1,2\}\}.
+   ```
+
+So this picture is the statement
+
+```math
+|\partial^+F| = 3 \ge 2 = |C|.
+```
+
+The last frontier says that this phenomenon is not special to the picture above: for every balanced
+middle-layer family $F = (\binom{[n]}{m}\setminus V)\cup U$, the outward-facing blue layer is
+always at least as large as the surviving lower-middle green layer $C = \binom{[n]}{m}\setminus
+V$.
 
 For the current detailed progress log, see
 [plan/PROGRESS_two_sheet_boundary_theorem_2026-03-22.md](./plan/PROGRESS_two_sheet_boundary_theorem_2026-03-22.md).
