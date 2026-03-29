@@ -159,6 +159,21 @@ What is now ruled out:
 So the remaining live task is the direct two-layer inequality itself, not any currently known
 stronger substitute.
 
+The latest proof-side sharpening is a coordinate-section reduction written out in
+[PROOF_two_layer_middle_boundary_inequality.md](./PROOF_two_layer_middle_boundary_inequality.md):
+if
+\[
+F=C\cup U\subseteq \binom{[2m+1]}{m}\sqcup \binom{[2m+1]}{m+1}
+\]
+is sectioned at coordinate `0`, then
+\[
+|\partial^+F|
+\ge
+|\partial^+(A\cup D)| + |\partial^+(B\cup E)|.
+\]
+So the odd middle-layer task now reduces to a more general even-dimensional adjacent-layer
+boundary theorem. This is the current paper-proof direction.
+
 ## Practical Success Criterion
 
 The active plan is complete once the direct two-layer boundary inequality

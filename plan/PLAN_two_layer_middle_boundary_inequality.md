@@ -193,6 +193,25 @@ For shifted \(F\), section by a coordinate \(i\), compare the `contains i` and `
 and derive a recursive lower bound for \(|\partial^+F|\). The star-type equality candidates
 indicate that one-coordinate sectioning is the right shape for the final argument.
 
+This is now more concrete than before. The proof note records the exact coordinate-section
+decomposition
+\[
+|\partial^+F|
+\ge
+|\partial^+(A\cup D)| + |\partial^+(B\cup E)|,
+\]
+where \(A\cup D\) and \(B\cup E\) are two-layer families on \([2m]\) supported on ranks
+\((m-1,m)\) and \((m,m+1)\) respectively. So the next proof target can be stated cleanly:
+
+- prove the even-dimensional adjacent-layer theorem
+  \[
+  |\partial^+G| \ge |G_r|
+  \qquad
+  \text{for }G\subseteq \binom{[2m]}{r}\sqcup \binom{[2m]}{r+1},
+  \]
+  at least in the shifted case;
+- then feed it into the section inequality above to recover the odd middle-layer theorem.
+
 ### 6. Use Computation Only As Structural Guidance
 
 The search tool should be used to:

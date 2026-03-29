@@ -216,6 +216,19 @@ Latest computational sharpening:
 - pushing the same brute-force shifted-enumeration idea to `n = 9` no longer looks productive:
   the shifted-family count itself does not return on a short/medium run, so the search side is
   effectively saturated at `n = 7`;
+- the proof note now contains an exact coordinate-section reduction:
+  for
+  \[
+  F=C\cup U\subseteq \binom{[2m+1]}{m}\sqcup \binom{[2m+1]}{m+1},
+  \]
+  sectioning at coordinate `0` gives
+  \[
+  |\partial^+F|
+  \ge
+  |\partial^+(A\cup D)| + |\partial^+(B\cup E)|,
+  \]
+  reducing the odd middle-layer target to a more general even-dimensional adjacent-layer
+  boundary theorem;
 - all searched structured uniform-upper classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|,

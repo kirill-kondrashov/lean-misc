@@ -189,6 +189,135 @@ namely \((2)\).
 
 Thus \((1)\iff (2)\). ∎
 
+## Coordinate-Section Reduction
+
+The direct two-layer boundary problem admits a useful exact decomposition by sections at a fixed
+coordinate, say `0`.
+
+Write \(X:=[n]\setminus\{0\}\), so \(|X|=2m\). Define the four section families:
+
+\[
+A := \{S\subseteq X: |S|=m-1,\ \{0\}\cup S \in C\},
+\]
+\[
+B := \{S\subseteq X: |S|=m,\ S\in C\},
+\]
+\[
+D := \{T\subseteq X: |T|=m,\ \{0\}\cup T \in U\},
+\]
+\[
+E := \{T\subseteq X: |T|=m+1,\ T\in U\}.
+\]
+
+Then \(A\cup D\) is a two-layer family on \(X\) supported on ranks \(m-1,m\), and \(B\cup E\)
+is a two-layer family on \(X\) supported on ranks \(m,m+1\).
+
+### Proposition
+
+With the notation above,
+\[
+|\partial^+F|
+=
+|(B\cup \partial^\uparrow A)\setminus D|
++
+|\partial^\uparrow B \setminus E|
++
+|\partial^\uparrow D \cup E|
++
+|\partial^\uparrow E|.
+\tag{9}
+\]
+
+In particular,
+\[
+|\partial^+F|
+\ge
+|\partial^+(A\cup D)|
++
+|\partial^+(B\cup E)|.
+\tag{10}
+\]
+
+### Proof
+
+Split \(\partial^+F\) according to rank and according to whether the boundary set contains the
+coordinate `0`.
+
+For rank \(m+1\):
+
+- a boundary set of size \(m+1\) not containing `0` is exactly an element of
+  \(\partial^\uparrow B\setminus E\);
+- a boundary set of size \(m+1\) containing `0` has the form \(\{0\}\cup T\) where
+  \(T\in \binom{X}{m}\), the set \(\{0\}\cup T\) is not in \(U\), and at least one of its
+  \(m\)-subsets lies in \(C\). Such a predecessor either avoids `0`, which means \(T\in B\), or
+  contains `0`, which means some \((m-1)\)-subset of \(T\) lies in \(A\), i.e. \(T\in
+  \partial^\uparrow A\). Hence the rank-\((m+1)\) boundary containing `0` is counted by
+  \((B\cup \partial^\uparrow A)\setminus D\).
+
+For rank \(m+2\):
+
+- a boundary set of size \(m+2\) not containing `0` is exactly an element of \(\partial^\uparrow
+  E\);
+- a boundary set of size \(m+2\) containing `0` has the form \(\{0\}\cup R\) with
+  \(R\in \binom{X}{m+1}\), and it is adjacent to \(F\) either through a predecessor in \(U\)
+  containing `0`, which means \(R\in \partial^\uparrow D\), or through the unique predecessor
+  avoiding `0`, which means \(R\in E\). So this contribution is counted by
+  \(\partial^\uparrow D \cup E\).
+
+These four contributions lie in disjoint rank/section classes, so summing them gives \((9)\).
+
+Now compare with the two smaller two-layer families on \(X\). Their positive boundaries are
+
+\[
+|\partial^+(A\cup D)|
+=
+|\partial^\uparrow A \setminus D| + |\partial^\uparrow D|,
+\]
+\[
+|\partial^+(B\cup E)|
+=
+|\partial^\uparrow B \setminus E| + |\partial^\uparrow E|.
+\]
+
+Since
+\[
+|(B\cup \partial^\uparrow A)\setminus D| \ge |\partial^\uparrow A \setminus D|
+\]
+and
+\[
+|\partial^\uparrow D \cup E| \ge |\partial^\uparrow D|,
+\]
+equation \((9)\) implies \((10)\). ∎
+
+### Consequence For The Active Program
+
+To prove
+\[
+|\partial^+F| \ge |C| = |A| + |B|,
+\]
+it would now be enough to prove an auxiliary even-dimensional theorem of the following form:
+
+> For a two-layer family \(G=G_r\cup G_{r+1}\subseteq \binom{[2m]}{r}\sqcup \binom{[2m]}{r+1}\),
+> one has
+> \[
+> |\partial^+G| \ge |G_r|.
+> \]
+
+Applied to \(A\cup D\) with \(r=m-1\) and to \(B\cup E\) with \(r=m\), this auxiliary theorem
+would give
+\[
+|\partial^+(A\cup D)| \ge |A|,
+\qquad
+|\partial^+(B\cup E)| \ge |B|,
+\]
+and therefore, by \((10)\),
+\[
+|\partial^+F| \ge |A|+|B| = |C|.
+\]
+
+So the odd middle-layer problem can be reduced to a more general even-dimensional adjacent-layer
+boundary theorem.
+
 ## What Still Remains Open
 
 The proof above is complete **as an equivalence**. What is still missing on this route is a direct
