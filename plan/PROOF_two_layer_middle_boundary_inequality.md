@@ -295,28 +295,28 @@ To prove
 \[
 |\partial^+F| \ge |C| = |A| + |B|,
 \]
-it would now be enough to prove an auxiliary even-dimensional theorem of the following form:
+the formula \((10)\) suggests auxiliary lower-dimensional routes, but the first two such routes are
+now known to fail:
 
-> For a two-layer family \(G=G_r\cup G_{r+1}\subseteq \binom{[2m]}{r}\sqcup \binom{[2m]}{r+1}\),
-> one has
-> \[
-> |\partial^+G| \ge |G_r|.
-> \]
+- the unrestricted even adjacent-layer theorem
+  \[
+  |\partial^+G| \ge |G_r|
+  \qquad
+  \text{for } G \subseteq \binom{[2m]}{r}\sqcup \binom{[2m]}{r+1},
+  \]
+  is false;
+- the corrected coupled theorem
+  \[
+  |\partial^+(A\cup D)| + |\partial^+(B\cup E)| \ge |A| + |B|
+  \]
+  is also false, already in exact `n = 5`.
 
-Applied to \(A\cup D\) with \(r=m-1\) and to \(B\cup E\) with \(r=m\), this auxiliary theorem
-would give
+So the section decomposition should now be read as an exact structural identity rather than as a
+finished reduction theorem. It remains useful for geometric intuition and for organizing possible
+flux identities, but the active proof search returns to the direct two-layer boundary functional
 \[
-|\partial^+(A\cup D)| \ge |A|,
-\qquad
-|\partial^+(B\cup E)| \ge |B|,
+|\partial^+F|.
 \]
-and therefore, by \((10)\),
-\[
-|\partial^+F| \ge |A|+|B| = |C|.
-\]
-
-So the odd middle-layer problem can be reduced to a more general even-dimensional adjacent-layer
-boundary theorem.
 
 ## What Still Remains Open
 

@@ -111,12 +111,15 @@ close:
   \]
   is now archived: it would imply \((B)\) by Hall in the balanced middle-layer inclusion graph,
   but exact `n = 5` search falsifies it.
+- The coordinate-section decomposition remains exact, but both standalone reductions suggested by
+  it are now archived: the unrestricted even adjacent-layer theorem and the corrected coupled
+  section theorem are both false.
 - This route remains active because \((B)\) removes the auxiliary operator \(T(V)\) and packages
   the remaining work as an ordinary positive-boundary lower bound for a two-layer family.
 
 ## Geometric Proof Paths
 
-The direct route now has three explicit geometric proof paths:
+The direct route now has two active geometric proof paths and one archived heuristic:
 
 - [PLAN_two_layer_geometric_enrichment.md](./PLAN_two_layer_geometric_enrichment.md)
   records the high-level membrane / one-sided isoperimetry / hypersimplex viewpoint.
@@ -124,8 +127,7 @@ The direct route now has three explicit geometric proof paths:
   records the divergence-style route, replacing rigid matching by fractional transport from
   \(C\) to \(\partial^+F\).
 - [PLAN_even_adjacent_layer_section_route.md](./PLAN_even_adjacent_layer_section_route.md)
-  records the coarea / section route reducing the odd theorem to an even-dimensional adjacent-layer
-  theorem.
+  records the archived coarea / section branch and its counterexamples.
 
 ## Current Research Program
 
@@ -200,7 +202,7 @@ This equality conjecture is now supported exactly on the shifted subproblem for 
 The aim should still be a stronger theorem with equality classification, but not one that assumes
 there is a unique lex/shifted orbit.
 
-### 5. Attack The Shifted Case By One-Coordinate Sections
+### 5. Treat Sectioning As Geometric Guidance Only
 
 For shifted \(F\), section by a coordinate \(i\), compare the `contains i` and `avoids i` slices,
 and derive a recursive lower bound for \(|\partial^+F|\). The star-type equality candidates
@@ -214,18 +216,15 @@ decomposition
 |\partial^+(A\cup D)| + |\partial^+(B\cup E)|,
 \]
 where \(A\cup D\) and \(B\cup E\) are two-layer families on \([2m]\) supported on ranks
-\((m-1,m)\) and \((m,m+1)\) respectively. So the next proof target can be stated cleanly:
+\((m-1,m)\) and \((m,m+1)\) respectively. However, both standalone reductions suggested by this
+formula are now archived:
 
-- prove the even-dimensional adjacent-layer theorem
-  \[
-  |\partial^+G| \ge |G_r|
-  \qquad
-  \text{for }G\subseteq \binom{[2m]}{r}\sqcup \binom{[2m]}{r+1},
-  \]
-  at least in the shifted case;
-- then feed it into the section inequality above to recover the odd middle-layer theorem.
+- the unrestricted even adjacent-layer theorem is false;
+- the corrected coupled section theorem is also false already in exact `n = 5`.
 
-This section-first route is now tracked separately in
+So sectioning is no longer an active reduction theorem for the project. It remains a useful way to
+organize the geometry of the problem, but the live proof search has to control the direct boundary
+functional \(|\partial^+F|\) itself. The archived branch is recorded in
 [PLAN_even_adjacent_layer_section_route.md](./PLAN_even_adjacent_layer_section_route.md).
 
 ### 5A. Try A Flux / Calibration Proof In Parallel

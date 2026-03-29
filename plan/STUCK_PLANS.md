@@ -48,11 +48,64 @@ families on the even cube.
 
 ### Consequence
 
-The active section route must instead use the coupled section inequality
+The project next tried to salvage sectioning via a coupled theorem. That route is archived below.
+
+## 0A. Coupled Section Theorem
+
+Status: `stuck / falsified`
+
+This was the next section-route conjecture:
 \[
-|\partial^+(A\cup D)| + |\partial^+(B\cup E)| \ge |A| + |B|
+|\partial^+(A\cup D)| + |\partial^+(B\cup E)| \ge |A| + |B|,
 \]
-for quadruples \((A,B,D,E)\) arising from one common odd family.
+for quadruples \((A,B,D,E)\) arising as the coordinate-`0` sections of one odd two-layer family
+\[
+F = C \cup U \subseteq \binom{[2m+1]}{m}\sqcup \binom{[2m+1]}{m+1}.
+\]
+
+### Why It Is Archived
+
+This statement is also false.
+
+An exact `n = 5` counterexample is obtained from
+\[
+V = \{\{0,1\},\{0,2\},\{0,3\},\{0,4\}\},
+\qquad
+U = \{\{1,2,3\},\{1,2,4\},\{1,3,4\},\{2,3,4\}\}.
+\]
+Then
+\[
+C = \binom{\{1,2,3,4\}}{2},
+\qquad
+F = C \cup U,
+\]
+and the sections are
+\[
+A = \varnothing,
+\qquad
+B = \binom{[4]}{2},
+\qquad
+D = \varnothing,
+\qquad
+E = \binom{[4]}{3}.
+\]
+Therefore
+\[
+|\partial^+(A\cup D)| + |\partial^+(B\cup E)|
+=
+0 + 1
+=
+1
+<
+6
+=
+|A| + |B|.
+\]
+
+### Consequence
+
+Sectioning remains a useful exact identity, but it is no longer an active lower-dimensional
+reduction theorem for the project.
 
 ## 1. Naive Middle-Layer Compression Monotonicity Route
 

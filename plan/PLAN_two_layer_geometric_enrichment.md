@@ -122,8 +122,10 @@ Section the membrane by one coordinate and write
 |\partial^+(A\cup D)| + |\partial^+(B\cup E)|.
 \]
 
-This reduces the odd equatorial theorem to an even-dimensional adjacent-layer theorem. The proof
-then becomes a lower-dimensional flux argument summed over sections.
+This remains geometrically informative, but not as a standalone proof route: both the unrestricted
+even adjacent-layer theorem and the corrected coupled section theorem are false. So sectioning is
+best treated as a source of structural intuition and exact identities, not as the current active
+reduction theorem.
 
 ## Hypersimplex Viewpoint
 
@@ -141,4 +143,6 @@ These geometric heuristics are not separate theorems yet. They are proof-design 
 active concrete routes:
 
 - [PLAN_two_layer_flux_calibration_route.md](./PLAN_two_layer_flux_calibration_route.md)
-- [PLAN_even_adjacent_layer_section_route.md](./PLAN_even_adjacent_layer_section_route.md)
+
+The archived section branch is recorded in
+[PLAN_even_adjacent_layer_section_route.md](./PLAN_even_adjacent_layer_section_route.md).

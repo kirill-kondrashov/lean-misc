@@ -254,6 +254,38 @@ class ShiftedEvenAdjacentLayerEqualityOrbitResult:
 
 
 @dataclass(frozen=True)
+class ExhaustiveCoupledSectionSummaryResult:
+    n: int
+    all_margins_nonnegative: bool
+    worst_margin: int
+    worst_margin_e: int
+    equality_count: int
+    witness_u_family: Family
+    witness_v_family: Family
+    witness_a_family: Family
+    witness_b_family: Family
+    witness_d_family: Family
+    witness_e_family: Family
+
+
+@dataclass(frozen=True)
+class ShiftedCoupledSectionSummaryResult:
+    n: int
+    lower_shifted_family_count: int
+    upper_shifted_family_count: int
+    all_margins_nonnegative: bool
+    worst_margin: int
+    worst_margin_e: int
+    equality_count: int
+    witness_c_family: Family
+    witness_u_family: Family
+    witness_a_family: Family
+    witness_b_family: Family
+    witness_d_family: Family
+    witness_e_family: Family
+
+
+@dataclass(frozen=True)
 class MiddleLayerCompressionCounterexample:
     n: int
     i: int
@@ -543,6 +575,18 @@ def apply_permutation(mask: int, perm: Sequence[int]) -> int:
 
 def permute_family(family: Sequence[int], perm: Sequence[int]) -> Family:
     return tuple(sorted(apply_permutation(member, perm) for member in family))
+
+
+def section_split_at_zero(family: Sequence[int]) -> Tuple[Family, Family]:
+    with_zero: List[int] = []
+    without_zero: List[int] = []
+    for member in family:
+        section_member = member >> 1
+        if member & 1:
+            with_zero.append(section_member)
+        else:
+            without_zero.append(section_member)
+    return tuple(sorted(with_zero)), tuple(sorted(without_zero))
 
 
 def even_lower_half_total_size_in_prism_dimension(n: int) -> int:
@@ -1540,6 +1584,183 @@ def exhaustive_shifted_even_adjacent_layer_summary(
     return results
 
 
+def exhaustive_coupled_section_summary(
+    n: int,
+) -> ExhaustiveCoupledSectionSummaryResult:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    section_subsets = all_subsets(n - 1)
+    middle = n // 2
+    lower_rank_sets = rank_subsets(n, middle, subsets)
+    upper_rank_sets = rank_subsets(n, middle + 1, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    boundary_cache: Dict[Tuple[Family, Family], int] = {}
+
+    def section_boundary_size(lower_family: Family, upper_family: Family) -> int:
+        key = (lower_family, upper_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(lower_family + upper_family))
+        value = len(positive_boundary(family, section_subsets))
+        boundary_cache[key] = value
+        return value
+
+    worst_margin: int | None = None
+    worst_margin_e = 0
+    equality_count = 0
+    witness_u_family: Family = ()
+    witness_v_family: Family = ()
+    witness_a_family: Family = ()
+    witness_b_family: Family = ()
+    witness_d_family: Family = ()
+    witness_e_family: Family = ()
+
+    for e in range(lower_count + 1):
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            u_family = tuple(
+                upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+            )
+            d_family, e_family = section_split_at_zero(u_family)
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                v_family = tuple(
+                    lower_rank_sets[index]
+                    for index in range(lower_count)
+                    if v_mask & (1 << index)
+                )
+                c_family = tuple(
+                    lower_rank_sets[index]
+                    for index in range(lower_count)
+                    if not (v_mask & (1 << index))
+                )
+                a_family, b_family = section_split_at_zero(c_family)
+                lhs = section_boundary_size(a_family, d_family) + section_boundary_size(
+                    b_family, e_family
+                )
+                rhs = len(a_family) + len(b_family)
+                margin = lhs - rhs
+                if worst_margin is None or margin < worst_margin:
+                    worst_margin = margin
+                    worst_margin_e = e
+                    witness_u_family = u_family
+                    witness_v_family = v_family
+                    witness_a_family = a_family
+                    witness_b_family = b_family
+                    witness_d_family = d_family
+                    witness_e_family = e_family
+                if margin == 0:
+                    equality_count += 1
+
+    return ExhaustiveCoupledSectionSummaryResult(
+        n=n,
+        all_margins_nonnegative=(worst_margin is not None and worst_margin >= 0),
+        worst_margin=0 if worst_margin is None else worst_margin,
+        worst_margin_e=worst_margin_e,
+        equality_count=equality_count,
+        witness_u_family=witness_u_family,
+        witness_v_family=witness_v_family,
+        witness_a_family=witness_a_family,
+        witness_b_family=witness_b_family,
+        witness_d_family=witness_d_family,
+        witness_e_family=witness_e_family,
+    )
+
+
+def shifted_coupled_section_summary(
+    n: int,
+) -> ShiftedCoupledSectionSummaryResult:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    section_subsets = all_subsets(n - 1)
+    middle = n // 2
+    lower_rank_sets = rank_subsets(n, middle, subsets)
+    upper_rank_sets = rank_subsets(n, middle + 1, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_shifted_families = enumerate_shifted_uniform_families(n, middle, subsets)
+    upper_shifted_families = enumerate_shifted_uniform_families(n, middle + 1, subsets)
+    lower_by_size: Dict[int, List[Family]] = {}
+    upper_by_size: Dict[int, List[Family]] = {}
+    for family in lower_shifted_families:
+        lower_by_size.setdefault(len(family), []).append(family)
+    for family in upper_shifted_families:
+        upper_by_size.setdefault(len(family), []).append(family)
+
+    boundary_cache: Dict[Tuple[Family, Family], int] = {}
+
+    def section_boundary_size(lower_family: Family, upper_family: Family) -> int:
+        key = (lower_family, upper_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(lower_family + upper_family))
+        value = len(positive_boundary(family, section_subsets))
+        boundary_cache[key] = value
+        return value
+
+    worst_margin: int | None = None
+    worst_margin_e = 0
+    equality_count = 0
+    witness_c_family: Family = ()
+    witness_u_family: Family = ()
+    witness_a_family: Family = ()
+    witness_b_family: Family = ()
+    witness_d_family: Family = ()
+    witness_e_family: Family = ()
+
+    for e in range(lower_count + 1):
+        c_size = lower_count - e
+        for c_family in lower_by_size.get(c_size, []):
+            a_family, b_family = section_split_at_zero(c_family)
+            rhs = len(a_family) + len(b_family)
+            for u_family in upper_by_size.get(e, []):
+                d_family, e_family = section_split_at_zero(u_family)
+                lhs = section_boundary_size(a_family, d_family) + section_boundary_size(
+                    b_family, e_family
+                )
+                margin = lhs - rhs
+                if worst_margin is None or margin < worst_margin:
+                    worst_margin = margin
+                    worst_margin_e = e
+                    witness_c_family = c_family
+                    witness_u_family = u_family
+                    witness_a_family = a_family
+                    witness_b_family = b_family
+                    witness_d_family = d_family
+                    witness_e_family = e_family
+                if margin == 0:
+                    equality_count += 1
+
+    return ShiftedCoupledSectionSummaryResult(
+        n=n,
+        lower_shifted_family_count=len(lower_shifted_families),
+        upper_shifted_family_count=len(upper_shifted_families),
+        all_margins_nonnegative=(worst_margin is not None and worst_margin >= 0),
+        worst_margin=0 if worst_margin is None else worst_margin,
+        worst_margin_e=worst_margin_e,
+        equality_count=equality_count,
+        witness_c_family=witness_c_family,
+        witness_u_family=witness_u_family,
+        witness_a_family=witness_a_family,
+        witness_b_family=witness_b_family,
+        witness_d_family=witness_d_family,
+        witness_e_family=witness_e_family,
+    )
+
+
 def shifted_even_adjacent_layer_equality_orbits(
     n: int,
 ) -> List[ShiftedEvenAdjacentLayerEqualityOrbitResult]:
@@ -2416,6 +2637,23 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-coupled-section-summary-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 test of the corrected coupled section inequality "
+            "|∂^+(A ∪ D)| + |∂^+(B ∪ E)| >= |A| + |B| over all equal-size middle-layer pairs."
+        ),
+    )
+    parser.add_argument(
+        "--shifted-coupled-section-summary",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only summary for the corrected coupled section inequality on the "
+            "given odd dimensions."
+        ),
+    )
+    parser.add_argument(
         "--dimensions",
         type=int,
         nargs="+",
@@ -2944,6 +3182,71 @@ def main() -> int:
                     f"  r={result.r} lower={format_family(result.lower_family)} "
                     f"upper={format_family(result.upper_family)}"
                 )
+        return 0
+
+    if args.exhaustive_coupled_section_summary_n5:
+        result = exhaustive_coupled_section_summary(5)
+        if result.all_margins_nonnegative:
+            ok(
+                "OK exact n=5 coupled section summary: "
+                f"worst_margin={result.worst_margin} at e={result.worst_margin_e}"
+            )
+        else:
+            warn(
+                "WARNING exact n=5 coupled section failure: "
+                f"worst_margin={result.worst_margin} at e={result.worst_margin_e}"
+            )
+        print(f"  equality_count={result.equality_count}")
+        print(f"  witness U={format_family(result.witness_u_family)}")
+        print(f"  witness V={format_family(result.witness_v_family)}")
+        print(
+            "  sections "
+            f"A={format_family(result.witness_a_family)} "
+            f"B={format_family(result.witness_b_family)} "
+            f"D={format_family(result.witness_d_family)} "
+            f"E={format_family(result.witness_e_family)}"
+        )
+        return 0 if result.all_margins_nonnegative else 1
+
+    if args.shifted_coupled_section_summary is not None:
+        any_warning = False
+        for n in args.shifted_coupled_section_summary:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                any_warning = True
+                continue
+            result = shifted_coupled_section_summary(n)
+            if result.all_margins_nonnegative:
+                ok(
+                    "OK shifted coupled section summary at "
+                    f"n={n}: worst_margin={result.worst_margin} at e={result.worst_margin_e}"
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING shifted coupled section failure at "
+                    f"n={n}: worst_margin={result.worst_margin} at e={result.worst_margin_e}"
+                )
+            print(
+                f"  lower_shifted_families={result.lower_shifted_family_count} "
+                f"upper_shifted_families={result.upper_shifted_family_count} "
+                f"equality_count={result.equality_count}"
+            )
+            print(
+                f"  witness C={format_family(result.witness_c_family)} "
+                f"U={format_family(result.witness_u_family)}"
+            )
+            print(
+                "  sections "
+                f"A={format_family(result.witness_a_family)} "
+                f"B={format_family(result.witness_b_family)} "
+                f"D={format_family(result.witness_d_family)} "
+                f"E={format_family(result.witness_e_family)}"
+            )
+        if any_warning:
+            warn("WARNING overall: some shifted coupled section summaries failed.")
+            return 1
+        ok("OK overall: all requested shifted coupled section summaries survived.")
         return 0
 
     dimensions = tuple(args.dimensions)

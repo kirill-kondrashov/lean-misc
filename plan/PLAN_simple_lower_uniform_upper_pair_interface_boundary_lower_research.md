@@ -10,7 +10,6 @@ The active documentation set for this route is:
 - [PROOF_two_layer_middle_boundary_inequality.md](./PROOF_two_layer_middle_boundary_inequality.md)
 - [PLAN_two_layer_geometric_enrichment.md](./PLAN_two_layer_geometric_enrichment.md)
 - [PLAN_two_layer_flux_calibration_route.md](./PLAN_two_layer_flux_calibration_route.md)
-- [PLAN_even_adjacent_layer_section_route.md](./PLAN_even_adjacent_layer_section_route.md)
 - [STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md](./STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md)
 - [PROGRESS_two_sheet_boundary_theorem_2026-03-22.md](./PROGRESS_two_sheet_boundary_theorem_2026-03-22.md)
 
@@ -105,7 +104,6 @@ This route is recorded in:
 - [PROOF_two_layer_middle_boundary_inequality.md](./PROOF_two_layer_middle_boundary_inequality.md)
 - [PLAN_two_layer_geometric_enrichment.md](./PLAN_two_layer_geometric_enrichment.md)
 - [PLAN_two_layer_flux_calibration_route.md](./PLAN_two_layer_flux_calibration_route.md)
-- [PLAN_even_adjacent_layer_section_route.md](./PLAN_even_adjacent_layer_section_route.md)
 - [STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md](./STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md)
 
 ## Archived Routes
@@ -149,6 +147,12 @@ The current computational evidence still points in the right direction:
   \[
   T(V^\ast)\subseteq U^\ast.
   \]
+- the corrected coupled section inequality
+  \[
+  |\partial^+(A\cup D)| + |\partial^+(B\cup E)| \ge |A| + |B|
+  \]
+  is false already in exact `n = 5`, so sectioning remains useful only as an exact decomposition,
+  not as a standalone lower-dimensional reduction.
 
 This is evidence only. It does not supply the remaining proof.
 
@@ -185,13 +189,33 @@ adjacent-layer theorem
 G \subseteq \binom{[2m]}{r}\sqcup \binom{[2m]}{r+1},
 \]
 but exact shifted diagnostics now falsify that statement already in `n = 4` and `n = 6`.
-So the section route remains active only in its corrected coupled form: prove a lower bound for the
-sum
+The next attempt was the corrected coupled theorem
 \[
-|\partial^+(A\cup D)| + |\partial^+(B\cup E)|
+|\partial^+(A\cup D)| + |\partial^+(B\cup E)| \ge |A| + |B|,
 \]
-under the compatibility constraints coming from one common odd family \(F\). This is the current
-paper-proof direction on the section branch.
+but exact `n = 5` also falsifies that statement. Taking
+\[
+V = \{\{0,1\},\{0,2\},\{0,3\},\{0,4\}\},
+\qquad
+U = \{\{1,2,3\},\{1,2,4\},\{1,3,4\},\{2,3,4\}\},
+\]
+one gets
+\[
+A = \varnothing,
+\qquad
+B = \binom{[4]}{2},
+\qquad
+D = \varnothing,
+\qquad
+E = \binom{[4]}{3},
+\]
+and therefore
+\[
+|\partial^+(A\cup D)| + |\partial^+(B\cup E)| = 1 < 6 = |A| + |B|.
+\]
+So the section route is now archived as a direct proof path. Its exact decomposition remains useful
+geometric context, but the active proof search is back on the direct two-layer boundary functional
+itself.
 
 ## Geometric Enrichment
 
@@ -212,15 +236,14 @@ The direct two-layer route now has three live geometric proof shapes.
    \(|C| \le |\partial^+F|\) by a divergence-style inequality rather than by a rigid injection.
 
 3. Coarea / section route.
-   Use the exact coordinate-section decomposition already recorded in the proof note to reduce the
-   odd theorem to the even-dimensional adjacent-layer theorem, then prove the latter first in the
-   shifted case and lift it back up.
+   This now survives only as geometric intuition. Both the unrestricted even adjacent-layer
+   theorem and the corrected coupled section theorem are false, so sectioning is no longer an
+   active reduction theorem for the project.
 
 These geometric routes are recorded separately in:
 
 - [PLAN_two_layer_geometric_enrichment.md](./PLAN_two_layer_geometric_enrichment.md)
 - [PLAN_two_layer_flux_calibration_route.md](./PLAN_two_layer_flux_calibration_route.md)
-- [PLAN_even_adjacent_layer_section_route.md](./PLAN_even_adjacent_layer_section_route.md)
 
 ## Practical Success Criterion
 

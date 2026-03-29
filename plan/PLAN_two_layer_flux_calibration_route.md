@@ -127,23 +127,20 @@ proof on shifted \(F\). Then either:
 - extend the calibration to arbitrary \(F\), or
 - combine it with the compression route once the latter is formalized.
 
-### 5. Relate To The Even Adjacent-Layer Theorem
+### 5. Avoid The Archived Even Adjacent-Layer Detour
 
-The calibration should also be reformulated for
-
+The unrestricted even adjacent-layer theorem
 \[
-G \subseteq \binom{[2m]}{r}\sqcup \binom{[2m]}{r+1},
+|\partial^+G| \ge |G_r|
 \]
+is false, and the corrected coupled section theorem is false as well. So the calibration should be
+designed directly for the odd two-layer family \(F=C\cup U\), not via an auxiliary lower-
+dimensional theorem.
 
-with target
-
-\[
-|\partial^+G| \ge |G_r|.
-\]
-
-That even-dimensional statement is the cleanest place to search for the correct flux law.
+If sectioning is used at all, it should enter only as an exact identity or as a way to guess the
+right cross-term bookkeeping for the flux, not as a separate reduction target.
 
 ## Success Criterion
 
-This route succeeds once a concrete weighting rule is found and checked to imply \((B)\), first in
-the shifted even-dimensional adjacent-layer setting and then in the full odd two-layer setting.
+This route succeeds once a concrete weighting rule is found and checked to imply \((B)\), first on
+shifted odd two-layer families and then in the full odd two-layer setting.

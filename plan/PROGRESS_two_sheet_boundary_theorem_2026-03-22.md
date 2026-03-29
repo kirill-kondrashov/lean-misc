@@ -244,8 +244,28 @@ Latest computational sharpening:
   \[
   |\partial^+G| = 1 < 6 = |G_2|;
   \]
-  so the corrected section target must keep the coupling between the two section families
-  \(A\cup D\) and \(B\cup E\), rather than dropping to an arbitrary even adjacent-layer theorem;
+- the corrected coupled section target is now falsified as well:
+  in exact `n = 5`, taking
+  \[
+  V = \{\{0,1\},\{0,2\},\{0,3\},\{0,4\}\},
+  \qquad
+  U = \{\{1,2,3\},\{1,2,4\},\{1,3,4\},\{2,3,4\}\},
+  \]
+  gives sections
+  \[
+  A = \varnothing,
+  \qquad
+  B = \binom{[4]}{2},
+  \qquad
+  D = \varnothing,
+  \qquad
+  E = \binom{[4]}{3},
+  \]
+  and therefore
+  \[
+  |\partial^+(A\cup D)| + |\partial^+(B\cup E)| = 1 < 6 = |A| + |B|;
+  \]
+  so sectioning remains useful only as an exact identity, not as an active reduction theorem;
 - all searched structured uniform-upper classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|,

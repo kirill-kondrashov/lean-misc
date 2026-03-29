@@ -1,4 +1,4 @@
-# Plan: Even Adjacent-Layer Section Route
+# Archived Plan: Even Adjacent-Layer Section Route
 
 This note isolates the coarea / slicing route suggested by the current proof-side reduction.
 
@@ -91,7 +91,7 @@ Exact shifted diagnostics now show failures already in low dimensions:
 
 So the route cannot proceed through the unrestricted theorem \((E)\).
 
-## Corrected Section Target
+## Corrected Section Target And Why It Also Fails
 
 What the odd proof actually needs is not a theorem about arbitrary \(G\), but a theorem about the
 coupled pair of section families \((A\cup D,\; B\cup E)\) arising from one odd family \(F\).
@@ -112,55 +112,63 @@ for every section-compatible quadruple \((A,B,D,E)\) coming from
 F = C \cup U \subseteq \binom{[2m+1]}{m}\sqcup \binom{[2m+1]}{m+1}.
 \]
 
-This is now the real target on the section route.
+This would be enough, but it is also false.
 
-## Why The Corrected Route Looks Cleaner
+An exact `n = 5` counterexample is:
 
-- It replaces the odd equatorial membrane by a theorem about arbitrary adjacent layers in even
-  dimension, but keeps the essential coupling forced by one common odd family.
-- The corrected target \((E')\) uses exactly the section pieces appearing in the proved
-  decomposition \((S)\), rather than introducing a false standalone lower bound.
-- It still reframes the remaining odd theorem as a lower-dimensional problem, but now with the
-  right compatibility constraints.
+\[
+V = \{\{0,1\},\{0,2\},\{0,3\},\{0,4\}\},
+\qquad
+U = \{\{1,2,3\},\{1,2,4\},\{1,3,4\},\{2,3,4\}\}.
+\]
 
-## Proof Program
+Then
+\[
+C = \binom{\{1,2,3,4\}}{2},
+\qquad
+F = C \cup U.
+\]
 
-### 1. Understand Section Compatibility First
+The coordinate-`0` sections are
+\[
+A = \varnothing,
+\qquad
+B = \binom{[4]}{2},
+\qquad
+D = \varnothing,
+\qquad
+E = \binom{[4]}{3}.
+\]
 
-The first paper task is to characterize what quadruples \((A,B,D,E)\) can actually arise from a
-single odd two-layer family \(F\). Without those compatibility conditions the naive theorem fails.
+So
+\[
+|\partial^+(A\cup D)| + |\partial^+(B\cup E)|
+=
+0 + 1
+=
+1
+<
+6
+=
+|A| + |B|.
+\]
 
-### 2. Prove The Coupled Inequality \((E')\) First For Shifted Odd Families
+Therefore the coupled theorem \((E')\) is false.
 
-The current search evidence suggests shifted extremizers are still the right place to begin, but
-now for section-compatible data rather than arbitrary even adjacent-layer families.
+## Consequence
 
-### 3. Classify Equality
+The section identity \((S)\) remains exact and geometrically useful, but it does not by itself
+yield a viable lower-dimensional reduction theorem. Both of the first two attempts are now
+archived:
 
-The expected equality shapes should still be the section images of:
+- the unrestricted adjacent-layer theorem \((E)\);
+- the corrected coupled theorem \((E')\).
 
-- the full lower layer;
-- the principal-star two-layer family.
-
-Writing those section images down explicitly should clarify the inductive step.
-
-### 4. Use Sectioning Recursively
-
-Once in the even adjacent-layer setting, section again by one coordinate and seek a recursive
-bound. The hope is that repeated sectioning eventually produces a monotone induction on dimension
-and rank.
-
-### 5. Combine With The Odd Section Formula
-
-After proving \((E')\), substitute it into \((S)\) for the two section families \(A\cup D\) and
-\(B\cup E\), then recover \((B)\).
+So this note is now archival context only. The active proof search returns to the direct boundary
+functional \(|\partial^+F|\) itself, via the compression and flux/calibration routes.
 
 ## Relationship To Other Routes
 
-- This route is compatible with the compression program: one can still reduce \((E')\) to shifted
-  families if the two-layer compression lemma is proved.
-- It is also compatible with the flux route: a calibration may be easier to discover for \((E')\)
-  than for the original odd theorem.
-
-So this is not a rival theorem. It is the cleanest lower-dimensional formulation of the current
-active bottleneck.
+- The exact section formula still helps interpret why some lower-dimensional shadows appear.
+- It may still inspire a flux identity with cross terms.
+- But it is no longer part of the active reduction program.
