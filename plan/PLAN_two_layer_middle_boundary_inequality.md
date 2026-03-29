@@ -119,6 +119,9 @@ close:
   all shifted pairs.
 - But the first naive codimension-`2` calibration is already dead:
   equal-split transport overloads a boundary point both in exact `n = 5` and in shifted `n = 7`.
+- The next natural codimension-`2` calibration is dead as well:
+  inverse-degree transport overloads a boundary point both in exact `n = 5` and in shifted
+  `n = 7`.
 - The coordinate-section decomposition remains exact, but both standalone reductions suggested by
   it are now archived: the unrestricted even adjacent-layer theorem and the corrected coupled
   section theorem are both false.

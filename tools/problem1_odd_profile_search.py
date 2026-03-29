@@ -328,6 +328,21 @@ class LocalFluxEqualSplitSummaryResult:
 
 
 @dataclass(frozen=True)
+class LocalFluxInverseDegreeSummaryResult:
+    n: int
+    max_codim: int
+    exact_mode: bool
+    all_pairs_respect_capacity: bool
+    worst_overload: Fraction
+    worst_overload_e: int
+    witness_c_family: Family
+    witness_u_family: Family
+    witness_boundary_family: Family
+    witness_boundary_point: int | None
+    witness_boundary_load: Fraction
+
+
+@dataclass(frozen=True)
 class MiddleLayerCompressionCounterexample:
     n: int
     i: int
@@ -2024,6 +2039,30 @@ def equal_split_worst_overload(
     return (loads[worst_index] - 1, worst_index, loads[worst_index])
 
 
+def inverse_degree_worst_overload(
+    c_family: Sequence[int],
+    boundary: Sequence[int],
+    max_codim: int,
+) -> Tuple[Fraction, int | None, Fraction]:
+    adjacency = local_flux_adjacency(c_family, boundary, max_codim)
+    right_degree = [0] * len(boundary)
+    for neighbors in adjacency:
+        for right in neighbors:
+            right_degree[right] += 1
+    loads = [Fraction(0, 1) for _ in boundary]
+    for neighbors in adjacency:
+        if not neighbors:
+            return (Fraction(1, 1), None, Fraction(0, 1))
+        weights = [Fraction(1, right_degree[right]) for right in neighbors]
+        total = sum(weights, start=Fraction(0, 1))
+        for right, raw_weight in zip(neighbors, weights):
+            loads[right] += raw_weight / total
+    if not loads:
+        return (Fraction(-1, 1), None, Fraction(0, 1))
+    worst_index = max(range(len(loads)), key=lambda idx: loads[idx])
+    return (loads[worst_index] - 1, worst_index, loads[worst_index])
+
+
 def exhaustive_two_layer_equal_split_summary(
     n: int,
     max_codim: int,
@@ -2102,6 +2141,84 @@ def exhaustive_two_layer_equal_split_summary(
     )
 
 
+def exhaustive_two_layer_inverse_degree_summary(
+    n: int,
+    max_codim: int,
+) -> LocalFluxInverseDegreeSummaryResult:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank_sets = rank_subsets(n, middle, subsets)
+    upper_rank_sets = rank_subsets(n, middle + 1, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    boundary_cache: Dict[Tuple[Family, Family], Family] = {}
+
+    def boundary_family(c_family: Family, u_family: Family) -> Family:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = tuple(sorted(positive_boundary(family, subsets)))
+        boundary_cache[key] = value
+        return value
+
+    worst_overload: Fraction | None = None
+    worst_overload_e = 0
+    witness_c_family: Family = ()
+    witness_u_family: Family = ()
+    witness_boundary_family: Family = ()
+    witness_boundary_point: int | None = None
+    witness_boundary_load = Fraction(0, 1)
+
+    for e in range(lower_count + 1):
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            u_family = tuple(
+                upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+            )
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                c_family = tuple(
+                    lower_rank_sets[index]
+                    for index in range(lower_count)
+                    if not (v_mask & (1 << index))
+                )
+                boundary = boundary_family(c_family, u_family)
+                overload, point_index, point_load = inverse_degree_worst_overload(
+                    c_family, boundary, max_codim
+                )
+                if worst_overload is None or overload > worst_overload:
+                    worst_overload = overload
+                    worst_overload_e = e
+                    witness_c_family = c_family
+                    witness_u_family = u_family
+                    witness_boundary_family = boundary
+                    witness_boundary_point = None if point_index is None else boundary[point_index]
+                    witness_boundary_load = point_load
+
+    return LocalFluxInverseDegreeSummaryResult(
+        n=n,
+        max_codim=max_codim,
+        exact_mode=True,
+        all_pairs_respect_capacity=(worst_overload is not None and worst_overload <= 0),
+        worst_overload=Fraction(0, 1) if worst_overload is None else worst_overload,
+        worst_overload_e=worst_overload_e,
+        witness_c_family=witness_c_family,
+        witness_u_family=witness_u_family,
+        witness_boundary_family=witness_boundary_family,
+        witness_boundary_point=witness_boundary_point,
+        witness_boundary_load=witness_boundary_load,
+    )
+
+
 def shifted_two_layer_equal_split_summary(
     n: int,
     max_codim: int,
@@ -2164,6 +2281,82 @@ def shifted_two_layer_equal_split_summary(
                     witness_boundary_load = point_load
 
     return LocalFluxEqualSplitSummaryResult(
+        n=n,
+        max_codim=max_codim,
+        exact_mode=False,
+        all_pairs_respect_capacity=(worst_overload is not None and worst_overload <= 0),
+        worst_overload=Fraction(0, 1) if worst_overload is None else worst_overload,
+        worst_overload_e=worst_overload_e,
+        witness_c_family=witness_c_family,
+        witness_u_family=witness_u_family,
+        witness_boundary_family=witness_boundary_family,
+        witness_boundary_point=witness_boundary_point,
+        witness_boundary_load=witness_boundary_load,
+    )
+
+
+def shifted_two_layer_inverse_degree_summary(
+    n: int,
+    max_codim: int,
+) -> LocalFluxInverseDegreeSummaryResult:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_count = comb(n, lower_rank)
+    upper_count = comb(n, upper_rank)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_shifted_families = enumerate_shifted_uniform_families(n, lower_rank, subsets)
+    upper_shifted_families = enumerate_shifted_uniform_families(n, upper_rank, subsets)
+    lower_by_size: Dict[int, List[Family]] = {}
+    upper_by_size: Dict[int, List[Family]] = {}
+    for family in lower_shifted_families:
+        lower_by_size.setdefault(len(family), []).append(family)
+    for family in upper_shifted_families:
+        upper_by_size.setdefault(len(family), []).append(family)
+
+    boundary_cache: Dict[Tuple[Family, Family], Family] = {}
+
+    def boundary_family(c_family: Family, u_family: Family) -> Family:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = tuple(sorted(positive_boundary(family, subsets)))
+        boundary_cache[key] = value
+        return value
+
+    worst_overload: Fraction | None = None
+    worst_overload_e = 0
+    witness_c_family: Family = ()
+    witness_u_family: Family = ()
+    witness_boundary_family: Family = ()
+    witness_boundary_point: int | None = None
+    witness_boundary_load = Fraction(0, 1)
+
+    for e in range(lower_count + 1):
+        c_size = lower_count - e
+        for c_family in lower_by_size.get(c_size, []):
+            for u_family in upper_by_size.get(e, []):
+                boundary = boundary_family(c_family, u_family)
+                overload, point_index, point_load = inverse_degree_worst_overload(
+                    c_family, boundary, max_codim
+                )
+                if worst_overload is None or overload > worst_overload:
+                    worst_overload = overload
+                    worst_overload_e = e
+                    witness_c_family = c_family
+                    witness_u_family = u_family
+                    witness_boundary_family = boundary
+                    witness_boundary_point = None if point_index is None else boundary[point_index]
+                    witness_boundary_load = point_load
+
+    return LocalFluxInverseDegreeSummaryResult(
         n=n,
         max_codim=max_codim,
         exact_mode=False,
@@ -3106,6 +3299,23 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-two-layer-inverse-degree-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 test of the inverse-degree codimension-bounded local flux rule, "
+            "using --local-flux-max-codim to choose the transport graph."
+        ),
+    )
+    parser.add_argument(
+        "--shifted-two-layer-inverse-degree-summary",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only summary for the inverse-degree codimension-bounded local flux "
+            "rule on the given odd dimensions."
+        ),
+    )
+    parser.add_argument(
         "--local-flux-max-codim",
         type=int,
         default=2,
@@ -3821,6 +4031,67 @@ def main() -> int:
             warn("WARNING overall: some shifted equal-split local flux summaries failed.")
             return 1
         ok("OK overall: all requested shifted equal-split local flux summaries survived.")
+        return 0
+
+    if args.exhaustive_two_layer_inverse_degree_n5:
+        result = exhaustive_two_layer_inverse_degree_summary(5, args.local_flux_max_codim)
+        if result.all_pairs_respect_capacity:
+            ok(
+                "OK exact n=5 inverse-degree local flux at "
+                f"max_codim={result.max_codim}: "
+                f"worst_overload={result.worst_overload} at e={result.worst_overload_e}"
+            )
+            return 0
+        warn(
+            "WARNING exact n=5 inverse-degree local flux overload at "
+            f"max_codim={result.max_codim}: "
+            f"worst_overload={result.worst_overload} at e={result.worst_overload_e}"
+        )
+        print(f"  witness C={format_family(result.witness_c_family)}")
+        print(f"  witness U={format_family(result.witness_u_family)}")
+        print(f"  witness boundary={format_family(result.witness_boundary_family)}")
+        if result.witness_boundary_point is not None:
+            print(
+                f"  overloaded boundary point={format_subset(result.witness_boundary_point)} "
+                f"load={result.witness_boundary_load}"
+            )
+        return 1
+
+    if args.shifted_two_layer_inverse_degree_summary is not None:
+        any_warning = False
+        for n in args.shifted_two_layer_inverse_degree_summary:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                any_warning = True
+                continue
+            result = shifted_two_layer_inverse_degree_summary(n, args.local_flux_max_codim)
+            if result.all_pairs_respect_capacity:
+                ok(
+                    "OK shifted inverse-degree local flux at "
+                    f"n={n}, max_codim={result.max_codim}: "
+                    f"worst_overload={result.worst_overload} at e={result.worst_overload_e}"
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING shifted inverse-degree local flux overload at "
+                    f"n={n}, max_codim={result.max_codim}: "
+                    f"worst_overload={result.worst_overload} at e={result.worst_overload_e}"
+                )
+            print(
+                f"  witness C={format_family(result.witness_c_family)} "
+                f"U={format_family(result.witness_u_family)}"
+            )
+            print(f"  witness boundary={format_family(result.witness_boundary_family)}")
+            if result.witness_boundary_point is not None:
+                print(
+                    f"  boundary point={format_subset(result.witness_boundary_point)} "
+                    f"load={result.witness_boundary_load}"
+                )
+        if any_warning:
+            warn("WARNING overall: some shifted inverse-degree local flux summaries failed.")
+            return 1
+        ok("OK overall: all requested shifted inverse-degree local flux summaries survived.")
         return 0
 
     dimensions = tuple(args.dimensions)

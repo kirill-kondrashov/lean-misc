@@ -150,7 +150,33 @@ boundary program centered on
   `e=1` has `3` orbits, `e=2` has `17`, `e=4` has `32`.
 - Consequence: only existence of shifted minimizers remains plausible, not uniqueness.
 
-### 8. Colex Paper-Proof Formalization
+### 8. Inverse-Degree Codimension-2 Flux Rule
+
+- Proposed rule: on the codimension-`2` local transport graph, weight the contribution to a
+  boundary cell \(B\) proportionally to \(1/\deg(B)\).
+- Status: `falsified`.
+- Exact failures:
+  - in exact `n = 5`, worst overload is
+    \[
+    1/77
+    \]
+    at `e = 5`, with overloaded boundary point \(\{0,1,2,3\}\) carrying load
+    \[
+    78/77;
+    \]
+  - in shifted `n = 7`, worst overload is
+    \[
+    575/20592
+    \]
+    at `e = 16`, with overloaded boundary point \(\{0,1,2,5,6\}\) carrying load
+    \[
+    21167/20592.
+    \]
+- Consequence: the codimension-`2` graph is still alive, but no simple local weighting rule is
+  currently viable; any successful calibration must use a genuinely nonuniform construction, or be
+  extracted from matching/Hall data by a subtler argument.
+
+### 9. Colex Paper-Proof Formalization
 
 - Mathematical statement:
   \[
