@@ -157,6 +157,16 @@ The next canonical strengthening is now partly archived. Exact shifted diagnosti
 So the shifted Hall witness can be canonicalized to a shifted lower subfamily, but not all the way
 to a simple lex/colex prefix or initial principal star of the lower sheet.
 
+There is now a positive finite-complexity refinement. Exact shifted diagnostics show:
+
+- in shifted `n = 5`, every codimension-`1` Hall deficiency witness can be chosen with at most
+  `1` maximal generator;
+- in shifted `n = 7`, every codimension-`1` Hall deficiency witness can be chosen with at most
+  `4` maximal generators.
+
+So the shifted witness theorem still appears compatible with a small-generator structural route,
+even though the simplest one-generator shapes are already too rigid in `n = 7`.
+
 ## Concrete Program
 
 ### 1. Choose The Right Transport Graph
@@ -239,6 +249,9 @@ So the next proof target on this branch is no longer â€œsome local flux graph,â€
   shifted `n = 7`;
 - do not try to replace the shifted witness theorem by a single initial-principal-star theorem
   either: that survives shifted `n = 5` but is already falsified in shifted `n = 7`;
+- test whether the shifted witness theorem admits a small-generator version:
+  the current exact shifted bounds are `1` maximal generator in `n = 5` and `4` maximal
+  generators in `n = 7`;
 - understand \(\delta_1(F)\) itself as a genuinely global obstruction, not just a zero-degree
   count;
 - and not just the best one-coordinate contain/avoid cut deficiency;

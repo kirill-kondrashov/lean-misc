@@ -142,6 +142,9 @@ close:
   `n = 7`.
 - The next principal-star simplification is ruled out as well:
   initial-principal-star witnesses survive shifted `n = 5` but fail in shifted `n = 7`.
+- But the shifted Hall route still has a positive finite-complexity refinement:
+  exact shifted diagnostics show that one can always choose a shifted Hall witness with at most
+  `1` maximal generator in `n = 5` and at most `4` maximal generators in `n = 7`.
 - The coordinate-section decomposition remains exact, but both standalone reductions suggested by
   it are now archived: the unrestricted even adjacent-layer theorem and the corrected coupled
   section theorem are both false.
