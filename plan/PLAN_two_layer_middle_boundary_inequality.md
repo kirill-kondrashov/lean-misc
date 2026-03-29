@@ -134,6 +134,9 @@ close:
 - Nor is it always realized by the simplest geometric cut:
   in exact `n = 5` and in shifted `n = 7`, the codimension-`1` Hall deficiency can be strictly
   larger than the best single-coordinate contain/avoid cut deficiency.
+- But the shifted route now has a positive structural witness:
+  in shifted `n = 5` and shifted `n = 7`, the codimension-`1` Hall deficiency is always witnessed
+  by a shifted lower subfamily.
 - The coordinate-section decomposition remains exact, but both standalone reductions suggested by
   it are now archived: the unrestricted even adjacent-layer theorem and the corrected coupled
   section theorem are both false.

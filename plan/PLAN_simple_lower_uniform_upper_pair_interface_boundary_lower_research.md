@@ -170,6 +170,9 @@ The current computational evidence still points in the right direction:
 - and it is not always realized by a single-coordinate cut either:
   exact `n = 5` and shifted `n = 7` both show examples where the codimension-`1` deficiency is
   strictly larger than every one-coordinate contain/avoid cut deficiency;
+- but on the shifted route, the Hall obstruction now has a clean witness theorem candidate:
+  in shifted `n = 5` and shifted `n = 7`, the codimension-`1` deficiency is always witnessed by a
+  shifted lower subfamily;
 - the corrected coupled section inequality
   \[
   |\partial^+(A\cup D)| + |\partial^+(B\cup E)| \ge |A| + |B|

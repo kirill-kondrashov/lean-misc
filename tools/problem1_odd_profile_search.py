@@ -405,6 +405,22 @@ class LocalFluxCoordinateCutSummaryResult:
 
 
 @dataclass(frozen=True)
+class ShiftedLocalFluxShiftedWitnessSummaryResult:
+    n: int
+    lower_shifted_family_count: int
+    upper_shifted_family_count: int
+    all_pairs_have_shifted_witness: bool
+    worst_excess_over_shifted_witness: int
+    worst_excess_e: int
+    witness_c_family: Family
+    witness_u_family: Family
+    witness_boundary_family: Family
+    witness_codim1_deficiency: int
+    witness_shifted_deficiency: int
+    witness_shifted_subfamily: Family
+
+
+@dataclass(frozen=True)
 class MiddleLayerCompressionCounterexample:
     n: int
     i: int
@@ -2948,6 +2964,104 @@ def shifted_two_layer_coordinate_cut_summary(
     )
 
 
+def shifted_two_layer_shifted_witness_summary(
+    n: int,
+) -> ShiftedLocalFluxShiftedWitnessSummaryResult:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_count = comb(n, lower_rank)
+    upper_count = comb(n, upper_rank)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_shifted_families = enumerate_shifted_uniform_families(n, lower_rank, subsets)
+    upper_shifted_families = enumerate_shifted_uniform_families(n, upper_rank, subsets)
+    lower_by_size: Dict[int, List[Family]] = {}
+    upper_by_size: Dict[int, List[Family]] = {}
+    lower_set = set(lower_shifted_families)
+    for family in lower_shifted_families:
+        lower_by_size.setdefault(len(family), []).append(family)
+    for family in upper_shifted_families:
+        upper_by_size.setdefault(len(family), []).append(family)
+
+    boundary_cache: Dict[Tuple[Family, Family], Family] = {}
+
+    def boundary_family(c_family: Family, u_family: Family) -> Family:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = tuple(sorted(positive_boundary(family, subsets)))
+        boundary_cache[key] = value
+        return value
+
+    worst_excess = -10**9
+    worst_excess_e = 0
+    witness_c_family: Family = ()
+    witness_u_family: Family = ()
+    witness_boundary_family: Family = ()
+    witness_codim1_deficiency = 0
+    witness_shifted_deficiency = 0
+    witness_shifted_subfamily: Family = ()
+
+    for e in range(lower_count + 1):
+        c_size = lower_count - e
+        for c_family in lower_by_size.get(c_size, []):
+            c_set = set(c_family)
+            candidate_shifted_subfamilies = [
+                shifted_family
+                for shifted_family in lower_shifted_families
+                if shifted_family in lower_set
+                and all(member in c_set for member in shifted_family)
+            ]
+            for u_family in upper_by_size.get(e, []):
+                boundary = boundary_family(c_family, u_family)
+                adjacency = local_flux_adjacency(c_family, boundary, 1)
+                c_index = {member: index for index, member in enumerate(c_family)}
+                codim1_matching = maximum_matching_size(adjacency, len(boundary))
+                codim1_deficiency = len(c_family) - codim1_matching
+                best_shifted_deficiency = 0
+                best_shifted_subfamily: Family = ()
+                for shifted_subfamily in candidate_shifted_subfamilies:
+                    neighborhood: Set[int] = set()
+                    for left in shifted_subfamily:
+                        neighborhood.update(adjacency[c_index[left]])
+                    deficiency = len(shifted_subfamily) - len(neighborhood)
+                    if deficiency > best_shifted_deficiency:
+                        best_shifted_deficiency = deficiency
+                        best_shifted_subfamily = shifted_subfamily
+                excess = codim1_deficiency - best_shifted_deficiency
+                if excess > worst_excess:
+                    worst_excess = excess
+                    worst_excess_e = e
+                    witness_c_family = c_family
+                    witness_u_family = u_family
+                    witness_boundary_family = boundary
+                    witness_codim1_deficiency = codim1_deficiency
+                    witness_shifted_deficiency = best_shifted_deficiency
+                    witness_shifted_subfamily = best_shifted_subfamily
+
+    return ShiftedLocalFluxShiftedWitnessSummaryResult(
+        n=n,
+        lower_shifted_family_count=len(lower_shifted_families),
+        upper_shifted_family_count=len(upper_shifted_families),
+        all_pairs_have_shifted_witness=(worst_excess <= 0),
+        worst_excess_over_shifted_witness=worst_excess,
+        worst_excess_e=worst_excess_e,
+        witness_c_family=witness_c_family,
+        witness_u_family=witness_u_family,
+        witness_boundary_family=witness_boundary_family,
+        witness_codim1_deficiency=witness_codim1_deficiency,
+        witness_shifted_deficiency=witness_shifted_deficiency,
+        witness_shifted_subfamily=witness_shifted_subfamily,
+    )
+
+
 def exhaustive_two_layer_equal_split_summary(
     n: int,
     max_codim: int,
@@ -4269,6 +4383,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--shifted-two-layer-shifted-witness-summary",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only summary testing whether the codimension-1 Hall deficiency is "
+            "witnessed by a shifted lower subfamily."
+        ),
+    )
+    parser.add_argument(
         "--local-flux-max-codim",
         type=int,
         default=2,
@@ -5322,6 +5445,48 @@ def main() -> int:
             warn("WARNING overall: some shifted coordinate-cut summaries failed.")
             return 1
         ok("OK overall: all requested shifted coordinate-cut summaries survived.")
+        return 0
+
+    if args.shifted_two_layer_shifted_witness_summary is not None:
+        any_warning = False
+        for n in args.shifted_two_layer_shifted_witness_summary:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                any_warning = True
+                continue
+            result = shifted_two_layer_shifted_witness_summary(n)
+            if result.all_pairs_have_shifted_witness:
+                ok(
+                    "OK shifted Hall-witness summary at "
+                    f"n={n}: codim-1 deficiency is always witnessed by a shifted lower subfamily."
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING shifted Hall-witness summary at "
+                    f"n={n}: some pairs need a nonshifted Hall witness."
+                )
+            print(
+                f"  lower_shifted_families={result.lower_shifted_family_count} "
+                f"upper_shifted_families={result.upper_shifted_family_count}"
+            )
+            print(
+                f"  worst_excess={result.worst_excess_over_shifted_witness} "
+                f"at e={result.worst_excess_e}"
+            )
+            print(
+                f"  codim1_deficiency={result.witness_codim1_deficiency} "
+                f"shifted_deficiency={result.witness_shifted_deficiency}"
+            )
+            print(
+                f"  witness C={format_family(result.witness_c_family)} "
+                f"U={format_family(result.witness_u_family)}"
+            )
+            print(f"  witness shifted subfamily={format_family(result.witness_shifted_subfamily)}")
+        if any_warning:
+            warn("WARNING overall: some shifted Hall-witness summaries failed.")
+            return 1
+        ok("OK overall: all requested shifted Hall-witness summaries survived.")
         return 0
 
     dimensions = tuple(args.dimensions)

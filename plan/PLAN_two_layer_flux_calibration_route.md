@@ -142,6 +142,11 @@ that
 can be strictly larger than the best deficiency obtained from any single-coordinate contain/avoid
 cut on the lower sheet. So \(\delta_1(F)\) is not captured by a single principal-star cut either.
 
+But the shifted route now has a positive Hall witness theorem candidate. In shifted `n = 5` and
+shifted `n = 7`, the codimension-`1` Hall deficiency is always witnessed by a shifted lower
+subfamily. So while \(\delta_1(F)\) is more global than a single cut, it still appears compatible
+with compression on the shifted subproblem.
+
 ## Concrete Program
 
 ### 1. Choose The Right Transport Graph
@@ -217,6 +222,8 @@ So the next proof target on this branch is no longer â€œsome local flux graph,â€
   \min\{\text{codim-2 edges in a perfect local matching}\} = \delta_1(F)
   \]
   first for shifted \(F\);
+- prove that for shifted \(F\), the codimension-`1` Hall deficiency \(\delta_1(F)\) is witnessed
+  by a shifted lower subfamily;
 - understand \(\delta_1(F)\) itself as a genuinely global obstruction, not just a zero-degree
   count;
 - and not just the best one-coordinate contain/avoid cut deficiency;

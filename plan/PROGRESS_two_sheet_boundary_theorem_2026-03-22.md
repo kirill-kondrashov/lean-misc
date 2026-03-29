@@ -291,6 +291,9 @@ Latest computational sharpening:
 - the next geometric shortcut is ruled out as well:
   in exact `n = 5` and in shifted `n = 7`, the codimension-`1` deficiency can be strictly larger
   than the best single-coordinate contain/avoid cut deficiency;
+- but the shifted Hall route sharpens positively:
+  in shifted `n = 5` and shifted `n = 7`, the codimension-`1` deficiency is always witnessed by a
+  shifted lower subfamily;
 - all searched structured uniform-upper classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|,
