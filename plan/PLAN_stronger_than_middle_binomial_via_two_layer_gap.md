@@ -120,6 +120,30 @@ paper-level task is therefore not just “prove some positive gap,” but:
 \text{prove a uniform strict gap off the two equality templates, first in the shifted world.}
 \]
 
+## Current Shifted Distance Profile
+
+The gap data is now refined by exact distance-to-template diagnostics in the shifted world.
+
+- shifted `n = 5`: the nearest non-equality pairs occur at template distance `2`, and their
+  boundary gap is exactly `2`;
+- shifted `n = 7`: the nearest non-equality pairs again occur at template distance `2`, but their
+  boundary gap is already `3`.
+
+So the first stability signal is:
+
+\[
+\text{near-template shifted pairs already pay at least a distance-}2\text{ penalty,}
+\]
+
+and in `n = 7` the boundary gap is strictly stronger than that first template distance.
+
+This makes the next theorem target more geometric than the earlier additive-gap phrasing:
+
+\[
+|\partial^+F| - |C|
+\quad\text{should be controlled from below by a genuine distance-from-template functional.}
+\]
+
 ## Main Gap Program
 
 ### Step 1. Prove Shifted Equality Classification
@@ -198,7 +222,8 @@ After that, the program can be iterated:
    `2` and `3` respectively.
 3. Formulate the weakest nontrivial theorem that matches the current data:
    the shifted odd two-layer problem should satisfy an additive `+2` gap off the equality
-   templates.
+   templates, and plausibly a distance-sensitive lower bound stronger than bare additive `+2`
+   near the principal-star template.
 4. Identify what the transported subcube families would have to look like in order to realize the
    two equality templates, and try to rule that out directly.
 5. Only then move back into Lean:

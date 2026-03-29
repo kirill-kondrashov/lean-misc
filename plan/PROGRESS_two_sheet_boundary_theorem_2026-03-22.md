@@ -252,6 +252,10 @@ Latest computational sharpening:
   among shifted two-layer families, the first positive boundary gap off those equality templates is
   `2` in `n = 5` and `3` in `n = 7`, so the quantitative program is now aiming beyond the
   naive additive `+1` target;
+- the stronger-gap branch is now refined by template distance as well:
+  in both shifted `n = 5` and shifted `n = 7`, the nearest non-equality pairs lie at distance `2`
+  from the equality templates, while the first positive boundary gaps are `2` and `3`
+  respectively;
 - pushing the same brute-force shifted-enumeration idea to `n = 9` no longer looks productive:
   the shifted-family count itself does not return on a short/medium run, so the search side is
   effectively saturated at `n = 7`;

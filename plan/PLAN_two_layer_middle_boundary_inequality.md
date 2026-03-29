@@ -133,6 +133,9 @@ That stronger direction is now tracked in
 - The shifted strict-gap profile is now exact in both tested dimensions:
   away from those two equality templates, the smallest observed boundary gap is `2` in shifted
   `n = 5` and `3` in shifted `n = 7`.
+- The shifted distance profile is now exact too:
+  in both tested dimensions, the nearest non-equality shifted pairs are at template distance `2`,
+  with boundary gap `2` in `n = 5` and `3` in `n = 7`.
 - With the current brute-force search tool, this exact shifted-enumeration strategy appears to top
   out at `n = 7`: an analogous `n = 9` shifted-family count does not finish on a short/medium
   run, so deeper exhaustive search is no longer the right next step.

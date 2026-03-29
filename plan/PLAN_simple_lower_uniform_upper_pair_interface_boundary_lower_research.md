@@ -348,6 +348,12 @@ Exact shifted diagnostics now show:
 - shifted `n = 5`: off the two equality templates, the first positive boundary gap is `2`;
 - shifted `n = 7`: off the same templates, the first positive boundary gap is `3`.
 
+The shifted distance profile is now sharper too:
+
+- in both `n = 5` and `n = 7`, the nearest non-equality shifted pairs lie at template distance
+  `2`;
+- at that distance, the first boundary gap is `2` in `n = 5` and `3` in `n = 7`.
+
 So the stronger-than-middle-binomial program is no longer just a vague stability question. The
 current evidence supports a sharper first theorem target:
 \[

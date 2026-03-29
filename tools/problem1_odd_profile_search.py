@@ -346,6 +346,18 @@ class ShiftedTwoLayerGapProfileResult:
 
 
 @dataclass(frozen=True)
+class ShiftedTwoLayerGapDistanceProfileResult:
+    n: int
+    e: int
+    minimal_positive_margin: int | None
+    witness_distance_to_full_lower: int | None
+    witness_distance_to_principal_star: int | None
+    witness_distance_to_equality_templates: int | None
+    witness_c_family: Family
+    witness_u_family: Family
+
+
+@dataclass(frozen=True)
 class ExhaustiveShiftedEvenAdjacentLayerSummaryResult:
     n: int
     r: int
@@ -2824,6 +2836,117 @@ def shifted_two_layer_gap_profile(
                 minimal_positive_margin=minimal_positive_margin,
                 minimal_positive_count=len(minimal_positive_pairs),
                 minimal_positive_orbit_count=len(minimal_positive_reps),
+                witness_c_family=witness_c_family,
+                witness_u_family=witness_u_family,
+            )
+        )
+    return results
+
+
+def shifted_two_layer_gap_distance_profile(
+    n: int,
+) -> List[ShiftedTwoLayerGapDistanceProfileResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_shifted_families = enumerate_shifted_uniform_families(n, lower_rank, subsets)
+    upper_shifted_families = enumerate_shifted_uniform_families(n, upper_rank, subsets)
+    lower_by_size: Dict[int, List[Family]] = {}
+    upper_by_size: Dict[int, List[Family]] = {}
+    for family in lower_shifted_families:
+        lower_by_size.setdefault(len(family), []).append(family)
+    for family in upper_shifted_families:
+        upper_by_size.setdefault(len(family), []).append(family)
+
+    boundary_cache: Dict[Tuple[Family, Family], int] = {}
+
+    def two_layer_boundary_size(c_family: Family, u_family: Family) -> int:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    full_lower_template = tuple(lower_rank_sets)
+    principal_star_c_family = tuple(subset for subset in lower_rank_sets if subset & 1)
+    principal_star_u_family = tuple(subset for subset in upper_rank_sets if subset & 1)
+
+    def pair_distance(
+        c_family: Family,
+        u_family: Family,
+        template_c_family: Family,
+        template_u_family: Family,
+    ) -> int:
+        return (
+            len(set(c_family).symmetric_difference(template_c_family))
+            + len(set(u_family).symmetric_difference(template_u_family))
+        )
+
+    results: List[ShiftedTwoLayerGapDistanceProfileResult] = []
+    for e in range(lower_count + 1):
+        c_size = lower_count - e
+        minimal_positive_margin: int | None = None
+        witness_c_family: Family = ()
+        witness_u_family: Family = ()
+        witness_distance_to_full_lower: int | None = None
+        witness_distance_to_principal_star: int | None = None
+        witness_distance_to_equality_templates: int | None = None
+        for c_family in lower_by_size.get(c_size, []):
+            for u_family in upper_by_size.get(e, []):
+                margin = two_layer_boundary_size(c_family, u_family) - c_size
+                if margin <= 0:
+                    continue
+                distance_to_full_lower = pair_distance(
+                    c_family,
+                    u_family,
+                    full_lower_template,
+                    (),
+                )
+                distance_to_principal_star = pair_distance(
+                    c_family,
+                    u_family,
+                    principal_star_c_family,
+                    principal_star_u_family,
+                )
+                distance_to_templates = min(distance_to_full_lower, distance_to_principal_star)
+                if (
+                    minimal_positive_margin is None
+                    or margin < minimal_positive_margin
+                    or (
+                        margin == minimal_positive_margin
+                        and (
+                            witness_distance_to_equality_templates is None
+                            or distance_to_templates < witness_distance_to_equality_templates
+                        )
+                    )
+                ):
+                    minimal_positive_margin = margin
+                    witness_c_family = c_family
+                    witness_u_family = u_family
+                    witness_distance_to_full_lower = distance_to_full_lower
+                    witness_distance_to_principal_star = distance_to_principal_star
+                    witness_distance_to_equality_templates = distance_to_templates
+        results.append(
+            ShiftedTwoLayerGapDistanceProfileResult(
+                n=n,
+                e=e,
+                minimal_positive_margin=minimal_positive_margin,
+                witness_distance_to_full_lower=witness_distance_to_full_lower,
+                witness_distance_to_principal_star=witness_distance_to_principal_star,
+                witness_distance_to_equality_templates=witness_distance_to_equality_templates,
                 witness_c_family=witness_c_family,
                 witness_u_family=witness_u_family,
             )
@@ -5910,6 +6033,16 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--shifted-two-layer-gap-distance-profile",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only strict-gap profile with distance-to-template data on the given "
+            "odd dimensions. For each odd n and each e, report the first positive boundary "
+            "margin and its distance to the two shifted equality templates."
+        ),
+    )
+    parser.add_argument(
         "--exhaustive-shifted-even-adjacent-layer-summary",
         type=int,
         nargs="+",
@@ -6895,6 +7028,29 @@ def main() -> int:
                     f"strict_gap={result.minimal_positive_margin} "
                     f"strict_gap_count={result.minimal_positive_count} "
                     f"strict_gap_orbits={result.minimal_positive_orbit_count}"
+                )
+                print(
+                    f"    witness C={format_family(result.witness_c_family)} "
+                    f"U={format_family(result.witness_u_family)}"
+                )
+        return 0
+
+    if args.shifted_two_layer_gap_distance_profile is not None:
+        for n in args.shifted_two_layer_gap_distance_profile:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                return 1
+            results = shifted_two_layer_gap_distance_profile(n)
+            ok(f"OK shifted two-layer gap-distance profile at n={n}")
+            for result in results:
+                if result.minimal_positive_margin is None:
+                    print(f"  e={result.e} strict_gap=none")
+                    continue
+                print(
+                    f"  e={result.e} strict_gap={result.minimal_positive_margin} "
+                    f"dist_templates={result.witness_distance_to_equality_templates} "
+                    f"dist_full_lower={result.witness_distance_to_full_lower} "
+                    f"dist_principal_star={result.witness_distance_to_principal_star}"
                 )
                 print(
                     f"    witness C={format_family(result.witness_c_family)} "
