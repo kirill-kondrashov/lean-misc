@@ -218,10 +218,14 @@ In particular, the bridge module makes the following map explicit:
 Current repo status:
 
 - `make build` is green.
-- The current live target is the `Prism Theorem`.
-- Old candidate frontiers were explicitly disproved and archived.
-- The current Lean reduction already shows that `Prism Theorem` is equivalent to the current
-  cube-boundary form of Erdős #1, so proving it closes the Erdős #1 route used in this repo.
+- `make check` is green.
+- `scripts/verify_output.sh` is green.
+- The current live target is still the `Prism Theorem`, but the remaining work is now concentrated
+  in one explicit two-layer boundary theorem.
+- Old candidate frontiers and dead proof branches were explicitly disproved and moved to
+  [plan/STUCK_PLANS.md](./plan/STUCK_PLANS.md).
+- Under the current frontier assumptions already formalized in Lean, proving the remaining
+  two-layer boundary theorem closes the prism-theorem route used in this repo.
 
 Lean entry points:
 
@@ -291,18 +295,19 @@ Geometric meaning:
 - Equivalently, build the prism family `twoSheetFamily M N` in the even cube.
 - The theorem is the sharp lower bound on the total visible boundary of that prism object.
 
-Relation to the original cube theorem:
+Relation to the current cube route:
 
 - `Prism Theorem` is the talk/repo name for the current live frontier.
-- In Lean it is packaged via `TwoSheetBoundaryTheorem`,
+- In Lean it is packaged through `TwoSheetBoundaryTheorem`,
   `TopologicalOddSectionBoundaryLowerStatement`, and
   `PrismHalfCubeBoundaryLowerStatement`.
-- The current Lean reduction shows these formulations are equivalent and already yield:
-  - the odd half-cube theorem
-  - the full even half-cube theorem
-  - the full exact lower-bound route for Erdős #1
-- So, in the current formal research program, `Prism Theorem` is equivalent to Erdős #1 in its
-  cube-boundary formulation.
+- The current Lean reduction shows that, under the current frontier assumptions, these formulations
+  already yield:
+  - the odd half-cube boundary theorem;
+  - the even half-cube boundary theorem;
+  - the exact lower-bound route for Erdős #1 used in this repo.
+- So the remaining prism bottleneck is now the remaining cube-boundary bottleneck on the active
+  Erdős #1 route.
 
 Positive boundary notation used in the rest of this section:
 
@@ -314,209 +319,156 @@ A \notin \mathcal F : \exists x \in A,\ A \setminus \{x\} \in \mathcal F
 \right\}.
 ```
 
-The live remaining target is the Prism Theorem above. In particular, the odd half-cube theorem is
-no longer treated as a separate frontier assumption in the active route: it is now a formal
-consequence of the prism frontier.
+The live remaining target is still the Prism Theorem above, but the active route no longer attacks
+it through the old six-leaf summary. The odd half-cube theorem is already downstream of the prism
+route; the remaining gap is now one explicit two-layer middle-boundary theorem.
 
 ### Prism theorem status
 
-As of March 25, 2026, the working estimate for the current formal route is:
+As of March 29, 2026, the working estimate for the current formal route is:
 
 ```text
-[########--] 8/10
+[#########>] 9.5/10
 ```
 
 This is a program-structure estimate, not a probability claim.
 
-Mathematically, this means that the reduction and packaging layer is mostly complete: everything
-downstream of six local odd-dimensional source statements is already formalized.
+Mathematically, the reduction and packaging layer is essentially complete. The remaining active
+problem is now a single simple-lower / middle-layer theorem.
 
-Write
-
-```math
-\mathcal F_r := \{A \in \mathcal F : |A| = r\}.
-```
-
-In the nested-sheet branch, the standing hypotheses are
+Let
 
 ```math
-\begin{aligned}
-\mathcal M &\subseteq \mathcal N,\\[2pt]
-|\mathcal N| &= 2^{2m}+e,\\
-|\mathcal M| &= 2^{2m}-e,\\[2pt]
-\mathrm{totalSize}(\mathrm{evenLowerHalfFamily}(m))
-&<
-\mathrm{totalSize}(\mathrm{twoSheetFamily}(\mathcal M,\mathcal N)).
-\end{aligned}
+n := 2m+1,
+\qquad
+L_m := \{S \subseteq [n] : |S| \le m\}.
 ```
 
-The remaining source leaves are:
-
-Odd one-sheet upper-shadow-gap leaf.
+Let
 
 ```math
-|\mathcal D| = 2^{2m},\qquad
-\mathrm{totalSize}(\mathrm{oddLowerHalfFamily}(m)) < \mathrm{totalSize}(\mathcal D)
-\Longrightarrow
-\binom{2m+1}{m} < \mathrm{upperShadowGap}(\mathcal D).
+V \subseteq \binom{[n]}{m},
+\qquad
+U \subseteq \binom{[n]}{m+1},
+\qquad
+|U| = |V|,
 ```
 
-Exterior-support strict-excess leaves.
+and define
 
 ```math
-(\partial^+\mathcal N)_r \ne \varnothing
-\quad\text{for some } r \le m \text{ or } r \ge m+3
-\Longrightarrow
-2\binom{2m+1}{m} < |\partial^+\mathcal N| + 2e.
+M := L_m \setminus V,
+\qquad
+N := L_m \cup U.
 ```
+
+The remaining simple-lower boundary theorem is
 
 ```math
-I(\mathcal M,\mathcal N)_q \ne \varnothing
-\quad\text{for some } q < m \text{ or } q \ge m+2
-\Longrightarrow
-2\binom{2m+1}{m} < |\partial^+\mathcal N| + 2e.
+|\partial^+ N| + |(N \setminus M)\cup \partial^+ M|
+\ge
+2\binom{2m+1}{m}.
 ```
 
-First-gap prism leaf.
+This is already the last live simple-lower surface in Lean:
+
+- `SimpleLowerUniformUpperPairInterfaceBoundaryLowerStatement`
+- equivalently `SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement`
+
+It reduces to the pure middle-layer inequality
 
 ```math
-(\mathcal N \setminus \mathcal M)_s = \varnothing \text{ for } s < q,\qquad
-(\mathcal N \setminus \mathcal M)_q \ne \varnothing
-\Longrightarrow
-\binom{2m+2}{m+1} < |\partial^+(\mathrm{twoSheetFamily}(\mathcal M,\mathcal N))|.
+|\partial^\uparrow U| \ge |T(V)\setminus U|,
 ```
 
-Support-silent middle leaves.
+where
 
 ```math
-I(\mathcal M,\mathcal N)_r = \varnothing
-\quad\text{for all } r < m \text{ or } r \ge m+2.
+\partial^\uparrow U
+:=
+\{T \in \tbinom{[n]}{m+2} : \exists s \in U,\ s \subset T\},
 ```
 
-Lower middle case:
+and
 
 ```math
-(\partial^+\mathcal M)_m \ne \varnothing
-\Longrightarrow
-\binom{2m+2}{m+1} < |\partial^+(\mathrm{twoSheetFamily}(\mathcal M,\mathcal N))|.
+T(V)
+:=
+\left\{B \in \binom{[n]}{m+1} : \binom{B}{m}\subseteq V\right\}.
 ```
 
-Upper middle case:
+The current active two-layer reformulation is cleaner still. Writing
 
 ```math
-(\partial^+\mathcal M)_{m+1} \ne \varnothing
-\Longrightarrow
-\binom{2m+2}{m+1} < |\partial^+(\mathrm{twoSheetFamily}(\mathcal M,\mathcal N))|.
+P_m := \binom{[n]}{m},
+\qquad
+C := P_m \setminus V,
+\qquad
+F := C \cup U,
 ```
 
-The theorem-level boundary route has already been detached from the strict prism-boundary branch:
-it now factors through the one-leaf odd-size source bundle
-`PrismTheoremOddSizeLeafFrontierStatement`, then the one-leaf theorem consequence bundle
-`PrismTheoremBoundaryLowerFrontierStatement`.
+the remaining task is equivalent to
+
+```math
+|\partial^+F| \ge |C|.
+```
+
+In expanded form:
+
+```math
+\left|\partial^+\!\left(\left(\binom{[n]}{m}\setminus V\right)\cup U\right)\right|
+\ge
+\left|\binom{[n]}{m}\setminus V\right|.
+```
+
+The latest proof-side reduction now pushes this odd-cube problem to an even-dimensional
+adjacent-layer theorem. If
+
+```math
+F \subseteq \binom{[2m+1]}{m}\sqcup \binom{[2m+1]}{m+1}
+```
+
+is sectioned by one coordinate, then the proof note reduces the odd theorem to the following
+even-cube statement, first in the shifted case:
+
+```math
+|\partial^+G| \ge |G_r|,
+\qquad
+G \subseteq \binom{[2m]}{r}\sqcup \binom{[2m]}{r+1}.
+```
+
+This is the current combinatorial bottleneck.
 
 For the current detailed progress log, see
 [plan/PROGRESS_two_sheet_boundary_theorem_2026-03-22.md](./plan/PROGRESS_two_sheet_boundary_theorem_2026-03-22.md).
 
 What is now ruled out:
 
-Paired odd-section frontier: false.
+- the naive compression-monotonicity route;
+- the weaker colex reduction route;
+- the Hall-shadow sufficient-condition route;
+- uniqueness of the lex/shifted minimizer orbit.
 
-```math
-|\partial^+\mathcal N| + |\partial^+\mathcal M|
-\ge 2\binom{2m+1}{m}
-```
-
-under
-
-```math
-\mathcal M \subseteq \mathcal N,
-\qquad
-|\mathcal N| = 2^{2m}+e,
-\qquad
-|\mathcal M| = 2^{2m}-e.
-```
-
-Counterexample:
-
-```math
-m=0,\quad e=1,\quad \mathcal N = 2^{[1]},\quad \mathcal M = \varnothing.
-```
-
-One-family odd excess frontier: false.
-
-```math
-2\binom{2m+1}{m} \le |\partial^+\mathcal N| + 2e
-```
-
-under
-
-```math
-|\mathcal N| = 2^{2m}+e.
-```
-
-Counterexample:
-
-```math
-\mathcal N=\{\varnothing,\{0\},\{1\},\{2\},\{1,2\}\}\subseteq 2^{[3]}.
-```
-
-For this family,
-
-```math
-|\mathcal N| = 5 = 2^2 + 1,
-\qquad
-|\partial^+\mathcal N| = 3,
-```
-
-so the claimed inequality would force
-
-```math
-2\binom{3}{1} = 6 \le 3 + 2 = 5,
-```
-
-which is impossible.
-
-Strict-excess optimization wrapper: false.
-
-```math
-\beta(m,e) \le |\partial^+\mathcal N|,
-\qquad
-2\binom{2m+1}{m} \le \beta(m,e) + 2e
-```
-
-This fails for the same $n = 3$, $e = 1$ family above, because it would force
-
-```math
-\beta(1,1) \le 3
-\qquad\text{and}\qquad
-\beta(1,1) \ge 4.
-```
+These archived dead ends are summarized in
+[plan/STUCK_PLANS.md](./plan/STUCK_PLANS.md).
 
 Current research program:
 
-1. Keep `Prism Theorem` / `Two-Sheet Boundary Theorem` as the single live theorem target.
-2. Treat the prism packaging, exact section-boundary decomposition, and even minimizer
-   normalization as completed infrastructure:
-   - `twoSheetFamily M N` is already formalized.
-   - the exact identity `twoSheetOuterBoundaryCard M N = #(positiveBoundary (twoSheetFamily M N))`
-     is already proved.
-   - the even minimizer route already reaches a middle-transition-window normal form.
-3. Focus the proof program on the actual remaining bottleneck: the six local odd source leaves
-   listed in the Prism theorem status block above. They split into:
-   - one odd one-sheet upper-shadow-gap leaf;
-   - two exterior-support strict-excess leaves;
-   - one first-gap prism leaf;
-   - two support-silent middle leaves at ranks `m` and `m + 1`.
-4. Use those six odd source leaves to force
+1. Treat the prism packaging, normalization, and downstream closure graph as completed
+   infrastructure.
+2. Prove the direct two-layer middle-boundary theorem
 
    ```math
-   \mathrm{totalSize}(\mathcal D) \le \mathrm{totalSize}(\mathrm{evenLowerHalfFamily}(m)),
+   \left|\partial^+\!\left(\left(\binom{[n]}{m}\setminus V\right)\cup U\right)\right|
+   \ge
+   \left|\binom{[n]}{m}\setminus V\right|.
    ```
 
-   and then recover balanced `0`-sections and the collapse to the standard witness through the
-   already-formalized even minimizer reductions.
-5. Feed that extremizer identification back through `PrismHalfCubeBoundaryLowerStatement` and
-   replace `halfCubeBoundaryLower` by the proved prism frontier.
+3. Do this by proving a two-layer compression lemma and reducing to shifted families, or directly
+   by proving the equivalent even-dimensional adjacent-layer theorem above.
+4. Feed that theorem back through the existing Lean equivalence layer to recover the remaining
+   simple-lower statement, then the canonical prism bottleneck, then the exact Erdős #1 endpoint
+   under the current frontier.
 
 The old odd-excess wrappers in
 [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean)
