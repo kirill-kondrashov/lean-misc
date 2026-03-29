@@ -122,7 +122,26 @@ boundary program centered on
 - Consequence: the first viable flux candidate has to allow codimension-`2` transport, not just
   single upward edges.
 
-### 6. Unique Lex/Shifted Minimizer Orbit
+### 6. Equal-Split Codimension-2 Flux Rule
+
+- Proposed rule: on the codimension-`2` local transport graph, each lower cell sends its unit mass
+  equally to all local neighbors.
+- Status: `falsified`.
+- Exact failures:
+  - in exact `n = 5`, worst overload is
+    \[
+    7/12
+    \]
+    at `e = 3`;
+  - in shifted `n = 7`, worst overload is
+    \[
+    13/15
+    \]
+    at `e = 1`.
+- Consequence: the codimension-`2` graph is still alive, but any successful calibration must use a
+  genuinely nonuniform weighting, or must be extracted from a matching by a less naive procedure.
+
+### 7. Unique Lex/Shifted Minimizer Orbit
 
 - Conjecture: every minimizer of the two-layer boundary functional lies in the same permutation
   orbit as the lex/shifted model.
@@ -131,7 +150,7 @@ boundary program centered on
   `e=1` has `3` orbits, `e=2` has `17`, `e=4` has `32`.
 - Consequence: only existence of shifted minimizers remains plausible, not uniqueness.
 
-### 7. Colex Paper-Proof Formalization
+### 8. Colex Paper-Proof Formalization
 
 - Mathematical statement:
   \[

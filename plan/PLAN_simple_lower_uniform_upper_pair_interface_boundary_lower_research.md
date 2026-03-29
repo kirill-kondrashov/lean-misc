@@ -152,6 +152,9 @@ The current computational evidence still points in the right direction:
   survives over all equal-size middle-layer pairs;
 - that same separation now survives in the shifted `n = 7` problem:
   codimension-`1` fails, but codimension-`2` survives across all shifted pairs;
+- the first naive codimension-`2` weighting rule is now ruled out:
+  equal-split local flux already overloads a boundary point in exact `n = 5`, and also in shifted
+  `n = 7`;
 - the corrected coupled section inequality
   \[
   |\partial^+(A\cup D)| + |\partial^+(B\cup E)| \ge |A| + |B|

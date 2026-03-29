@@ -117,6 +117,8 @@ close:
 - This is no longer only a tiny-dimensional phenomenon:
   in the shifted `n = 7` model, codimension-`1` still fails, while codimension-`2` survives across
   all shifted pairs.
+- But the first naive codimension-`2` calibration is already dead:
+  equal-split transport overloads a boundary point both in exact `n = 5` and in shifted `n = 7`.
 - The coordinate-section decomposition remains exact, but both standalone reductions suggested by
   it are now archived: the unrestricted even adjacent-layer theorem and the corrected coupled
   section theorem are both false.

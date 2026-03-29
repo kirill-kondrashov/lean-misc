@@ -98,9 +98,13 @@ Summing over \(A\) and \(B\) would give
 - The same qualitative split now survives in the shifted `n = 7` model:
   the codimension-`1` local Hall graph fails with worst deficiency `-15` at `e = 20`, while the
   codimension-`2` local Hall graph survives across all shifted pairs.
+- The simplest codimension-`2` weighting rule is still too naive:
+  equal-split transport already overloads a boundary cell in exact `n = 5`, and also in shifted
+  `n = 7`.
 
 So the first viable local candidate is not the pure upward-edge graph, but the codimension-`2`
-version suggested by the geometry of the odd boundary.
+transport graph suggested by the geometry of the odd boundary. However, it needs a genuinely
+nonuniform weighting rule.
 
 ## Concrete Program
 
@@ -124,6 +128,13 @@ w_{A,B} = \frac{1}{d_F(A)} \cdot \lambda(A,B),
 where \(d_F(A)\) counts available outward directions from \(A\), and \(\lambda(A,B)\) splits mass
 among exposed upper cells.
 
+The equal-split rule
+\[
+w_{A,B} = \frac{1}{d_F(A)}
+\]
+on the codimension-`2` graph is now archived: it overloads a boundary point already in exact
+`n = 5`, and also in shifted `n = 7`.
+
 ### 3. Test The Rule On Equality Models
 
 The calibration should be exact on:
@@ -146,6 +157,8 @@ So the next proof target on this branch is no longer â€œsome local flux graph,â€
 
 - prove the codimension-`2` Hall/matching property for shifted \(F\);
 - then convert that matching into an actual fractional calibration;
+- equivalently, find a nonuniform codimension-`2` weighting rule, since uniform equal-split is
+  already falsified;
 - then either extend the calibration to arbitrary \(F\), or combine it with compression.
 
 After that either:
