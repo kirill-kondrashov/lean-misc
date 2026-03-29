@@ -127,6 +127,9 @@ The current computational evidence still points in the right direction:
 - this now extends exactly to shifted `n = 7`:
   across all `5164` shifted pairs and all `108444` layer-preserving shifts, no counterexample to
   the actual two-layer compression lemma appears;
+- but the stronger strict-descent shortcut is now falsified already in exact `n = 5`:
+  some nonshifted pairs admit no layer-preserving shift that strictly lowers \(|\partial^+F|\),
+  so the compression program has to work with weak descent plus a separate rigidity argument;
 - more sharply, the exact `n = 5` direct search supports the shifted-minimizer model:
   for every `e`, a lex/shifted two-layer family \(F=C\cup U\) attains the minimum boundary;
 - exact shifted `n = 5` classification is sharper again:

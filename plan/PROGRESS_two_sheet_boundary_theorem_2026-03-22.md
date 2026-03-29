@@ -206,6 +206,9 @@ Latest computational sharpening:
 - that compression evidence now extends exactly to shifted `n = 7` as well:
   across all `5164` shifted pairs and all `108444` layer-preserving shifts, no counterexample to
   the actual two-layer compression lemma appears;
+- the stronger strict-compression shortcut is now ruled out already in exact `n = 5`:
+  some nonshifted pairs admit no layer-preserving shift that strictly lowers \(|\partial^+F|\),
+  so the compression route cannot be closed by a strictly descending potential alone;
 - exact shifted `n = 5` classification now sharpens the equality picture too:
   within shifted two-layer families, equality in
   \[

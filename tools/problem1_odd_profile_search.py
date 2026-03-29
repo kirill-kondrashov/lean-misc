@@ -195,6 +195,22 @@ class ExhaustiveTwoLayerCompressionCounterexample:
 
 
 @dataclass(frozen=True)
+class ExhaustiveTwoLayerStrictCompressionSummaryResult:
+    n: int
+    checked_nonshifted_pair_count: int
+    all_nonshifted_pairs_have_strict_descent: bool
+    witness_e: int
+    witness_boundary_before: int
+    witness_best_boundary_after: int
+    witness_i: int
+    witness_j: int
+    witness_c_family: Family
+    witness_u_family: Family
+    witness_compressed_c_family: Family
+    witness_compressed_u_family: Family
+
+
+@dataclass(frozen=True)
 class ExhaustiveShiftedTwoLayerExtremizerResult:
     n: int
     e: int
@@ -1548,6 +1564,108 @@ def exhaustive_two_layer_boundary_compression_counterexample(
                             compressed_u_family=compressed_u_family,
                         )
     return None
+
+
+def exhaustive_two_layer_strict_compression_summary(
+    n: int,
+) -> ExhaustiveTwoLayerStrictCompressionSummaryResult:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    boundary_cache: Dict[Tuple[Family, Family], int] = {}
+
+    def two_layer_boundary_size(c_family: Family, u_family: Family) -> int:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    checked_nonshifted_pair_count = 0
+    for v_mask in range(1 << lower_count):
+        e = v_mask.bit_count()
+        c_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if not (v_mask & (1 << index))
+        )
+        c_shifted = is_shifted_uniform_family(c_family, n)
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            u_family = tuple(
+                upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+            )
+            u_shifted = is_shifted_uniform_family(u_family, n)
+            if c_shifted and u_shifted:
+                continue
+            checked_nonshifted_pair_count += 1
+            boundary_before = two_layer_boundary_size(c_family, u_family)
+            best_boundary_after = boundary_before
+            best_i = -1
+            best_j = -1
+            best_c_family: Family = ()
+            best_u_family: Family = ()
+            strict_found = False
+            for i in range(n):
+                for j in range(i + 1, n):
+                    compressed_c_family = compress_uniform_family(c_family, i, j)
+                    compressed_u_family = compress_uniform_family(u_family, i, j)
+                    if compressed_c_family == c_family and compressed_u_family == u_family:
+                        continue
+                    boundary_after = two_layer_boundary_size(compressed_c_family, compressed_u_family)
+                    if (
+                        best_i == -1
+                        or boundary_after < best_boundary_after
+                    ):
+                        best_boundary_after = boundary_after
+                        best_i = i
+                        best_j = j
+                        best_c_family = compressed_c_family
+                        best_u_family = compressed_u_family
+                    if boundary_after < boundary_before:
+                        strict_found = True
+            if not strict_found:
+                return ExhaustiveTwoLayerStrictCompressionSummaryResult(
+                    n=n,
+                    checked_nonshifted_pair_count=checked_nonshifted_pair_count,
+                    all_nonshifted_pairs_have_strict_descent=False,
+                    witness_e=e,
+                    witness_boundary_before=boundary_before,
+                    witness_best_boundary_after=best_boundary_after,
+                    witness_i=best_i,
+                    witness_j=best_j,
+                    witness_c_family=c_family,
+                    witness_u_family=u_family,
+                    witness_compressed_c_family=best_c_family,
+                    witness_compressed_u_family=best_u_family,
+                )
+
+    return ExhaustiveTwoLayerStrictCompressionSummaryResult(
+        n=n,
+        checked_nonshifted_pair_count=checked_nonshifted_pair_count,
+        all_nonshifted_pairs_have_strict_descent=True,
+        witness_e=0,
+        witness_boundary_before=0,
+        witness_best_boundary_after=0,
+        witness_i=0,
+        witness_j=0,
+        witness_c_family=(),
+        witness_u_family=(),
+        witness_compressed_c_family=(),
+        witness_compressed_u_family=(),
+    )
 
 
 def exhaustive_shifted_two_layer_extremizers(
@@ -4830,6 +4948,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-two-layer-strict-compression-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 test of the stronger strict-compression shortcut: "
+            "check whether every nonshifted equal-size middle-layer pair admits some "
+            "layer-preserving shift that strictly decreases |∂^+ F|."
+        ),
+    )
+    parser.add_argument(
         "--exhaustive-shifted-two-layer-extremizers-n5",
         action="store_true",
         help=(
@@ -5478,6 +5605,34 @@ def main() -> int:
         print(f"  U = {format_family(result.u_family)}")
         print(f"  C' = {format_family(result.compressed_c_family)}")
         print(f"  U' = {format_family(result.compressed_u_family)}")
+        return 1
+
+    if args.exhaustive_two_layer_strict_compression_n5:
+        result = exhaustive_two_layer_strict_compression_summary(5)
+        if result.all_nonshifted_pairs_have_strict_descent:
+            ok(
+                "OK exact n=5: every nonshifted two-layer pair has a strict boundary-lowering "
+                "shift."
+            )
+            print(f"  checked_nonshifted_pair_count={result.checked_nonshifted_pair_count}")
+            return 0
+        warn(
+            "WARNING exact n=5: the strict compression shortcut fails; some nonshifted pair has "
+            "no strict boundary-lowering shift."
+        )
+        print(
+            f"  checked_nonshifted_pair_count={result.checked_nonshifted_pair_count} "
+            f"e={result.witness_e} "
+            f"boundary_before={result.witness_boundary_before} "
+            f"best_boundary_after={result.witness_best_boundary_after}"
+        )
+        print(f"  witness C = {format_family(result.witness_c_family)}")
+        print(f"  witness U = {format_family(result.witness_u_family)}")
+        print(
+            f"  best shift=(i,j)=({result.witness_i},{result.witness_j}) "
+            f"C' = {format_family(result.witness_compressed_c_family)} "
+            f"U' = {format_family(result.witness_compressed_u_family)}"
+        )
         return 1
 
     if args.exhaustive_shifted_two_layer_extremizers_n5:

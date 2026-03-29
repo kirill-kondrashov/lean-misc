@@ -95,6 +95,10 @@ close:
 - That compression evidence now extends exactly to the shifted `n = 7` problem:
   across all `5164` shifted pairs and all `108444` layer-preserving shifts, no counterexample to
   the actual two-layer compression lemma appears.
+- The stronger strict-descent shortcut is now ruled out already in exact `n = 5`:
+  some nonshifted pairs admit no layer-preserving shift that strictly lowers \(|\partial^+F|\),
+  so any compression proof has to work with weak descent plus a separate equality/rigidity
+  analysis, not with a strictly descending potential.
 - Exact shifted classification in `n = 5` is now sharper as well:
   among shifted two-layer families, equality in \((B)\) occurs only in two orbits:
   the trivial full lower layer at `e = 0`, and the principal-star two-layer family at `e = 6`

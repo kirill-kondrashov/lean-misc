@@ -150,7 +150,31 @@ boundary program centered on
   `e=1` has `3` orbits, `e=2` has `17`, `e=4` has `32`.
 - Consequence: only existence of shifted minimizers remains plausible, not uniqueness.
 
-### 8. Inverse-Degree Codimension-2 Flux Rule
+### 8. Strict Compression Shortcut
+
+- Proposed strengthening:
+  every nonshifted two-layer pair admits a layer-preserving shift that strictly lowers
+  \[
+  |\partial^+F|.
+  \]
+- Status: `falsified`.
+- Exact `n=5` counterexample:
+  \[
+  C=\binom{[5]}{2}\setminus\{\{0,1\}\},
+  \qquad
+  U=\{\{0,1,2\}\}.
+  \]
+  This pair is nonshifted, but no layer-preserving shift strictly lowers the boundary:
+  \[
+  |\partial^+(C\cup U)|=11,
+  \qquad
+  \min |\partial^+(C'\cup U')| = 11
+  \]
+  over all single shifts \((C',U')\).
+- Consequence: the compression route cannot be driven by a strictly descending potential alone;
+  it needs weak monotonicity plus a separate rigidity/equality argument.
+
+### 9. Inverse-Degree Codimension-2 Flux Rule
 
 - Proposed rule: on the codimension-`2` local transport graph, weight the contribution to a
   boundary cell \(B\) proportionally to \(1/\deg(B)\).
@@ -176,7 +200,7 @@ boundary program centered on
   currently viable; any successful calibration must use a genuinely nonuniform construction, or be
   extracted from matching/Hall data by a subtler argument.
 
-### 9. Canonical Greedy Codimension-2 Matching Rules
+### 10. Canonical Greedy Codimension-2 Matching Rules
 
 - Tested family: all eight rules obtained by choosing
   - left order ascending / descending,
@@ -203,7 +227,7 @@ boundary program centered on
 - Consequence: the codimension-`2` matching branch remains alive only at the Hall/augmenting-path
   level; it cannot currently be reduced to a fixed local greedy injection rule.
 
-### 10. Colex Paper-Proof Formalization
+### 11. Colex Paper-Proof Formalization
 
 - Mathematical statement:
   \[
@@ -215,7 +239,7 @@ boundary program centered on
   and the balanced local-LYM packaging.
 - Consequence: useful background evidence, but not part of the active proof route.
 
-### 11. Zero-Degree Explanation Of Codimension-1 Deficiency
+### 12. Zero-Degree Explanation Of Codimension-1 Deficiency
 
 - Proposed explanation:
   \[
