@@ -143,6 +143,9 @@ The current computational evidence still points in the right direction:
   the next step is paper proof rather than deeper exhaustive computation;
 - but exact `n = 5` rules out the stronger uniqueness guess:
   the minimizers are not all contained in a single lex/shifted orbit;
+- but the weaker minimizer-plateau statement now survives exactly in `n = 5`:
+  every minimizer is connected to a shifted minimizer by a chain of boundary-preserving
+  layer-preserving shifts;
 - structured uniform-upper `n = 7` classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|

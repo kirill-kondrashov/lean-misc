@@ -181,6 +181,19 @@ class ExhaustiveTwoLayerMinimizerOrbitResult:
 
 
 @dataclass(frozen=True)
+class ExhaustiveTwoLayerMinimizerPlateauConnectivityResult:
+    n: int
+    e: int
+    minimal_boundary_size: int
+    minimizer_count: int
+    shifted_minimizer_count: int
+    reachable_from_shifted_count: int
+    all_minimizers_reachable_from_shifted: bool
+    witness_c_family: Family
+    witness_u_family: Family
+
+
+@dataclass(frozen=True)
 class ExhaustiveTwoLayerCompressionCounterexample:
     n: int
     e: int
@@ -1486,6 +1499,121 @@ def exhaustive_two_layer_minimizer_orbit_diagnostics(
                 minimizer_count=len(minimizers),
                 orbit_count=len(minimizer_reps),
                 all_minimizers_in_lex_orbit=(minimizer_reps == {lex_rep}),
+            )
+        )
+    return results
+
+
+def exhaustive_two_layer_minimizer_plateau_connectivity(
+    n: int,
+) -> List[ExhaustiveTwoLayerMinimizerPlateauConnectivityResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    boundary_cache: Dict[int, int] = {}
+
+    def two_layer_boundary_size(u_mask: int, v_mask: int) -> int:
+        key = (u_mask << lower_count) | v_mask
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        v_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if v_mask & (1 << index)
+        )
+        c_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if not (v_mask & (1 << index))
+        )
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    results: List[ExhaustiveTwoLayerMinimizerPlateauConnectivityResult] = []
+    for e in range(lower_count + 1):
+        best_boundary: int | None = None
+        minimizers: List[Tuple[Family, Family]] = []
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            u_family = tuple(
+                upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+            )
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                boundary_size = two_layer_boundary_size(u_mask, v_mask)
+                if best_boundary is None or boundary_size < best_boundary:
+                    best_boundary = boundary_size
+                    minimizers = []
+                if boundary_size != best_boundary:
+                    continue
+                c_family = tuple(
+                    lower_rank_sets[index]
+                    for index in range(lower_count)
+                    if not (v_mask & (1 << index))
+                )
+                minimizers.append((c_family, u_family))
+        if best_boundary is None:
+            continue
+
+        minimizer_ids = {pair: idx for idx, pair in enumerate(minimizers)}
+        adjacency: List[Set[int]] = [set() for _ in minimizers]
+        shifted_sources: List[int] = []
+        for idx, (c_family, u_family) in enumerate(minimizers):
+            if is_shifted_uniform_family(c_family, n) and is_shifted_uniform_family(u_family, n):
+                shifted_sources.append(idx)
+            for i in range(n):
+                for j in range(i + 1, n):
+                    compressed_c_family = compress_uniform_family(c_family, i, j)
+                    compressed_u_family = compress_uniform_family(u_family, i, j)
+                    neighbor = (compressed_c_family, compressed_u_family)
+                    neighbor_idx = minimizer_ids.get(neighbor)
+                    if neighbor_idx is None:
+                        continue
+                    adjacency[idx].add(neighbor_idx)
+                    adjacency[neighbor_idx].add(idx)
+
+        reachable: Set[int] = set()
+        frontier = list(shifted_sources)
+        while frontier:
+            idx = frontier.pop()
+            if idx in reachable:
+                continue
+            reachable.add(idx)
+            frontier.extend(neighbor for neighbor in adjacency[idx] if neighbor not in reachable)
+
+        all_reachable = len(reachable) == len(minimizers)
+        witness_c_family: Family = ()
+        witness_u_family: Family = ()
+        if not all_reachable:
+            for idx, pair in enumerate(minimizers):
+                if idx not in reachable:
+                    witness_c_family, witness_u_family = pair
+                    break
+        results.append(
+            ExhaustiveTwoLayerMinimizerPlateauConnectivityResult(
+                n=n,
+                e=e,
+                minimal_boundary_size=best_boundary,
+                minimizer_count=len(minimizers),
+                shifted_minimizer_count=len(shifted_sources),
+                reachable_from_shifted_count=len(reachable),
+                all_minimizers_reachable_from_shifted=all_reachable,
+                witness_c_family=witness_c_family,
+                witness_u_family=witness_u_family,
             )
         )
     return results
@@ -4939,6 +5067,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-two-layer-minimizer-plateau-connectivity-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 minimizer plateau-connectivity test: check whether every "
+            "boundary-minimizing pair is connected to a shifted minimizer by boundary-preserving "
+            "layer-preserving shifts."
+        ),
+    )
+    parser.add_argument(
         "--exhaustive-two-layer-compression-monotonicity-n5",
         action="store_true",
         help=(
@@ -5586,6 +5723,45 @@ def main() -> int:
             return 1
         ok(
             "OK overall: exact n=5 data support lex/shifted orbit uniqueness for the direct route."
+        )
+        return 0
+
+    if args.exhaustive_two_layer_minimizer_plateau_connectivity_n5:
+        any_warning = False
+        results = exhaustive_two_layer_minimizer_plateau_connectivity(5)
+        for result in results:
+            if result.all_minimizers_reachable_from_shifted:
+                ok(
+                    "OK exact n=5 minimizer plateau at "
+                    f"e={result.e}: all {result.minimizer_count} minimizers are connected "
+                    "to shifted minimizers."
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING exact n=5 minimizer plateau at "
+                    f"e={result.e}: only {result.reachable_from_shifted_count} of "
+                    f"{result.minimizer_count} minimizers lie in the shifted plateau component."
+                )
+            print(
+                f"  min_boundary={result.minimal_boundary_size} "
+                f"shifted_minimizers={result.shifted_minimizer_count} "
+                f"reachable_from_shifted={result.reachable_from_shifted_count}"
+            )
+            if not result.all_minimizers_reachable_from_shifted:
+                print(
+                    f"  witness C={format_family(result.witness_c_family)} "
+                    f"U={format_family(result.witness_u_family)}"
+                )
+        if any_warning:
+            warn(
+                "WARNING overall: exact n=5 data do not support full plateau connectivity to "
+                "shifted minimizers."
+            )
+            return 1
+        ok(
+            "OK overall: exact n=5 data support plateau connectivity from every minimizer to a "
+            "shifted minimizer."
         )
         return 0
 

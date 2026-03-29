@@ -112,6 +112,11 @@ close:
   run, so deeper exhaustive search is no longer the right next step.
 - However, exact `n = 5` does **not** support uniqueness of the lex orbit of minimizers:
   for several values of `e`, multiple minimizer orbits occur.
+- But the weaker plateau-connectivity statement now survives exactly in `n = 5`:
+  every two-layer minimizer is connected to a shifted minimizer by a chain of
+  boundary-preserving layer shifts.
+  So the minimizer plateau does not collapse to one orbit, but it is still connected to the
+  shifted world by weak compression moves.
 - A tempting stronger sufficient condition,
   \[
   |\partial^\uparrow U| \ge |U\setminus T(V)|,
@@ -220,6 +225,15 @@ for shifted
 \[
 F\subseteq \binom{[n]}{m}\sqcup \binom{[n]}{m+1}.
 \]
+
+The current exact `n = 5` evidence suggests the reduction theorem should not be phrased as strict
+descent. The stronger strict-compression shortcut is false, but the weaker minimizer-plateau
+connectivity survives: every exact `n = 5` minimizer lies in the boundary-preserving shift
+component of a shifted minimizer. So the likely proof shape is:
+
+- weak compression monotonicity for all two-layer families;
+- then a plateau-connectivity / rigidity theorem on minimizers;
+- then the shifted extremal classification.
 
 ### 4. Classify The Shifted Extremizers
 
