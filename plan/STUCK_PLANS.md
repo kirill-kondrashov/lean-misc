@@ -234,6 +234,26 @@ boundary program centered on
 - Consequence: the codimension-`1` Hall deficiency is a genuinely global obstruction, not just the
   count of isolated lower cells.
 
+### 12. Single-Coordinate Cut Explanation Of Codimension-1 Deficiency
+
+- Proposed explanation:
+  \[
+  \delta_1(F)=\max_{i,\ \star\in\{\in,\notin\}}
+  \bigl(|\{A\in C : i\star A\}|- |N_1(\{A\in C : i\star A\})|\bigr).
+  \]
+- Status: `falsified`.
+- Exact failures:
+  - in exact `n = 5`, worst excess is `1` at `e = 3`, with
+    \[
+    \delta_1(F)=1,\qquad \text{best coordinate-cut deficiency}=0;
+    \]
+  - in shifted `n = 7`, worst excess is `3` at `e = 14`, with
+    \[
+    \delta_1(F)=5,\qquad \text{best coordinate-cut deficiency}=2.
+    \]
+- Consequence: the codimension-`1` Hall deficiency is not captured by any single principal
+  contain/avoid cut; it is more global than that.
+
 ## Current Use
 
 These branches are archived. They should be cited only as:

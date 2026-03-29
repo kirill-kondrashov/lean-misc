@@ -389,6 +389,22 @@ class LocalFluxCodim1DeficiencySummaryResult:
 
 
 @dataclass(frozen=True)
+class LocalFluxCoordinateCutSummaryResult:
+    n: int
+    exact_mode: bool
+    all_pairs_equal_coordinate_cut_deficiency: bool
+    worst_excess_over_coordinate_cut: int
+    worst_excess_e: int
+    witness_c_family: Family
+    witness_u_family: Family
+    witness_boundary_family: Family
+    witness_codim1_deficiency: int
+    witness_coordinate_cut_deficiency: int
+    witness_coordinate: int
+    witness_contains_coordinate: bool
+
+
+@dataclass(frozen=True)
 class MiddleLayerCompressionCounterexample:
     n: int
     i: int
@@ -2733,6 +2749,205 @@ def shifted_two_layer_codim1_deficiency_summary(
     )
 
 
+def coordinate_cut_codim1_deficiency(
+    c_family: Sequence[int],
+    boundary: Sequence[int],
+    n: int,
+) -> Tuple[int, int, bool]:
+    adjacency = local_flux_adjacency(c_family, boundary, 1)
+    best_deficiency = 0
+    best_coordinate = 0
+    best_contains = True
+    for coordinate in range(n):
+        for contains_coordinate in (True, False):
+            left_indices = [
+                index
+                for index, left in enumerate(c_family)
+                if (((left >> coordinate) & 1) == 1) == contains_coordinate
+            ]
+            neighborhood: Set[int] = set()
+            for index in left_indices:
+                neighborhood.update(adjacency[index])
+            deficiency = len(left_indices) - len(neighborhood)
+            if deficiency > best_deficiency:
+                best_deficiency = deficiency
+                best_coordinate = coordinate
+                best_contains = contains_coordinate
+    return (best_deficiency, best_coordinate, best_contains)
+
+
+def exhaustive_two_layer_coordinate_cut_summary(
+    n: int,
+) -> LocalFluxCoordinateCutSummaryResult:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank_sets = rank_subsets(n, middle, subsets)
+    upper_rank_sets = rank_subsets(n, middle + 1, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    boundary_cache: Dict[Tuple[Family, Family], Family] = {}
+
+    def boundary_family(c_family: Family, u_family: Family) -> Family:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = tuple(sorted(positive_boundary(family, subsets)))
+        boundary_cache[key] = value
+        return value
+
+    worst_excess = -10**9
+    worst_excess_e = 0
+    witness_c_family: Family = ()
+    witness_u_family: Family = ()
+    witness_boundary_family: Family = ()
+    witness_codim1_deficiency = 0
+    witness_coordinate_cut = 0
+    witness_coordinate = 0
+    witness_contains = True
+
+    for e in range(lower_count + 1):
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            u_family = tuple(
+                upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+            )
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                c_family = tuple(
+                    lower_rank_sets[index]
+                    for index in range(lower_count)
+                    if not (v_mask & (1 << index))
+                )
+                boundary = boundary_family(c_family, u_family)
+                codim1_matching = maximum_matching_size(
+                    local_flux_adjacency(c_family, boundary, 1), len(boundary)
+                )
+                codim1_deficiency = len(c_family) - codim1_matching
+                coordinate_cut, coordinate, contains = coordinate_cut_codim1_deficiency(
+                    c_family, boundary, n
+                )
+                excess = codim1_deficiency - coordinate_cut
+                if excess > worst_excess:
+                    worst_excess = excess
+                    worst_excess_e = e
+                    witness_c_family = c_family
+                    witness_u_family = u_family
+                    witness_boundary_family = boundary
+                    witness_codim1_deficiency = codim1_deficiency
+                    witness_coordinate_cut = coordinate_cut
+                    witness_coordinate = coordinate
+                    witness_contains = contains
+
+    return LocalFluxCoordinateCutSummaryResult(
+        n=n,
+        exact_mode=True,
+        all_pairs_equal_coordinate_cut_deficiency=(worst_excess <= 0),
+        worst_excess_over_coordinate_cut=worst_excess,
+        worst_excess_e=worst_excess_e,
+        witness_c_family=witness_c_family,
+        witness_u_family=witness_u_family,
+        witness_boundary_family=witness_boundary_family,
+        witness_codim1_deficiency=witness_codim1_deficiency,
+        witness_coordinate_cut_deficiency=witness_coordinate_cut,
+        witness_coordinate=witness_coordinate,
+        witness_contains_coordinate=witness_contains,
+    )
+
+
+def shifted_two_layer_coordinate_cut_summary(
+    n: int,
+) -> LocalFluxCoordinateCutSummaryResult:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_count = comb(n, lower_rank)
+    upper_count = comb(n, upper_rank)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_shifted_families = enumerate_shifted_uniform_families(n, lower_rank, subsets)
+    upper_shifted_families = enumerate_shifted_uniform_families(n, upper_rank, subsets)
+    lower_by_size: Dict[int, List[Family]] = {}
+    upper_by_size: Dict[int, List[Family]] = {}
+    for family in lower_shifted_families:
+        lower_by_size.setdefault(len(family), []).append(family)
+    for family in upper_shifted_families:
+        upper_by_size.setdefault(len(family), []).append(family)
+
+    boundary_cache: Dict[Tuple[Family, Family], Family] = {}
+
+    def boundary_family(c_family: Family, u_family: Family) -> Family:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = tuple(sorted(positive_boundary(family, subsets)))
+        boundary_cache[key] = value
+        return value
+
+    worst_excess = -10**9
+    worst_excess_e = 0
+    witness_c_family: Family = ()
+    witness_u_family: Family = ()
+    witness_boundary_family: Family = ()
+    witness_codim1_deficiency = 0
+    witness_coordinate_cut = 0
+    witness_coordinate = 0
+    witness_contains = True
+
+    for e in range(lower_count + 1):
+        c_size = lower_count - e
+        for c_family in lower_by_size.get(c_size, []):
+            for u_family in upper_by_size.get(e, []):
+                boundary = boundary_family(c_family, u_family)
+                codim1_matching = maximum_matching_size(
+                    local_flux_adjacency(c_family, boundary, 1), len(boundary)
+                )
+                codim1_deficiency = len(c_family) - codim1_matching
+                coordinate_cut, coordinate, contains = coordinate_cut_codim1_deficiency(
+                    c_family, boundary, n
+                )
+                excess = codim1_deficiency - coordinate_cut
+                if excess > worst_excess:
+                    worst_excess = excess
+                    worst_excess_e = e
+                    witness_c_family = c_family
+                    witness_u_family = u_family
+                    witness_boundary_family = boundary
+                    witness_codim1_deficiency = codim1_deficiency
+                    witness_coordinate_cut = coordinate_cut
+                    witness_coordinate = coordinate
+                    witness_contains = contains
+
+    return LocalFluxCoordinateCutSummaryResult(
+        n=n,
+        exact_mode=False,
+        all_pairs_equal_coordinate_cut_deficiency=(worst_excess <= 0),
+        worst_excess_over_coordinate_cut=worst_excess,
+        worst_excess_e=worst_excess_e,
+        witness_c_family=witness_c_family,
+        witness_u_family=witness_u_family,
+        witness_boundary_family=witness_boundary_family,
+        witness_codim1_deficiency=witness_codim1_deficiency,
+        witness_coordinate_cut_deficiency=witness_coordinate_cut,
+        witness_coordinate=witness_coordinate,
+        witness_contains_coordinate=witness_contains,
+    )
+
+
 def exhaustive_two_layer_equal_split_summary(
     n: int,
     max_codim: int,
@@ -4037,6 +4252,23 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-two-layer-coordinate-cut-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 summary comparing codimension-1 Hall deficiency against the best "
+            "single-coordinate cut deficiency."
+        ),
+    )
+    parser.add_argument(
+        "--shifted-two-layer-coordinate-cut-summary",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only summary comparing codimension-1 Hall deficiency against the best "
+            "single-coordinate cut deficiency."
+        ),
+    )
+    parser.add_argument(
         "--local-flux-max-codim",
         type=int,
         default=2,
@@ -5019,6 +5251,77 @@ def main() -> int:
             warn("WARNING overall: some shifted codim1 deficiency summaries failed.")
             return 1
         ok("OK overall: all requested shifted codim1 deficiency summaries survived.")
+        return 0
+
+    if args.exhaustive_two_layer_coordinate_cut_n5:
+        result = exhaustive_two_layer_coordinate_cut_summary(5)
+        if result.all_pairs_equal_coordinate_cut_deficiency:
+            ok(
+                "OK exact n=5 coordinate-cut summary: "
+                "codim-1 deficiency always equals the best single-coordinate cut deficiency."
+            )
+        else:
+            warn(
+                "WARNING exact n=5 coordinate-cut summary: "
+                "some pairs have codim-1 deficiency larger than every single-coordinate cut."
+            )
+        print(
+            f"  worst_excess={result.worst_excess_over_coordinate_cut} "
+            f"at e={result.worst_excess_e}"
+        )
+        print(
+            f"  codim1_deficiency={result.witness_codim1_deficiency} "
+            f"coordinate_cut={result.witness_coordinate_cut_deficiency}"
+        )
+        print(
+            f"  witness coordinate={result.witness_coordinate} "
+            f"contains={result.witness_contains_coordinate}"
+        )
+        print(f"  witness C={format_family(result.witness_c_family)}")
+        print(f"  witness U={format_family(result.witness_u_family)}")
+        print(f"  witness boundary={format_family(result.witness_boundary_family)}")
+        return 0 if result.all_pairs_equal_coordinate_cut_deficiency else 1
+
+    if args.shifted_two_layer_coordinate_cut_summary is not None:
+        any_warning = False
+        for n in args.shifted_two_layer_coordinate_cut_summary:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                any_warning = True
+                continue
+            result = shifted_two_layer_coordinate_cut_summary(n)
+            if result.all_pairs_equal_coordinate_cut_deficiency:
+                ok(
+                    "OK shifted coordinate-cut summary at "
+                    f"n={n}: codim-1 deficiency always equals the best single-coordinate cut deficiency."
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING shifted coordinate-cut summary at "
+                    f"n={n}: some pairs have codim-1 deficiency larger than every single-coordinate cut."
+                )
+            print(
+                f"  worst_excess={result.worst_excess_over_coordinate_cut} "
+                f"at e={result.worst_excess_e}"
+            )
+            print(
+                f"  codim1_deficiency={result.witness_codim1_deficiency} "
+                f"coordinate_cut={result.witness_coordinate_cut_deficiency}"
+            )
+            print(
+                f"  witness coordinate={result.witness_coordinate} "
+                f"contains={result.witness_contains_coordinate}"
+            )
+            print(
+                f"  witness C={format_family(result.witness_c_family)} "
+                f"U={format_family(result.witness_u_family)}"
+            )
+            print(f"  witness boundary={format_family(result.witness_boundary_family)}")
+        if any_warning:
+            warn("WARNING overall: some shifted coordinate-cut summaries failed.")
+            return 1
+        ok("OK overall: all requested shifted coordinate-cut summaries survived.")
         return 0
 
     dimensions = tuple(args.dimensions)

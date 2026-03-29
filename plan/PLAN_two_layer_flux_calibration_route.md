@@ -134,6 +134,14 @@ can be strictly larger than the number of lower cells with no codimension-`1` ne
 local graph. So the matching-cost identity is not just measuring isolated lower cells; it is a
 more genuinely global Hall obstruction.
 
+The first geometric cut explanation is archived too. Exact `n = 5` and shifted `n = 7` both show
+that
+\[
+\delta_1(F)
+\]
+can be strictly larger than the best deficiency obtained from any single-coordinate contain/avoid
+cut on the lower sheet. So \(\delta_1(F)\) is not captured by a single principal-star cut either.
+
 ## Concrete Program
 
 ### 1. Choose The Right Transport Graph
@@ -211,6 +219,7 @@ So the next proof target on this branch is no longer â€œsome local flux graph,â€
   first for shifted \(F\);
 - understand \(\delta_1(F)\) itself as a genuinely global obstruction, not just a zero-degree
   count;
+- and not just the best one-coordinate contain/avoid cut deficiency;
 - then convert that matching into an actual fractional calibration;
 - equivalently, find a genuinely nontrivial codimension-`2` weighting rule, since both the
   equal-split and inverse-degree local rules are already falsified;

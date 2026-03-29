@@ -288,6 +288,9 @@ Latest computational sharpening:
 - the first naive explanation of that deficiency is now ruled out:
   in exact `n = 5` and in shifted `n = 7`, the codimension-`1` deficiency can be strictly larger
   than the number of lower cells with no codimension-`1` boundary neighbor;
+- the next geometric shortcut is ruled out as well:
+  in exact `n = 5` and in shifted `n = 7`, the codimension-`1` deficiency can be strictly larger
+  than the best single-coordinate contain/avoid cut deficiency;
 - all searched structured uniform-upper classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|,

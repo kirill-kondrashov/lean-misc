@@ -167,6 +167,9 @@ The current computational evidence still points in the right direction:
 - that invariant is now known to be genuinely global:
   exact `n = 5` and shifted `n = 7` both show that the codimension-`1` deficiency can be strictly
   larger than the number of lower cells with no codimension-`1` boundary neighbor;
+- and it is not always realized by a single-coordinate cut either:
+  exact `n = 5` and shifted `n = 7` both show examples where the codimension-`1` deficiency is
+  strictly larger than every one-coordinate contain/avoid cut deficiency;
 - the corrected coupled section inequality
   \[
   |\partial^+(A\cup D)| + |\partial^+(B\cup E)| \ge |A| + |B|
