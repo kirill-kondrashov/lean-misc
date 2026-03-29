@@ -11,6 +11,49 @@ The current live plan is the direct two-layer boundary route:
 
 Everything listed below is archived.
 
+## 0. Unrestricted Even Adjacent-Layer Theorem
+
+Status: `stuck / falsified`
+
+This was the naive section-route conjecture
+\[
+|\partial^+G| \ge |G_r|,
+\qquad
+G \subseteq \binom{[2m]}{r}\sqcup \binom{[2m]}{r+1}.
+\]
+
+### Why It Is Archived
+
+This statement is false, even for shifted families.
+
+- In `n = 4`, `r = 2`, take
+  \[
+  G = \binom{[4]}{2}\sqcup \binom{[4]}{3}.
+  \]
+  Then
+  \[
+  |\partial^+G| = 1 < 6 = |G_2|.
+  \]
+- In `n = 6`, `r = 3`, take
+  \[
+  G = \binom{[6]}{3}\sqcup \binom{[6]}{4}.
+  \]
+  Then
+  \[
+  |\partial^+G| = 6 < 20 = |G_3|.
+  \]
+
+So the section route cannot proceed through an unrestricted theorem about arbitrary adjacent-layer
+families on the even cube.
+
+### Consequence
+
+The active section route must instead use the coupled section inequality
+\[
+|\partial^+(A\cup D)| + |\partial^+(B\cup E)| \ge |A| + |B|
+\]
+for quadruples \((A,B,D,E)\) arising from one common odd family.
+
 ## 1. Naive Middle-Layer Compression Monotonicity Route
 
 Status: `stuck / falsified`

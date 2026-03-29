@@ -233,6 +233,27 @@ class ShiftedTwoLayerEqualityOrbitResult:
 
 
 @dataclass(frozen=True)
+class ExhaustiveShiftedEvenAdjacentLayerSummaryResult:
+    n: int
+    r: int
+    lower_shifted_family_count: int
+    upper_shifted_family_count: int
+    all_margins_nonnegative: bool
+    worst_margin: int
+    equality_count: int
+    witness_lower_family: Family
+    witness_upper_family: Family
+
+
+@dataclass(frozen=True)
+class ShiftedEvenAdjacentLayerEqualityOrbitResult:
+    n: int
+    r: int
+    lower_family: Family
+    upper_family: Family
+
+
+@dataclass(frozen=True)
 class MiddleLayerCompressionCounterexample:
     n: int
     i: int
@@ -1467,6 +1488,105 @@ def shifted_two_layer_equality_orbits(
     ]
 
 
+def exhaustive_shifted_even_adjacent_layer_summary(
+    n: int,
+) -> List[ExhaustiveShiftedEvenAdjacentLayerSummaryResult]:
+    if n % 2 != 0:
+        raise ValueError("n must be even")
+    subsets = all_subsets(n)
+    boundary_cache: Dict[Tuple[Family, Family], int] = {}
+
+    def adjacent_layer_boundary_size(lower_family: Family, upper_family: Family) -> int:
+        key = (lower_family, upper_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(lower_family + upper_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    results: List[ExhaustiveShiftedEvenAdjacentLayerSummaryResult] = []
+    for r in range(n):
+        lower_shifted_families = enumerate_shifted_uniform_families(n, r, subsets)
+        upper_shifted_families = enumerate_shifted_uniform_families(n, r + 1, subsets)
+        worst_margin: int | None = None
+        equality_count = 0
+        witness_lower_family: Family = ()
+        witness_upper_family: Family = ()
+        for lower_family in lower_shifted_families:
+            lower_size = len(lower_family)
+            for upper_family in upper_shifted_families:
+                margin = adjacent_layer_boundary_size(lower_family, upper_family) - lower_size
+                if worst_margin is None or margin < worst_margin:
+                    worst_margin = margin
+                    witness_lower_family = lower_family
+                    witness_upper_family = upper_family
+                if margin == 0:
+                    equality_count += 1
+        results.append(
+            ExhaustiveShiftedEvenAdjacentLayerSummaryResult(
+                n=n,
+                r=r,
+                lower_shifted_family_count=len(lower_shifted_families),
+                upper_shifted_family_count=len(upper_shifted_families),
+                all_margins_nonnegative=(worst_margin is not None and worst_margin >= 0),
+                worst_margin=0 if worst_margin is None else worst_margin,
+                equality_count=equality_count,
+                witness_lower_family=witness_lower_family,
+                witness_upper_family=witness_upper_family,
+            )
+        )
+    return results
+
+
+def shifted_even_adjacent_layer_equality_orbits(
+    n: int,
+) -> List[ShiftedEvenAdjacentLayerEqualityOrbitResult]:
+    if n % 2 != 0:
+        raise ValueError("n must be even")
+    subsets = all_subsets(n)
+    perms = tuple(permutations(range(n)))
+    boundary_cache: Dict[Tuple[Family, Family], int] = {}
+
+    def adjacent_layer_boundary_size(lower_family: Family, upper_family: Family) -> int:
+        key = (lower_family, upper_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(lower_family + upper_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    def canonical_orbit_rep(lower_family: Family, upper_family: Family) -> Tuple[Family, Family]:
+        candidates = [
+            (permute_family(lower_family, perm), permute_family(upper_family, perm))
+            for perm in perms
+        ]
+        return min(candidates)
+
+    orbit_reps: Dict[Tuple[int, Tuple[Family, Family]], None] = {}
+    for r in range(n):
+        lower_shifted_families = enumerate_shifted_uniform_families(n, r, subsets)
+        upper_shifted_families = enumerate_shifted_uniform_families(n, r + 1, subsets)
+        for lower_family in lower_shifted_families:
+            lower_size = len(lower_family)
+            for upper_family in upper_shifted_families:
+                if adjacent_layer_boundary_size(lower_family, upper_family) != lower_size:
+                    continue
+                orbit_reps[(r, canonical_orbit_rep(lower_family, upper_family))] = None
+    return [
+        ShiftedEvenAdjacentLayerEqualityOrbitResult(
+            n=n,
+            r=r,
+            lower_family=lower_family,
+            upper_family=upper_family,
+        )
+        for (r, (lower_family, upper_family)) in sorted(orbit_reps.keys(), key=lambda item: (item[0], item[1]))
+    ]
+
+
 def canonical_middle_layer_compression_inclusion_counterexample_n7() -> MiddleLayerCompressionCounterexample:
     n = 7
     subsets = all_subsets(n)
@@ -2277,6 +2397,25 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-shifted-even-adjacent-layer-summary",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only adjacent-layer boundary summary on the given even dimensions. "
+            "For each even n and each rank r, enumerate shifted families in ranks r and r+1, then "
+            "report the worst shifted margin for |∂^+ G| >= |G_r|."
+        ),
+    )
+    parser.add_argument(
+        "--shifted-even-adjacent-layer-equality-orbits",
+        type=int,
+        nargs="+",
+        help=(
+            "List the equality orbits in the shifted even adjacent-layer problem on the given even "
+            "dimensions. For each even n, enumerate shifted equality pairs up to permutation."
+        ),
+    )
+    parser.add_argument(
         "--dimensions",
         type=int,
         nargs="+",
@@ -2754,6 +2893,57 @@ def main() -> int:
             ok(f"OK shifted two-layer equality orbits at n={n}: orbit_count={len(results)}")
             for result in results:
                 print(f"  e={result.e} C={format_family(result.c_family)} U={format_family(result.u_family)}")
+        return 0
+
+    if args.exhaustive_shifted_even_adjacent_layer_summary is not None:
+        any_warning = False
+        for n in args.exhaustive_shifted_even_adjacent_layer_summary:
+            if n % 2 != 0:
+                warn(f"WARNING requested odd dimension n={n}; this mode expects even dimensions.")
+                any_warning = True
+                continue
+            results = exhaustive_shifted_even_adjacent_layer_summary(n)
+            for result in results:
+                if result.all_margins_nonnegative:
+                    ok(
+                        "OK shifted even adjacent-layer summary at "
+                        f"n={n}, r={result.r}: worst_margin={result.worst_margin}"
+                    )
+                else:
+                    any_warning = True
+                    warn(
+                        "WARNING shifted even adjacent-layer failure at "
+                        f"n={n}, r={result.r}: worst_margin={result.worst_margin}"
+                    )
+                print(
+                    f"  lower_shifted_families={result.lower_shifted_family_count} "
+                    f"upper_shifted_families={result.upper_shifted_family_count} "
+                    f"equality_count={result.equality_count}"
+                )
+                print(
+                    f"  witness lower={format_family(result.witness_lower_family)} "
+                    f"upper={format_family(result.witness_upper_family)}"
+                )
+        if any_warning:
+            warn("WARNING overall: some shifted even adjacent-layer summaries failed.")
+            return 1
+        ok("OK overall: all requested shifted even adjacent-layer summaries survived.")
+        return 0
+
+    if args.shifted_even_adjacent_layer_equality_orbits is not None:
+        for n in args.shifted_even_adjacent_layer_equality_orbits:
+            if n % 2 != 0:
+                warn(f"WARNING requested odd dimension n={n}; this mode expects even dimensions.")
+                return 1
+            results = shifted_even_adjacent_layer_equality_orbits(n)
+            ok(
+                f"OK shifted even adjacent-layer equality orbits at n={n}: orbit_count={len(results)}"
+            )
+            for result in results:
+                print(
+                    f"  r={result.r} lower={format_family(result.lower_family)} "
+                    f"upper={format_family(result.upper_family)}"
+                )
         return 0
 
     dimensions = tuple(args.dimensions)

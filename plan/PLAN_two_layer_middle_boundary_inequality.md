@@ -114,6 +114,19 @@ close:
 - This route remains active because \((B)\) removes the auxiliary operator \(T(V)\) and packages
   the remaining work as an ordinary positive-boundary lower bound for a two-layer family.
 
+## Geometric Proof Paths
+
+The direct route now has three explicit geometric proof paths:
+
+- [PLAN_two_layer_geometric_enrichment.md](./PLAN_two_layer_geometric_enrichment.md)
+  records the high-level membrane / one-sided isoperimetry / hypersimplex viewpoint.
+- [PLAN_two_layer_flux_calibration_route.md](./PLAN_two_layer_flux_calibration_route.md)
+  records the divergence-style route, replacing rigid matching by fractional transport from
+  \(C\) to \(\partial^+F\).
+- [PLAN_even_adjacent_layer_section_route.md](./PLAN_even_adjacent_layer_section_route.md)
+  records the coarea / section route reducing the odd theorem to an even-dimensional adjacent-layer
+  theorem.
+
 ## Current Research Program
 
 The best live program is to attack the boundary itself, not stronger surrogate inequalities.
@@ -175,9 +188,9 @@ Current `n = 5` evidence suggests the equality cases should be only:
 - the principal-star two-layer family
   \[
   F=
-  \{A\in \tbinom{[n]}{m}: 0\in A\}
+  \{A\in \binom{[n]}{m}: 0\in A\}
   \;\cup\;
-  \{B\in \tbinom{[n]}{m+1}: 0\in B\},
+  \{B\in \binom{[n]}{m+1}: 0\in B\},
   \]
   up to permutation.
 
@@ -211,6 +224,30 @@ where \(A\cup D\) and \(B\cup E\) are two-layer families on \([2m]\) supported o
   \]
   at least in the shifted case;
 - then feed it into the section inequality above to recover the odd middle-layer theorem.
+
+This section-first route is now tracked separately in
+[PLAN_even_adjacent_layer_section_route.md](./PLAN_even_adjacent_layer_section_route.md).
+
+### 5A. Try A Flux / Calibration Proof In Parallel
+
+In parallel with the compression-first route, try to prove \((B)\) by a fractional flow from the
+lower sheet \(C\) to the exposed boundary \(\partial^+F\). The target is a family of weights
+\[
+w_{A,B}\ge 0
+\]
+with
+\[
+\sum_B w_{A,B}=1 \quad (A\in C),
+\qquad
+\sum_A w_{A,B}\le 1 \quad (B\in \partial^+F),
+\]
+which would imply
+\[
+|C| \le |\partial^+F|.
+\]
+
+This route is tracked separately in
+[PLAN_two_layer_flux_calibration_route.md](./PLAN_two_layer_flux_calibration_route.md).
 
 ### 6. Use Computation Only As Structural Guidance
 

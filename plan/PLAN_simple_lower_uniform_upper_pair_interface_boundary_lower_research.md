@@ -8,6 +8,9 @@ The active documentation set for this route is:
 
 - [PLAN_two_layer_middle_boundary_inequality.md](./PLAN_two_layer_middle_boundary_inequality.md)
 - [PROOF_two_layer_middle_boundary_inequality.md](./PROOF_two_layer_middle_boundary_inequality.md)
+- [PLAN_two_layer_geometric_enrichment.md](./PLAN_two_layer_geometric_enrichment.md)
+- [PLAN_two_layer_flux_calibration_route.md](./PLAN_two_layer_flux_calibration_route.md)
+- [PLAN_even_adjacent_layer_section_route.md](./PLAN_even_adjacent_layer_section_route.md)
 - [STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md](./STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md)
 - [PROGRESS_two_sheet_boundary_theorem_2026-03-22.md](./PROGRESS_two_sheet_boundary_theorem_2026-03-22.md)
 
@@ -62,7 +65,7 @@ where
 \[
 \partial^\uparrow U
 :=
-\{T \in \tbinom{[n]}{m+2} : \exists s \in U,\ s \subset T\},
+\{T \in \binom{[n]}{m+2} : \exists s \in U,\ s \subset T\},
 \]
 
 and
@@ -100,6 +103,9 @@ This route is recorded in:
 
 - [PLAN_two_layer_middle_boundary_inequality.md](./PLAN_two_layer_middle_boundary_inequality.md)
 - [PROOF_two_layer_middle_boundary_inequality.md](./PROOF_two_layer_middle_boundary_inequality.md)
+- [PLAN_two_layer_geometric_enrichment.md](./PLAN_two_layer_geometric_enrichment.md)
+- [PLAN_two_layer_flux_calibration_route.md](./PLAN_two_layer_flux_calibration_route.md)
+- [PLAN_even_adjacent_layer_section_route.md](./PLAN_even_adjacent_layer_section_route.md)
 - [STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md](./STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md)
 
 ## Archived Routes
@@ -171,8 +177,50 @@ is sectioned at coordinate `0`, then
 \ge
 |\partial^+(A\cup D)| + |\partial^+(B\cup E)|.
 \]
-So the odd middle-layer task now reduces to a more general even-dimensional adjacent-layer
-boundary theorem. This is the current paper-proof direction.
+The first naive attempt to close the route from here was the arbitrary even-dimensional
+adjacent-layer theorem
+\[
+|\partial^+G| \ge |G_r|,
+\qquad
+G \subseteq \binom{[2m]}{r}\sqcup \binom{[2m]}{r+1},
+\]
+but exact shifted diagnostics now falsify that statement already in `n = 4` and `n = 6`.
+So the section route remains active only in its corrected coupled form: prove a lower bound for the
+sum
+\[
+|\partial^+(A\cup D)| + |\partial^+(B\cup E)|
+\]
+under the compatibility constraints coming from one common odd family \(F\). This is the current
+paper-proof direction on the section branch.
+
+## Geometric Enrichment
+
+The direct two-layer route now has three live geometric proof shapes.
+
+1. Symmetrization / discrete mean-curvature route.
+   Interpret
+   \[
+   F \subseteq \binom{[n]}{m}\sqcup\binom{[n]}{m+1}
+   \]
+   as a discrete membrane near the equator of the cube and seek a proof that layer-preserving
+   symmetrization does not increase \(|\partial^+F|\). This is the upgraded version of the old
+   compression program, but for the actual boundary functional rather than an auxiliary defect.
+
+2. Flux / calibration route.
+   Replace literal matching arguments by a fractional transport from lower-layer cells
+   \(C = \binom{[n]}{m}\setminus V\) to the outward boundary \(\partial^+F\). The aim is to prove
+   \(|C| \le |\partial^+F|\) by a divergence-style inequality rather than by a rigid injection.
+
+3. Coarea / section route.
+   Use the exact coordinate-section decomposition already recorded in the proof note to reduce the
+   odd theorem to the even-dimensional adjacent-layer theorem, then prove the latter first in the
+   shifted case and lift it back up.
+
+These geometric routes are recorded separately in:
+
+- [PLAN_two_layer_geometric_enrichment.md](./PLAN_two_layer_geometric_enrichment.md)
+- [PLAN_two_layer_flux_calibration_route.md](./PLAN_two_layer_flux_calibration_route.md)
+- [PLAN_even_adjacent_layer_section_route.md](./PLAN_even_adjacent_layer_section_route.md)
 
 ## Practical Success Criterion
 

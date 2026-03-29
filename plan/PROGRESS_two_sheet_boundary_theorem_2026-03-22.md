@@ -227,8 +227,25 @@ Latest computational sharpening:
   \ge
   |\partial^+(A\cup D)| + |\partial^+(B\cup E)|,
   \]
-  reducing the odd middle-layer target to a more general even-dimensional adjacent-layer
-  boundary theorem;
+  reducing the odd middle-layer target to a paired even-dimensional section theorem;
+- the first naive version of that section route is now falsified:
+  the unrestricted adjacent-layer claim
+  \[
+  |\partial^+G| \ge |G_r|,
+  \qquad
+  G \subseteq \binom{[2m]}{r}\sqcup \binom{[2m]}{r+1},
+  \]
+  fails already for shifted families in `n = 4` and `n = 6`;
+  for instance
+  \[
+  G = \binom{[4]}{2}\sqcup \binom{[4]}{3}
+  \]
+  has
+  \[
+  |\partial^+G| = 1 < 6 = |G_2|;
+  \]
+  so the corrected section target must keep the coupling between the two section families
+  \(A\cup D\) and \(B\cup E\), rather than dropping to an arbitrary even adjacent-layer theorem;
 - all searched structured uniform-upper classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|,
