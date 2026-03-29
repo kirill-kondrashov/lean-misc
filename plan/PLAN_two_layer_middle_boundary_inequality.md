@@ -115,8 +115,10 @@ close:
 - But the weaker plateau-connectivity statement now survives exactly in `n = 5`:
   every two-layer minimizer is connected to a shifted minimizer by a chain of
   boundary-preserving layer shifts.
-  So the minimizer plateau does not collapse to one orbit, but it is still connected to the
-  shifted world by weak compression moves.
+  More strongly, for every `e`, the exact `n = 5` minimizer graph under boundary-preserving
+  layer shifts is connected.
+  So the minimizer plateau does not collapse to one orbit, but it is still a single connected
+  weak-compression plateau leading to the shifted world.
 - A tempting stronger sufficient condition,
   \[
   |\partial^\uparrow U| \ge |U\setminus T(V)|,
@@ -229,7 +231,8 @@ F\subseteq \binom{[n]}{m}\sqcup \binom{[n]}{m+1}.
 The current exact `n = 5` evidence suggests the reduction theorem should not be phrased as strict
 descent. The stronger strict-compression shortcut is false, but the weaker minimizer-plateau
 connectivity survives: every exact `n = 5` minimizer lies in the boundary-preserving shift
-component of a shifted minimizer. So the likely proof shape is:
+component of a shifted minimizer, and in fact that component is the whole minimizer graph. So the
+likely proof shape is:
 
 - weak compression monotonicity for all two-layer families;
 - then a plateau-connectivity / rigidity theorem on minimizers;

@@ -218,6 +218,8 @@ Latest computational sharpening:
 - the minimizer-plateau route now sharpens positively in exact `n = 5`:
   every two-layer minimizer is connected to a shifted minimizer by a chain of
   boundary-preserving layer shifts;
+- more sharply, for every `e`, the exact `n = 5` minimizer graph under boundary-preserving
+  layer shifts is connected;
 - exact shifted `n = 7` enumeration now matches the same picture:
   the shifted-only search over all `352 × 352` middle-layer families finds no counterexample, and
   the only shifted equality orbits are again the full lower-layer orbit and the principal-star

@@ -194,6 +194,20 @@ class ExhaustiveTwoLayerMinimizerPlateauConnectivityResult:
 
 
 @dataclass(frozen=True)
+class ExhaustiveTwoLayerMinimizerPlateauComponentsResult:
+    n: int
+    e: int
+    minimal_boundary_size: int
+    minimizer_count: int
+    component_count: int
+    shifted_component_count: int
+    all_shifted_minimizers_in_one_component: bool
+    all_components_have_shifted_minimizer: bool
+    witness_c_family: Family
+    witness_u_family: Family
+
+
+@dataclass(frozen=True)
 class ExhaustiveTwoLayerCompressionCounterexample:
     n: int
     e: int
@@ -1612,6 +1626,136 @@ def exhaustive_two_layer_minimizer_plateau_connectivity(
                 shifted_minimizer_count=len(shifted_sources),
                 reachable_from_shifted_count=len(reachable),
                 all_minimizers_reachable_from_shifted=all_reachable,
+                witness_c_family=witness_c_family,
+                witness_u_family=witness_u_family,
+            )
+        )
+    return results
+
+
+def exhaustive_two_layer_minimizer_plateau_components(
+    n: int,
+) -> List[ExhaustiveTwoLayerMinimizerPlateauComponentsResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    boundary_cache: Dict[int, int] = {}
+
+    def two_layer_boundary_size(u_mask: int, v_mask: int) -> int:
+        key = (u_mask << lower_count) | v_mask
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        u_family = tuple(
+            upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+        )
+        v_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if v_mask & (1 << index)
+        )
+        c_family = tuple(
+            lower_rank_sets[index] for index in range(lower_count) if not (v_mask & (1 << index))
+        )
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    results: List[ExhaustiveTwoLayerMinimizerPlateauComponentsResult] = []
+    for e in range(lower_count + 1):
+        best_boundary: int | None = None
+        minimizers: List[Tuple[Family, Family]] = []
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            u_family = tuple(
+                upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+            )
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                boundary_size = two_layer_boundary_size(u_mask, v_mask)
+                if best_boundary is None or boundary_size < best_boundary:
+                    best_boundary = boundary_size
+                    minimizers = []
+                if boundary_size != best_boundary:
+                    continue
+                c_family = tuple(
+                    lower_rank_sets[index]
+                    for index in range(lower_count)
+                    if not (v_mask & (1 << index))
+                )
+                minimizers.append((c_family, u_family))
+        if best_boundary is None:
+            continue
+
+        minimizer_ids = {pair: idx for idx, pair in enumerate(minimizers)}
+        adjacency: List[Set[int]] = [set() for _ in minimizers]
+        shifted_vertices: Set[int] = set()
+        for idx, (c_family, u_family) in enumerate(minimizers):
+            if is_shifted_uniform_family(c_family, n) and is_shifted_uniform_family(u_family, n):
+                shifted_vertices.add(idx)
+            for i in range(n):
+                for j in range(i + 1, n):
+                    compressed_c_family = compress_uniform_family(c_family, i, j)
+                    compressed_u_family = compress_uniform_family(u_family, i, j)
+                    neighbor = (compressed_c_family, compressed_u_family)
+                    neighbor_idx = minimizer_ids.get(neighbor)
+                    if neighbor_idx is None:
+                        continue
+                    adjacency[idx].add(neighbor_idx)
+                    adjacency[neighbor_idx].add(idx)
+
+        components: List[Set[int]] = []
+        unseen = set(range(len(minimizers)))
+        while unseen:
+            start = unseen.pop()
+            component = {start}
+            frontier = [start]
+            while frontier:
+                idx = frontier.pop()
+                for neighbor in adjacency[idx]:
+                    if neighbor in unseen:
+                        unseen.remove(neighbor)
+                        component.add(neighbor)
+                        frontier.append(neighbor)
+            components.append(component)
+
+        shifted_component_count = sum(
+            1 for component in components if any(idx in shifted_vertices for idx in component)
+        )
+        all_shifted_in_one_component = shifted_component_count <= 1
+        all_components_have_shifted = all(
+            any(idx in shifted_vertices for idx in component) for component in components
+        )
+        witness_c_family: Family = ()
+        witness_u_family: Family = ()
+        if not all_components_have_shifted:
+            for component in components:
+                if not any(idx in shifted_vertices for idx in component):
+                    idx = min(component)
+                    witness_c_family, witness_u_family = minimizers[idx]
+                    break
+
+        results.append(
+            ExhaustiveTwoLayerMinimizerPlateauComponentsResult(
+                n=n,
+                e=e,
+                minimal_boundary_size=best_boundary,
+                minimizer_count=len(minimizers),
+                component_count=len(components),
+                shifted_component_count=shifted_component_count,
+                all_shifted_minimizers_in_one_component=all_shifted_in_one_component,
+                all_components_have_shifted_minimizer=all_components_have_shifted,
                 witness_c_family=witness_c_family,
                 witness_u_family=witness_u_family,
             )
@@ -5076,6 +5220,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-two-layer-minimizer-plateau-components-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 minimizer plateau component test: count boundary-preserving shift "
+            "components among minimizers and check whether every component contains a shifted "
+            "minimizer."
+        ),
+    )
+    parser.add_argument(
         "--exhaustive-two-layer-compression-monotonicity-n5",
         action="store_true",
         help=(
@@ -5762,6 +5915,44 @@ def main() -> int:
         ok(
             "OK overall: exact n=5 data support plateau connectivity from every minimizer to a "
             "shifted minimizer."
+        )
+        return 0
+
+    if args.exhaustive_two_layer_minimizer_plateau_components_n5:
+        any_warning = False
+        results = exhaustive_two_layer_minimizer_plateau_components(5)
+        for result in results:
+            if result.all_components_have_shifted_minimizer:
+                ok(
+                    "OK exact n=5 minimizer components at "
+                    f"e={result.e}: every plateau component contains a shifted minimizer."
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING exact n=5 minimizer components at "
+                    f"e={result.e}: some plateau component has no shifted minimizer."
+                )
+            print(
+                f"  min_boundary={result.minimal_boundary_size} "
+                f"components={result.component_count} "
+                f"shifted_components={result.shifted_component_count} "
+                f"minimizers={result.minimizer_count}"
+            )
+            if not result.all_components_have_shifted_minimizer:
+                print(
+                    f"  witness C={format_family(result.witness_c_family)} "
+                    f"U={format_family(result.witness_u_family)}"
+                )
+        if any_warning:
+            warn(
+                "WARNING overall: exact n=5 data do not support full component-wise shifted "
+                "coverage of the minimizer plateau."
+            )
+            return 1
+        ok(
+            "OK overall: exact n=5 data support component-wise shifted coverage of the minimizer "
+            "plateau."
         )
         return 0
 
