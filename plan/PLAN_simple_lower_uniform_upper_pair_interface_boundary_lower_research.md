@@ -158,6 +158,9 @@ The current computational evidence still points in the right direction:
 - the next natural codimension-`2` weighting rule is ruled out as well:
   inverse-degree local flux already overloads a boundary point in exact `n = 5`, and also in
   shifted `n = 7`;
+- the first finite family of canonical codimension-`2` greedy injections is ruled out as well:
+  all eight tested rules fail already in exact `n = 5`, even though one of them survives over all
+  shifted pairs in `n = 7`;
 - the corrected coupled section inequality
   \[
   |\partial^+(A\cup D)| + |\partial^+(B\cup E)| \ge |A| + |B|

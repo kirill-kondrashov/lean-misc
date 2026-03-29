@@ -343,6 +343,21 @@ class LocalFluxInverseDegreeSummaryResult:
 
 
 @dataclass(frozen=True)
+class LocalFluxGreedySummaryResult:
+    rule_name: str
+    n: int
+    max_codim: int
+    exact_mode: bool
+    all_pairs_have_matching: bool
+    worst_deficiency: int
+    worst_deficiency_e: int
+    witness_c_family: Family
+    witness_u_family: Family
+    witness_boundary_family: Family
+    unmatched_left_family: Family
+
+
+@dataclass(frozen=True)
 class MiddleLayerCompressionCounterexample:
     n: int
     i: int
@@ -2063,6 +2078,230 @@ def inverse_degree_worst_overload(
     return (loads[worst_index] - 1, worst_index, loads[worst_index])
 
 
+GREEDY_LOCAL_FLUX_RULE_SPECS: Tuple[Tuple[str, bool, bool, bool], ...] = (
+    ("left-asc-codim-asc-boundary-asc", False, False, False),
+    ("left-asc-codim-desc-boundary-asc", False, True, False),
+    ("left-desc-codim-asc-boundary-asc", True, False, False),
+    ("left-desc-codim-desc-boundary-asc", True, True, False),
+    ("left-asc-codim-asc-boundary-desc", False, False, True),
+    ("left-asc-codim-desc-boundary-desc", False, True, True),
+    ("left-desc-codim-asc-boundary-desc", True, False, True),
+    ("left-desc-codim-desc-boundary-desc", True, True, True),
+)
+
+
+def greedy_local_flux_match_deficiency(
+    c_family: Sequence[int],
+    boundary: Sequence[int],
+    max_codim: int,
+    left_desc: bool,
+    codim_desc: bool,
+    boundary_desc: bool,
+) -> Tuple[int, Family]:
+    adjacency = local_flux_adjacency(c_family, boundary, max_codim)
+    left_order = sorted(range(len(c_family)), key=lambda idx: c_family[idx], reverse=left_desc)
+    used_right: Set[int] = set()
+    unmatched_left: List[int] = []
+    matched = 0
+    for left_index in left_order:
+        neighbors = list(adjacency[left_index])
+        neighbors.sort(
+            key=lambda right_index: (
+                -(
+                    subset_cardinality(boundary[right_index])
+                    - subset_cardinality(c_family[left_index])
+                )
+                if codim_desc
+                else (
+                    subset_cardinality(boundary[right_index])
+                    - subset_cardinality(c_family[left_index])
+                ),
+                -boundary[right_index] if boundary_desc else boundary[right_index],
+            )
+        )
+        chosen_right: int | None = None
+        for right_index in neighbors:
+            if right_index not in used_right:
+                chosen_right = right_index
+                break
+        if chosen_right is None:
+            unmatched_left.append(c_family[left_index])
+            continue
+        used_right.add(chosen_right)
+        matched += 1
+    return (matched - len(c_family), tuple(unmatched_left))
+
+
+def exhaustive_two_layer_greedy_local_flux_summaries(
+    n: int,
+    max_codim: int,
+) -> List[LocalFluxGreedySummaryResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank_sets = rank_subsets(n, middle, subsets)
+    upper_rank_sets = rank_subsets(n, middle + 1, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    boundary_cache: Dict[Tuple[Family, Family], Family] = {}
+
+    def boundary_family(c_family: Family, u_family: Family) -> Family:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = tuple(sorted(positive_boundary(family, subsets)))
+        boundary_cache[key] = value
+        return value
+
+    worst_by_rule: Dict[str, Tuple[int | None, int, Family, Family, Family, Family]] = {
+        rule_name: (None, 0, (), (), (), ())
+        for rule_name, _, _, _ in GREEDY_LOCAL_FLUX_RULE_SPECS
+    }
+
+    for e in range(lower_count + 1):
+        for u_mask in range(1 << upper_count):
+            if u_mask.bit_count() != e:
+                continue
+            u_family = tuple(
+                upper_rank_sets[index] for index in range(upper_count) if u_mask & (1 << index)
+            )
+            for v_mask in range(1 << lower_count):
+                if v_mask.bit_count() != e:
+                    continue
+                c_family = tuple(
+                    lower_rank_sets[index]
+                    for index in range(lower_count)
+                    if not (v_mask & (1 << index))
+                )
+                boundary = boundary_family(c_family, u_family)
+                for rule_name, left_desc, codim_desc, boundary_desc in GREEDY_LOCAL_FLUX_RULE_SPECS:
+                    deficiency, unmatched_left = greedy_local_flux_match_deficiency(
+                        c_family, boundary, max_codim, left_desc, codim_desc, boundary_desc
+                    )
+                    worst_deficiency, _, _, _, _, _ = worst_by_rule[rule_name]
+                    if worst_deficiency is None or deficiency < worst_deficiency:
+                        worst_by_rule[rule_name] = (
+                            deficiency,
+                            e,
+                            c_family,
+                            u_family,
+                            boundary,
+                            unmatched_left,
+                        )
+
+    results: List[LocalFluxGreedySummaryResult] = []
+    for rule_name, _, _, _ in GREEDY_LOCAL_FLUX_RULE_SPECS:
+        worst_deficiency, worst_e, witness_c, witness_u, witness_boundary, unmatched_left = (
+            worst_by_rule[rule_name]
+        )
+        results.append(
+            LocalFluxGreedySummaryResult(
+                rule_name=rule_name,
+                n=n,
+                max_codim=max_codim,
+                exact_mode=True,
+                all_pairs_have_matching=(worst_deficiency is not None and worst_deficiency >= 0),
+                worst_deficiency=0 if worst_deficiency is None else worst_deficiency,
+                worst_deficiency_e=worst_e,
+                witness_c_family=witness_c,
+                witness_u_family=witness_u,
+                witness_boundary_family=witness_boundary,
+                unmatched_left_family=unmatched_left,
+            )
+        )
+    return results
+
+
+def shifted_two_layer_greedy_local_flux_summaries(
+    n: int,
+    max_codim: int,
+) -> List[LocalFluxGreedySummaryResult]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_count = comb(n, lower_rank)
+    upper_count = comb(n, upper_rank)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_shifted_families = enumerate_shifted_uniform_families(n, lower_rank, subsets)
+    upper_shifted_families = enumerate_shifted_uniform_families(n, upper_rank, subsets)
+    lower_by_size: Dict[int, List[Family]] = {}
+    upper_by_size: Dict[int, List[Family]] = {}
+    for family in lower_shifted_families:
+        lower_by_size.setdefault(len(family), []).append(family)
+    for family in upper_shifted_families:
+        upper_by_size.setdefault(len(family), []).append(family)
+
+    boundary_cache: Dict[Tuple[Family, Family], Family] = {}
+
+    def boundary_family(c_family: Family, u_family: Family) -> Family:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = tuple(sorted(positive_boundary(family, subsets)))
+        boundary_cache[key] = value
+        return value
+
+    worst_by_rule: Dict[str, Tuple[int | None, int, Family, Family, Family, Family]] = {
+        rule_name: (None, 0, (), (), (), ())
+        for rule_name, _, _, _ in GREEDY_LOCAL_FLUX_RULE_SPECS
+    }
+
+    for e in range(lower_count + 1):
+        c_size = lower_count - e
+        for c_family in lower_by_size.get(c_size, []):
+            for u_family in upper_by_size.get(e, []):
+                boundary = boundary_family(c_family, u_family)
+                for rule_name, left_desc, codim_desc, boundary_desc in GREEDY_LOCAL_FLUX_RULE_SPECS:
+                    deficiency, unmatched_left = greedy_local_flux_match_deficiency(
+                        c_family, boundary, max_codim, left_desc, codim_desc, boundary_desc
+                    )
+                    worst_deficiency, _, _, _, _, _ = worst_by_rule[rule_name]
+                    if worst_deficiency is None or deficiency < worst_deficiency:
+                        worst_by_rule[rule_name] = (
+                            deficiency,
+                            e,
+                            c_family,
+                            u_family,
+                            boundary,
+                            unmatched_left,
+                        )
+
+    results: List[LocalFluxGreedySummaryResult] = []
+    for rule_name, _, _, _ in GREEDY_LOCAL_FLUX_RULE_SPECS:
+        worst_deficiency, worst_e, witness_c, witness_u, witness_boundary, unmatched_left = (
+            worst_by_rule[rule_name]
+        )
+        results.append(
+            LocalFluxGreedySummaryResult(
+                rule_name=rule_name,
+                n=n,
+                max_codim=max_codim,
+                exact_mode=False,
+                all_pairs_have_matching=(worst_deficiency is not None and worst_deficiency >= 0),
+                worst_deficiency=0 if worst_deficiency is None else worst_deficiency,
+                worst_deficiency_e=worst_e,
+                witness_c_family=witness_c,
+                witness_u_family=witness_u,
+                witness_boundary_family=witness_boundary,
+                unmatched_left_family=unmatched_left,
+            )
+        )
+    return results
+
+
 def exhaustive_two_layer_equal_split_summary(
     n: int,
     max_codim: int,
@@ -3316,6 +3555,23 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--exhaustive-two-layer-greedy-local-match-n5",
+        action="store_true",
+        help=(
+            "Run the exact n=5 test of several canonical greedy codimension-bounded local "
+            "matching rules, using --local-flux-max-codim to choose the transport graph."
+        ),
+    )
+    parser.add_argument(
+        "--shifted-two-layer-greedy-local-match-summary",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only summary for several canonical greedy codimension-bounded local "
+            "matching rules on the given odd dimensions."
+        ),
+    )
+    parser.add_argument(
         "--local-flux-max-codim",
         type=int,
         default=2,
@@ -4092,6 +4348,69 @@ def main() -> int:
             warn("WARNING overall: some shifted inverse-degree local flux summaries failed.")
             return 1
         ok("OK overall: all requested shifted inverse-degree local flux summaries survived.")
+        return 0
+
+    if args.exhaustive_two_layer_greedy_local_match_n5:
+        any_warning = False
+        for result in exhaustive_two_layer_greedy_local_flux_summaries(
+            5, args.local_flux_max_codim
+        ):
+            if result.all_pairs_have_matching:
+                ok(
+                    "OK exact n=5 greedy local matching "
+                    f"rule={result.rule_name}, max_codim={result.max_codim}: "
+                    f"worst_deficiency={result.worst_deficiency} at e={result.worst_deficiency_e}"
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING exact n=5 greedy local matching "
+                    f"rule={result.rule_name}, max_codim={result.max_codim}: "
+                    f"worst_deficiency={result.worst_deficiency} at e={result.worst_deficiency_e}"
+                )
+                print(f"  witness C={format_family(result.witness_c_family)}")
+                print(f"  witness U={format_family(result.witness_u_family)}")
+                print(f"  witness boundary={format_family(result.witness_boundary_family)}")
+                print(f"  unmatched={format_family(result.unmatched_left_family)}")
+        if any_warning:
+            warn("WARNING overall: some exact n=5 greedy local matching rules failed.")
+            return 1
+        ok("OK overall: all exact n=5 greedy local matching rules survived.")
+        return 0
+
+    if args.shifted_two_layer_greedy_local_match_summary is not None:
+        any_warning = False
+        for n in args.shifted_two_layer_greedy_local_match_summary:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                any_warning = True
+                continue
+            for result in shifted_two_layer_greedy_local_flux_summaries(
+                n, args.local_flux_max_codim
+            ):
+                if result.all_pairs_have_matching:
+                    ok(
+                        "OK shifted greedy local matching "
+                        f"rule={result.rule_name}, n={n}, max_codim={result.max_codim}: "
+                        f"worst_deficiency={result.worst_deficiency} at e={result.worst_deficiency_e}"
+                    )
+                else:
+                    any_warning = True
+                    warn(
+                        "WARNING shifted greedy local matching "
+                        f"rule={result.rule_name}, n={n}, max_codim={result.max_codim}: "
+                        f"worst_deficiency={result.worst_deficiency} at e={result.worst_deficiency_e}"
+                    )
+                    print(
+                        f"  witness C={format_family(result.witness_c_family)} "
+                        f"U={format_family(result.witness_u_family)}"
+                    )
+                    print(f"  witness boundary={format_family(result.witness_boundary_family)}")
+                    print(f"  unmatched={format_family(result.unmatched_left_family)}")
+        if any_warning:
+            warn("WARNING overall: some shifted greedy local matching rules failed.")
+            return 1
+        ok("OK overall: all requested shifted greedy local matching rules survived.")
         return 0
 
     dimensions = tuple(args.dimensions)

@@ -144,6 +144,20 @@ w_{A,B} \propto \frac{1}{\deg(B)}
 \]
 is now archived as well: it overloads already in exact `n = 5`, and also in shifted `n = 7`.
 
+The first finite family of canonical greedy matching rules is archived too. Testing all eight
+priority combinations given by:
+
+- left order ascending / descending,
+- codimension priority ascending / descending,
+- boundary order ascending / descending,
+
+shows that every such rule fails already in exact `n = 5`. One rule,
+\[
+\texttt{left-desc-codim-asc-boundary-desc},
+\]
+does survive across all shifted pairs in `n = 7`, but it still fails in exact `n = 5`, so it is
+not a viable global route.
+
 ### 3. Test The Rule On Equality Models
 
 The calibration should be exact on:
@@ -168,6 +182,8 @@ So the next proof target on this branch is no longer â€œsome local flux graph,â€
 - then convert that matching into an actual fractional calibration;
 - equivalently, find a genuinely nontrivial codimension-`2` weighting rule, since both the
   equal-split and inverse-degree local rules are already falsified;
+- or find a genuinely non-greedy explicit injection, since the first finite family of canonical
+  greedy rules is now archived;
 - then either extend the calibration to arbitrary \(F\), or combine it with compression.
 
 After that either:

@@ -176,7 +176,34 @@ boundary program centered on
   currently viable; any successful calibration must use a genuinely nonuniform construction, or be
   extracted from matching/Hall data by a subtler argument.
 
-### 9. Colex Paper-Proof Formalization
+### 9. Canonical Greedy Codimension-2 Matching Rules
+
+- Tested family: all eight rules obtained by choosing
+  - left order ascending / descending,
+  - codimension priority ascending / descending,
+  - boundary order ascending / descending.
+- Status: `falsified`.
+- Exact failures:
+  - every tested rule fails already in exact `n = 5`;
+  - representative failures include:
+    \[
+    \texttt{left-asc-codim-asc-boundary-asc}
+    \]
+    with worst deficiency `-1` at `e = 1`, and
+    \[
+    \texttt{left-desc-codim-asc-boundary-asc}
+    \]
+    with worst deficiency `-4` already at `e = 0`.
+- Shifted note:
+  \[
+  \texttt{left-desc-codim-asc-boundary-desc}
+  \]
+  survives across all shifted pairs in `n = 7`, but still fails in exact `n = 5`, so it does not
+  define a global proof route.
+- Consequence: the codimension-`2` matching branch remains alive only at the Hall/augmenting-path
+  level; it cannot currently be reduced to a fixed local greedy injection rule.
+
+### 10. Colex Paper-Proof Formalization
 
 - Mathematical statement:
   \[

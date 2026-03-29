@@ -279,6 +279,9 @@ Latest computational sharpening:
 - the next natural codimension-`2` calibration is now falsified as well:
   inverse-degree transport already overloads a boundary point in exact `n = 5`, and also in
   shifted `n = 7`;
+- the first finite family of canonical codimension-`2` greedy injections is now archived too:
+  all eight tested priority rules fail already in exact `n = 5`, even though one survives on the
+  shifted `n = 7` subproblem;
 - all searched structured uniform-upper classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|,

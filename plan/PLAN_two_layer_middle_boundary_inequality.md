@@ -122,6 +122,9 @@ close:
 - The next natural codimension-`2` calibration is dead as well:
   inverse-degree transport overloads a boundary point both in exact `n = 5` and in shifted
   `n = 7`.
+- The first finite family of canonical codimension-`2` greedy injections is dead as well:
+  all eight tested greedy rules fail already in exact `n = 5`, so the matching route cannot be
+  closed by a fixed local priority rule.
 - The coordinate-section decomposition remains exact, but both standalone reductions suggested by
   it are now archived: the unrestricted even adjacent-layer theorem and the corrected coupled
   section theorem are both false.
