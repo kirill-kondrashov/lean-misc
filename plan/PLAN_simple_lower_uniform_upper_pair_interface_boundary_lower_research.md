@@ -374,6 +374,15 @@ The global first-gap orbit set is now classified exactly in the shifted world:
   and `[6..7]` at distance `6`;
   so in the first genuinely nontrivial shifted dimension the first two shells are rigid, but
   shell rigidity already breaks by distance `6`;
+- the shell-attribution picture is now sharper too:
+  in shifted `n = 7`, the low shells split asymmetrically between the two equality templates:
+  the distance-`2` shell is `1` full-lower pair plus `4` principal-star pairs,
+  the distance-`4` shell is `1` full-lower pair plus `9` principal-star pairs,
+  and the distance-`6` shell is `4` full-lower pairs plus `36` principal-star pairs;
+  so near-equality in the shifted world is dominated by the principal-star side, not by the
+  full-lower side;
+  shifted `n = 5` shows the same asymmetry in the first two shells, but farther shells already
+  contain tied families, so the clean template split is currently a higher-dimensional signal;
 - the full shifted `n = 7` shell-profile enumeration is now computationally saturated with the
   current tool, so this branch has reached a paper-proof boundary again rather than a missing-data
   boundary.

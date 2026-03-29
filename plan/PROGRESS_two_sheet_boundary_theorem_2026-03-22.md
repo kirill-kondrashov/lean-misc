@@ -273,6 +273,14 @@ Latest computational sharpening:
   distance-`6` shell already splits with gaps `6` and `7`;
   so the first two nontrivial shells are rigid in shifted `n = 7`, but shell rigidity already
   breaks by distance `6`;
+- the shell-attribution picture is now sharper as well:
+  in shifted `n = 7`, the low shells are heavily concentrated near the principal-star template:
+  the distance-`2` shell splits as `1` full-lower pair and `4` principal-star pairs,
+  the distance-`4` shell splits as `1` full-lower pair and `9` principal-star pairs,
+  and the distance-`6` shell splits as `4` full-lower pairs and `36` principal-star pairs;
+  shifted `n = 5` already shows the same asymmetry in the first two shells, but farther shells
+  introduce tied families, so the clean template split currently looks like a higher-dimensional
+  signal rather than a uniform small-`n` rule;
 - pushing the same brute-force shifted-enumeration idea to `n = 9` no longer looks productive:
   the shifted-family count itself does not return on a short/medium run, so the search side is
   effectively saturated at `n = 7`;

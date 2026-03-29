@@ -190,6 +190,38 @@ So the shifted higher-dimensional picture is sharper again:
 The full shifted `n = 7` shell-profile enumeration is now computationally saturated with the
 current tool, so the next step has to be theorem-level work, not deeper brute-force shell scans.
 
+## Current Template-Attribution Split
+
+The new shell-attribution diagnostic shows that the low shifted shells are not symmetric between
+the two equality templates.
+
+- shifted `n = 5`:
+  - distance `2`: `1` shell pair is nearest the full-lower template, `4` are nearest the
+    principal-star template;
+  - distance `4`: `1` shell pair is nearest the full-lower template, `7` are nearest the
+    principal-star template;
+  - distance `6` and `8` already introduce tied families, so the low-shell picture is not cleanly
+    template-separated.
+- shifted `n = 7`:
+  - distance `2`: `1` shell pair is nearest the full-lower template, `4` are nearest the
+    principal-star template;
+  - distance `4`: `1` shell pair is nearest the full-lower template, `9` are nearest the
+    principal-star template;
+  - distance `6`: `4` shell pairs are nearest the full-lower template, `36` are nearest the
+    principal-star template.
+
+So the first shifted shells are now known to be heavily concentrated near the principal-star
+template, not the full-lower template.
+
+\[
+\text{near-equality in the shifted world is dominated by the principal-star side.}
+\]
+
+That changes the exclusion problem: a future transported-family theorem does not just need to
+avoid both equality templates abstractly; it likely needs to rule out the principal-star
+neighborhood first, because that is where almost all of the low-shell shifted near-extremizers
+live in the first nontrivial tested dimension.
+
 So the first nontrivial shifted stability theorem now has a sharper candidate shape:
 
 \[
@@ -293,9 +325,15 @@ After that, the program can be iterated:
    while the distance-`6` shell already splits with gaps `6` and `7`.
    So a realistic next theorem is not “every shell is rigid”, but “the first few shells admit
    exact gap formulas before higher-shell splitting begins”.
-6. Identify what the transported subcube families would have to look like in order to realize the
+6. Promote the new attribution split into a theorem-shaped conjecture:
+   in the shifted odd two-layer problem, the principal-star template should control most of the
+   low-shell near-extremizers, while the full-lower template contributes only a thin exceptional
+   strand.
+   If true, the transported-family exclusion problem should focus first on ruling out the
+   principal-star neighborhood.
+7. Identify what the transported subcube families would have to look like in order to realize the
    two equality templates, and try to rule that out directly.
-7. Only then move back into Lean:
+8. Only then move back into Lean:
    first with a stronger shifted theorem, then with an exclusion theorem for the transported
    family class, then with the upgraded endpoint.
 
