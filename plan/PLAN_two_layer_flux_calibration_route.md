@@ -163,6 +163,8 @@ There is now a positive finite-complexity refinement. Exact shifted diagnostics 
   `1` maximal generator;
 - in shifted `n = 7`, every codimension-`1` Hall deficiency witness can be chosen with at most
   `4` maximal generators.
+- the analogous exact shifted summary for `n = 9` does not return on a short/medium run with the
+  current enumerator, so this small-generator branch is computationally saturated at `n = 7`.
 
 So the shifted witness theorem still appears compatible with a small-generator structural route,
 even though the simplest one-generator shapes are already too rigid in `n = 7`.

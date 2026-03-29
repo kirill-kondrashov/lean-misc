@@ -302,6 +302,9 @@ Latest computational sharpening:
 - but the shifted Hall route still has a positive finite-complexity refinement:
   exact shifted diagnostics show that a Hall witness can be chosen with at most `1` maximal
   generator in shifted `n = 5` and at most `4` maximal generators in shifted `n = 7`;
+- that generator-witness branch is now computationally saturated again:
+  the analogous exact shifted summary for `n = 9` does not return on a short/medium run with the
+  current enumerator;
 - all searched structured uniform-upper classes satisfy
   \[
   |\partial^\uparrow U| \ge |T(V)\setminus U|,

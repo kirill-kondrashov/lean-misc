@@ -183,6 +183,9 @@ The current computational evidence still points in the right direction:
 - but the shifted witness route still has a positive finite-complexity shape:
   exact shifted diagnostics show that a Hall witness can always be chosen with at most `1` maximal
   generator in `n = 5` and at most `4` maximal generators in `n = 7`;
+- the current exact search tooling appears saturated again on that branch:
+  the analogous shifted generator-witness summary for `n = 9` does not return on a short/medium
+  run with the current enumerator;
 - the corrected coupled section inequality
   \[
   |\partial^+(A\cup D)| + |\partial^+(B\cup E)| \ge |A| + |B|

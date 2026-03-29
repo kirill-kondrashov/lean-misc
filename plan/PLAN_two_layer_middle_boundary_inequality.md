@@ -145,6 +145,9 @@ close:
 - But the shifted Hall route still has a positive finite-complexity refinement:
   exact shifted diagnostics show that one can always choose a shifted Hall witness with at most
   `1` maximal generator in `n = 5` and at most `4` maximal generators in `n = 7`.
+- That generator-witness branch is now computationally saturated again:
+  the analogous exact shifted summary for `n = 9` does not return on a short/medium run with the
+  current enumerator.
 - The coordinate-section decomposition remains exact, but both standalone reductions suggested by
   it are now archived: the unrestricted even adjacent-layer theorem and the corrected coupled
   section theorem are both false.
