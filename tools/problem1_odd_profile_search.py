@@ -3417,6 +3417,130 @@ def shifted_two_layer_template_shell_attribution_summary(
     return results
 
 
+def shifted_two_layer_template_attribution_profile(
+    n: int,
+) -> List[ShiftedTwoLayerTemplateShellAttributionEntry]:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_shifted_families = enumerate_shifted_uniform_families(n, lower_rank, subsets)
+    upper_shifted_families = enumerate_shifted_uniform_families(n, upper_rank, subsets)
+    lower_by_size: Dict[int, List[Family]] = {}
+    upper_by_size: Dict[int, List[Family]] = {}
+    for family in lower_shifted_families:
+        lower_by_size.setdefault(len(family), []).append(family)
+    for family in upper_shifted_families:
+        upper_by_size.setdefault(len(family), []).append(family)
+
+    boundary_cache: Dict[Tuple[Family, Family], int] = {}
+
+    def two_layer_boundary_size(c_family: Family, u_family: Family) -> int:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    full_lower_template = tuple(lower_rank_sets)
+    principal_star_c_family = tuple(subset for subset in lower_rank_sets if subset & 1)
+    principal_star_u_family = tuple(subset for subset in upper_rank_sets if subset & 1)
+
+    def pair_distance(
+        c_family: Family,
+        u_family: Family,
+        template_c_family: Family,
+        template_u_family: Family,
+    ) -> int:
+        return (
+            len(set(c_family).symmetric_difference(template_c_family))
+            + len(set(u_family).symmetric_difference(template_u_family))
+        )
+
+    grouped: Dict[Tuple[int, str], Dict[str, int | Family]] = {}
+    for e in range(lower_count + 1):
+        c_size = lower_count - e
+        for c_family in lower_by_size.get(c_size, []):
+            for u_family in upper_by_size.get(e, []):
+                distance_to_full_lower = pair_distance(
+                    c_family, u_family, full_lower_template, ()
+                )
+                distance_to_principal_star = pair_distance(
+                    c_family, u_family, principal_star_c_family, principal_star_u_family
+                )
+                distance_to_templates = min(distance_to_full_lower, distance_to_principal_star)
+                if distance_to_full_lower < distance_to_principal_star:
+                    nearest_template = "full_lower"
+                elif distance_to_principal_star < distance_to_full_lower:
+                    nearest_template = "principal_star"
+                else:
+                    nearest_template = "tied"
+                margin = two_layer_boundary_size(c_family, u_family) - c_size
+                key = (distance_to_templates, nearest_template)
+                entry = grouped.get(key)
+                if entry is None:
+                    grouped[key] = {
+                        "pair_count": 1,
+                        "minimal_margin": margin,
+                        "maximal_margin": margin,
+                        "witness_e": e,
+                        "witness_margin": margin,
+                        "witness_distance_to_full_lower": distance_to_full_lower,
+                        "witness_distance_to_principal_star": distance_to_principal_star,
+                        "witness_c_family": c_family,
+                        "witness_u_family": u_family,
+                    }
+                    continue
+                entry["pair_count"] = int(entry["pair_count"]) + 1
+                if margin < int(entry["minimal_margin"]):
+                    entry["minimal_margin"] = margin
+                    entry["witness_e"] = e
+                    entry["witness_margin"] = margin
+                    entry["witness_distance_to_full_lower"] = distance_to_full_lower
+                    entry["witness_distance_to_principal_star"] = distance_to_principal_star
+                    entry["witness_c_family"] = c_family
+                    entry["witness_u_family"] = u_family
+                if margin > int(entry["maximal_margin"]):
+                    entry["maximal_margin"] = margin
+
+    template_order = {"full_lower": 0, "principal_star": 1, "tied": 2}
+    results: List[ShiftedTwoLayerTemplateShellAttributionEntry] = []
+    for (shell_distance, nearest_template), entry in sorted(
+        grouped.items(), key=lambda item: (item[0][0], template_order[item[0][1]])
+    ):
+        results.append(
+            ShiftedTwoLayerTemplateShellAttributionEntry(
+                n=n,
+                shell_distance=shell_distance,
+                nearest_template=nearest_template,
+                pair_count=int(entry["pair_count"]),
+                minimal_margin=int(entry["minimal_margin"]),
+                maximal_margin=int(entry["maximal_margin"]),
+                witness_e=int(entry["witness_e"]),
+                witness_margin=int(entry["witness_margin"]),
+                witness_distance_to_full_lower=int(entry["witness_distance_to_full_lower"]),
+                witness_distance_to_principal_star=int(
+                    entry["witness_distance_to_principal_star"]
+                ),
+                witness_c_family=entry["witness_c_family"],  # type: ignore[arg-type]
+                witness_u_family=entry["witness_u_family"],  # type: ignore[arg-type]
+            )
+        )
+    return results
+
+
 def exhaustive_shifted_even_adjacent_layer_summary(
     n: int,
 ) -> List[ExhaustiveShiftedEvenAdjacentLayerSummaryResult]:
@@ -6544,6 +6668,16 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--shifted-two-layer-template-attribution-profile",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only full shell-attribution profile on the given odd dimensions. "
+            "For each odd n, list every nonempty template-distance shell split by which equality "
+            "template is nearer."
+        ),
+    )
+    parser.add_argument(
         "--template-shell-distance",
         type=int,
         default=2,
@@ -7663,6 +7797,24 @@ def main() -> int:
                 print(
                     f"    witness C={format_family(result.witness_c_family)} "
                     f"U={format_family(result.witness_u_family)}"
+                )
+        return 0
+
+    if args.shifted_two_layer_template_attribution_profile is not None:
+        for n in args.shifted_two_layer_template_attribution_profile:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                return 1
+            results = shifted_two_layer_template_attribution_profile(n)
+            ok(
+                "OK shifted template-attribution profile at "
+                f"n={n}: class_count={len(results)}"
+            )
+            for result in results:
+                print(
+                    f"  d={result.shell_distance} template={result.nearest_template} "
+                    f"pair_count={result.pair_count} "
+                    f"min_margin={result.minimal_margin} max_margin={result.maximal_margin}"
                 )
         return 0
 

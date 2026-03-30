@@ -222,6 +222,30 @@ avoid both equality templates abstractly; it likely needs to rule out the princi
 neighborhood first, because that is where almost all of the low-shell shifted near-extremizers
 live in the first nontrivial tested dimension.
 
+The full shifted shell-attribution profile is now exact in `n = 7`, and it strengthens that
+picture substantially:
+
+- every positive shell from distance `2` through distance `18` splits only into
+  `full-lower` and `principal-star` classes;
+- tied classes do not appear until distance `20`;
+- in every positive shell, the principal-star class is much larger than the full-lower class.
+
+For example:
+
+- distance `8`: `9` full-lower pairs versus `98` principal-star pairs;
+- distance `12`: `25` full-lower pairs versus `398` principal-star pairs;
+- distance `18`: `100` full-lower pairs versus `970` principal-star pairs.
+
+So the principal-star side does not merely dominate the first few shells; it dominates the entire
+observed pre-tied regime in shifted `n = 7`.
+
+\[
+\text{the full-lower template contributes a thin exceptional strand,}
+\]
+\[
+\text{while the principal-star template governs the bulk of shifted near-equality.}
+\]
+
 So the first nontrivial shifted stability theorem now has a sharper candidate shape:
 
 \[
@@ -331,9 +355,14 @@ After that, the program can be iterated:
    strand.
    If true, the transported-family exclusion problem should focus first on ruling out the
    principal-star neighborhood.
-7. Identify what the transported subcube families would have to look like in order to realize the
+7. Strengthen the conjecture using the full shifted `n = 7` attribution profile:
+   before tied shells appear, every positive shell should decompose into a thin full-lower strand
+   and a dominant principal-star bulk.
+   A realistic first theorem is therefore not symmetric template stability, but
+   principal-star-dominated stability with an explicit exceptional full-lower family.
+8. Identify what the transported subcube families would have to look like in order to realize the
    two equality templates, and try to rule that out directly.
-8. Only then move back into Lean:
+9. Only then move back into Lean:
    first with a stronger shifted theorem, then with an exclusion theorem for the transported
    family class, then with the upgraded endpoint.
 

@@ -281,6 +281,12 @@ Latest computational sharpening:
   shifted `n = 5` already shows the same asymmetry in the first two shells, but farther shells
   introduce tied families, so the clean template split currently looks like a higher-dimensional
   signal rather than a uniform small-`n` rule;
+- the full shifted `n = 7` attribution profile is now exact too:
+  every positive shell from distance `2` through distance `18` splits only into
+  `full-lower` and `principal-star` classes, tied classes do not appear until distance `20`,
+  and in every positive shell the principal-star side is much larger than the full-lower side;
+  so the stronger-gap route is now best read as a principal-star-dominated stability program with
+  a thin exceptional full-lower strand, not as a symmetric two-template stability problem;
 - pushing the same brute-force shifted-enumeration idea to `n = 9` no longer looks productive:
   the shifted-family count itself does not return on a short/medium run, so the search side is
   effectively saturated at `n = 7`;

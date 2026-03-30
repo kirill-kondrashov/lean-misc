@@ -383,6 +383,12 @@ The global first-gap orbit set is now classified exactly in the shifted world:
   full-lower side;
   shifted `n = 5` shows the same asymmetry in the first two shells, but farther shells already
   contain tied families, so the clean template split is currently a higher-dimensional signal;
+- the full shifted `n = 7` attribution profile is now exact as well:
+  every positive shell from distance `2` through distance `18` splits only into
+  `full-lower` and `principal-star` classes, tied classes do not appear until distance `20`,
+  and in every positive shell the principal-star class is much larger than the full-lower class;
+  so the stronger branch is no longer just “off either equality template”, but more sharply
+  “principal-star-dominated stability with a thin exceptional full-lower strand”;
 - the full shifted `n = 7` shell-profile enumeration is now computationally saturated with the
   current tool, so this branch has reached a paper-proof boundary again rather than a missing-data
   boundary.
