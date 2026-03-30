@@ -389,6 +389,13 @@ The global first-gap orbit set is now classified exactly in the shifted world:
   and in every positive shell the principal-star class is much larger than the full-lower class;
   so the stronger branch is no longer just “off either equality template”, but more sharply
   “principal-star-dominated stability with a thin exceptional full-lower strand”;
+- the shifted strand profile is now sharper again:
+  in shifted `n = 7`, throughout the entire pre-tied regime `d = 0,2,\dots,18`,
+  the `full-lower` and `principal-star` strands have exactly the same shell gap envelope;
+  for example the two strands both have gap interval `[5,9]` at distance `8`,
+  `[8,12]` at distance `12`, and `[7,15]` at distance `18`;
+  so the current stronger branch splits naturally into two conjectural layers:
+  a distance-only shell-envelope theorem, and a separate template-attribution/multiplicity theorem;
 - the full shifted `n = 7` shell-profile enumeration is now computationally saturated with the
   current tool, so this branch has reached a paper-proof boundary again rather than a missing-data
   boundary.

@@ -414,6 +414,21 @@ class ShiftedTwoLayerTemplateShellAttributionEntry:
 
 
 @dataclass(frozen=True)
+class ShiftedTwoLayerTemplateStrandProfileEntry:
+    n: int
+    shell_distance: int
+    full_lower_pair_count: int
+    principal_star_pair_count: int
+    tied_pair_count: int
+    full_lower_min_margin: int | None
+    full_lower_max_margin: int | None
+    principal_star_min_margin: int | None
+    principal_star_max_margin: int | None
+    min_margin_match: bool
+    max_margin_match: bool
+
+
+@dataclass(frozen=True)
 class ExhaustiveShiftedEvenAdjacentLayerSummaryResult:
     n: int
     r: int
@@ -3536,6 +3551,52 @@ def shifted_two_layer_template_attribution_profile(
                 ),
                 witness_c_family=entry["witness_c_family"],  # type: ignore[arg-type]
                 witness_u_family=entry["witness_u_family"],  # type: ignore[arg-type]
+            )
+        )
+    return results
+
+
+def shifted_two_layer_template_strand_profile(
+    n: int,
+) -> List[ShiftedTwoLayerTemplateStrandProfileEntry]:
+    attribution = shifted_two_layer_template_attribution_profile(n)
+    by_shell: Dict[int, Dict[str, ShiftedTwoLayerTemplateShellAttributionEntry]] = {}
+    for entry in attribution:
+        by_shell.setdefault(entry.shell_distance, {})[entry.nearest_template] = entry
+
+    results: List[ShiftedTwoLayerTemplateStrandProfileEntry] = []
+    for shell_distance in sorted(by_shell):
+        grouped = by_shell[shell_distance]
+        full_lower = grouped.get("full_lower")
+        principal_star = grouped.get("principal_star")
+        tied = grouped.get("tied")
+        full_lower_min = None if full_lower is None else full_lower.minimal_margin
+        full_lower_max = None if full_lower is None else full_lower.maximal_margin
+        principal_star_min = None if principal_star is None else principal_star.minimal_margin
+        principal_star_max = None if principal_star is None else principal_star.maximal_margin
+        min_match = (
+            full_lower_min is not None
+            and principal_star_min is not None
+            and full_lower_min == principal_star_min
+        )
+        max_match = (
+            full_lower_max is not None
+            and principal_star_max is not None
+            and full_lower_max == principal_star_max
+        )
+        results.append(
+            ShiftedTwoLayerTemplateStrandProfileEntry(
+                n=n,
+                shell_distance=shell_distance,
+                full_lower_pair_count=0 if full_lower is None else full_lower.pair_count,
+                principal_star_pair_count=0 if principal_star is None else principal_star.pair_count,
+                tied_pair_count=0 if tied is None else tied.pair_count,
+                full_lower_min_margin=full_lower_min,
+                full_lower_max_margin=full_lower_max,
+                principal_star_min_margin=principal_star_min,
+                principal_star_max_margin=principal_star_max,
+                min_margin_match=min_match,
+                max_margin_match=max_match,
             )
         )
     return results
@@ -6678,6 +6739,16 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--shifted-two-layer-template-strand-profile",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only template-strand profile on the given odd dimensions. "
+            "For each shell distance, compare the full-lower and principal-star strands "
+            "by pair count and boundary gap envelope."
+        ),
+    )
+    parser.add_argument(
         "--template-shell-distance",
         type=int,
         default=2,
@@ -7815,6 +7886,27 @@ def main() -> int:
                     f"  d={result.shell_distance} template={result.nearest_template} "
                     f"pair_count={result.pair_count} "
                     f"min_margin={result.minimal_margin} max_margin={result.maximal_margin}"
+                )
+        return 0
+
+    if args.shifted_two_layer_template_strand_profile is not None:
+        for n in args.shifted_two_layer_template_strand_profile:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                return 1
+            results = shifted_two_layer_template_strand_profile(n)
+            ok(f"OK shifted template-strand profile at n={n}: shell_count={len(results)}")
+            for result in results:
+                print(
+                    f"  d={result.shell_distance} "
+                    f"full_lower={result.full_lower_pair_count} "
+                    f"principal_star={result.principal_star_pair_count} "
+                    f"tied={result.tied_pair_count}"
+                )
+                print(
+                    f"    full_lower_margin=[{result.full_lower_min_margin},{result.full_lower_max_margin}] "
+                    f"principal_star_margin=[{result.principal_star_min_margin},{result.principal_star_max_margin}] "
+                    f"min_match={result.min_margin_match} max_match={result.max_margin_match}"
                 )
         return 0
 

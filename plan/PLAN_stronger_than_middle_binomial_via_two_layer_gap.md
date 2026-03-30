@@ -246,6 +246,35 @@ observed pre-tied regime in shifted `n = 7`.
 \text{while the principal-star template governs the bulk of shifted near-equality.}
 \]
 
+There is now a second, more surprising, structural refinement:
+
+- in shifted `n = 7`, for every shell distance from `0` through `18`,
+  the `full-lower` and `principal-star` strands have exactly the same shell margin envelope;
+- explicitly, at each such shell distance, both strands have the same minimum and maximum values
+  of \(|\partial^+F|-|C|\);
+- the asymmetry is therefore only in multiplicity, not in the shell gap interval itself.
+
+For example:
+
+- distance `8`: both strands have gap interval `[5,9]`;
+- distance `12`: both strands have gap interval `[8,12]`;
+- distance `18`: both strands have gap interval `[7,15]`.
+
+This exact envelope symmetry breaks only when tied classes first appear, starting at distance `20`.
+
+\[
+\text{before tied shells appear, the two template strands have the same gap envelope,}
+\]
+\[
+\text{but radically different multiplicities.}
+\]
+
+So the current stronger route is sharper in two different senses:
+
+- the principal-star strand dominates the count of near-extremizers;
+- but the shell-by-shell gap envelope appears to depend only on distance, not on which template
+  strand one is on, throughout the observed pre-tied regime.
+
 So the first nontrivial shifted stability theorem now has a sharper candidate shape:
 
 \[
@@ -360,9 +389,16 @@ After that, the program can be iterated:
    and a dominant principal-star bulk.
    A realistic first theorem is therefore not symmetric template stability, but
    principal-star-dominated stability with an explicit exceptional full-lower family.
-8. Identify what the transported subcube families would have to look like in order to realize the
+8. Add the new shell-envelope symmetry conjecture:
+   in the shifted odd two-layer problem, throughout the pre-tied regime, the full-lower and
+   principal-star strands should share the same shell gap interval, even though their multiplicities
+   are very different.
+   If true, the right theorem may split into:
+   - a distance-only shell envelope theorem;
+   - and a separate multiplicity / template-attribution theorem.
+9. Identify what the transported subcube families would have to look like in order to realize the
    two equality templates, and try to rule that out directly.
-9. Only then move back into Lean:
+10. Only then move back into Lean:
    first with a stronger shifted theorem, then with an exclusion theorem for the transported
    family class, then with the upgraded endpoint.
 

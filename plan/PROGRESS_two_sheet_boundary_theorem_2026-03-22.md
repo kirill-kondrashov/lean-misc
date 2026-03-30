@@ -287,6 +287,12 @@ Latest computational sharpening:
   and in every positive shell the principal-star side is much larger than the full-lower side;
   so the stronger-gap route is now best read as a principal-star-dominated stability program with
   a thin exceptional full-lower strand, not as a symmetric two-template stability problem;
+- the shifted strand profile is now sharper still:
+  in shifted `n = 7`, throughout the entire pre-tied regime `d = 0,2,\dots,18`,
+  the `full-lower` and `principal-star` strands have exactly the same shell gap envelope;
+  the asymmetry is therefore in multiplicity, not in the observed shell gap interval itself;
+  this suggests the stronger theorem may need to split into a distance-only shell-envelope
+  statement plus a separate template-attribution statement;
 - pushing the same brute-force shifted-enumeration idea to `n = 9` no longer looks productive:
   the shifted-family count itself does not return on a short/medium run, so the search side is
   effectively saturated at `n = 7`;
