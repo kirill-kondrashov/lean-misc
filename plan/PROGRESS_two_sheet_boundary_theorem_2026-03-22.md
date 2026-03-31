@@ -332,9 +332,11 @@ Latest computational sharpening:
 - shifted `n = 27` does not return on a short/medium run with the current first-shell probe;
 - so the current exact computational frontier on that narrower branch is `n = 25`;
 - the new local decomposition summary sharpens the first-shell theorem candidate as well:
-  in shifted `n = 7, 9, 11, 13`, the full-lower side is always the single `(1,1)` move type,
+  in shifted `n = 7, 9, 11, 13, 15, 17, 19, 21`, the full-lower side is always the single `(1,1)` move type,
   while the principal-star side always splits into `(0,2)`, `(1,1)`, `(2,0)` with
   multiplicities `1,2,1`, and every move type still has gap exactly `m`;
+- that sharper decomposition branch is now exact through shifted `n = 21`, while the coarser
+  distance-`2` shell gap law remains exact through shifted `n = 25`;
 - the proof note now contains an exact coordinate-section reduction:
   for
   \[

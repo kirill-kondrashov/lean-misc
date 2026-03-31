@@ -198,7 +198,7 @@ d=2:\ 1\ \text{full-lower orbit} + 4\ \text{principal-star orbits},
 with all five shifted orbit representatives having margin exactly `m`.
 
 The new local decomposition summary sharpens this further in shifted
-`n = 7, 9, 11, 13`:
+`n = 7, 9, 11, 13, 15, 17, 19, 21`:
 
 - the full-lower side is always a single `(1,1)` move type;
 - the principal-star side always splits into exactly three move types
@@ -210,6 +210,10 @@ The new local decomposition summary sharpens this further in shifted
 
 So the current first-shell theorem candidate is now not just a scalar gap law, but a rigid local
 move classification.
+
+This sharper decomposition branch is currently exact through shifted `n = 21`.
+The next dimension `n = 23` does not return on a short/medium run with the current decomposition
+probe, even though the coarser first-shell gap law still returns exactly through shifted `n = 25`.
 
 ### Step 3. Prove Shifted Lower Bounds Beyond The First Shell
 

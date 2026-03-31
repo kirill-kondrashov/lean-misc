@@ -369,7 +369,7 @@ d=2:\ 1\ \text{full-lower orbit} + 4\ \text{principal-star orbits},
 all with margin exactly `m`.
 
 The new local decomposition summary sharpens the principal-star side further in shifted
-`n = 7, 9, 11, 13`:
+`n = 7, 9, 11, 13, 15, 17, 19, 21`:
 
 - the full-lower first shell is always the single `(1,1)` move type;
 - the principal-star first shell always splits into
@@ -387,6 +387,11 @@ So the next honest theorem candidate is now:
 \[
 \text{and every move type in that shell has gap exactly } m.
 \]
+
+This sharper decomposition statement is now exact through shifted `n = 21`.
+The next dimension `n = 23` does not return on a short/medium run with the current decomposition
+probe, even though the coarser distance-`2` shell gap law still returns exactly through shifted
+`n = 25`.
 \[
 \text{not just an artifact of shifted } n = 7.
 \]
