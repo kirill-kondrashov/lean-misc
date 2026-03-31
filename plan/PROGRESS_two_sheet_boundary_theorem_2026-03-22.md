@@ -329,7 +329,8 @@ Latest computational sharpening:
 - as a result, the exact distance-`2` shell now returns through shifted `n = 25`;
 - in every newly checked odd dimension, that shell still splits as
   `1` full-lower pair plus `4` principal-star pairs, all with margin exactly `m`;
-- the next untested odd dimension on that narrower first-shell branch is now `n = 27`;
+- shifted `n = 27` does not return on a short/medium run with the current first-shell probe;
+- so the current exact computational frontier on that narrower branch is `n = 25`;
 - the proof note now contains an exact coordinate-section reduction:
   for
   \[

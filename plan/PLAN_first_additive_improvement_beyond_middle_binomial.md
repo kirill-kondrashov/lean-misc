@@ -94,7 +94,8 @@ The current computational frontier for this first-shell check is now:
 - exact support through shifted `n = 25`;
 - the old `n = 15` slowdown was removed by replacing full comparability in the local shifted
   generator by immediate cover relations in the shifted poset;
-- the next untested odd dimension on this narrow first-shell branch is now `n = 27`.
+- shifted `n = 27` does not return on a short/medium run with the current first-shell probe;
+- so the current exact computational frontier on this narrow branch is `n = 25`.
 
 ## Conjectural Two-Layer Form
 

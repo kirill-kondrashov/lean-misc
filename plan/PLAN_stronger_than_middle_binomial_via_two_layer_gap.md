@@ -342,7 +342,8 @@ The narrow first-shell branch also has a cleaner computational shape now:
 - the old `n = 15` slowdown was removed by replacing full comparability in the local shifted
   generator by immediate cover relations in the shifted poset;
 - the distance-`2` shell now returns exactly through shifted `n = 25`;
-- the next untested odd dimension on this first-shell-only branch is now `n = 27`.
+- shifted `n = 27` does not return on a short/medium run with the current first-shell probe,
+  so the current exact computational frontier on this branch is `n = 25`.
 
 So the current computational subtask is now sharper:
 
