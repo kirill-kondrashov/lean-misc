@@ -20,6 +20,15 @@ or, more ambitiously, a multiplicative/stability strengthening that moves toward
 N \gg 2^n.
 \]
 
+The current first explicit target has now been split out in
+[PLAN_first_additive_improvement_beyond_middle_binomial.md](./PLAN_first_additive_improvement_beyond_middle_binomial.md):
+
+```math
+N \ge \binom{n}{\lfloor n/2\rfloor} + \left\lfloor \frac{n-1}{2} \right\rfloor.
+```
+
+That is the bound this stronger branch should now be read as aiming for first.
+
 ## Connection To The Current Route
 
 The active exact route reduces the remaining work to the two-layer theorem
@@ -315,10 +324,28 @@ The new local data strengthens the shell-envelope picture again:
 So the shell-envelope symmetry is now exact not just in shifted `n = 7`, but also in the next
 two odd dimensions at least through distance `10`.
 
+The first-shell additive picture is now sharper as well:
+
+- the distance-`2` shell has exact minimum gap
+  ```math
+  m = \frac{n-1}{2}
+  ```
+  in shifted `n = 5,7,9,11,13`;
+- so the first explicit additive target
+  ```math
+  N \ge \binom{n}{\lfloor n/2\rfloor} + \left\lfloor \frac{n-1}{2} \right\rfloor
+  ```
+  now has exact first-shell support through shifted `n = 13`.
+
 The next computational wall has moved outward, but not disappeared:
 
 - the same local generator still does not return quickly at shifted `n = 13`, already with
   distance bound `4`.
+
+For the narrower first-shell-only branch, the wall is slightly farther out:
+
+- the distance-`2` shell returns exactly at shifted `n = 13`,
+- but the same first-shell probe is already slow at shifted `n = 15`.
 
 So the current computational subtask is now sharper:
 

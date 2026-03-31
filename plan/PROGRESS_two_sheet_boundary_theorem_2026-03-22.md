@@ -313,6 +313,19 @@ Latest computational sharpening:
 - the next computational wall has moved outward but remains real:
   even the template-local generator does not return quickly at shifted `n = 13` with distance
   bound `4`, so the current shell program is now saturated at `n = 11`;
+- on the new additive-improvement branch, the first-shell formula is now sharper:
+  the distance-`2` shell has exact minimum gap
+  ```math
+  m = \frac{n-1}{2}
+  ```
+  in shifted `n = 5,7,9,11,13`;
+- this makes
+  ```math
+  N \ge \binom{n}{\lfloor n/2\rfloor} + \left\lfloor \frac{n-1}{2} \right\rfloor
+  ```
+  the best explicit current target beyond the middle-binomial benchmark;
+- the next computational wall on that narrower first-shell branch is now shifted `n = 15`:
+  the distance-`2` shell returns at `n = 13`, but is already slow at `n = 15`;
 - the proof note now contains an exact coordinate-section reduction:
   for
   \[
