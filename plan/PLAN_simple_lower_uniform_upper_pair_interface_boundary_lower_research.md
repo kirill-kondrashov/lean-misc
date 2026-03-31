@@ -264,6 +264,10 @@ The current computational evidence still points in the right direction:
 - that same rigid first-shell picture now extends exactly through shifted `n = 25`;
 - the next odd dimension `n = 27` no longer returns on a short/medium run with that same probe,
   so the current exact computational frontier on the narrow first-shell branch is `n = 25`;
+- the new local first-shell decomposition summary now sharpens the theorem candidate in shifted
+  `n = 7, 9, 11, 13`: the full-lower first shell is the single `(1,1)` move type, while the
+  principal-star first shell splits as `(0,2)`, `(1,1)`, `(2,0)` with multiplicities `1,2,1`,
+  and every one of those move types still has margin exactly `m`;
 - the next pattern-level refinement is now sharply split:
   exact shifted `n = 7` already has `143` distinct minimal-generator witness patterns overall, so
   there is no tiny global pattern catalogue;

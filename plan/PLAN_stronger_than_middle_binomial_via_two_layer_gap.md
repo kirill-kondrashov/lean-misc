@@ -367,6 +367,26 @@ d=2:\ 1\ \text{full-lower orbit} + 4\ \text{principal-star orbits},
 ```
 
 all with margin exactly `m`.
+
+The new local decomposition summary sharpens the principal-star side further in shifted
+`n = 7, 9, 11, 13`:
+
+- the full-lower first shell is always the single `(1,1)` move type;
+- the principal-star first shell always splits into
+  ```math
+  (0,2),\ (1,1),\ (2,0)
+  ```
+  with multiplicities `1,2,1`;
+- each of those move types still has margin exactly `m`.
+
+So the next honest theorem candidate is now:
+
+\[
+\text{the shifted distance-}2\text{ shell has a rigid local move decomposition,}
+\]
+\[
+\text{and every move type in that shell has gap exactly } m.
+\]
 \[
 \text{not just an artifact of shifted } n = 7.
 \]

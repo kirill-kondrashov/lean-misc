@@ -441,6 +441,27 @@ class ShiftedTwoLayerTemplateLocalStrandProfileResult:
 
 
 @dataclass(frozen=True)
+class ShiftedTwoLayerTemplateLocalDecompositionEntry:
+    n: int
+    shell_distance: int
+    nearest_template: str
+    lower_distance: int
+    upper_distance: int
+    pair_count: int
+    minimal_margin: int
+    maximal_margin: int
+
+
+@dataclass(frozen=True)
+class ShiftedTwoLayerTemplateLocalDecompositionResult:
+    n: int
+    max_shell_distance: int
+    pair_count: int
+    entry_count: int
+    entries: Tuple[ShiftedTwoLayerTemplateLocalDecompositionEntry, ...]
+
+
+@dataclass(frozen=True)
 class ExhaustiveShiftedEvenAdjacentLayerSummaryResult:
     n: int
     r: int
@@ -3908,6 +3929,162 @@ def shifted_two_layer_template_local_strand_profile(
     )
 
 
+def shifted_two_layer_template_local_decomposition_profile(
+    n: int,
+    max_shell_distance: int,
+) -> ShiftedTwoLayerTemplateLocalDecompositionResult:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    if max_shell_distance < 0:
+        raise ValueError("max_shell_distance must be nonnegative")
+
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    full_lower_template = tuple(lower_rank_sets)
+    principal_star_c_family = tuple(subset for subset in lower_rank_sets if subset & 1)
+    principal_star_u_family = tuple(subset for subset in upper_rank_sets if subset & 1)
+
+    lower_from_full = shifted_uniform_template_local_families(
+        n, lower_rank_sets, full_lower_template, max_shell_distance
+    )
+    lower_from_principal_star = shifted_uniform_template_local_families(
+        n, lower_rank_sets, principal_star_c_family, max_shell_distance
+    )
+    lower_candidates_dict: Dict[Family, Tuple[int, int]] = {}
+    for family, distance in lower_from_full.items():
+        lower_candidates_dict[family] = (
+            distance,
+            lower_from_principal_star.get(
+                family, len(set(family).symmetric_difference(principal_star_c_family))
+            ),
+        )
+    for family, distance in lower_from_principal_star.items():
+        existing = lower_candidates_dict.get(family)
+        distance_to_full_lower = (
+            lower_from_full.get(family, len(set(family).symmetric_difference(full_lower_template)))
+            if existing is None
+            else existing[0]
+        )
+        lower_candidates_dict[family] = (distance_to_full_lower, distance)
+
+    upper_from_full = shifted_uniform_template_local_families(
+        n, upper_rank_sets, (), max_shell_distance
+    )
+    upper_from_principal_star = shifted_uniform_template_local_families(
+        n, upper_rank_sets, principal_star_u_family, max_shell_distance
+    )
+    upper_candidates_by_size: Dict[int, List[Tuple[Family, int, int]]] = {}
+    upper_candidate_dict: Dict[Family, Tuple[int, int]] = {}
+    for family, distance in upper_from_full.items():
+        upper_candidate_dict[family] = (
+            distance,
+            upper_from_principal_star.get(
+                family, len(set(family).symmetric_difference(principal_star_u_family))
+            ),
+        )
+    for family, distance in upper_from_principal_star.items():
+        existing = upper_candidate_dict.get(family)
+        distance_to_full_lower = (
+            upper_from_full.get(family, len(family))
+            if existing is None
+            else existing[0]
+        )
+        upper_candidate_dict[family] = (distance_to_full_lower, distance)
+    for family, distances in sorted(upper_candidate_dict.items()):
+        upper_candidates_by_size.setdefault(len(family), []).append(
+            (family, distances[0], distances[1])
+        )
+
+    boundary_cache: Dict[Tuple[Family, Family], int] = {}
+
+    def two_layer_boundary_size(c_family: Family, u_family: Family) -> int:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    grouped: Dict[Tuple[int, str, int, int], Dict[str, int]] = {}
+    pair_count = 0
+    for c_family, (
+        distance_c_full_lower,
+        distance_c_principal_star,
+    ) in sorted(lower_candidates_dict.items()):
+        e = lower_count - len(c_family)
+        for (
+            u_family,
+            distance_u_full_lower,
+            distance_u_principal_star,
+        ) in upper_candidates_by_size.get(e, []):
+            distance_to_full_lower = distance_c_full_lower + distance_u_full_lower
+            distance_to_principal_star = (
+                distance_c_principal_star + distance_u_principal_star
+            )
+            shell_distance = min(distance_to_full_lower, distance_to_principal_star)
+            if shell_distance > max_shell_distance:
+                continue
+            if distance_to_full_lower < distance_to_principal_star:
+                nearest_template = "full_lower"
+                lower_distance = distance_c_full_lower
+                upper_distance = distance_u_full_lower
+            elif distance_to_principal_star < distance_to_full_lower:
+                nearest_template = "principal_star"
+                lower_distance = distance_c_principal_star
+                upper_distance = distance_u_principal_star
+            else:
+                continue
+            pair_count += 1
+            margin = two_layer_boundary_size(c_family, u_family) - len(c_family)
+            key = (shell_distance, nearest_template, lower_distance, upper_distance)
+            entry = grouped.get(key)
+            if entry is None:
+                grouped[key] = {
+                    "pair_count": 1,
+                    "minimal_margin": margin,
+                    "maximal_margin": margin,
+                }
+                continue
+            entry["pair_count"] += 1
+            entry["minimal_margin"] = min(entry["minimal_margin"], margin)
+            entry["maximal_margin"] = max(entry["maximal_margin"], margin)
+
+    entries = tuple(
+        ShiftedTwoLayerTemplateLocalDecompositionEntry(
+            n=n,
+            shell_distance=shell_distance,
+            nearest_template=nearest_template,
+            lower_distance=lower_distance,
+            upper_distance=upper_distance,
+            pair_count=entry["pair_count"],
+            minimal_margin=entry["minimal_margin"],
+            maximal_margin=entry["maximal_margin"],
+        )
+        for (shell_distance, nearest_template, lower_distance, upper_distance), entry in sorted(
+            grouped.items(), key=lambda item: (item[0][0], item[0][1], item[0][2], item[0][3])
+        )
+    )
+
+    return ShiftedTwoLayerTemplateLocalDecompositionResult(
+        n=n,
+        max_shell_distance=max_shell_distance,
+        pair_count=pair_count,
+        entry_count=len(entries),
+        entries=entries,
+    )
+
+
 def exhaustive_shifted_even_adjacent_layer_summary(
     n: int,
 ) -> List[ExhaustiveShiftedEvenAdjacentLayerSummaryResult]:
@@ -7065,6 +7242,17 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--shifted-two-layer-template-local-decomposition-profile",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only local decomposition profile on the given odd dimensions. "
+            "Restrict to shifted pairs lying within --template-shell-max-distance of one of the "
+            "two equality templates, then split non-tied shells by nearest template and by the "
+            "lower/upper distance decomposition relative to that template."
+        ),
+    )
+    parser.add_argument(
         "--template-shell-distance",
         type=int,
         default=2,
@@ -8263,6 +8451,27 @@ def main() -> int:
                     f"    full_lower_margin=[{entry.full_lower_min_margin},{entry.full_lower_max_margin}] "
                     f"principal_star_margin=[{entry.principal_star_min_margin},{entry.principal_star_max_margin}] "
                     f"min_match={entry.min_margin_match} max_match={entry.max_margin_match}"
+                )
+        return 0
+
+    if args.shifted_two_layer_template_local_decomposition_profile is not None:
+        for n in args.shifted_two_layer_template_local_decomposition_profile:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                return 1
+            result = shifted_two_layer_template_local_decomposition_profile(
+                n, args.template_shell_max_distance
+            )
+            ok(
+                "OK shifted local template-decomposition profile at "
+                f"n={n}, d<={result.max_shell_distance}: entry_count={result.entry_count} "
+                f"pair_count={result.pair_count}"
+            )
+            for entry in result.entries:
+                print(
+                    f"  d={entry.shell_distance} template={entry.nearest_template} "
+                    f"lower={entry.lower_distance} upper={entry.upper_distance} "
+                    f"count={entry.pair_count} margin=[{entry.minimal_margin},{entry.maximal_margin}]"
                 )
         return 0
 
