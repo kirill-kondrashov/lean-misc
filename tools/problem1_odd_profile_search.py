@@ -429,6 +429,17 @@ class ShiftedTwoLayerTemplateStrandProfileEntry:
 
 
 @dataclass(frozen=True)
+class ShiftedTwoLayerTemplateLocalStrandProfileResult:
+    n: int
+    max_shell_distance: int
+    lower_candidate_count: int
+    upper_candidate_count: int
+    pair_count: int
+    shell_count: int
+    entries: Tuple[ShiftedTwoLayerTemplateStrandProfileEntry, ...]
+
+
+@dataclass(frozen=True)
 class ExhaustiveShiftedEvenAdjacentLayerSummaryResult:
     n: int
     r: int
@@ -3602,6 +3613,171 @@ def shifted_two_layer_template_strand_profile(
     return results
 
 
+def shifted_two_layer_template_local_strand_profile(
+    n: int,
+    max_shell_distance: int,
+) -> ShiftedTwoLayerTemplateLocalStrandProfileResult:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    if max_shell_distance < 0:
+        raise ValueError("max_shell_distance must be nonnegative")
+
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    lower_shifted_families = enumerate_shifted_uniform_families(n, lower_rank, subsets)
+    upper_shifted_families = enumerate_shifted_uniform_families(n, upper_rank, subsets)
+
+    full_lower_template = tuple(lower_rank_sets)
+    principal_star_c_family = tuple(subset for subset in lower_rank_sets if subset & 1)
+    principal_star_u_family = tuple(subset for subset in upper_rank_sets if subset & 1)
+
+    def family_distance(family: Family, template_family: Family) -> int:
+        return len(set(family).symmetric_difference(template_family))
+
+    lower_candidates: List[Tuple[Family, int, int]] = []
+    for family in lower_shifted_families:
+        distance_to_full_lower = family_distance(family, full_lower_template)
+        distance_to_principal_star = family_distance(family, principal_star_c_family)
+        if min(distance_to_full_lower, distance_to_principal_star) <= max_shell_distance:
+            lower_candidates.append(
+                (family, distance_to_full_lower, distance_to_principal_star)
+            )
+
+    upper_candidates_by_size: Dict[int, List[Tuple[Family, int, int]]] = {}
+    upper_candidate_count = 0
+    for family in upper_shifted_families:
+        distance_to_full_lower = len(family)
+        distance_to_principal_star = family_distance(family, principal_star_u_family)
+        if min(distance_to_full_lower, distance_to_principal_star) <= max_shell_distance:
+            upper_candidates_by_size.setdefault(len(family), []).append(
+                (family, distance_to_full_lower, distance_to_principal_star)
+            )
+            upper_candidate_count += 1
+
+    boundary_cache: Dict[Tuple[Family, Family], int] = {}
+
+    def two_layer_boundary_size(c_family: Family, u_family: Family) -> int:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    grouped: Dict[Tuple[int, str], Dict[str, int | None]] = {}
+    pair_count = 0
+    for c_family, distance_c_full_lower, distance_c_principal_star in lower_candidates:
+        e = lower_count - len(c_family)
+        for (
+            u_family,
+            distance_u_full_lower,
+            distance_u_principal_star,
+        ) in upper_candidates_by_size.get(e, []):
+            distance_to_full_lower = distance_c_full_lower + distance_u_full_lower
+            distance_to_principal_star = (
+                distance_c_principal_star + distance_u_principal_star
+            )
+            shell_distance = min(distance_to_full_lower, distance_to_principal_star)
+            if shell_distance > max_shell_distance:
+                continue
+            if distance_to_full_lower < distance_to_principal_star:
+                nearest_template = "full_lower"
+            elif distance_to_principal_star < distance_to_full_lower:
+                nearest_template = "principal_star"
+            else:
+                nearest_template = "tied"
+            pair_count += 1
+            margin = two_layer_boundary_size(c_family, u_family) - len(c_family)
+            key = (shell_distance, nearest_template)
+            entry = grouped.get(key)
+            if entry is None:
+                grouped[key] = {
+                    "pair_count": 1,
+                    "minimal_margin": margin,
+                    "maximal_margin": margin,
+                }
+                continue
+            entry["pair_count"] = int(entry["pair_count"]) + 1
+            if margin < int(entry["minimal_margin"]):
+                entry["minimal_margin"] = margin
+            if margin > int(entry["maximal_margin"]):
+                entry["maximal_margin"] = margin
+
+    by_shell: Dict[int, Dict[str, ShiftedTwoLayerTemplateShellAttributionEntry]] = {}
+    for (shell_distance, nearest_template), entry in grouped.items():
+        by_shell.setdefault(shell_distance, {})[nearest_template] = (
+            ShiftedTwoLayerTemplateShellAttributionEntry(
+                n=n,
+                shell_distance=shell_distance,
+                nearest_template=nearest_template,
+                pair_count=int(entry["pair_count"]),
+                minimal_margin=int(entry["minimal_margin"]),
+                maximal_margin=int(entry["maximal_margin"]),
+                witness_e=0,
+                witness_margin=int(entry["minimal_margin"]),
+                witness_distance_to_full_lower=0,
+                witness_distance_to_principal_star=0,
+                witness_c_family=(),
+                witness_u_family=(),
+            )
+        )
+
+    entries: List[ShiftedTwoLayerTemplateStrandProfileEntry] = []
+    for shell_distance in sorted(by_shell):
+        grouped_shell = by_shell[shell_distance]
+        full_lower = grouped_shell.get("full_lower")
+        principal_star = grouped_shell.get("principal_star")
+        tied = grouped_shell.get("tied")
+        full_lower_min = None if full_lower is None else full_lower.minimal_margin
+        full_lower_max = None if full_lower is None else full_lower.maximal_margin
+        principal_star_min = None if principal_star is None else principal_star.minimal_margin
+        principal_star_max = None if principal_star is None else principal_star.maximal_margin
+        entries.append(
+            ShiftedTwoLayerTemplateStrandProfileEntry(
+                n=n,
+                shell_distance=shell_distance,
+                full_lower_pair_count=0 if full_lower is None else full_lower.pair_count,
+                principal_star_pair_count=0 if principal_star is None else principal_star.pair_count,
+                tied_pair_count=0 if tied is None else tied.pair_count,
+                full_lower_min_margin=full_lower_min,
+                full_lower_max_margin=full_lower_max,
+                principal_star_min_margin=principal_star_min,
+                principal_star_max_margin=principal_star_max,
+                min_margin_match=(
+                    full_lower_min is not None
+                    and principal_star_min is not None
+                    and full_lower_min == principal_star_min
+                ),
+                max_margin_match=(
+                    full_lower_max is not None
+                    and principal_star_max is not None
+                    and full_lower_max == principal_star_max
+                ),
+            )
+        )
+
+    return ShiftedTwoLayerTemplateLocalStrandProfileResult(
+        n=n,
+        max_shell_distance=max_shell_distance,
+        lower_candidate_count=len(lower_candidates),
+        upper_candidate_count=upper_candidate_count,
+        pair_count=pair_count,
+        shell_count=len(entries),
+        entries=tuple(entries),
+    )
+
+
 def exhaustive_shifted_even_adjacent_layer_summary(
     n: int,
 ) -> List[ExhaustiveShiftedEvenAdjacentLayerSummaryResult]:
@@ -6749,12 +6925,31 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--shifted-two-layer-template-local-strand-profile",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only local template-strand profile on the given odd dimensions. "
+            "Restrict to shifted pairs lying within --template-shell-max-distance of one of the "
+            "two equality templates."
+        ),
+    )
+    parser.add_argument(
         "--template-shell-distance",
         type=int,
         default=2,
         help=(
             "Template distance used by --shifted-two-layer-template-shell-summary. "
             "Defaults to 2."
+        ),
+    )
+    parser.add_argument(
+        "--template-shell-max-distance",
+        type=int,
+        default=6,
+        help=(
+            "Maximum template distance used by "
+            "--shifted-two-layer-template-local-strand-profile. Defaults to 6."
         ),
     )
     parser.add_argument(
@@ -7907,6 +8102,37 @@ def main() -> int:
                     f"    full_lower_margin=[{result.full_lower_min_margin},{result.full_lower_max_margin}] "
                     f"principal_star_margin=[{result.principal_star_min_margin},{result.principal_star_max_margin}] "
                     f"min_match={result.min_margin_match} max_match={result.max_margin_match}"
+                )
+        return 0
+
+    if args.shifted_two_layer_template_local_strand_profile is not None:
+        for n in args.shifted_two_layer_template_local_strand_profile:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                return 1
+            result = shifted_two_layer_template_local_strand_profile(
+                n, args.template_shell_max_distance
+            )
+            ok(
+                "OK shifted local template-strand profile at "
+                f"n={n}, d<={result.max_shell_distance}: shell_count={result.shell_count} "
+                f"pair_count={result.pair_count}"
+            )
+            print(
+                f"  lower_candidates={result.lower_candidate_count} "
+                f"upper_candidates={result.upper_candidate_count}"
+            )
+            for entry in result.entries:
+                print(
+                    f"  d={entry.shell_distance} "
+                    f"full_lower={entry.full_lower_pair_count} "
+                    f"principal_star={entry.principal_star_pair_count} "
+                    f"tied={entry.tied_pair_count}"
+                )
+                print(
+                    f"    full_lower_margin=[{entry.full_lower_min_margin},{entry.full_lower_max_margin}] "
+                    f"principal_star_margin=[{entry.principal_star_min_margin},{entry.principal_star_max_margin}] "
+                    f"min_match={entry.min_margin_match} max_match={entry.max_margin_match}"
                 )
         return 0
 

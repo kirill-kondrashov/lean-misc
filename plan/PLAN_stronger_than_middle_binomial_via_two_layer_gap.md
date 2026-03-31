@@ -288,6 +288,23 @@ So the first nontrivial shifted stability theorem now has a sharper candidate sh
 That is still only evidence, but it is much sharper than a bare “positive gap off equality”
 statement.
 
+There is now also a sharper computational bottleneck diagnosis behind this shell program:
+
+- a new local shell probe, restricted to shifted pairs within bounded template distance, exactly
+  reproduces the known `n = 7` low-shell strand data through distance `6`;
+- but the same probe still does not return quickly at `n = 9`, even for distance bound `4`,
+  because it still enumerates *all* shifted middle-rank families before filtering to the local
+  shell.
+
+So the next computational step is no longer “add another shell statistic,” but:
+
+\[
+\text{build a genuinely template-local shifted generator, not a filtered global enumerator.}
+\]
+
+That is now the cleanest route to testing whether the shell-envelope phenomenon persists in
+dimension `9` and beyond.
+
 ## Main Gap Program
 
 ### Step 1. Prove Shifted Equality Classification
@@ -324,6 +341,14 @@ F \notin \mathcal E
 |\partial^+F| \ge |C| + 2
 \]
 in the shifted odd two-layer problem, with `n = 5` and `n = 7` as exact supporting cases.
+
+The current shell-envelope evidence suggests that this stability theorem may itself split into two
+subtheorems:
+
+- a distance-only shell-envelope theorem, controlling the possible gap interval as a function of
+  distance from the equality-template set;
+- a template-attribution theorem, controlling which of the two equality strands dominates the
+  count of near-extremizers.
 
 ### Step 3. Show Sum-Distinct Transported Families Avoid Equality
 

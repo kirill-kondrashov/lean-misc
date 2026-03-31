@@ -235,6 +235,12 @@ The current computational evidence still points in the right direction:
 - the current exact search tooling appears saturated again on that branch:
   the analogous shifted generator-witness summary for `n = 9` does not return on a short/medium
   run with the current enumerator;
+- the stronger-gap shell branch now has the same kind of bottleneck:
+  a new local shell probe exactly reproduces the shifted `n = 7` strand data through distance `6`,
+  but still does not return quickly at shifted `n = 9` even with template distance bound `4`,
+  because it still enumerates all shifted middle-rank families before filtering to the local shell;
+- so the next computational subtask on the stronger branch is now explicit:
+  replace filtered global enumeration by a genuinely template-local shifted generator;
 - the next pattern-level refinement is now sharply split:
   exact shifted `n = 7` already has `143` distinct minimal-generator witness patterns overall, so
   there is no tiny global pattern catalogue;

@@ -300,6 +300,13 @@ Latest computational sharpening:
   the full shifted `n = 7` shell-profile enumeration does not look worth pushing further with the
   current brute-force tool, so the next step has to be theorem-level work on shifted shell/gap
   rigidity rather than deeper shell scans;
+- a new local shell probe now sharpens that diagnosis:
+  it exactly reproduces the known shifted `n = 7` strand profile through distance `6`,
+  but still does not return quickly at shifted `n = 9` even with template distance bound `4`,
+  because it still enumerates all shifted middle-rank families before filtering to the shell;
+- so the next computational task on the stronger branch is now explicit:
+  build a genuinely template-local shifted generator for low shell distances, rather than a
+  filtered global enumerator;
 - the proof note now contains an exact coordinate-section reduction:
   for
   \[
