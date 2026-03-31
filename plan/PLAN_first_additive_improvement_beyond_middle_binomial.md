@@ -65,6 +65,14 @@ shell. Its exact minimum gap is now:
   ```math
   |\partial^+F| - |C| = 10.
   ```
+- shifted `n = 23`:
+  ```math
+  |\partial^+F| - |C| = 11.
+  ```
+- shifted `n = 25`:
+  ```math
+  |\partial^+F| - |C| = 12.
+  ```
 
 So the first-shell minimum gap currently matches
 
@@ -83,10 +91,10 @@ dimensions.
 
 The current computational frontier for this first-shell check is now:
 
-- exact support through shifted `n = 21`;
+- exact support through shifted `n = 25`;
 - the old `n = 15` slowdown was removed by replacing full comparability in the local shifted
   generator by immediate cover relations in the shifted poset;
-- the next untested odd dimension on this narrow first-shell branch is now `n = 23`.
+- the next untested odd dimension on this narrow first-shell branch is now `n = 27`.
 
 ## Conjectural Two-Layer Form
 
@@ -137,7 +145,7 @@ F \notin \mathcal E
 
 Version A is directly supported by exact data in `n = 5,7,9,11,13`. Version B is the actual
 target needed for the first additive literature improvement.
-Version A is now directly supported through shifted `n = 21`.
+Version A is now directly supported through shifted `n = 25`.
 
 ## How This Connects To The Sum-Distinct Transport
 
@@ -183,10 +191,10 @@ Moreover, the exact shifted first shell still has the same template split in eve
 dimension:
 
 ```math
-d=2:\ 1\ \text{full-lower pair} + 4\ \text{principal-star pairs},
+d=2:\ 1\ \text{full-lower orbit} + 4\ \text{principal-star orbits},
 ```
 
-with all five pairs having margin exactly `m`.
+with all five shifted orbit representatives having margin exactly `m`.
 
 ### Step 3. Prove Shifted Lower Bounds Beyond The First Shell
 

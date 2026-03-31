@@ -318,7 +318,7 @@ Latest computational sharpening:
   ```math
   m = \frac{n-1}{2}
   ```
-  in shifted `n = 5,7,9,11,13,15,17,19,21`;
+  in shifted `n = 5,7,9,11,13,15,17,19,21,23,25`;
 - this makes
   ```math
   N \ge \binom{n}{\lfloor n/2\rfloor} + \left\lfloor \frac{n-1}{2} \right\rfloor
@@ -326,10 +326,10 @@ Latest computational sharpening:
   the best explicit current target beyond the middle-binomial benchmark;
 - the first-shell generator itself has now been sped up by replacing full comparability with
   immediate cover relations in the shifted poset;
-- as a result, the exact distance-`2` shell now returns through shifted `n = 21`;
+- as a result, the exact distance-`2` shell now returns through shifted `n = 25`;
 - in every newly checked odd dimension, that shell still splits as
   `1` full-lower pair plus `4` principal-star pairs, all with margin exactly `m`;
-- the next untested odd dimension on that narrower first-shell branch is now `n = 23`;
+- the next untested odd dimension on that narrower first-shell branch is now `n = 27`;
 - the proof note now contains an exact coordinate-section reduction:
   for
   \[

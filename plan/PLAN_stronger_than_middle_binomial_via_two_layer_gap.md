@@ -330,19 +330,19 @@ The first-shell additive picture is now sharper as well:
   ```math
   m = \frac{n-1}{2}
   ```
-  in shifted `n = 5,7,9,11,13,15,17,19,21`;
+  in shifted `n = 5,7,9,11,13,15,17,19,21,23,25`;
 - so the first explicit additive target
   ```math
   N \ge \binom{n}{\lfloor n/2\rfloor} + \left\lfloor \frac{n-1}{2} \right\rfloor
   ```
-  now has exact first-shell support through shifted `n = 21`.
+  now has exact first-shell support through shifted `n = 25`.
 
 The narrow first-shell branch also has a cleaner computational shape now:
 
 - the old `n = 15` slowdown was removed by replacing full comparability in the local shifted
   generator by immediate cover relations in the shifted poset;
-- the distance-`2` shell now returns exactly through shifted `n = 21`;
-- the next untested odd dimension on this first-shell-only branch is now `n = 23`.
+- the distance-`2` shell now returns exactly through shifted `n = 25`;
+- the next untested odd dimension on this first-shell-only branch is now `n = 27`.
 
 So the current computational subtask is now sharper:
 
@@ -358,6 +358,14 @@ But the mathematical takeaway is stronger than before:
 \[
 \text{and the first-shell additive law } |\partial^+F|-|C| = m \text{ now looks dimension-stable.}
 \]
+
+More sharply, the rigid shifted first shell still has the same template split through `n = 25`:
+
+```math
+d=2:\ 1\ \text{full-lower orbit} + 4\ \text{principal-star orbits},
+```
+
+all with margin exactly `m`.
 \[
 \text{not just an artifact of shifted } n = 7.
 \]

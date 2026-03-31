@@ -261,6 +261,7 @@ The current computational evidence still points in the right direction:
 - that removes the old first-shell slowdown entirely through shifted `n = 21`, and the exact
   distance-`2` shell still has the same rigid shape there:
   `1` full-lower pair, `4` principal-star pairs, all with margin `m = (n-1)/2`;
+- that same rigid first-shell picture now extends exactly through shifted `n = 25`;
 - the next pattern-level refinement is now sharply split:
   exact shifted `n = 7` already has `143` distinct minimal-generator witness patterns overall, so
   there is no tiny global pattern catalogue;
