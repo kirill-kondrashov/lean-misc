@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import heapq
+from collections import deque
 from dataclasses import dataclass
 from fractions import Fraction
 from itertools import combinations, permutations
@@ -957,6 +958,86 @@ def enumerate_shifted_uniform_families(n: int, rank: int, subsets: Sequence[int]
         )
         families.append(family)
     return families
+
+
+def shifted_uniform_poset_data(
+    rank_family: Sequence[int],
+) -> Tuple[Dict[int, Tuple[int, ...]], Dict[int, Tuple[int, ...]]]:
+    predecessors: Dict[int, Tuple[int, ...]] = {}
+    successors: Dict[int, Tuple[int, ...]] = {}
+    for member in rank_family:
+        predecessor_list: List[int] = []
+        successor_list: List[int] = []
+        for other in rank_family:
+            if member == other:
+                continue
+            if shifted_leq(other, member):
+                predecessor_list.append(other)
+            if shifted_leq(member, other):
+                successor_list.append(other)
+        predecessors[member] = tuple(sorted(predecessor_list))
+        successors[member] = tuple(sorted(successor_list))
+    return predecessors, successors
+
+
+def shifted_uniform_neighbors(
+    family: Sequence[int],
+    rank_family: Sequence[int],
+    predecessors: Dict[int, Tuple[int, ...]],
+    successors: Dict[int, Tuple[int, ...]],
+) -> List[Family]:
+    family_tuple = tuple(sorted(family))
+    family_set = set(family_tuple)
+    neighbors: List[Family] = []
+
+    maximal_inside = [
+        member
+        for member in family_tuple
+        if not any(successor in family_set for successor in successors[member])
+    ]
+    for member in maximal_inside:
+        neighbor_set = set(family_set)
+        neighbor_set.remove(member)
+        neighbors.append(tuple(sorted(neighbor_set)))
+
+    minimal_outside = [
+        member
+        for member in rank_family
+        if member not in family_set
+        and all(predecessor in family_set for predecessor in predecessors[member])
+    ]
+    for member in minimal_outside:
+        neighbor_set = set(family_set)
+        neighbor_set.add(member)
+        neighbors.append(tuple(sorted(neighbor_set)))
+
+    return neighbors
+
+
+def shifted_uniform_template_local_families(
+    rank_family: Sequence[int],
+    template_family: Family,
+    max_distance: int,
+) -> Dict[Family, int]:
+    if max_distance < 0:
+        raise ValueError("max_distance must be nonnegative")
+    predecessors, successors = shifted_uniform_poset_data(rank_family)
+    template = tuple(sorted(template_family))
+    distances: Dict[Family, int] = {template: 0}
+    queue: deque[Family] = deque([template])
+    while queue:
+        family = queue.popleft()
+        distance = distances[family]
+        if distance >= max_distance:
+            continue
+        for neighbor in shifted_uniform_neighbors(
+            family, rank_family, predecessors, successors
+        ):
+            if neighbor in distances:
+                continue
+            distances[neighbor] = distance + 1
+            queue.append(neighbor)
+    return distances
 
 
 def shifted_family_generators(family: Sequence[int]) -> Family:
@@ -3633,35 +3714,65 @@ def shifted_two_layer_template_local_strand_profile(
     if lower_count != upper_count:
         raise ValueError("balanced middle layers must have equal size")
 
-    lower_shifted_families = enumerate_shifted_uniform_families(n, lower_rank, subsets)
-    upper_shifted_families = enumerate_shifted_uniform_families(n, upper_rank, subsets)
-
     full_lower_template = tuple(lower_rank_sets)
     principal_star_c_family = tuple(subset for subset in lower_rank_sets if subset & 1)
     principal_star_u_family = tuple(subset for subset in upper_rank_sets if subset & 1)
 
-    def family_distance(family: Family, template_family: Family) -> int:
-        return len(set(family).symmetric_difference(template_family))
+    lower_from_full = shifted_uniform_template_local_families(
+        lower_rank_sets, full_lower_template, max_shell_distance
+    )
+    lower_from_principal_star = shifted_uniform_template_local_families(
+        lower_rank_sets, principal_star_c_family, max_shell_distance
+    )
+    lower_candidates_dict: Dict[Family, Tuple[int, int]] = {}
+    for family, distance in lower_from_full.items():
+        lower_candidates_dict[family] = (
+            distance,
+            lower_from_principal_star.get(
+                family, len(set(family).symmetric_difference(principal_star_c_family))
+            ),
+        )
+    for family, distance in lower_from_principal_star.items():
+        existing = lower_candidates_dict.get(family)
+        distance_to_full_lower = (
+            lower_from_full.get(family, len(set(family).symmetric_difference(full_lower_template)))
+            if existing is None
+            else existing[0]
+        )
+        lower_candidates_dict[family] = (distance_to_full_lower, distance)
+    lower_candidates = [
+        (family, distances[0], distances[1])
+        for family, distances in sorted(lower_candidates_dict.items())
+    ]
 
-    lower_candidates: List[Tuple[Family, int, int]] = []
-    for family in lower_shifted_families:
-        distance_to_full_lower = family_distance(family, full_lower_template)
-        distance_to_principal_star = family_distance(family, principal_star_c_family)
-        if min(distance_to_full_lower, distance_to_principal_star) <= max_shell_distance:
-            lower_candidates.append(
-                (family, distance_to_full_lower, distance_to_principal_star)
-            )
-
+    upper_from_full = shifted_uniform_template_local_families(
+        upper_rank_sets, (), max_shell_distance
+    )
+    upper_from_principal_star = shifted_uniform_template_local_families(
+        upper_rank_sets, principal_star_u_family, max_shell_distance
+    )
     upper_candidates_by_size: Dict[int, List[Tuple[Family, int, int]]] = {}
-    upper_candidate_count = 0
-    for family in upper_shifted_families:
-        distance_to_full_lower = len(family)
-        distance_to_principal_star = family_distance(family, principal_star_u_family)
-        if min(distance_to_full_lower, distance_to_principal_star) <= max_shell_distance:
-            upper_candidates_by_size.setdefault(len(family), []).append(
-                (family, distance_to_full_lower, distance_to_principal_star)
-            )
-            upper_candidate_count += 1
+    upper_candidate_dict: Dict[Family, Tuple[int, int]] = {}
+    for family, distance in upper_from_full.items():
+        upper_candidate_dict[family] = (
+            distance,
+            upper_from_principal_star.get(
+                family, len(set(family).symmetric_difference(principal_star_u_family))
+            ),
+        )
+    for family, distance in upper_from_principal_star.items():
+        existing = upper_candidate_dict.get(family)
+        distance_to_full_lower = (
+            upper_from_full.get(family, len(family))
+            if existing is None
+            else existing[0]
+        )
+        upper_candidate_dict[family] = (distance_to_full_lower, distance)
+    upper_candidate_count = len(upper_candidate_dict)
+    for family, distances in sorted(upper_candidate_dict.items()):
+        upper_candidates_by_size.setdefault(len(family), []).append(
+            (family, distances[0], distances[1])
+        )
 
     boundary_cache: Dict[Tuple[Family, Family], int] = {}
 
@@ -3770,7 +3881,7 @@ def shifted_two_layer_template_local_strand_profile(
     return ShiftedTwoLayerTemplateLocalStrandProfileResult(
         n=n,
         max_shell_distance=max_shell_distance,
-        lower_candidate_count=len(lower_candidates),
+        lower_candidate_count=len(lower_candidates_dict),
         upper_candidate_count=upper_candidate_count,
         pair_count=pair_count,
         shell_count=len(entries),

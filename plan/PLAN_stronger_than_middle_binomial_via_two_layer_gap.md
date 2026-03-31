@@ -288,22 +288,52 @@ So the first nontrivial shifted stability theorem now has a sharper candidate sh
 That is still only evidence, but it is much sharper than a bare “positive gap off equality”
 statement.
 
-There is now also a sharper computational bottleneck diagnosis behind this shell program:
+That sharper computational diagnosis has now been partially resolved:
 
-- a new local shell probe, restricted to shifted pairs within bounded template distance, exactly
-  reproduces the known `n = 7` low-shell strand data through distance `6`;
-- but the same probe still does not return quickly at `n = 9`, even for distance bound `4`,
-  because it still enumerates *all* shifted middle-rank families before filtering to the local
-  shell.
+- the filtered global enumerator has been replaced by a genuinely template-local shifted generator,
+  built by bounded-distance BFS in the lattice of shifted uniform families;
+- this exactly reproduces the known shifted `n = 7` strand data through distance `6`;
+- more importantly, it breaks the old `n = 9` wall:
+  shifted `n = 9` now returns quickly through distance `10`, and shifted `n = 11`
+  also returns quickly through distance `10`.
 
-So the next computational step is no longer “add another shell statistic,” but:
+The new local data strengthens the shell-envelope picture again:
+
+- shifted `n = 9`:
+  - distance `2`: both strands have gap interval `[4,4]`;
+  - distance `4`: both strands have gap interval `[7,7]`;
+  - distance `6`: both strands have gap interval `[9,10]`;
+  - distance `8`: both strands have gap interval `[10,13]`;
+  - distance `10`: both strands have gap interval `[9,16]`;
+- shifted `n = 11`:
+  - distance `2`: both strands have gap interval `[5,5]`;
+  - distance `4`: both strands have gap interval `[9,9]`;
+  - distance `6`: both strands have gap interval `[12,13]`;
+  - distance `8`: both strands have gap interval `[14,17]`;
+  - distance `10`: both strands have gap interval `[15,21]`.
+
+So the shell-envelope symmetry is now exact not just in shifted `n = 7`, but also in the next
+two odd dimensions at least through distance `10`.
+
+The next computational wall has moved outward, but not disappeared:
+
+- the same local generator still does not return quickly at shifted `n = 13`, already with
+  distance bound `4`.
+
+So the current computational subtask is now sharper:
 
 \[
-\text{build a genuinely template-local shifted generator, not a filtered global enumerator.}
+\text{optimize the template-local generator further, if we want to see } n = 13 \text{ shells.}
 \]
 
-That is now the cleanest route to testing whether the shell-envelope phenomenon persists in
-dimension `9` and beyond.
+But the mathematical takeaway is stronger than before:
+
+\[
+\text{shell-envelope symmetry now looks like a genuinely higher-dimensional phenomenon,}
+\]
+\[
+\text{not just an artifact of shifted } n = 7.
+\]
 
 ## Main Gap Program
 
