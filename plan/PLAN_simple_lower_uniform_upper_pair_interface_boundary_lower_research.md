@@ -256,6 +256,11 @@ The current computational evidence still points in the right direction:
 - but the next computational wall remains real:
   even the template-local generator does not return quickly at shifted `n = 13` with distance
   bound `4`, so the current shell program is now saturated at `n = 11`;
+- on the narrower first-shell branch, the local generator has now been optimized further by
+  replacing full comparability with immediate cover relations in the shifted poset;
+- that removes the old first-shell slowdown entirely through shifted `n = 21`, and the exact
+  distance-`2` shell still has the same rigid shape there:
+  `1` full-lower pair, `4` principal-star pairs, all with margin `m = (n-1)/2`;
 - the next pattern-level refinement is now sharply split:
   exact shifted `n = 7` already has `143` distinct minimal-generator witness patterns overall, so
   there is no tiny global pattern catalogue;

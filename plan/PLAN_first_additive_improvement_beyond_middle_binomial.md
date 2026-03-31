@@ -49,6 +49,22 @@ shell. Its exact minimum gap is now:
   ```math
   |\partial^+F| - |C| = 6.
   ```
+- shifted `n = 15`:
+  ```math
+  |\partial^+F| - |C| = 7.
+  ```
+- shifted `n = 17`:
+  ```math
+  |\partial^+F| - |C| = 8.
+  ```
+- shifted `n = 19`:
+  ```math
+  |\partial^+F| - |C| = 9.
+  ```
+- shifted `n = 21`:
+  ```math
+  |\partial^+F| - |C| = 10.
+  ```
 
 So the first-shell minimum gap currently matches
 
@@ -67,8 +83,10 @@ dimensions.
 
 The current computational frontier for this first-shell check is now:
 
-- exact support through shifted `n = 13`;
-- the same first-shell local probe is already slow at shifted `n = 15`.
+- exact support through shifted `n = 21`;
+- the old `n = 15` slowdown was removed by replacing full comparability in the local shifted
+  generator by immediate cover relations in the shifted poset;
+- the next untested odd dimension on this narrow first-shell branch is now `n = 23`.
 
 ## Conjectural Two-Layer Form
 
@@ -119,6 +137,7 @@ F \notin \mathcal E
 
 Version A is directly supported by exact data in `n = 5,7,9,11,13`. Version B is the actual
 target needed for the first additive literature improvement.
+Version A is now directly supported through shifted `n = 21`.
 
 ## How This Connects To The Sum-Distinct Transport
 
@@ -160,6 +179,14 @@ Prove:
 
 This is the most concrete theorem now strongly suggested by exact data.
 It is also the current best-supported theorem that points directly to the additive `+m` target.
+Moreover, the exact shifted first shell still has the same template split in every newly checked
+dimension:
+
+```math
+d=2:\ 1\ \text{full-lower pair} + 4\ \text{principal-star pairs},
+```
+
+with all five pairs having margin exactly `m`.
 
 ### Step 3. Prove Shifted Lower Bounds Beyond The First Shell
 

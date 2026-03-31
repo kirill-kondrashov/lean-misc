@@ -915,6 +915,13 @@ def subset_tuple(mask: int) -> Tuple[int, ...]:
     return tuple(index for index in range(mask.bit_length()) if mask & (1 << index))
 
 
+def tuple_mask(indices: Sequence[int]) -> int:
+    mask = 0
+    for index in indices:
+        mask |= 1 << index
+    return mask
+
+
 def shifted_leq(left: int, right: int) -> bool:
     left_tuple = subset_tuple(left)
     right_tuple = subset_tuple(right)
@@ -961,22 +968,33 @@ def enumerate_shifted_uniform_families(n: int, rank: int, subsets: Sequence[int]
 
 
 def shifted_uniform_poset_data(
+    n: int,
     rank_family: Sequence[int],
 ) -> Tuple[Dict[int, Tuple[int, ...]], Dict[int, Tuple[int, ...]]]:
     predecessors: Dict[int, Tuple[int, ...]] = {}
     successors: Dict[int, Tuple[int, ...]] = {}
+    rank_family_set = set(rank_family)
     for member in rank_family:
+        member_tuple = list(subset_tuple(member))
         predecessor_list: List[int] = []
         successor_list: List[int] = []
-        for other in rank_family:
-            if member == other:
-                continue
-            if shifted_leq(other, member):
-                predecessor_list.append(other)
-            if shifted_leq(member, other):
-                successor_list.append(other)
-        predecessors[member] = tuple(sorted(predecessor_list))
-        successors[member] = tuple(sorted(successor_list))
+        for index, value in enumerate(member_tuple):
+            if value > 0 and (index == 0 or value - 1 > member_tuple[index - 1]):
+                predecessor_tuple = list(member_tuple)
+                predecessor_tuple[index] = value - 1
+                predecessor_mask = tuple_mask(predecessor_tuple)
+                if predecessor_mask in rank_family_set:
+                    predecessor_list.append(predecessor_mask)
+            if value + 1 < n and (
+                index == len(member_tuple) - 1 or value + 1 < member_tuple[index + 1]
+            ):
+                successor_tuple = list(member_tuple)
+                successor_tuple[index] = value + 1
+                successor_mask = tuple_mask(successor_tuple)
+                if successor_mask in rank_family_set:
+                    successor_list.append(successor_mask)
+        predecessors[member] = tuple(sorted(set(predecessor_list)))
+        successors[member] = tuple(sorted(set(successor_list)))
     return predecessors, successors
 
 
@@ -1015,13 +1033,14 @@ def shifted_uniform_neighbors(
 
 
 def shifted_uniform_template_local_families(
+    n: int,
     rank_family: Sequence[int],
     template_family: Family,
     max_distance: int,
 ) -> Dict[Family, int]:
     if max_distance < 0:
         raise ValueError("max_distance must be nonnegative")
-    predecessors, successors = shifted_uniform_poset_data(rank_family)
+    predecessors, successors = shifted_uniform_poset_data(n, rank_family)
     template = tuple(sorted(template_family))
     distances: Dict[Family, int] = {template: 0}
     queue: deque[Family] = deque([template])
@@ -3719,10 +3738,10 @@ def shifted_two_layer_template_local_strand_profile(
     principal_star_u_family = tuple(subset for subset in upper_rank_sets if subset & 1)
 
     lower_from_full = shifted_uniform_template_local_families(
-        lower_rank_sets, full_lower_template, max_shell_distance
+        n, lower_rank_sets, full_lower_template, max_shell_distance
     )
     lower_from_principal_star = shifted_uniform_template_local_families(
-        lower_rank_sets, principal_star_c_family, max_shell_distance
+        n, lower_rank_sets, principal_star_c_family, max_shell_distance
     )
     lower_candidates_dict: Dict[Family, Tuple[int, int]] = {}
     for family, distance in lower_from_full.items():
@@ -3746,10 +3765,10 @@ def shifted_two_layer_template_local_strand_profile(
     ]
 
     upper_from_full = shifted_uniform_template_local_families(
-        upper_rank_sets, (), max_shell_distance
+        n, upper_rank_sets, (), max_shell_distance
     )
     upper_from_principal_star = shifted_uniform_template_local_families(
-        upper_rank_sets, principal_star_u_family, max_shell_distance
+        n, upper_rank_sets, principal_star_u_family, max_shell_distance
     )
     upper_candidates_by_size: Dict[int, List[Tuple[Family, int, int]]] = {}
     upper_candidate_dict: Dict[Family, Tuple[int, int]] = {}

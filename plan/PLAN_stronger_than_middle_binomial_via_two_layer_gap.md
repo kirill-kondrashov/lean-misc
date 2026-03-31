@@ -330,33 +330,33 @@ The first-shell additive picture is now sharper as well:
   ```math
   m = \frac{n-1}{2}
   ```
-  in shifted `n = 5,7,9,11,13`;
+  in shifted `n = 5,7,9,11,13,15,17,19,21`;
 - so the first explicit additive target
   ```math
   N \ge \binom{n}{\lfloor n/2\rfloor} + \left\lfloor \frac{n-1}{2} \right\rfloor
   ```
-  now has exact first-shell support through shifted `n = 13`.
+  now has exact first-shell support through shifted `n = 21`.
 
-The next computational wall has moved outward, but not disappeared:
+The narrow first-shell branch also has a cleaner computational shape now:
 
-- the same local generator still does not return quickly at shifted `n = 13`, already with
-  distance bound `4`.
-
-For the narrower first-shell-only branch, the wall is slightly farther out:
-
-- the distance-`2` shell returns exactly at shifted `n = 13`,
-- but the same first-shell probe is already slow at shifted `n = 15`.
+- the old `n = 15` slowdown was removed by replacing full comparability in the local shifted
+  generator by immediate cover relations in the shifted poset;
+- the distance-`2` shell now returns exactly through shifted `n = 21`;
+- the next untested odd dimension on this first-shell-only branch is now `n = 23`.
 
 So the current computational subtask is now sharper:
 
 \[
-\text{optimize the template-local generator further, if we want to see } n = 13 \text{ shells.}
+\text{turn the observed distance-}2\text{ law into a theorem, rather than keep extending the probe.}
 \]
 
 But the mathematical takeaway is stronger than before:
 
 \[
 \text{shell-envelope symmetry now looks like a genuinely higher-dimensional phenomenon,}
+\]
+\[
+\text{and the first-shell additive law } |\partial^+F|-|C| = m \text{ now looks dimension-stable.}
 \]
 \[
 \text{not just an artifact of shifted } n = 7.
