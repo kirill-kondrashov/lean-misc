@@ -240,6 +240,18 @@ proves, for each of them individually,
 \Delta(F)=m.
 ```
 
+More sharply again, that proof note now proves the shifted classification statement around the two
+model templates:
+
+- every shifted family at distance `2` from the full-lower template is the unique full-lower shell
+  class;
+- every shifted family at distance `2` from the principal-star template is one of the four
+  principal-star shell classes;
+- consequently, every shifted family at distance `2` from one of the two model templates satisfies
+  ```math
+  \Delta(F)=m.
+  ```
+
 This sharper decomposition branch is currently exact through shifted `n = 21`.
 The next dimension `n = 23` now returns at the aggregate level as well:
 the decomposition probe reports `entry_count = 6` and `pair_count = 7`, consistent with the same
@@ -248,6 +260,10 @@ What is still missing is a clean row-level extraction of those exact `n = 23` mo
 even after the compact delta-signature refactor, `n = 23` is still not a short/medium-run
 computation at the full decomposition level, even though the coarser first-shell gap law already
 returns exactly through shifted `n = 25`.
+What is also still missing mathematically is the global bridge from the two model templates to the
+actual shifted equality set: the note now proves the whole first shell around
+`F_{\mathrm{full}}` and `F_\star`, but Step 1 still has to show that these are exactly the
+shifted equality templates.
 
 ### Step 3. Prove Shifted Lower Bounds Beyond The First Shell
 

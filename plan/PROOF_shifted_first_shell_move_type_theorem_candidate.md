@@ -376,25 +376,262 @@ So all five symbolic first-shell classes satisfy the same exact gap law
 \Delta(F)=m.
 ```
 
-## Current Conjectural Theorem
+## Shifted Classification Of The Distance-`2` Shell Around The Two Model Templates
 
-The most concrete current shell theorem candidate is:
+This section proves the classification statement that was previously only inferred from exact
+computation.
+
+We use the standard shifted order on \(k\)-subsets:
+for
+
+```math
+A = \{a_1 < \cdots < a_k\},
+\qquad
+B = \{b_1 < \cdots < b_k\},
+```
+
+write
+
+```math
+A \preceq B
+\qquad\Longleftrightarrow\qquad
+a_i \le b_i \ \text{ for every } i.
+```
+
+A shifted family in a fixed rank is an initial segment of this order. Equivalently, its complement
+inside that rank is an upper ideal.
+
+### Extremal vertices in the relevant shifted orders
+
+In rank \(m\):
+
+- the unique maximal element of \(P_m\) is
+  ```math
+  \{m+1,m+2,\dots,2m\};
+  ```
+- the unique minimal non-star element of \(P_m \setminus C_\star\) is
+  ```math
+  L_0 = \{1,2,\dots,m\};
+  ```
+- the unique maximal star element of \(C_\star\) is
+  ```math
+  L_{\mathrm{top}} = \{0,m+2,\dots,2m\}.
+  ```
+
+In rank \(m+1\):
+
+- the unique minimal element of \(P_{m+1}\) is
+  ```math
+  \{0,1,\dots,m\};
+  ```
+- the unique minimal non-star element of \(P_{m+1} \setminus U_\star\) is
+  ```math
+  U_0 = \{1,2,\dots,m+1\};
+  ```
+- the unique maximal star element of \(U_\star\) is
+  ```math
+  U_{\mathrm{top}} = \{0,m+1,\dots,2m\}.
+  ```
+
+These are immediate from the coordinatewise order \(\preceq\).
+
+### Full-lower template
+
+Assume \(F=C \cup U\) is shifted and
+
+```math
+|F \triangle F_{\mathrm{full}}| = 2.
+```
+
+Since \(F_{\mathrm{full}} = P_m\) has no upper part and \(F\) has the same total size as
+\(P_m\), there must be exactly one deleted lower vertex and one added upper vertex:
+
+```math
+C = P_m \setminus \{L\},
+\qquad
+U = \{B\}.
+```
+
+Because \(C\) is shifted, its complement inside \(P_m\) is an upper ideal of size \(1\). Hence
+\(L\) is the unique maximal element of \(P_m\), namely
+
+```math
+L = \{m+1,m+2,\dots,2m\}.
+```
+
+Because \(U\) is a shifted rank-\((m+1)\) family of size \(1\), it must be the unique minimal
+element of \(P_{m+1}\), namely
+
+```math
+B = \{0,1,\dots,m\}.
+```
+
+So every shifted family at distance `2` from \(F_{\mathrm{full}}\) is exactly the unique
+full-lower shell class recorded above.
+
+### Principal-star template
+
+Assume now that \(F=C \cup U\) is shifted and
+
+```math
+|F \triangle F_\star| = 2.
+```
+
+Since \(F\) and \(F_\star\) have the same total size, the symmetric difference consists of one
+deleted template vertex and one added non-template vertex. There are therefore only four cases.
+
+#### Case `(0,2)`: upper delete / upper add
+
+Here
+
+```math
+C = C_\star,
+\qquad
+U = (U_\star \setminus \{R\}) \cup \{A\},
+```
+
+with \(R \in U_\star\) and \(A \in P_{m+1} \setminus U_\star\).
+
+Because \(U\) is shifted and contains exactly one non-star upper vertex, that vertex must be the
+unique minimal non-star upper element:
+
+```math
+A = U_0.
+```
+
+Because \(U \cap U_\star\) is a shifted subfamily of \(U_\star\) of codimension \(1\), the
+deleted star upper vertex must be the unique maximal element of \(U_\star\):
+
+```math
+R = U_{\mathrm{top}}.
+```
+
+So this is exactly the pure-upper principal-star class.
+
+#### Case `(2,0)`: lower delete / lower add
+
+Here
+
+```math
+C = (C_\star \setminus \{R\}) \cup \{A\},
+\qquad
+U = U_\star,
+```
+
+with \(R \in C_\star\) and \(A \in P_m \setminus C_\star\).
+
+Because \(C\) is shifted and contains exactly one non-star lower vertex, that vertex must be the
+unique minimal non-star lower element:
+
+```math
+A = L_0.
+```
+
+Because \(C \cap C_\star\) is a shifted subfamily of \(C_\star\) of codimension \(1\), the
+deleted star lower vertex must be the unique maximal star lower element:
+
+```math
+R = L_{\mathrm{top}}.
+```
+
+So this is exactly the pure-lower principal-star class.
+
+#### Case `(1,1)`: lower add / upper remove
+
+Here
+
+```math
+C = C_\star \cup \{A\},
+\qquad
+U = U_\star \setminus \{R\},
+```
+
+with \(A \in P_m \setminus C_\star\) and \(R \in U_\star\).
+
+The same shiftedness argument forces
+
+```math
+A = L_0,
+\qquad
+R = U_{\mathrm{top}}.
+```
+
+So this is exactly the mixed lower-add / upper-remove class.
+
+#### Case `(1,1)`: lower remove / upper add
+
+Here
+
+```math
+C = C_\star \setminus \{R\},
+\qquad
+U = U_\star \cup \{A\},
+```
+
+with \(R \in C_\star\) and \(A \in P_{m+1} \setminus U_\star\).
+
+Again shiftedness forces
+
+```math
+R = L_{\mathrm{top}},
+\qquad
+A = U_0.
+```
+
+So this is exactly the mixed lower-remove / upper-add class.
+
+Putting the four cases together, every shifted family at distance `2` from \(F_\star\) is one of
+the four principal-star classes listed above.
+
+### Classification theorem for the model-template first shell
+
+We have proved:
+
+```math
+\text{If } F \text{ is shifted and }
+\bigl(|F \triangle F_{\mathrm{full}}| = 2 \text{ or } |F \triangle F_\star| = 2\bigr),
+```
+```math
+\text{then } F \text{ is exactly one of the five symbolic shell classes above.}
+```
+
+Combining this classification with the direct boundary counts from the previous section gives the
+model-template first-shell theorem
+
+```math
+\text{If } F \text{ is shifted and }
+\bigl(|F \triangle F_{\mathrm{full}}| = 2 \text{ or } |F \triangle F_\star| = 2\bigr),
+\quad\text{then}\quad
+\Delta(F) = m.
+```
+
+So the first-shell problem is now reduced further:
+the remaining gap is no longer the local classification around the two model templates, but the
+global identification of the shifted equality set with those two templates and then the lift from
+the distance-`2` shell to full shifted stability.
+
+## Remaining Global Conjectural Theorem
+
+What remains conjectural is the global version stated using the actual shifted equality set
+\(\mathcal E\):
 
 ```math
 \operatorname{dist}(F,\mathcal E)=2
 \quad\Longrightarrow\quad
-\Delta(F)=m,
+\Delta(F)=m.
 ```
 
-and the stronger refinement is:
+The new content of this note proves the corresponding statement around the two model templates
+\(F_{\mathrm{full}}\) and \(F_\star\). So the gap between this note and the full shifted
+first-shell theorem is now only:
 
-```math
-\operatorname{dist}(F,\mathcal E)=2
-\quad\Longrightarrow\quad
-F \text{ lies in exactly one of the five shell orbits above.}
-```
+- prove that the shifted equality set \(\mathcal E\) is exactly
+  \(\{F_{\mathrm{full}},F_\star\}\).
 
-This would be the first real theorem on the way to the additive improvement
+That would make the model-template first-shell theorem proved above identical to the actual
+distance-`2` shell theorem needed on the stronger branch.
+
+This remains the first real theorem on the way to the additive improvement
 
 ```math
 N \ge \binom{n}{\lfloor n/2\rfloor} + \left\lfloor \frac{n-1}{2} \right\rfloor.
@@ -412,9 +649,14 @@ N \ge \binom{n}{\lfloor n/2\rfloor} + \left\lfloor \frac{n-1}{2} \right\rfloor.
 - The shifted `n = 23` decomposition probe now returns as well, with aggregate profile
   `entry_count = 6` and `pair_count = 7`, consistent with the same
   `2` equality entries plus `4` distance-`2` move-type entries.
-- What is still missing is a clean theorem-facing extraction of the exact `n = 23` move rows from
-  the computation; even after the compact delta-signature refactor, `n = 23` is still not a short
-  or medium run for the full row-level decomposition. So the fully tabulated move-type statement in
-  this note remains recorded only through `n = 21`.
+- What is still missing computationally is a clean theorem-facing extraction of the exact `n = 23`
+  move rows from the probe; even after the compact delta-signature refactor, `n = 23` is still
+  not a short or medium run for the full row-level decomposition. So the fully tabulated move-type
+  witness table in this note remains recorded only through `n = 21`.
 
-So this note should be read as a theorem candidate backed by exact evidence, not yet as a proof.
+So this note should now be read as:
+
+- a proof of the shifted distance-`2` shell theorem around the two model templates
+  \(F_{\mathrm{full}}\) and \(F_\star\);
+- together with exact computational evidence that these are the right templates and that the same
+  shell picture persists through much larger odd dimensions.

@@ -29,6 +29,11 @@ N \ge \binom{n}{\lfloor n/2\rfloor} + \left\lfloor \frac{n-1}{2} \right\rfloor.
 
 That is the bound this stronger branch should now be read as aiming for first.
 
+The current local theorem note for that target is
+[PROOF_shifted_first_shell_move_type_theorem_candidate.md](./PROOF_shifted_first_shell_move_type_theorem_candidate.md).
+It now proves the complete shifted distance-`2` shell around the two model templates
+`F_{\mathrm{full}}` and `F_\star`, and not just the boundary counts for five guessed examples.
+
 ## Connection To The Current Route
 
 The active exact route reduces the remaining work to the two-layer theorem
@@ -106,6 +111,14 @@ The exact shifted evidence currently points to exactly two equality templates:
 
 The strengthened program should start by promoting this from computational evidence to a theorem,
 at least first in the shifted world.
+
+At the local first-shell level, the route is now sharper than before:
+conditional on these two model templates being the full shifted equality set, the whole
+distance-`2` shell is already classified on paper, and every class in that shell satisfies
+
+```math
+\Delta(F)=m.
+```
 
 ## Current Shifted Gap Profile
 

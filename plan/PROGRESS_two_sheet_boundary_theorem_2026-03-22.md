@@ -28,6 +28,11 @@ Latest stronger-gap sharpening:
   two mixed moves, and one pure lower move;
 - and the same proof note now directly verifies `\Delta(F)=m` for each of those five symbolic
   shell classes;
+- sharper again, that note now proves the whole shifted distance-`2` shell around the two model
+  templates `F_{\mathrm{full}}` and `F_\star`:
+  every shifted family at distance `2` from those templates is exactly one of the five symbolic
+  shell classes, so the local first-shell problem is now proved on paper at the model-template
+  level;
 - the shifted `n = 23` decomposition probe now returns at the aggregate level as well, with
   `entry_count = 6` and `pair_count = 7`, consistent with the same
   `2` equality entries plus `4` distance-`2` move-type entries;

@@ -144,6 +144,23 @@ The first concrete literature-improvement target on that stronger branch is now 
 N \ge \binom{n}{\lfloor n/2\rfloor} + \left\lfloor \frac{n-1}{2} \right\rfloor.
 ```
 
+The local theorem note
+[PROOF_shifted_first_shell_move_type_theorem_candidate.md](./PROOF_shifted_first_shell_move_type_theorem_candidate.md)
+has now moved one step beyond “five guessed classes compute correctly”. It proves that the whole
+shifted distance-`2` shell around the two model templates `F_{\mathrm{full}}` and `F_\star`
+consists exactly of those five classes, and hence that every shifted family at distance `2` from
+those model templates satisfies
+
+```math
+\Delta(F)=m.
+```
+
+So the stronger branch is now blocked at a genuinely global step:
+
+- identify the full shifted equality set with those two model templates;
+- then lift from the proved model-template distance-`2` shell theorem to full shifted stability
+  `\Delta(F)\ge m`.
+
 ## Archived Routes
 
 Archived and falsified branches are summarized in
@@ -176,6 +193,13 @@ The current computational evidence still points in the right direction:
 - exact shifted `n = 7` enumeration now matches the same picture:
   all shifted pairs satisfy the two-layer inequality, and the only shifted equality orbits are
   again the trivial full lower-layer orbit and the principal-star two-layer orbit;
+- the shifted first-shell note now proves the full distance-`2` shell around those two model
+  templates on paper:
+  there is `1` full-lower shell class and `4` principal-star shell classes, and every one of the
+  five classes has exact gap
+  \[
+  \Delta(F)=m;
+  \]
 - with the current brute-force enumerator, exact shifted search is now effectively saturated at
   `n = 7`: the analogous `n = 9` shifted-family count does not return on a short/medium run, so
   the next step is paper proof rather than deeper exhaustive computation;
