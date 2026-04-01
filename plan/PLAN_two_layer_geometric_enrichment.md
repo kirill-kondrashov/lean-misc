@@ -49,6 +49,11 @@ The family \(F\) is a discrete membrane, and \(\partial^+F\) is its outward-faci
 This suggests importing proof shapes from continuous geometry, even though the theorem itself is
 purely discrete.
 
+The new bridge note
+[PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md](./PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md)
+sharpens this further: the two-layer problem is exactly equivalent to a one-sided positive-boundary
+problem for a lifted family \(G\) of half-cube size `2^(n-1)`.
+
 ## Path A: Symmetrization / Discrete Mean Curvature
 
 The first enrichment is to interpret layer-preserving shifts as discrete Steiner symmetrizations.
@@ -136,6 +141,36 @@ The two middle layers
 form a two-slab between adjacent hypersimplices. In this language, \(F\) is a subcomplex of that
 slab and \(\partial^+F\) counts the exposed top faces. This suggests shelling or discrete Morse
 arguments: exposed upper faces should dominate the surviving lower faces.
+
+## Half-Cube Vertex-Isoperimetric Viewpoint
+
+Let
+
+```math
+G := L_{m-1} \cup C \cup U.
+```
+
+Then
+
+```math
+|G| = 2^{n-1},
+```
+
+and the exact two-layer theorem becomes
+
+```math
+|\partial^+G| \ge \binom{n}{m}.
+```
+
+The stronger additive target becomes
+
+```math
+|\partial^+G| \ge \binom{n}{m} + m.
+```
+
+So the active route can also be read as a local half-cube vertex-isoperimetric stability problem
+near two model extremizers. This is the cleanest direct bridge from the current two-layer plan to
+the existing vertex-isoperimetric stability literature on the cube.
 
 ## Recommended Use
 

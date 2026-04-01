@@ -28,6 +28,14 @@ The current theorem-candidate note for the first rigid shell is:
 
 - [PROOF_shifted_first_shell_move_type_theorem_candidate.md](./PROOF_shifted_first_shell_move_type_theorem_candidate.md)
 
+The exact half-cube bridge for this target is now recorded in
+[PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md](./PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md).
+Under that lift, the additive `+m` target becomes the half-cube one-sided boundary inequality
+
+```math
+|\partial^+G| \ge \binom{n}{m} + m.
+```
+
 ## Why This Is The Right Next Target
 
 On the stronger two-layer branch, the first nontrivial shifted shell is the template-distance `2`

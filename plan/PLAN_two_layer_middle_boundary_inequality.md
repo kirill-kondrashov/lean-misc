@@ -51,6 +51,20 @@ Equivalently, in expanded notation:
 
 This is the clean two-layer boundary form of the remaining simple-lower bottleneck.
 
+The exact half-cube reformulation of this route is now recorded in
+[PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md](./PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md).
+There the lifted family
+
+```math
+G := L_{m-1} \cup C \cup U
+```
+
+has size `2^(n-1)`, and \((B)\) is shown equivalent to the one-sided half-cube boundary estimate
+
+```math
+|\partial^+G| \ge \binom{n}{m}.
+```
+
 ## Why This Would Finish The Bottleneck
 
 The reduced middle-layer inequality
@@ -92,6 +106,11 @@ So:
 
 That stronger direction is now tracked in
 [PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](./PLAN_stronger_than_middle_binomial_via_two_layer_gap.md).
+Via the new bridge note, the stronger branch can now be read as the additive half-cube target
+
+```math
+|\partial^+G| \ge \binom{n}{m} + m.
+```
 
 ## Current Status
 

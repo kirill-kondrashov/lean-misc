@@ -14,6 +14,20 @@ This is a heuristic program-progress bar for the current formal route, not a pro
 
 Latest stronger-gap sharpening:
 
+- the new bridge note
+  [PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md)
+  now rewrites the active two-layer theorem as a one-sided half-cube boundary theorem:
+  for
+  \(G = L_{m-1} \cup C \cup U\) with \(|G| = 2^{n-1}\),
+  \[
+  |\partial^+F| \ge |C|
+  \quad\Longleftrightarrow\quad
+  |\partial^+G| \ge \binom{n}{m};
+  \]
+  and the additive target becomes
+  \[
+  |\partial^+G| \ge \binom{n}{m} + m;
+  \]
 - the additive `+m` branch now has a dedicated first-shell theorem-candidate note:
   [PROOF_shifted_first_shell_move_type_theorem_candidate.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_shifted_first_shell_move_type_theorem_candidate.md);
 - the coarse shifted distance-`2` shell law

@@ -10,6 +10,7 @@ The active documentation set for this route is:
 - [PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](./PLAN_stronger_than_middle_binomial_via_two_layer_gap.md)
 - [PLAN_first_additive_improvement_beyond_middle_binomial.md](./PLAN_first_additive_improvement_beyond_middle_binomial.md)
 - [PROOF_shifted_first_shell_move_type_theorem_candidate.md](./PROOF_shifted_first_shell_move_type_theorem_candidate.md)
+- [PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md](./PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md)
 - [NOTE_erdos1_position_against_current_literature.md](./NOTE_erdos1_position_against_current_literature.md)
 - [PROOF_two_layer_middle_boundary_inequality.md](./PROOF_two_layer_middle_boundary_inequality.md)
 - [PLAN_two_layer_geometric_enrichment.md](./PLAN_two_layer_geometric_enrichment.md)
@@ -136,6 +137,23 @@ This route should now be read in two layers:
 2. strengthen it, on the families coming from the sum-distinct subcube transport, to obtain a
    positive gap beyond equality. That new direction is recorded in
    [PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](./PLAN_stronger_than_middle_binomial_via_two_layer_gap.md).
+
+The exact route now also has a cleaner half-cube reformulation in
+[PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md](./PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md):
+the two-layer theorem
+\[
+|\partial^+F| \ge |C|
+\]
+is equivalent to a one-sided positive-boundary lower bound
+\[
+|\partial^+G| \ge \binom{n}{m}
+\]
+for a lifted half-cube family \(G\) of size \(2^{n-1}\). The additive target becomes
+\[
+|\partial^+G| \ge \binom{n}{m} + m.
+\]
+This is the cleanest current bridge from the active plan to vertex-isoperimetric stability
+methods on the cube.
 
 The first concrete literature-improvement target on that stronger branch is now recorded in
 [PLAN_first_additive_improvement_beyond_middle_binomial.md](./PLAN_first_additive_improvement_beyond_middle_binomial.md):
