@@ -450,6 +450,7 @@ class ShiftedTwoLayerTemplateLocalDecompositionEntry:
     pair_count: int
     minimal_margin: int
     maximal_margin: int
+    delta_signatures: Tuple[str, ...]
     witness_c_family: Family
     witness_u_family: Family
 
@@ -841,6 +842,38 @@ def format_family(family: Family) -> str:
 
 def format_family_collection(families: Sequence[Family]) -> str:
     return "[" + ", ".join(format_family(family) for family in families) + "]"
+
+
+def family_delta_signature(template: Family, family: Family) -> str:
+    template_set = set(template)
+    family_set = set(family)
+    removed = tuple(sorted(template_set - family_set))
+    added = tuple(sorted(family_set - template_set))
+    return f"-{format_family(removed)} +{format_family(added)}"
+
+
+def shifted_two_layer_template_delta_signature(
+    n: int,
+    nearest_template: str,
+    c_family: Family,
+    u_family: Family,
+) -> str:
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank_sets = rank_subsets(n, middle, subsets)
+    upper_rank_sets = rank_subsets(n, middle + 1, subsets)
+    if nearest_template == "full_lower":
+        template_c = tuple(lower_rank_sets)
+        template_u: Family = ()
+    elif nearest_template == "principal_star":
+        template_c = tuple(subset for subset in lower_rank_sets if subset & 1)
+        template_u = tuple(subset for subset in upper_rank_sets if subset & 1)
+    else:
+        return "template-delta unavailable"
+    return (
+        f"deltaC={family_delta_signature(template_c, c_family)} "
+        f"deltaU={family_delta_signature(template_u, u_family)}"
+    )
 
 
 def is_antichain(family: Iterable[int]) -> bool:
@@ -4018,7 +4051,7 @@ def shifted_two_layer_template_local_decomposition_profile(
         boundary_cache[key] = value
         return value
 
-    grouped: Dict[Tuple[int, str, int, int], Dict[str, int]] = {}
+    grouped: Dict[Tuple[int, str, int, int], Dict[str, object]] = {}
     pair_count = 0
     for c_family, (
         distance_c_full_lower,
@@ -4049,6 +4082,9 @@ def shifted_two_layer_template_local_decomposition_profile(
                 continue
             pair_count += 1
             margin = two_layer_boundary_size(c_family, u_family) - len(c_family)
+            delta_signature = shifted_two_layer_template_delta_signature(
+                n, nearest_template, c_family, u_family
+            )
             key = (shell_distance, nearest_template, lower_distance, upper_distance)
             entry = grouped.get(key)
             if entry is None:
@@ -4056,6 +4092,7 @@ def shifted_two_layer_template_local_decomposition_profile(
                     "pair_count": 1,
                     "minimal_margin": margin,
                     "maximal_margin": margin,
+                    "delta_signatures": {delta_signature},
                     "witness_c_family": c_family,
                     "witness_u_family": u_family,
                 }
@@ -4063,6 +4100,7 @@ def shifted_two_layer_template_local_decomposition_profile(
             entry["pair_count"] += 1
             entry["minimal_margin"] = min(entry["minimal_margin"], margin)
             entry["maximal_margin"] = max(entry["maximal_margin"], margin)
+            entry["delta_signatures"].add(delta_signature)
 
     entries = tuple(
         ShiftedTwoLayerTemplateLocalDecompositionEntry(
@@ -4074,6 +4112,7 @@ def shifted_two_layer_template_local_decomposition_profile(
             pair_count=entry["pair_count"],
             minimal_margin=entry["minimal_margin"],
             maximal_margin=entry["maximal_margin"],
+            delta_signatures=tuple(sorted(entry["delta_signatures"])),
             witness_c_family=entry["witness_c_family"],  # type: ignore[arg-type]
             witness_u_family=entry["witness_u_family"],  # type: ignore[arg-type]
         )
@@ -8479,10 +8518,8 @@ def main() -> int:
                     f"lower={entry.lower_distance} upper={entry.upper_distance} "
                     f"count={entry.pair_count} margin=[{entry.minimal_margin},{entry.maximal_margin}]"
                 )
-                print(
-                    f"    witness C={format_family(entry.witness_c_family)} "
-                    f"U={format_family(entry.witness_u_family)}"
-                )
+                for delta_signature in entry.delta_signatures:
+                    print(f"    {delta_signature}")
         return 0
 
     if args.exhaustive_shifted_even_adjacent_layer_summary is not None:

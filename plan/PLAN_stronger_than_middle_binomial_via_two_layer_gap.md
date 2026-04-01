@@ -391,6 +391,12 @@ So the next honest theorem candidate is now:
 This sharpened first-shell theorem candidate is now recorded separately in
 [PROOF_shifted_first_shell_move_type_theorem_candidate.md](./PROOF_shifted_first_shell_move_type_theorem_candidate.md).
 
+That note now identifies all five first-shell shifted orbits symbolically through `n = 21`:
+the unique full-lower orbit and the four principal-star orbits
+```math
+(0,2),\ (1,1)_{\mathrm{lower\ add / upper\ remove}},\ (1,1)_{\mathrm{lower\ remove / upper\ add}},\ (2,0).
+```
+
 This sharper decomposition statement is now exact through shifted `n = 21`.
 The shifted `n = 23` decomposition probe now returns at the aggregate level as well:
 it reports `entry_count = 6` and `pair_count = 7`, consistent with the same

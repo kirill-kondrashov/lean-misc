@@ -22,6 +22,8 @@ Latest stronger-gap sharpening:
   \]
   is exact through shifted `n = 25`;
 - the sharper move-type decomposition is exact through shifted `n = 21`;
+- that note now identifies all five distance-`2` shifted shell orbits symbolically through
+  shifted `n = 21`;
 - the shifted `n = 23` decomposition probe now returns at the aggregate level as well, with
   `entry_count = 6` and `pair_count = 7`, consistent with the same
   `2` equality entries plus `4` distance-`2` move-type entries;

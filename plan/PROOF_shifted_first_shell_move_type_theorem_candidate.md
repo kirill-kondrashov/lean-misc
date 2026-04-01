@@ -160,9 +160,31 @@ the bottom nonzero vertex.
 
 There are exactly two shifted orbits of type `(1,1)`.
 
-These are the remaining first-shell classes that still need a clean closed-form description in
-general dimension. Their existence is exact and stable in the computed dimensions, but their
-uniform symbolic formulas are not yet isolated in this note.
+The new compact delta signatures isolate the two general shapes.
+
+#### Lower-add / upper-remove class
+
+```math
+C = \{A \in P_m : 0 \in A\} \cup \{\{1,2,\dots,m\}\},
+```
+```math
+U = \{B \in P_{m+1} : 0 \in B\} \setminus \{\{0,m+2,\dots,2m\}\}.
+```
+
+So one first-shell orbit is obtained by adding the bottom nonzero lower vertex while removing the
+top star upper vertex.
+
+#### Lower-remove / upper-add class
+
+```math
+C = \{A \in P_m : 0 \in A\} \setminus \{\{0,m+2,\dots,2m\}\},
+```
+```math
+U = \{B \in P_{m+1} : 0 \in B\} \cup \{\{1,2,\dots,m+1\}\}.
+```
+
+So the other first-shell orbit is obtained by removing the top star lower vertex while adding the
+bottom nonzero upper vertex.
 
 ## Current Conjectural Theorem
 
@@ -179,7 +201,7 @@ and the stronger refinement is:
 ```math
 \operatorname{dist}(F,\mathcal E)=2
 \quad\Longrightarrow\quad
-F \text{ lies in exactly one of the four move-type classes above.}
+F \text{ lies in exactly one of the five shell orbits above.}
 ```
 
 This would be the first real theorem on the way to the additive improvement
@@ -192,6 +214,9 @@ N \ge \binom{n}{\lfloor n/2\rfloor} + \left\lfloor \frac{n-1}{2} \right\rfloor.
 
 - The scalar first-shell law `\Delta(F)=m` is exact in shifted data through `n = 25`.
 - The sharper move-type decomposition is exact through `n = 21`.
+- The compact delta-signature output now isolates all five distance-`2` shifted shell orbits
+  symbolically through `n = 21`:
+  `1` full-lower orbit plus `4` principal-star orbits.
 - The shifted `n = 23` decomposition probe now returns as well, with aggregate profile
   `entry_count = 6` and `pair_count = 7`, consistent with the same
   `2` equality entries plus `4` distance-`2` move-type entries.

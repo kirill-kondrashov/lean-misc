@@ -218,6 +218,14 @@ move classification.
 The sharper move-type statement is recorded separately in
 [PROOF_shifted_first_shell_move_type_theorem_candidate.md](./PROOF_shifted_first_shell_move_type_theorem_candidate.md).
 
+That note now identifies all five first-shell shifted orbits symbolically through `n = 21`:
+
+- `1` full-lower orbit;
+- `4` principal-star orbits, namely the move types
+  ```math
+  (0,2),\ (1,1)_{\mathrm{lower\ add / upper\ remove}},\ (1,1)_{\mathrm{lower\ remove / upper\ add}},\ (2,0).
+  ```
+
 This sharper decomposition branch is currently exact through shifted `n = 21`.
 The next dimension `n = 23` now returns at the aggregate level as well:
 the decomposition probe reports `entry_count = 6` and `pair_count = 7`, consistent with the same
