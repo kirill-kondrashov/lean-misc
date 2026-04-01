@@ -34,6 +34,20 @@ The current local theorem note for that target is
 It now proves the complete shifted distance-`2` shell around the two model templates
 `F_{\mathrm{full}}` and `F_\star`, and not just the boundary counts for five guessed examples.
 
+The exact half-cube bridge note
+[PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md](./PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md)
+now identifies the lifted versions of those two model templates with the two radius-`m` Hamming
+balls of size `2^(n-1)`:
+
+```math
+B(\varnothing,m)
+\qquad\text{and}\qquad
+B(\{0\},m).
+```
+
+So the stronger branch is now naturally a half-cube local stability problem around two explicit
+Hamming balls, restricted to the lifted family class coming from the two-layer route.
+
 ## Connection To The Current Route
 
 The active exact route reduces the remaining work to the two-layer theorem

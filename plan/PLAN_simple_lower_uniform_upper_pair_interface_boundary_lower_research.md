@@ -154,6 +154,15 @@ for a lifted half-cube family \(G\) of size \(2^{n-1}\). The additive target bec
 \]
 This is the cleanest current bridge from the active plan to vertex-isoperimetric stability
 methods on the cube.
+More sharply, that same note now identifies the two lifted model templates with the two
+radius-\(m\) Hamming balls
+\[
+B(\varnothing,m)
+\qquad\text{and}\qquad
+B(\{0\},m),
+\]
+so the stronger branch is now explicitly a local half-cube stability problem around two Hamming
+balls, restricted to the lifted family class.
 
 The first concrete literature-improvement target on that stronger branch is now recorded in
 [PLAN_first_additive_improvement_beyond_middle_binomial.md](./PLAN_first_additive_improvement_beyond_middle_binomial.md):

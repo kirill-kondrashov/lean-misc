@@ -231,6 +231,98 @@ L_{m-1}
 
 So the two-template shifted theory may be read as a two-extremizer half-cube theory.
 
+## Identification As Hamming Balls
+
+For \(x \subseteq [n]\), write
+
+```math
+B(x,m) := \{A \subseteq [n] : |A \triangle x| \le m\}
+```
+
+for the Hamming ball of radius \(m\) around \(x\).
+
+### Full-lower template
+
+Take \(x = \varnothing\). Then
+
+```math
+|A \triangle \varnothing| = |A|,
+```
+
+so
+
+```math
+B(\varnothing,m) = \{A \subseteq [n] : |A| \le m\} = L_m.
+```
+
+Thus the lifted full-lower template is exactly the radius-\(m\) Hamming ball around the empty
+vertex.
+
+### Principal-star template
+
+Take \(x = \{0\}\). Then
+
+- if \(0 \in A\), we have
+  ```math
+  |A \triangle \{0\}| = |A| - 1;
+  ```
+- if \(0 \notin A\), we have
+  ```math
+  |A \triangle \{0\}| = |A| + 1.
+  ```
+
+Therefore
+
+```math
+A \in B(\{0\},m)
+\quad\Longleftrightarrow\quad
+\bigl(0 \in A \text{ and } |A| \le m+1\bigr)
+\ \text{or}\
+\bigl(0 \notin A \text{ and } |A| \le m-1\bigr).
+```
+
+But this is exactly
+
+```math
+L_{m-1}
+\cup
+\{A \in P_m : 0 \in A\}
+\cup
+\{B \in P_{m+1} : 0 \in B\}
+=
+G.
+```
+
+So the lifted principal-star template is exactly the radius-\(m\) Hamming ball around the vertex
+\(\{0\}\).
+
+## Consequence For The Active Stability Program
+
+The two model templates are therefore not merely convenient shifted examples. They are exactly the
+two Hamming balls
+
+```math
+B(\varnothing,m)
+\qquad\text{and}\qquad
+B(\{0\},m)
+```
+
+of size `2^(n-1)` in the odd cube.
+
+So the active stronger target can be read as follows:
+
+> among the special lifted half-cube families
+> ```math
+> G = L_{m-1} \cup C \cup U,
+> \qquad
+> |G| = 2^{n-1},
+> ```
+> prove a one-sided boundary gap away from the two radius-\(m\) Hamming balls
+> \(B(\varnothing,m)\) and \(B(\{0\},m)\).
+
+This is the cleanest current formulation of the route as a local half-cube vertex-isoperimetric
+stability problem.
+
 ## Why This Bridge Matters
 
 This reformulation does not solve the active theorem by itself, but it sharpens the proof search.

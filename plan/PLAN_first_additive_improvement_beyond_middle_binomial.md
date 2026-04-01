@@ -36,6 +36,18 @@ Under that lift, the additive `+m` target becomes the half-cube one-sided bounda
 |\partial^+G| \ge \binom{n}{m} + m.
 ```
 
+More sharply, that bridge note now identifies the two model templates with the two radius-`m`
+Hamming balls
+
+```math
+B(\varnothing,m)
+\qquad\text{and}\qquad
+B(\{0\},m)
+```
+
+of size `2^(n-1)`. So the active stronger target is now best read as a local stability/gap
+theorem around those two half-cube Hamming balls, restricted to the special lifted family class.
+
 ## Why This Is The Right Next Target
 
 On the stronger two-layer branch, the first nontrivial shifted shell is the template-distance `2`

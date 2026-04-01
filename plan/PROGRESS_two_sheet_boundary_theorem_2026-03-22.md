@@ -28,6 +28,11 @@ Latest stronger-gap sharpening:
   \[
   |\partial^+G| \ge \binom{n}{m} + m;
   \]
+- more sharply, that bridge note now identifies the two lifted model templates with the two
+  radius-\(m\) Hamming balls
+  \(B(\varnothing,m)\) and \(B(\{0\},m)\),
+  so the active stronger branch is now visibly a local half-cube stability problem around two
+  explicit Hamming balls;
 - the additive `+m` branch now has a dedicated first-shell theorem-candidate note:
   [PROOF_shifted_first_shell_move_type_theorem_candidate.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_shifted_first_shell_move_type_theorem_candidate.md);
 - the coarse shifted distance-`2` shell law
