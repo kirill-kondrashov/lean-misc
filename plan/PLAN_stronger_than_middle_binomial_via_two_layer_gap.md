@@ -50,6 +50,8 @@ Hamming balls, restricted to the lifted family class coming from the two-layer r
 The bridge note also now transfers the proved local first-shell law into that language: the
 distance-`2` shell around those two Hamming balls inside the lifted shifted class has exact
 boundary gap `m`.
+The exact global theorem candidate in that language is now isolated in
+[PLAN_restricted_half_cube_hamming_ball_stability.md](./PLAN_restricted_half_cube_hamming_ball_stability.md).
 
 ## Connection To The Current Route
 

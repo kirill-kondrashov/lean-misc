@@ -40,6 +40,12 @@ Latest stronger-gap sharpening:
   \[
   |\partial^+G| = \binom{n}{m} + m;
   \]
+- the remaining global stronger theorem is now isolated explicitly in
+  [PLAN_restricted_half_cube_hamming_ball_stability.md](/home/kir/pers/erdos/lean-misc/plan/PLAN_restricted_half_cube_hamming_ball_stability.md):
+  inside the lifted shifted class, every family other than those two Hamming balls should satisfy
+  \[
+  |\partial^+G| \ge \binom{n}{m} + m;
+  \]
 - the additive `+m` branch now has a dedicated first-shell theorem-candidate note:
   [PROOF_shifted_first_shell_move_type_theorem_candidate.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_shifted_first_shell_move_type_theorem_candidate.md);
 - the coarse shifted distance-`2` shell law

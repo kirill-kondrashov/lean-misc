@@ -61,6 +61,16 @@ language:
 
 for lifted shifted families `G`.
 
+The resulting global theorem candidate is now split out in
+[PLAN_restricted_half_cube_hamming_ball_stability.md](./PLAN_restricted_half_cube_hamming_ball_stability.md).
+That note isolates the exact statement still missing on the stronger branch:
+within the lifted shifted class, every family other than the two balls
+`B(emptyset,m)` and `B({0},m)` should satisfy
+
+```math
+|\partial^+G| \ge \binom{n}{m} + m.
+```
+
 ## Why This Is The Right Next Target
 
 On the stronger two-layer branch, the first nontrivial shifted shell is the template-distance `2`

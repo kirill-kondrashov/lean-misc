@@ -9,6 +9,7 @@ The active documentation set for this route is:
 - [PLAN_two_layer_middle_boundary_inequality.md](./PLAN_two_layer_middle_boundary_inequality.md)
 - [PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](./PLAN_stronger_than_middle_binomial_via_two_layer_gap.md)
 - [PLAN_first_additive_improvement_beyond_middle_binomial.md](./PLAN_first_additive_improvement_beyond_middle_binomial.md)
+- [PLAN_restricted_half_cube_hamming_ball_stability.md](./PLAN_restricted_half_cube_hamming_ball_stability.md)
 - [PROOF_shifted_first_shell_move_type_theorem_candidate.md](./PROOF_shifted_first_shell_move_type_theorem_candidate.md)
 - [PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md](./PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md)
 - [NOTE_erdos1_position_against_current_literature.md](./NOTE_erdos1_position_against_current_literature.md)
@@ -166,6 +167,12 @@ balls, restricted to the lifted family class.
 It also transfers the proved local first-shell law into that half-cube language:
 for lifted shifted families, distance `2` from those two Hamming balls already forces boundary
 gap exactly \(m\).
+The corresponding global theorem candidate is now isolated separately in
+[PLAN_restricted_half_cube_hamming_ball_stability.md](./PLAN_restricted_half_cube_hamming_ball_stability.md):
+within the lifted shifted class, every non-ball family should satisfy
+\[
+|\partial^+G| \ge \binom{n}{m} + m.
+\]
 
 The first concrete literature-improvement target on that stronger branch is now recorded in
 [PLAN_first_additive_improvement_beyond_middle_binomial.md](./PLAN_first_additive_improvement_beyond_middle_binomial.md):
