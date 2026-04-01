@@ -163,6 +163,9 @@ B(\{0\},m),
 \]
 so the stronger branch is now explicitly a local half-cube stability problem around two Hamming
 balls, restricted to the lifted family class.
+It also transfers the proved local first-shell law into that half-cube language:
+for lifted shifted families, distance `2` from those two Hamming balls already forces boundary
+gap exactly \(m\).
 
 The first concrete literature-improvement target on that stronger branch is now recorded in
 [PLAN_first_additive_improvement_beyond_middle_binomial.md](./PLAN_first_additive_improvement_beyond_middle_binomial.md):

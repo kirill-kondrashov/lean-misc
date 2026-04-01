@@ -33,6 +33,13 @@ Latest stronger-gap sharpening:
   \(B(\varnothing,m)\) and \(B(\{0\},m)\),
   so the active stronger branch is now visibly a local half-cube stability problem around two
   explicit Hamming balls;
+- sharper again, the same bridge note now transfers the proved local first-shell theorem into
+  that language:
+  for lifted shifted families, the distance-`2` shell around those two Hamming balls has exact
+  boundary value
+  \[
+  |\partial^+G| = \binom{n}{m} + m;
+  \]
 - the additive `+m` branch now has a dedicated first-shell theorem-candidate note:
   [PROOF_shifted_first_shell_move_type_theorem_candidate.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_shifted_first_shell_move_type_theorem_candidate.md);
 - the coarse shifted distance-`2` shell law

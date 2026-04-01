@@ -48,6 +48,19 @@ B(\{0\},m)
 of size `2^(n-1)`. So the active stronger target is now best read as a local stability/gap
 theorem around those two half-cube Hamming balls, restricted to the special lifted family class.
 
+More sharply again, that same note now transfers the proved first-shell law into half-cube
+language:
+
+```math
+|G \triangle B(\varnothing,m)| = 2
+\ \text{or}\
+|G \triangle B(\{0\},m)| = 2
+\quad\Longrightarrow\quad
+|\partial^+G| = \binom{n}{m} + m
+```
+
+for lifted shifted families `G`.
+
 ## Why This Is The Right Next Target
 
 On the stronger two-layer branch, the first nontrivial shifted shell is the template-distance `2`
@@ -171,6 +184,15 @@ F \notin \mathcal E
 Version A is directly supported by exact data in `n = 5,7,9,11,13`. Version B is the actual
 target needed for the first additive literature improvement.
 Version A is now directly supported through shifted `n = 25`.
+In the lifted half-cube language, Version B becomes:
+
+```math
+G \notin \{B(\varnothing,m), B(\{0\},m)\}
+\quad\Longrightarrow\quad
+|\partial^+G| \ge \binom{n}{m} + m
+```
+
+within the lifted shifted class.
 
 ## How This Connects To The Sum-Distinct Transport
 

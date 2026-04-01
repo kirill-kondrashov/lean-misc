@@ -47,6 +47,9 @@ B(\{0\},m).
 
 So the stronger branch is now naturally a half-cube local stability problem around two explicit
 Hamming balls, restricted to the lifted family class coming from the two-layer route.
+The bridge note also now transfers the proved local first-shell law into that language: the
+distance-`2` shell around those two Hamming balls inside the lifted shifted class has exact
+boundary gap `m`.
 
 ## Connection To The Current Route
 

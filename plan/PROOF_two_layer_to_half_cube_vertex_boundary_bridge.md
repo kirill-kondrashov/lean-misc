@@ -323,6 +323,109 @@ So the active stronger target can be read as follows:
 This is the cleanest current formulation of the route as a local half-cube vertex-isoperimetric
 stability problem.
 
+## Transfer Of The First-Shell `+m` Law
+
+Write
+
+```math
+G_{\mathrm{full}} := B(\varnothing,m) = L_m,
+\qquad
+G_\star := B(\{0\},m).
+```
+
+For a lifted family
+
+```math
+G = L_{m-1} \cup C \cup U,
+```
+
+define its half-cube defect by
+
+```math
+\Delta_{\mathrm{hc}}(G) := |\partial^+G| - \binom{n}{m}.
+```
+
+By the exact equivalence proved above,
+
+```math
+\Delta_{\mathrm{hc}}(G) = |\partial^+F| - |C| = \Delta(F).
+```
+
+Also, because every lifted family contains the same common lower part \(L_{m-1}\), symmetric
+difference from the lifted templates is preserved:
+
+```math
+|G \triangle G_{\mathrm{full}}|
+=
+|F \triangle F_{\mathrm{full}}|,
+```
+```math
+|G \triangle G_\star|
+=
+|F \triangle F_\star|.
+```
+
+Therefore the model-template first-shell theorem on the two-layer side transfers verbatim to the
+half-cube side:
+
+> if \(G\) is a lifted shifted family and
+> ```math
+> |G \triangle G_{\mathrm{full}}| = 2
+> \quad\text{or}\quad
+> |G \triangle G_\star| = 2,
+> ```
+> then
+> ```math
+> \Delta_{\mathrm{hc}}(G) = m,
+> ```
+> equivalently
+> ```math
+> |\partial^+G| = \binom{n}{m} + m.
+> ```
+
+So the local first-shell theorem already proved on paper may now be read entirely in half-cube
+language:
+
+- the first shell around the two Hamming balls \(B(\varnothing,m)\) and \(B(\{0\},m)\),
+  restricted to the lifted family class, has exact boundary gap \(m\);
+- the five symbolic two-layer shell classes are exactly the five lifted first-shell classes
+  around those two Hamming balls.
+
+## Global Half-Cube Stability Form Of The Active Target
+
+The remaining stronger theorem can now be stated in the following clean form.
+
+Let \(G\) range over lifted shifted families
+
+```math
+G = L_{m-1} \cup C \cup U,
+\qquad
+|G| = 2^{n-1}.
+```
+
+Then the active global target is:
+
+```math
+G \notin \{G_{\mathrm{full}}, G_\star\}
+\quad\Longrightarrow\quad
+|\partial^+G| \ge \binom{n}{m} + m.
+\tag{H+_{\mathrm{shifted}}}
+```
+
+Equivalently,
+
+```math
+G \notin \{B(\varnothing,m), B(\{0\},m)\}
+\quad\Longrightarrow\quad
+|\partial^+G| \ge \binom{n}{m} + m
+```
+
+within the lifted shifted class.
+
+This is the cleanest current global theorem toward the additive improvement:
+first prove \((H+_{\mathrm{shifted}})\), then show the transported sum-distinct families avoid the
+two equality balls.
+
 ## Why This Bridge Matters
 
 This reformulation does not solve the active theorem by itself, but it sharpens the proof search.
