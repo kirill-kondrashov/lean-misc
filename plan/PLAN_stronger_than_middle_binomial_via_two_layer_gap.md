@@ -404,6 +404,16 @@ Equivalently, the principal-star first shell now splits into four theorem-shaped
 - mixed lower-remove / upper-add;
 - pure lower.
 
+The sharper proof note now also proves the exact gap law
+
+```math
+\Delta(F)=m
+```
+
+for each of those five symbolic first-shell classes individually. So the remaining gap is no
+longer the local boundary calculation on those classes; it is the global statement that every
+shifted distance-`2` family must fall into one of them.
+
 This sharper decomposition statement is now exact through shifted `n = 21`.
 The shifted `n = 23` decomposition probe now returns at the aggregate level as well:
 it reports `entry_count = 6` and `pair_count = 7`, consistent with the same

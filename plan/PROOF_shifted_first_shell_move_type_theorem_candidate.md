@@ -147,12 +147,16 @@ The unique principal-star orbit with lower/upper distances `(0,2)` appears to be
 
 ```math
 C = \{A \in P_m : 0 \in A\},
-\qquad
-U = \{B \in P_{m+1} : 0 \in B\} \cup \{\{1,2,\dots,m+1\}\}.
+```
+```math
+U =
+\bigl(\{B \in P_{m+1} : 0 \in B\} \setminus \{\{0,m+1,\dots,2m\}\}\bigr)
+\cup
+\{\{1,2,\dots,m+1\}\}.
 ```
 
-So the lower layer stays at the star template, while the upper layer gains the bottom nonzero
-vertex.
+So the lower layer stays at the star template, while the upper layer swaps its top star vertex for
+the bottom nonzero vertex.
 
 ### Principal-star `(2,0)` shell
 
@@ -183,7 +187,7 @@ The new compact delta signatures isolate the two general shapes.
 C = \{A \in P_m : 0 \in A\} \cup \{\{1,2,\dots,m\}\},
 ```
 ```math
-U = \{B \in P_{m+1} : 0 \in B\} \setminus \{\{0,m+2,\dots,2m\}\}.
+U = \{B \in P_{m+1} : 0 \in B\} \setminus \{\{0,m+1,\dots,2m\}\}.
 ```
 
 So one first-shell orbit is obtained by adding the bottom nonzero lower vertex while removing the
@@ -204,6 +208,173 @@ So the other first-shell orbit is obtained by removing the top star lower vertex
 bottom nonzero upper vertex.
 
 This is the second mixed principal-star class.
+
+## Direct Boundary Calculation For The Five Shell Classes
+
+This section proves something narrower than the full first-shell theorem:
+it shows that every one of the five symbolic shell classes above satisfies
+
+```math
+\Delta(F)=m.
+```
+
+Write
+
+```math
+C_\star := \{A \in P_m : 0 \in A\},
+\qquad
+U_\star := \{B \in P_{m+1} : 0 \in B\}.
+```
+
+Also write
+
+```math
+L_0 := \{1,2,\dots,m\},
+\qquad
+U_0 := \{1,2,\dots,m+1\},
+```
+```math
+L_{\mathrm{top}} := \{0,m+2,\dots,2m\},
+\qquad
+U_{\mathrm{top}} := \{0,m+1,\dots,2m\}.
+```
+
+For a two-layer family \(F=C \cup U\), we have the rank-split identity
+
+```math
+\partial^+F = (\partial^\uparrow C \setminus U) \sqcup \partial^\uparrow U,
+```
+
+with the first part in rank \(m+1\) and the second part in rank \(m+2\).
+
+### Full-lower shell
+
+Take
+
+```math
+C = P_m \setminus \{\{m+1,\dots,2m\}\},
+\qquad
+U = \{\{0,\dots,m\}\}.
+```
+
+Every set in \(P_{m+1}\) other than \(\{0,\dots,m\}\) still contains some \(m\)-subset in \(C\),
+so
+
+```math
+|\partial^\uparrow C \setminus U| = |P_{m+1}| - 1.
+```
+
+Also \(U\) has exactly \(m\) supersets of size \(m+2\), so
+
+```math
+|\partial^\uparrow U| = m.
+```
+
+Since \(|C| = |P_m|-1 = |P_{m+1}|-1\), we get
+
+```math
+\Delta(F)
+= (|P_{m+1}|-1+m) - (|P_m|-1)
+= m.
+```
+
+### Principal-star pure upper move `(0,2)`
+
+Take
+
+```math
+C = C_\star,
+\qquad
+U = (U_\star \setminus \{U_{\mathrm{top}}\}) \cup \{U_0\}.
+```
+
+Because \(\partial^\uparrow C_\star = U_\star\), the removed star upper vertex becomes the unique
+rank-\(m+1\) boundary point:
+
+```math
+|\partial^\uparrow C \setminus U| = 1.
+```
+
+The star part of the rank-\(m+2\) boundary is unchanged, because deleting one star upper vertex
+does not destroy any rank-\(m+2\) set containing \(0\). The new upper vertex \(U_0\) has
+\(m\) supersets of size \(m+2\), exactly one of which contains \(0\) and is already in the star
+boundary. So it contributes \(m-1\) new rank-\(m+2\) boundary points. Hence
+
+```math
+\Delta(F) = 1 + (m-1) = m.
+```
+
+### Principal-star pure lower move `(2,0)`
+
+Take
+
+```math
+C = (C_\star \setminus \{L_{\mathrm{top}}\}) \cup \{L_0\},
+\qquad
+U = U_\star.
+```
+
+The new lower vertex \(L_0\) has exactly the \(m\) non-star supersets
+\(L_0 \cup \{j\}\) with \(j \in \{m+1,\dots,2m\}\), and none of them lies in \(U_\star\). Thus
+
+```math
+|\partial^\uparrow C \setminus U| = m.
+```
+
+The rank-\(m+2\) boundary contributed by \(U_\star\) is unchanged, so again
+
+```math
+\Delta(F)=m.
+```
+
+### Principal-star mixed lower-add / upper-remove
+
+Take
+
+```math
+C = C_\star \cup \{L_0\},
+\qquad
+U = U_\star \setminus \{U_{\mathrm{top}}\}.
+```
+
+The removed star upper vertex contributes one rank-\(m+1\) boundary point. The added lower vertex
+\(L_0\) contributes the \(m\) non-star rank-\(m+1\) boundary points \(L_0 \cup \{j\}\) with
+\(j \in \{m+1,\dots,2m\}\). So
+
+```math
+|\partial^\uparrow C \setminus U| = m+1.
+```
+
+The rank-\(m+2\) boundary remains the same as for the star template. Since \(|C|=|C_\star|+1\),
+we get
+
+```math
+\Delta(F) = (|C_\star| + m + 1) - (|C_\star| + 1) = m.
+```
+
+### Principal-star mixed lower-remove / upper-add
+
+Take
+
+```math
+C = C_\star \setminus \{L_{\mathrm{top}}\},
+\qquad
+U = U_\star \cup \{U_0\}.
+```
+
+There is no new rank-\(m+1\) boundary because \(\partial^\uparrow C \subseteq U_\star \subseteq U\).
+The new upper vertex \(U_0\) contributes \(m-1\) new rank-\(m+2\) boundary points exactly as in
+the pure-upper case. Since \(|C| = |C_\star|-1\), we obtain
+
+```math
+\Delta(F) = (|C_\star| + m - 1) - (|C_\star| - 1) = m.
+```
+
+So all five symbolic first-shell classes satisfy the same exact gap law
+
+```math
+\Delta(F)=m.
+```
 
 ## Current Conjectural Theorem
 

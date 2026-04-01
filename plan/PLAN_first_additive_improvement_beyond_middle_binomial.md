@@ -233,6 +233,13 @@ Equivalently, the principal-star first shell now has a clean four-class split:
 - mixed lower-remove / upper-add;
 - pure lower.
 
+More sharply, the proof note now gives direct boundary counts for those five symbolic classes and
+proves, for each of them individually,
+
+```math
+\Delta(F)=m.
+```
+
 This sharper decomposition branch is currently exact through shifted `n = 21`.
 The next dimension `n = 23` now returns at the aggregate level as well:
 the decomposition probe reports `entry_count = 6` and `pair_count = 7`, consistent with the same

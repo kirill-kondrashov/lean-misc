@@ -26,6 +26,8 @@ Latest stronger-gap sharpening:
   shifted `n = 21`;
 - more sharply, the principal-star first shell now splits theorem-wise into one pure upper move,
   two mixed moves, and one pure lower move;
+- and the same proof note now directly verifies `\Delta(F)=m` for each of those five symbolic
+  shell classes;
 - the shifted `n = 23` decomposition probe now returns at the aggregate level as well, with
   `entry_count = 6` and `pair_count = 7`, consistent with the same
   `2` equality entries plus `4` distance-`2` move-type entries;
