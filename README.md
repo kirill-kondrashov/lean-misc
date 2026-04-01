@@ -227,6 +227,41 @@ Current repo status:
 - Under the current frontier assumptions already formalized in Lean, proving the remaining
   two-layer boundary theorem closes the prism-theorem route used in this repo.
 
+### Position Against Current Literature
+
+For the original integer Erdős #1 problem, the current established literature baseline is still
+
+```math
+N \ge \binom{n}{\lfloor n/2\rfloor}
+\sim \sqrt{\frac{2}{\pi}}\,\frac{2^n}{\sqrt n},
+```
+
+while the conjectural target remains
+
+```math
+N \gg 2^n.
+```
+
+This repo has **not** yet proved a stronger unconditional lower bound than the middle-binomial
+benchmark. What it has done is reduce the current exact route to one explicit two-layer bottleneck:
+
+```math
+\left|\partial^+\!\left(\left(\binom{[n]}{m}\setminus V\right)\cup U\right)\right|
+\ge
+\left|\binom{[n]}{m}\setminus V\right|.
+```
+
+The active stronger-than-literature target is now the first additive improvement
+
+```math
+N \ge \binom{n}{\lfloor n/2\rfloor} + \left\lfloor \frac{n-1}{2}\right\rfloor,
+```
+
+motivated by exact shifted-shell evidence on the two-layer model.
+
+For a short paper-positioning note with references, see
+[plan/NOTE_erdos1_position_against_current_literature.md](./plan/NOTE_erdos1_position_against_current_literature.md).
+
 Lean entry points:
 
 - [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean)
