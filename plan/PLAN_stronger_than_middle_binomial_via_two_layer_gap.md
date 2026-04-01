@@ -388,9 +388,15 @@ So the next honest theorem candidate is now:
 \text{and every move type in that shell has gap exactly } m.
 \]
 
+This sharpened first-shell theorem candidate is now recorded separately in
+[PROOF_shifted_first_shell_move_type_theorem_candidate.md](./PROOF_shifted_first_shell_move_type_theorem_candidate.md).
+
 This sharper decomposition statement is now exact through shifted `n = 21`.
-The next dimension `n = 23` does not return on a short/medium run with the current decomposition
-probe, even though the coarser distance-`2` shell gap law still returns exactly through shifted
+The shifted `n = 23` decomposition probe now returns at the aggregate level as well:
+it reports `entry_count = 6` and `pair_count = 7`, consistent with the same
+`2` equality entries plus `4` distance-`2` move-type entries.
+What is still missing is a clean theorem-facing extraction of those exact `n = 23` move rows,
+even though the coarser distance-`2` shell gap law already returns exactly through shifted
 `n = 25`.
 \[
 \text{not just an artifact of shifted } n = 7.

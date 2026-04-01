@@ -9,6 +9,7 @@ The active documentation set for this route is:
 - [PLAN_two_layer_middle_boundary_inequality.md](./PLAN_two_layer_middle_boundary_inequality.md)
 - [PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](./PLAN_stronger_than_middle_binomial_via_two_layer_gap.md)
 - [PLAN_first_additive_improvement_beyond_middle_binomial.md](./PLAN_first_additive_improvement_beyond_middle_binomial.md)
+- [PROOF_shifted_first_shell_move_type_theorem_candidate.md](./PROOF_shifted_first_shell_move_type_theorem_candidate.md)
 - [NOTE_erdos1_position_against_current_literature.md](./NOTE_erdos1_position_against_current_literature.md)
 - [PROOF_two_layer_middle_boundary_inequality.md](./PROOF_two_layer_middle_boundary_inequality.md)
 - [PLAN_two_layer_geometric_enrichment.md](./PLAN_two_layer_geometric_enrichment.md)

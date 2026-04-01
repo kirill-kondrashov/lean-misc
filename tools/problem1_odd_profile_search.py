@@ -450,6 +450,8 @@ class ShiftedTwoLayerTemplateLocalDecompositionEntry:
     pair_count: int
     minimal_margin: int
     maximal_margin: int
+    witness_c_family: Family
+    witness_u_family: Family
 
 
 @dataclass(frozen=True)
@@ -4054,6 +4056,8 @@ def shifted_two_layer_template_local_decomposition_profile(
                     "pair_count": 1,
                     "minimal_margin": margin,
                     "maximal_margin": margin,
+                    "witness_c_family": c_family,
+                    "witness_u_family": u_family,
                 }
                 continue
             entry["pair_count"] += 1
@@ -4070,6 +4074,8 @@ def shifted_two_layer_template_local_decomposition_profile(
             pair_count=entry["pair_count"],
             minimal_margin=entry["minimal_margin"],
             maximal_margin=entry["maximal_margin"],
+            witness_c_family=entry["witness_c_family"],  # type: ignore[arg-type]
+            witness_u_family=entry["witness_u_family"],  # type: ignore[arg-type]
         )
         for (shell_distance, nearest_template, lower_distance, upper_distance), entry in sorted(
             grouped.items(), key=lambda item: (item[0][0], item[0][1], item[0][2], item[0][3])
@@ -8472,6 +8478,10 @@ def main() -> int:
                     f"  d={entry.shell_distance} template={entry.nearest_template} "
                     f"lower={entry.lower_distance} upper={entry.upper_distance} "
                     f"count={entry.pair_count} margin=[{entry.minimal_margin},{entry.maximal_margin}]"
+                )
+                print(
+                    f"    witness C={format_family(entry.witness_c_family)} "
+                    f"U={format_family(entry.witness_u_family)}"
                 )
         return 0
 

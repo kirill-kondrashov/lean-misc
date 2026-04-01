@@ -24,6 +24,10 @@ N \ge \binom{2m+1}{m} + m.
 This is the smallest nontrivial strengthening currently suggested by the shifted-shell data that
 also appears dimension-stable.
 
+The current theorem-candidate note for the first rigid shell is:
+
+- [PROOF_shifted_first_shell_move_type_theorem_candidate.md](./PROOF_shifted_first_shell_move_type_theorem_candidate.md)
+
 ## Why This Is The Right Next Target
 
 On the stronger two-layer branch, the first nontrivial shifted shell is the template-distance `2`
@@ -211,9 +215,15 @@ The new local decomposition summary sharpens this further in shifted
 So the current first-shell theorem candidate is now not just a scalar gap law, but a rigid local
 move classification.
 
+The sharper move-type statement is recorded separately in
+[PROOF_shifted_first_shell_move_type_theorem_candidate.md](./PROOF_shifted_first_shell_move_type_theorem_candidate.md).
+
 This sharper decomposition branch is currently exact through shifted `n = 21`.
-The next dimension `n = 23` does not return on a short/medium run with the current decomposition
-probe, even though the coarser first-shell gap law still returns exactly through shifted `n = 25`.
+The next dimension `n = 23` now returns at the aggregate level as well:
+the decomposition probe reports `entry_count = 6` and `pair_count = 7`, consistent with the same
+`2` equality entries plus `4` distance-`2` move-type entries.
+What is still missing is a clean theorem-facing extraction of those exact `n = 23` move rows,
+even though the coarser first-shell gap law already returns exactly through shifted `n = 25`.
 
 ### Step 3. Prove Shifted Lower Bounds Beyond The First Shell
 

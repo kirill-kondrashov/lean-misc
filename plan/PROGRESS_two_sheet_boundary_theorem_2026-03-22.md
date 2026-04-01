@@ -12,6 +12,22 @@ Progress bar:
 
 This is a heuristic program-progress bar for the current formal route, not a probability claim.
 
+Latest stronger-gap sharpening:
+
+- the additive `+m` branch now has a dedicated first-shell theorem-candidate note:
+  [PROOF_shifted_first_shell_move_type_theorem_candidate.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_shifted_first_shell_move_type_theorem_candidate.md);
+- the coarse shifted distance-`2` shell law
+  \[
+  |\partial^+F|-|C| = m
+  \]
+  is exact through shifted `n = 25`;
+- the sharper move-type decomposition is exact through shifted `n = 21`;
+- the shifted `n = 23` decomposition probe now returns at the aggregate level as well, with
+  `entry_count = 6` and `pair_count = 7`, consistent with the same
+  `2` equality entries plus `4` distance-`2` move-type entries;
+- what is still missing there is a clean theorem-facing extraction of the exact `n = 23` move
+  rows.
+
 Completed program layers:
 
 - prism packaging (`twoSheetFamily`, exact boundary decomposition)
