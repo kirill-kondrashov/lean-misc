@@ -10,6 +10,7 @@ The active documentation set for this route is:
 - [PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](./PLAN_stronger_than_middle_binomial_via_two_layer_gap.md)
 - [PLAN_first_additive_improvement_beyond_middle_binomial.md](./PLAN_first_additive_improvement_beyond_middle_binomial.md)
 - [PLAN_restricted_half_cube_hamming_ball_stability.md](./PLAN_restricted_half_cube_hamming_ball_stability.md)
+- [NOTE_restricted_half_cube_stability_literature_bridge.md](./NOTE_restricted_half_cube_stability_literature_bridge.md)
 - [PROOF_shifted_first_shell_move_type_theorem_candidate.md](./PROOF_shifted_first_shell_move_type_theorem_candidate.md)
 - [PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md](./PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md)
 - [NOTE_erdos1_position_against_current_literature.md](./NOTE_erdos1_position_against_current_literature.md)
@@ -173,6 +174,10 @@ within the lifted shifted class, every non-ball family should satisfy
 \[
 |\partial^+G| \ge \binom{n}{m} + m.
 \]
+The closest current literature model for this step is now summarized in
+[NOTE_restricted_half_cube_stability_literature_bridge.md](./NOTE_restricted_half_cube_stability_literature_bridge.md):
+our stronger branch is best viewed as a restricted one-sided half-cube analogue of the Harper
+local-stability program around two Hamming balls.
 
 The first concrete literature-improvement target on that stronger branch is now recorded in
 [PLAN_first_additive_improvement_beyond_middle_binomial.md](./PLAN_first_additive_improvement_beyond_middle_binomial.md):

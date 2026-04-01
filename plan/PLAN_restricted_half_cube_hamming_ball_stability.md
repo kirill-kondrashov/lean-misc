@@ -87,6 +87,11 @@ inside the lifted shifted class \(\mathcal H_m\).
 
 This is the cleanest current global theorem candidate for the stronger branch.
 
+The closest literature template for this theorem is recorded in
+[NOTE_restricted_half_cube_stability_literature_bridge.md](./NOTE_restricted_half_cube_stability_literature_bridge.md):
+it is a restricted one-sided half-cube analogue of the Harper/Keevash–Long local-stability
+paradigm around two Hamming balls.
+
 ## What Is Already Done
 
 The local first-shell theorem is now proved at the model-template level.

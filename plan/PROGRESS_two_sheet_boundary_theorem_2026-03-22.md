@@ -46,6 +46,10 @@ Latest stronger-gap sharpening:
   \[
   |\partial^+G| \ge \binom{n}{m} + m;
   \]
+- the closest current literature template for that theorem is now recorded in
+  [NOTE_restricted_half_cube_stability_literature_bridge.md](/home/kir/pers/erdos/lean-misc/plan/NOTE_restricted_half_cube_stability_literature_bridge.md):
+  the stronger branch is best viewed as a restricted one-sided half-cube analogue of the
+  Harper/Keevash–Long local-stability paradigm;
 - the additive `+m` branch now has a dedicated first-shell theorem-candidate note:
   [PROOF_shifted_first_shell_move_type_theorem_candidate.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_shifted_first_shell_move_type_theorem_candidate.md);
 - the coarse shifted distance-`2` shell law
