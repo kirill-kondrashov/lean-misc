@@ -226,12 +226,21 @@ That note now identifies all five first-shell shifted orbits symbolically throug
   (0,2),\ (1,1)_{\mathrm{lower\ add / upper\ remove}},\ (1,1)_{\mathrm{lower\ remove / upper\ add}},\ (2,0).
   ```
 
+Equivalently, the principal-star first shell now has a clean four-class split:
+
+- pure upper;
+- mixed lower-add / upper-remove;
+- mixed lower-remove / upper-add;
+- pure lower.
+
 This sharper decomposition branch is currently exact through shifted `n = 21`.
 The next dimension `n = 23` now returns at the aggregate level as well:
 the decomposition probe reports `entry_count = 6` and `pair_count = 7`, consistent with the same
 `2` equality entries plus `4` distance-`2` move-type entries.
-What is still missing is a clean theorem-facing extraction of those exact `n = 23` move rows,
-even though the coarser first-shell gap law already returns exactly through shifted `n = 25`.
+What is still missing is a clean row-level extraction of those exact `n = 23` move rows:
+even after the compact delta-signature refactor, `n = 23` is still not a short/medium-run
+computation at the full decomposition level, even though the coarser first-shell gap law already
+returns exactly through shifted `n = 25`.
 
 ### Step 3. Prove Shifted Lower Bounds Beyond The First Shell
 

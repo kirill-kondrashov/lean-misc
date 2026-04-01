@@ -110,6 +110,21 @@ Every one of these move types still has
 So the candidate theorem is no longer just a gap statement. It is a rigid shell-classification
 statement.
 
+There is also a cleaner structural split on the principal-star side:
+
+- one pure upper move `(0,2)`;
+- two mixed moves `(1,1)`;
+- one pure lower move `(2,0)`.
+
+So the principal-star first shell is not just a multiset of orbits. It breaks into
+
+```math
+\text{pure upper},\qquad \text{mixed},\qquad \text{mixed},\qquad \text{pure lower}.
+```
+
+This is a better proof target than the raw orbit count, because it suggests proving the first-shell
+law by handling the two pure moves and the two mixed moves separately.
+
 ## Canonical Representative Shapes Suggested By The Data
 
 The exact witnesses in low dimensions suggest the following formulas.
@@ -174,6 +189,8 @@ U = \{B \in P_{m+1} : 0 \in B\} \setminus \{\{0,m+2,\dots,2m\}\}.
 So one first-shell orbit is obtained by adding the bottom nonzero lower vertex while removing the
 top star upper vertex.
 
+This is the first mixed principal-star class.
+
 #### Lower-remove / upper-add class
 
 ```math
@@ -185,6 +202,8 @@ U = \{B \in P_{m+1} : 0 \in B\} \cup \{\{1,2,\dots,m+1\}\}.
 
 So the other first-shell orbit is obtained by removing the top star lower vertex while adding the
 bottom nonzero upper vertex.
+
+This is the second mixed principal-star class.
 
 ## Current Conjectural Theorem
 
@@ -217,11 +236,14 @@ N \ge \binom{n}{\lfloor n/2\rfloor} + \left\lfloor \frac{n-1}{2} \right\rfloor.
 - The compact delta-signature output now isolates all five distance-`2` shifted shell orbits
   symbolically through `n = 21`:
   `1` full-lower orbit plus `4` principal-star orbits.
+- Equivalently, the principal-star first shell now has an explicit four-class decomposition into
+  one pure upper move, two mixed moves, and one pure lower move.
 - The shifted `n = 23` decomposition probe now returns as well, with aggregate profile
   `entry_count = 6` and `pair_count = 7`, consistent with the same
   `2` equality entries plus `4` distance-`2` move-type entries.
 - What is still missing is a clean theorem-facing extraction of the exact `n = 23` move rows from
-  the verbose witness output; so the fully tabulated move-type statement in this note remains
-  recorded only through `n = 21`.
+  the computation; even after the compact delta-signature refactor, `n = 23` is still not a short
+  or medium run for the full row-level decomposition. So the fully tabulated move-type statement in
+  this note remains recorded only through `n = 21`.
 
 So this note should be read as a theorem candidate backed by exact evidence, not yet as a proof.

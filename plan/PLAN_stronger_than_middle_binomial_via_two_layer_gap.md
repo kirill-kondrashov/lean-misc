@@ -397,13 +397,21 @@ the unique full-lower orbit and the four principal-star orbits
 (0,2),\ (1,1)_{\mathrm{lower\ add / upper\ remove}},\ (1,1)_{\mathrm{lower\ remove / upper\ add}},\ (2,0).
 ```
 
+Equivalently, the principal-star first shell now splits into four theorem-shaped classes:
+
+- pure upper;
+- mixed lower-add / upper-remove;
+- mixed lower-remove / upper-add;
+- pure lower.
+
 This sharper decomposition statement is now exact through shifted `n = 21`.
 The shifted `n = 23` decomposition probe now returns at the aggregate level as well:
 it reports `entry_count = 6` and `pair_count = 7`, consistent with the same
 `2` equality entries plus `4` distance-`2` move-type entries.
-What is still missing is a clean theorem-facing extraction of those exact `n = 23` move rows,
-even though the coarser distance-`2` shell gap law already returns exactly through shifted
-`n = 25`.
+What is still missing is a clean row-level extraction of those exact `n = 23` move rows:
+even after the compact delta-signature refactor, `n = 23` is still not a short/medium-run
+computation at the full decomposition level, even though the coarser distance-`2` shell gap law
+already returns exactly through shifted `n = 25`.
 \[
 \text{not just an artifact of shifted } n = 7.
 \]

@@ -24,11 +24,14 @@ Latest stronger-gap sharpening:
 - the sharper move-type decomposition is exact through shifted `n = 21`;
 - that note now identifies all five distance-`2` shifted shell orbits symbolically through
   shifted `n = 21`;
+- more sharply, the principal-star first shell now splits theorem-wise into one pure upper move,
+  two mixed moves, and one pure lower move;
 - the shifted `n = 23` decomposition probe now returns at the aggregate level as well, with
   `entry_count = 6` and `pair_count = 7`, consistent with the same
   `2` equality entries plus `4` distance-`2` move-type entries;
-- what is still missing there is a clean theorem-facing extraction of the exact `n = 23` move
-  rows.
+- what is still missing there is a clean row-level extraction of the exact `n = 23` move rows;
+  even after the compact delta-signature refactor, that full decomposition is still not a
+  short/medium-run computation.
 
 Completed program layers:
 
