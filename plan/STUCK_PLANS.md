@@ -1,299 +1,409 @@
 # Stuck Plans
 
-This note records plan branches that are no longer active.
-
-The current live plan is the direct two-layer boundary route:
-
-- [PLAN_simple_lower_uniform_upper_pair_interface_boundary_lower_research.md](./PLAN_simple_lower_uniform_upper_pair_interface_boundary_lower_research.md)
-- [PLAN_two_layer_middle_boundary_inequality.md](./PLAN_two_layer_middle_boundary_inequality.md)
-- [PROOF_two_layer_middle_boundary_inequality.md](./PROOF_two_layer_middle_boundary_inequality.md)
-- [STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md](./STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md)
-
-Everything listed below is archived.
-
-## 1. Naive Middle-Layer Compression Monotonicity Route
-
-Status: `stuck / falsified`
-
-This was the route based on the badness functional
-
-\[
-\Delta(U,V) := |T(V)\setminus U| - |\partial^\uparrow U|
-\]
-
-for
-
-\[
-U \subseteq \binom{[2m+1]}{m+1},
-\qquad
-V \subseteq \binom{[2m+1]}{m}.
-\]
-
-The intended claim was that left-compressions \(C_{ij}\) should satisfy
-
-\[
-\Delta(U,V) \le \Delta(C_{ij}U,\; C_{ij}V),
-\]
-
-so that the worst case would reduce to colex/compressed pairs.
-
-The route also relied on the stronger inclusion
-
-\[
-C_{ij}\bigl(T(V)\setminus U\bigr) \subseteq T(C_{ij}V)\setminus C_{ij}U.
-\]
-
-### Why It Is Archived
-
-This route is false.
-
-There is an explicit counterexample in `n = 7` with compression \(C_{0,2}\), namely
-
-\[
-V=
-\bigl\{
-\{2,3,4\},
-\{2,3,5\},
-\{2,4,5\},
-\{3,4,5\}
-\bigr\},
-\]
-
-\[
-U=
-\bigl\{
-\{0,1,2,3\},
-\{0,1,2,4\},
-\{0,1,3,4\},
-\{0,3,4,5\}
-\bigr\}.
-\]
-
-For this pair one has
-
-\[
-C_{0,2}\bigl(T(V)\setminus U\bigr)
-\not\subseteq
-T(C_{0,2}V)\setminus C_{0,2}U,
-\]
-
-and the weaker monotonicity also fails:
-
-\[
-\Delta(U,V) = -8,
-\qquad
-\Delta(C_{0,2}U,\; C_{0,2}V) = -9.
-\]
-
-So this plan branch cannot be repaired by simply proving the old conjectured monotonicity.
-
-### Consequence
-
-This route is dead. It cannot be revived by proving the old monotonicity conjecture, because that
-conjecture is false.
-
-## 2. Colex Compressed Case Formalization Route
-
-Status: `stuck at formalization`
-
-The compressed-case theorem
-\[
-T(V^\ast)\subseteq U^\ast
-\]
-for equal-size colex initial segments in the balanced middle layers has a paper proof, but that
-paper proof is not part of the active plan anymore.
-
-However, the direct attempt to land that proof in Lean inside
-[Problem1CubeHalfBoundary.lean](../ErdosProblems/Problem1CubeHalfBoundary.lean) is currently stuck.
-The obstruction is formal rather than mathematical:
-
-1. pushing the erased-set comparisons through the `Finset.Colex` API without leaving unresolved
-   order-instance goals;
-2. packaging the balanced local-LYM step into a usable cardinality lemma of the form
-   \[
-   |T(V^\ast)| \le |V^\ast|.
-   \]
-
-This does not falsify the colex theorem. It only means the direct formalization route is not
-active until a cleaner Lean encoding of the colex proof is found.
-
-### Consequence
-
-This branch is archived. The theorem may still be useful as background evidence, but the project no
-longer carries a dedicated active `PROOF_*.md` note for it.
-
-## 3. Weaker Reduction To Equal-Size Colex Middle-Layer Pairs
-
-Status: `stuck / falsified`
-
-This was the route based on the weaker extremal statement:
-
-\[
-\Delta(U,V)\le \Delta(U^\ast,V^\ast),
-\]
-
-where
-
-\[
-\Delta(U,V):=|T(V)\setminus U|-|\partial^\uparrow U|,
-\]
-
-and \((U^\ast,V^\ast)\) denotes the equal-size colex pair attached to \((U,V)\).
-
-### Why It Is Archived
-
-This route is false.
-
-An exact exhaustive `n = 5` search finds a counterexample at `e = 3`:
-
-\[
-U^\ast=\bigl\{\{0,1,2\},\{0,1,3\},\{0,2,3\}\bigr\},
-\qquad
-V^\ast=\bigl\{\{0,1\},\{0,2\},\{1,2\}\bigr\},
-\]
-
-for which
-
-\[
-\Delta(U^\ast,V^\ast)=-4,
-\]
-
-but
-
-\[
-U=\bigl\{\{0,1,2\},\{0,1,3\},\{0,2,3\}\bigr\},
-\qquad
-V=\bigl\{\{1,2\},\{1,3\},\{2,3\}\bigr\},
-\]
-
-satisfies
-
-\[
-\Delta(U,V)=-3.
-\]
-
-Hence
-
-\[
-\Delta(U,V)>\Delta(U^\ast,V^\ast),
-\]
-
-so the proposed weaker colex reduction theorem fails.
-
-### Consequence
-
-This branch is dead. The only remaining active route is the direct two-layer boundary inequality
+This note compresses the archived branches. The active route is still the direct two-layer
+boundary program centered on
 \[
 |\partial^+\bigl((\binom{[n]}{m}\setminus V)\cup U\bigr)| \ge |\binom{[n]}{m}\setminus V|.
 \]
 
-## 4. Hall-Shadow Sufficient-Condition Route
+## Archived Branches
 
-Status: `stuck / falsified`
+### 1. Section Route
 
-This was the route based on the stronger middle-layer inequality
-\[
-|\partial^\uparrow U| \ge |U\setminus T(V)|.
-\]
+- Unrestricted even adjacent-layer theorem:
+  \[
+  |\partial^+G| \ge |G_r|,
+  \qquad
+  G \subseteq \binom{[2m]}{r}\sqcup \binom{[2m]}{r+1}.
+  \]
+- Status: `falsified`.
+- Counterexamples:
+  \[
+  G=\binom{[4]}{2}\sqcup \binom{[4]}{3}
+  \quad\Rightarrow\quad
+  |\partial^+G|=1<6=|G_2|,
+  \]
+  \[
+  G=\binom{[6]}{3}\sqcup \binom{[6]}{4}
+  \quad\Rightarrow\quad
+  |\partial^+G|=6<20=|G_3|.
+  \]
+- Coupled repair attempt:
+  \[
+  |\partial^+(A\cup D)| + |\partial^+(B\cup E)| \ge |A| + |B|.
+  \]
+- Status: `falsified`.
+- Exact `n=5` counterexample:
+  \[
+  V = \{\{0,1\},\{0,2\},\{0,3\},\{0,4\}\},
+  \qquad
+  U = \{\{1,2,3\},\{1,2,4\},\{1,3,4\},\{2,3,4\}\},
+  \]
+  giving
+  \[
+  A=\varnothing,\quad B=\binom{[4]}{2},\quad D=\varnothing,\quad E=\binom{[4]}{3},
+  \]
+  hence
+  \[
+  |\partial^+(A\cup D)| + |\partial^+(B\cup E)| = 1 < 6 = |A| + |B|.
+  \]
+- Consequence: sectioning survives only as an exact identity / heuristic, not as an active
+  reduction theorem.
 
-### Why It Looked Promising
+### 2. Compression-Monotonicity Route
 
-Let \(C:=\binom{[n]}{m}\setminus V\) and \(F:=C\cup U\). In the balanced bipartite inclusion graph
-\[
-\binom{[n]}{m} \leftrightarrow \binom{[n]}{m+1},
-\]
-regularity and Hall imply
-\[
-|\partial^\uparrow C| \ge |C|.
-\]
-Since
-\[
-\partial^+F=(\partial^\uparrow C\setminus U)\sqcup \partial^\uparrow U
-\]
-and
-\[
-\partial^\uparrow C=\binom{[n]}{m+1}\setminus T(V),
-\]
-one gets
-\[
-|\partial^+F|
-\ge
-|C|-|U\setminus T(V)|+|\partial^\uparrow U|.
-\]
-So the Hall-shadow inequality above would have implied the active two-layer boundary target
-\[
-|\partial^+F| \ge |C|.
-\]
+- Conjectured functional:
+  \[
+  \Delta(U,V):=|T(V)\setminus U|-|\partial^\uparrow U|.
+  \]
+- Desired monotonicity:
+  \[
+  \Delta(U,V)\le \Delta(C_{ij}U,C_{ij}V).
+  \]
+- Stronger inclusion used by the route:
+  \[
+  C_{ij}(T(V)\setminus U)\subseteq T(C_{ij}V)\setminus C_{ij}U.
+  \]
+- Status: `falsified`.
+- Explicit `n=7` counterexample with \(C_{0,2}\):
+  \[
+  V=\{\{2,3,4\},\{2,3,5\},\{2,4,5\},\{3,4,5\}\},
+  \]
+  \[
+  U=\{\{0,1,2,3\},\{0,1,2,4\},\{0,1,3,4\},\{0,3,4,5\}\}.
+  \]
+  Then
+  \[
+  C_{0,2}(T(V)\setminus U)\not\subseteq T(C_{0,2}V)\setminus C_{0,2}U,
+  \]
+  and
+  \[
+  \Delta(U,V)=-8,\qquad \Delta(C_{0,2}U,C_{0,2}V)=-9.
+  \]
+- Consequence: this route is dead.
 
-### Why It Is Archived
+### 3. Weaker Colex Reduction
 
-The sufficient condition is false.
+- Proposed theorem:
+  \[
+  \Delta(U,V)\le \Delta(U^\ast,V^\ast)
+  \]
+  for equal-size colex pairs \((U^\ast,V^\ast)\).
+- Status: `falsified`.
+- Exact `n=5`, `e=3` counterexample:
+  \[
+  \Delta(U^\ast,V^\ast)=-4,
+  \qquad
+  \Delta(U,V)=-3.
+  \]
+- Consequence: no direct reduction from arbitrary pairs to colex pairs via this defect functional.
 
-An exact exhaustive `n = 5` search finds failures already at `e = 5,6,7,8`. For example, at
-`e = 6`,
-\[
-U=
-\{
-\{0,1,2\},\{0,1,3\},\{0,2,3\},\{0,1,4\},\{0,2,4\},\{0,3,4\}
-\},
-\]
-\[
-V=
-\{
-\{0,2\},\{1,2\},\{0,3\},\{1,3\},\{0,4\},\{1,4\}
-\},
-\]
-for which
-\[
-|\partial^\uparrow U|=4<6=|U\setminus T(V)|.
-\]
+### 4. Hall-Shadow Sufficient Condition
 
-### Consequence
+- Proposed sufficient condition:
+  \[
+  |\partial^\uparrow U| \ge |U\setminus T(V)|.
+  \]
+- Status: `falsified`.
+- Exact `n=5` failures occur at `e=5,6,7,8`; for example at `e=6`,
+  \[
+  |\partial^\uparrow U|=4<6=|U\setminus T(V)|.
+  \]
+- Consequence: the active boundary theorem cannot be reduced to a Hall-style argument of this form.
 
-This branch is dead as a proof strategy. The direct two-layer boundary inequality may still be
-true, but it cannot be proved merely by reducing to the Hall-shadow sufficient condition above.
+### 5. Codimension-1 Local Flux Graph
 
-## 5. Unique Lex/Shifted Minimizer-Orbit Conjecture
+- Proposed local transport graph: connect \(A \in C\) only to boundary cells \(B \in \partial^+F\)
+  with \(A \subset B\) and \(|B|=|A|+1\).
+- Status: `falsified`.
+- Exact failures:
+  - full `n=5` fails already at `e=3`;
+  - shifted `n=7` fails with worst deficiency `-15` at `e=20`.
+- Consequence: the first viable flux candidate has to allow codimension-`2` transport, not just
+  single upward edges.
 
-Status: `stuck / falsified`
+### 6. Equal-Split Codimension-2 Flux Rule
 
-This was the stronger conjecture that, for the direct two-layer boundary problem,
-\[
-|\partial^+F| \ge |F\cap \tbinom{[n]}{m}|,
-\qquad
-F\subseteq \binom{[n]}{m}\sqcup \binom{[n]}{m+1},
-\]
-every boundary minimizer with fixed layer sizes should lie in the same permutation orbit as the
-lex/shifted model.
+- Proposed rule: on the codimension-`2` local transport graph, each lower cell sends its unit mass
+  equally to all local neighbors.
+- Status: `falsified`.
+- Exact failures:
+  - in exact `n = 5`, worst overload is
+    \[
+    7/12
+    \]
+    at `e = 3`;
+  - in shifted `n = 7`, worst overload is
+    \[
+    13/15
+    \]
+    at `e = 1`.
+- Consequence: the codimension-`2` graph is still alive, but any successful calibration must use a
+  genuinely nonuniform weighting, or must be extracted from a matching by a less naive procedure.
 
-### Why It Looked Plausible
+### 7. Unique Lex/Shifted Minimizer Orbit
 
-The corrected `n = 5` diagnostics show that for every admissible layer size, a lex/shifted
-two-layer family does attain the minimum boundary. So uniqueness up to symmetry was a natural next
-guess.
+- Conjecture: every minimizer of the two-layer boundary functional lies in the same permutation
+  orbit as the lex/shifted model.
+- Status: `falsified`.
+- Exact `n=5` has multiple minimizer orbits for several values of `e`; for example:
+  `e=1` has `3` orbits, `e=2` has `17`, `e=4` has `32`.
+- Consequence: only existence of shifted minimizers remains plausible, not uniqueness.
 
-### Why It Is Archived
+### 8. Strict Compression Shortcut
 
-The uniqueness statement is false already in exact `n = 5`.
+- Proposed strengthening:
+  every nonshifted two-layer pair admits a layer-preserving shift that strictly lowers
+  \[
+  |\partial^+F|.
+  \]
+- Status: `falsified`.
+- Exact `n=5` counterexample:
+  \[
+  C=\binom{[5]}{2}\setminus\{\{0,1\}\},
+  \qquad
+  U=\{\{0,1,2\}\}.
+  \]
+  This pair is nonshifted, but no layer-preserving shift strictly lowers the boundary:
+  \[
+  |\partial^+(C\cup U)|=11,
+  \qquad
+  \min |\partial^+(C'\cup U')| = 11
+  \]
+  over all single shifts \((C',U')\).
+- Consequence: the compression route cannot be driven by a strictly descending potential alone;
+  it needs weak monotonicity plus a separate rigidity/equality argument.
 
-For the minimizer orbits under the coordinate-permutation action:
+### 9. Strict-Local-Minimum Plateau Route
 
-- `e = 1` has `3` minimizer orbits,
-- `e = 2` has `17` minimizer orbits,
-- `e = 3` has `2` minimizer orbits,
-- `e = 4` has `32` minimizer orbits,
-- `e = 5` has `4` minimizer orbits,
-- `e = 7` has `4` minimizer orbits,
-- `e = 8` has `7` minimizer orbits,
-- `e = 9` has `2` minimizer orbits.
+- Proposed strengthening:
+  every strict local minimum for the layer-preserving shift dynamics lies in a
+  boundary-preserving shift component containing a shifted pair.
+- Status: `falsified`.
+- Exact `n=5` failures already occur at `e=5` and `e=6`.
+- Representative `e=5` witness:
+  \[
+  C=\{\{1,2\},\{0,3\},\{1,3\},\{0,4\},\{2,4\}\},
+  \]
+  \[
+  U=\{\{0,1,2\},\{0,2,3\},\{0,1,4\},\{1,3,4\},\{2,3,4\}\}.
+  \]
+- Consequence: the active weak-compression route cannot be decomposed into “strict descent first,
+  then plateau rigidity.” Any proof has to use genuinely interleaved nonincreasing paths or a
+  more global monotone invariant.
 
-So the correct surviving conjecture is only:
+### 10. Inverse-Degree Codimension-2 Flux Rule
 
-- some shifted family attains the minimum.
+- Proposed rule: on the codimension-`2` local transport graph, weight the contribution to a
+  boundary cell \(B\) proportionally to \(1/\deg(B)\).
+- Status: `falsified`.
+- Exact failures:
+  - in exact `n = 5`, worst overload is
+    \[
+    1/77
+    \]
+    at `e = 5`, with overloaded boundary point \(\{0,1,2,3\}\) carrying load
+    \[
+    78/77;
+    \]
+  - in shifted `n = 7`, worst overload is
+    \[
+    575/20592
+    \]
+    at `e = 16`, with overloaded boundary point \(\{0,1,2,5,6\}\) carrying load
+    \[
+    21167/20592.
+    \]
+- Consequence: the codimension-`2` graph is still alive, but no simple local weighting rule is
+  currently viable; any successful calibration must use a genuinely nonuniform construction, or be
+  extracted from matching/Hall data by a subtler argument.
 
-The stronger uniqueness claim is dead.
+### 11. Strong Inward Descent
 
-### Consequence
+- Proposed theorem:
+  every shifted non-template two-layer family with template distance at least `4` admits an inward
+  step reducing template distance by `2` without increasing defect.
+- Status: `falsified`.
+- Exact shifted `n=5` shell profile:
+  \[
+  d=4:\ \Delta(F)=3\ \text{for every shifted family,}
+  \]
+  but
+  \[
+  d=6:\ \text{there exists a shifted family with }\Delta(F)=2.
+  \]
+- Representative witness:
+  \[
+  C=\{\{0,1\},\{0,2\},\{1,2\},\{0,3\},\{1,3\},\{0,4\},\{1,4\}\},
+  \]
+  \[
+  U=\{\{0,1,2\},\{0,1,3\},\{0,1,4\}\},
+  \]
+  with
+  \[
+  d(F)=6,\qquad \Delta(F)=2.
+  \]
+- Consequence: the active route must use the weaker subcritical counterexample-descent theorem,
+  not defect-monotone inward descent.
 
-This branch is archived. The active direct route may still be proved by a compression argument, but
-the target should be existence of shifted extremizers, not uniqueness of a single lex orbit.
+### 11. Canonical Greedy Codimension-2 Matching Rules
+
+- Tested family: all eight rules obtained by choosing
+  - left order ascending / descending,
+  - codimension priority ascending / descending,
+  - boundary order ascending / descending.
+- Status: `falsified`.
+- Exact failures:
+  - every tested rule fails already in exact `n = 5`;
+  - representative failures include:
+    \[
+    \texttt{left-asc-codim-asc-boundary-asc}
+    \]
+    with worst deficiency `-1` at `e = 1`, and
+    \[
+    \texttt{left-desc-codim-asc-boundary-asc}
+    \]
+    with worst deficiency `-4` already at `e = 0`.
+- Shifted note:
+  \[
+  \texttt{left-desc-codim-asc-boundary-desc}
+  \]
+  survives across all shifted pairs in `n = 7`, but still fails in exact `n = 5`, so it does not
+  define a global proof route.
+- Consequence: the codimension-`2` matching branch remains alive only at the Hall/augmenting-path
+  level; it cannot currently be reduced to a fixed local greedy injection rule.
+
+### 12. Colex Paper-Proof Formalization
+
+- Mathematical statement:
+  \[
+  T(V^\ast)\subseteq U^\ast
+  \]
+  for balanced colex initial segments.
+- Status: `stuck at formalization`, not falsified.
+- Obstruction: the current Lean route gets stuck at the `Finset.Colex` erased-set comparison layer
+  and the balanced local-LYM packaging.
+- Consequence: useful background evidence, but not part of the active proof route.
+
+### 12. Zero-Degree Explanation Of Codimension-1 Deficiency
+
+- Proposed explanation:
+  \[
+  \delta_1(F)=\#\{\text{lower cells with no codim-1 boundary neighbor}\}.
+  \]
+- Status: `falsified`.
+- Exact failures:
+  - in exact `n = 5`, worst excess is `2` at `e = 4`, with
+    \[
+    \delta_1(F)=2,\qquad \text{zero-degree count}=0;
+    \]
+  - in shifted `n = 7`, worst excess is `6` at `e = 13`, with
+    \[
+    \delta_1(F)=6,\qquad \text{zero-degree count}=0.
+    \]
+- Consequence: the codimension-`1` Hall deficiency is a genuinely global obstruction, not just the
+  count of isolated lower cells.
+
+### 12. Single-Coordinate Cut Explanation Of Codimension-1 Deficiency
+
+- Proposed explanation:
+  \[
+  \delta_1(F)=\max_{i,\ \star\in\{\in,\notin\}}
+  \bigl(|\{A\in C : i\star A\}|- |N_1(\{A\in C : i\star A\})|\bigr).
+  \]
+- Status: `falsified`.
+- Exact failures:
+  - in exact `n = 5`, worst excess is `1` at `e = 3`, with
+    \[
+    \delta_1(F)=1,\qquad \text{best coordinate-cut deficiency}=0;
+    \]
+  - in shifted `n = 7`, worst excess is `3` at `e = 14`, with
+    \[
+    \delta_1(F)=5,\qquad \text{best coordinate-cut deficiency}=2.
+    \]
+- Consequence: the codimension-`1` Hall deficiency is not captured by any single principal
+  contain/avoid cut; it is more global than that.
+
+### 13. Lex/Colex Prefix Witness Simplification
+
+- Proposed strengthening of the shifted Hall witness route:
+  require the codimension-`1` Hall deficiency to be witnessed by a lex or colex prefix of the
+  shifted lower family \(C\).
+- Status: `falsified`.
+- Exact shifted failures:
+  - colex-prefix already fails in shifted `n = 5`, with worst excess `1` at `e = 3`;
+  - lex-prefix fails in shifted `n = 7`, with worst excess `1` at `e = 12`.
+- Consequence: the shifted Hall witness can still be taken shifted, but not reduced all the way to
+  a simple boundary-order prefix theorem.
+
+### 14. Initial Principal-Star Witness Simplification
+
+- Proposed strengthening of the shifted Hall witness route:
+  require the codimension-`1` Hall deficiency to be witnessed by
+  \[
+  C \cap \{A : \{0,\dots,t-1\}\subseteq A\}
+  \]
+  for some \(t\).
+- Status: `falsified`.
+- Exact shifted behavior:
+  - the statement survives in shifted `n = 5`;
+  - it fails in shifted `n = 7`, with worst excess `3` at `e = 16`.
+- Witness data at `n = 7`, `e = 16`:
+  \[
+  \delta_1(F)=7,\qquad \text{best initial-star deficiency}=4.
+  \]
+- Consequence: the shifted Hall witness can still be taken shifted, but not reduced to a single
+  principal-star cut.
+
+### 15. Strong Inward Descent For The Shifted Gap Route
+
+- Proposed auxiliary theorem:
+  for every shifted balanced two-layer family \(F\),
+  \[
+  F \notin \{F_{\mathrm{full}},F_\star\}
+  \ \text{and}\ 
+  d(F)\ge 4
+  \Longrightarrow
+  \exists F'
+  \text{ shifted with }
+  d(F')=d(F)-2
+  \ \text{and}\ 
+  \Delta(F')\le \Delta(F).
+  \]
+- Status: `falsified`.
+- Exact shifted `n = 5` obstruction:
+  - every shifted family at shell distance `4` has
+    \[
+    \Delta(F)=3;
+    \]
+  - but there is a shifted family at shell distance `6` with
+    \[
+    \Delta(F)=2.
+    \]
+- Explicit witness:
+  \[
+  C=\{\{0,1\},\{0,2\},\{1,2\},\{0,3\},\{1,3\},\{0,4\},\{1,4\}\},
+  \]
+  \[
+  U=\{\{0,1,2\},\{0,1,3\},\{0,1,4\}\}.
+  \]
+  Then
+  \[
+  d(F)=6,\qquad \Delta(F)=2,
+  \]
+  while no shifted family at distance `4` has defect at most `2`.
+- Consequence:
+  the stronger branch cannot be reduced to unconditional inward defect-nonincreasing descent.
+  The live replacement is the weaker subcritical descent theorem:
+  require the same inward step only under the extra hypothesis
+  \[
+  \Delta(F)<m.
+  \]
+
+## Current Use
+
+These branches are archived. They should be cited only as:
+
+- evidence about what fails,
+- a source of counterexamples,
+- or heuristic background for the live direct-boundary and flux/calibration routes.

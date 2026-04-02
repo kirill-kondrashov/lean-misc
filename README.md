@@ -227,6 +227,45 @@ Current repo status:
 - Under the current frontier assumptions already formalized in Lean, proving the remaining
   two-layer boundary theorem closes the prism-theorem route used in this repo.
 
+### Position Against Current Literature
+
+For the original integer Erdős #1 problem, the current established literature baseline is still
+
+```math
+N \ge \binom{n}{\lfloor n/2\rfloor}
+\sim \sqrt{\frac{2}{\pi}}\,\frac{2^n}{\sqrt n},
+```
+
+while the conjectural target remains
+
+```math
+N \gg 2^n.
+```
+
+This repo has **not** yet proved a stronger unconditional lower bound than the middle-binomial
+benchmark. What it has done is reduce the current exact route to one explicit two-layer bottleneck:
+
+```math
+\left|\partial^+\!\left(\left(\binom{[n]}{m}\setminus V\right)\cup U\right)\right|
+\ge
+\left|\binom{[n]}{m}\setminus V\right|.
+```
+
+The active stronger-than-literature target is now the first additive improvement
+
+```math
+N \ge \binom{n}{\lfloor n/2\rfloor} + \left\lfloor \frac{n-1}{2}\right\rfloor,
+```
+
+motivated by exact shifted-shell evidence on the two-layer model.
+
+The stronger branch is now theorem-first. The local first-shell theorem is already proved in the
+shifted model, and the remaining work is no longer “check larger `n`”, but prove a global
+stability theorem away from the two extremal templates.
+
+For a short paper-positioning note with references, see
+[plan/NOTE_erdos1_position_against_current_literature.md](./plan/NOTE_erdos1_position_against_current_literature.md).
+
 Lean entry points:
 
 - [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean)
@@ -386,7 +425,7 @@ where
 ```math
 \partial^\uparrow U
 :=
-\{T \in \tbinom{[n]}{m+2} : \exists s \in U,\ s \subset T\},
+\{T \in \binom{[n]}{m+2} : \exists s \in U,\ s \subset T\},
 ```
 
 and
@@ -421,23 +460,275 @@ In expanded form:
 \left|\binom{[n]}{m}\setminus V\right|.
 ```
 
-The latest proof-side reduction now pushes this odd-cube problem to an even-dimensional
-adjacent-layer theorem. If
+The exact route above is still open, but it is now treated as infrastructure: proving it recovers
+the current literature-level middle-binomial bound through the existing Lean closure graph.
+
+The active stronger branch introduces the defect
 
 ```math
-F \subseteq \binom{[2m+1]}{m}\sqcup \binom{[2m+1]}{m+1}
+\Delta(F) := |\partial^+F| - |C|.
 ```
 
-is sectioned by one coordinate, then the proof note reduces the odd theorem to the following
-even-cube statement, first in the shifted case:
+Its two shifted model templates are
 
 ```math
-|\partial^+G| \ge |G_r|,
+F_{\mathrm{full}} := \binom{[n]}{m},
+```
+
+and
+
+```math
+F_\star
+:=
+\{A \in \binom{[n]}{m} : 0 \in A\}
+\cup
+\{B \in \binom{[n]}{m+1} : 0 \in B\}.
+```
+
+The local first-shell theorem is now proved on paper: every shifted family at template distance
+`2` from `F_full` or `F_star` satisfies
+
+```math
+\Delta(F)=m.
+```
+
+The current global stronger target is therefore
+
+```math
+F \notin \{F_{\mathrm{full}},F_\star\}
+\quad\Longrightarrow\quad
+\Delta(F)\ge m,
+```
+
+which would imply the additive lower bound above once the transported sum-distinct families are
+shown to avoid the two equality templates.
+
+Via the half-cube lift, this is the same as the restricted Hamming-ball stability statement
+
+```math
+G \notin \{B(\varnothing,m), B(\{0\},m)\}
+\quad\Longrightarrow\quad
+|\partial^+G| \ge \binom{n}{m} + m
+```
+
+inside the lifted shifted class of half-cube families `G` of size `2^(n-1)`.
+
+The current theorem-first reduction of that global gap is now:
+
+```math
+F \notin \{F_{\mathrm{full}},F_\star\},
 \qquad
-G \subseteq \binom{[2m]}{r}\sqcup \binom{[2m]}{r+1}.
+d(F)\ge 4,
+\qquad
+\Delta(F)<m
+\Longrightarrow
+\exists F'
+\text{ shifted such that }
+d(F')=d(F)-2
+\text{ and }
+\Delta(F')<m,
 ```
 
-This is the current combinatorial bottleneck.
+where
+
+```math
+d(F):=\min\bigl(|F\triangle F_{\mathrm{full}}|,\ |F\triangle F_\star|\bigr).
+```
+
+This is the active subcritical counterexample-descent theorem.
+
+The newest local reduction is sharper still: it is enough to prove an average inward-move
+inequality over the admissible inward repairs `F'` with `d(F')=d(F)-2`, namely
+
+```math
+\sum_{F' \in M_{\mathrm{in}}(F)} \mu_F(F')\,\Delta(F')
+\le
+\Delta(F),
+```
+
+for some probability weights `\mu_F`. If this holds and `\Delta(F)<m`, then at least one inward
+move stays below the threshold `m`, which gives the required descent.
+
+So the current combinatorial bottleneck is no longer the dead even-cube section theorem. It is the
+global shifted / half-cube stability problem above, currently reduced to proving a local average
+inward-move inequality.
+
+Topological meaning of the last frontier:
+
+Here "topological" means the discrete topology of the cube graph: vertices are subsets, and two
+vertices are adjacent when they differ by one element.
+
+In the two-layer form, the family
+
+```math
+F = C \cup U \subseteq \binom{[n]}{m}\sqcup \binom{[n]}{m+1}
+```
+
+is a discrete hypersurface near the equator of the odd cube. The lower slice \(C\) is the part of
+that hypersurface on rank \(m\), and the upper slice \(U\) is the part on rank \(m+1\). Its
+positive boundary
+
+```math
+\partial^+F
+=
+\{A \notin F : \exists x \in A,\ A \setminus \{x\} \in F\}
+```
+
+is the set of vertices just outside the membrane, seen from above.
+
+So the inequality
+
+```math
+|\partial^+F| \ge |C|
+```
+
+says that a balanced middle-layer membrane cannot hide from the outside: if one removes some
+\(m\)-cells from the lower middle layer and replaces them by the same number of \((m+1)\)-cells in
+the upper middle layer, then the resulting interface still has at least \(|C|\) outward-facing
+cells above it.
+
+On the stronger branch, the same membrane picture now comes with two preferred comparison shapes:
+the full lower layer and the principal-star two-layer family. Their half-cube lifts are exactly
+the two Hamming balls
+
+```math
+B(\varnothing,m)
+\qquad\text{and}\qquad
+B(\{0\},m).
+```
+
+The improved-bound program asks for a stability gap away from those two balls: every other lifted
+shifted half-cube family should expose at least `m` extra outward-facing cells above the exact
+middle-binomial baseline.
+least as large as its lower layer. This is the cleanest current topological form of the remaining
+Erdős #1 bottleneck.
+
+Concrete cube picture:
+
+Take the smallest odd case
+
+```math
+n = 3,
+\qquad
+m = 1,
+\qquad
+V = \{\{0\}\},
+\qquad
+U = \{\{0,1\}\}.
+```
+
+Then
+
+```math
+C = \binom{[3]}{1}\setminus V = \{\{1\},\{2\}\},
+\qquad
+F = C \cup U = \{\{1\},\{2\},\{0,1\}\}.
+```
+
+Its positive boundary is
+
+```math
+\partial^+F = \{\{1,2\},\{0,2\},\{0,1,2\}\}.
+```
+
+So in this concrete cube we are proving
+
+```math
+|\partial^+F| = 3 \ge 2 = |C|.
+```
+
+Illustration of this example:
+
+```mermaid
+graph TD
+  n000["∅"]
+  n100["{0}"]
+  n010["{1}"]
+  n001["{2}"]
+  n110["{0,1}"]
+  n101["{0,2}"]
+  n011["{1,2}"]
+  n111["{0,1,2}"]
+
+  n000 --- n100
+  n000 --- n010
+  n000 --- n001
+  n100 --- n110
+  n100 --- n101
+  n010 --- n110
+  n010 --- n011
+  n001 --- n101
+  n001 --- n011
+  n110 --- n111
+  n101 --- n111
+  n011 --- n111
+
+  classDef family fill:#0b6e4f,stroke:#0b6e4f,color:#ffffff;
+  classDef boundary fill:#d9f0ff,stroke:#1c6ea4,color:#111111;
+  classDef other fill:#f2f2f2,stroke:#999999,color:#111111;
+
+  class n010,n001,n110 family;
+  class n101,n011,n111 boundary;
+  class n000,n100 other;
+```
+
+In this picture:
+
+- green vertices are the active two-layer family $F$;
+- blue vertices are the positive boundary $\partial^+F$;
+- gray vertices are outside both $F$ and $\partial^+F$.
+
+Read the illustration in four steps:
+
+Step 1. The odd cube is $\mathcal P([3])$, with layers
+
+```math
+\binom{[3]}{0},\ \binom{[3]}{1},\ \binom{[3]}{2},\ \binom{[3]}{3}.
+```
+
+Step 2. The two middle layers are
+
+```math
+\binom{[3]}{1} = \{\{0\},\{1\},\{2\}\},
+\qquad
+\binom{[3]}{2} = \{\{0,1\},\{0,2\},\{1,2\}\}.
+```
+
+Step 3. The green lower-middle part is
+
+```math
+C = \{\{1\},\{2\}\},
+```
+
+the green upper-middle part is
+
+```math
+U = \{\{0,1\}\},
+```
+
+and the full green family is
+
+```math
+F = C \cup U.
+```
+
+Step 4. The blue vertices are exactly the sets outside $F$ that lie one upward cube-edge away
+from a green vertex:
+
+```math
+\partial^+F = \{\{1,2\},\{0,2\},\{0,1,2\}\}.
+```
+
+So this picture is the statement
+
+```math
+|\partial^+F| = 3 \ge 2 = |C|.
+```
+
+The last frontier says that this phenomenon is not special to the picture above: for every balanced
+middle-layer family $F = (\binom{[n]}{m}\setminus V)\cup U$, the outward-facing blue layer is
+always at least as large as the surviving lower-middle green layer $C = \binom{[n]}{m}\setminus
+V$.
 
 For the current detailed progress log, see
 [plan/PROGRESS_two_sheet_boundary_theorem_2026-03-22.md](./plan/PROGRESS_two_sheet_boundary_theorem_2026-03-22.md).

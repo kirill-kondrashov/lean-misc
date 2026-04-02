@@ -51,6 +51,20 @@ Equivalently, in expanded notation:
 
 This is the clean two-layer boundary form of the remaining simple-lower bottleneck.
 
+The exact half-cube reformulation of this route is now recorded in
+[PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md](./PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md).
+There the lifted family
+
+```math
+G := L_{m-1} \cup C \cup U
+```
+
+has size `2^(n-1)`, and \((B)\) is shown equivalent to the one-sided half-cube boundary estimate
+
+```math
+|\partial^+G| \ge \binom{n}{m}.
+```
+
 ## Why This Would Finish The Bottleneck
 
 The reduced middle-layer inequality
@@ -69,6 +83,34 @@ close:
 - `SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement`,
 - the canonical defect bottleneck,
 - and the current prism-theorem route.
+
+## Critical Review
+
+This exact route is mathematically sharp *for the currently formalized endpoint*, but not yet for
+the larger research goal.
+
+If \((B)\) is proved exactly as stated, the current closure graph recovers only the exact
+middle-binomial lower bound
+\[
+N \ge \binom{n}{\lfloor n/2\rfloor},
+\]
+which is already the published Dubroff-Fox-Xu benchmark formalized in
+[Problem1Literature.lean](../ErdosProblems/Problem1Literature.lean).
+
+So:
+
+- proving \((B)\) is still necessary for the current formal route;
+- but proving \((B)\) alone does **not** give a stronger lower bound than the literature;
+- to move toward a genuinely new result, the route must be strengthened to a *gap theorem* beyond
+  equality.
+
+That stronger direction is now tracked in
+[PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](./PLAN_stronger_than_middle_binomial_via_two_layer_gap.md).
+Via the new bridge note, the stronger branch can now be read as the additive half-cube target
+
+```math
+|\partial^+G| \ge \binom{n}{m} + m.
+```
 
 ## Current Status
 
@@ -92,6 +134,13 @@ close:
   \[
   |\partial^+(S_{ij}F)| \le |\partial^+F|.
   \]
+- That compression evidence now extends exactly to the shifted `n = 7` problem:
+  across all `5164` shifted pairs and all `108444` layer-preserving shifts, no counterexample to
+  the actual two-layer compression lemma appears.
+- The stronger strict-descent shortcut is now ruled out already in exact `n = 5`:
+  some nonshifted pairs admit no layer-preserving shift that strictly lowers \(|\partial^+F|\),
+  so any compression proof has to work with weak descent plus a separate equality/rigidity
+  analysis, not with a strictly descending potential.
 - Exact shifted classification in `n = 5` is now sharper as well:
   among shifted two-layer families, equality in \((B)\) occurs only in two orbits:
   the trivial full lower layer at `e = 0`, and the principal-star two-layer family at `e = 6`
@@ -100,19 +149,104 @@ close:
   there are only `352` shifted families in each middle rank, exhaustive shifted enumeration shows
   no counterexample to \((B)\), and the only shifted equality orbits are again the trivial full
   lower layer (`e = 0`) and the principal-star two-layer family (`e = 20`).
+- The shifted strict-gap profile is now exact in both tested dimensions:
+  away from those two equality templates, the smallest observed boundary gap is `2` in shifted
+  `n = 5` and `3` in shifted `n = 7`.
+- The shifted distance profile is now exact too:
+  in both tested dimensions, the nearest non-equality shifted pairs are at template distance `2`,
+  with boundary gap `2` in `n = 5` and `3` in `n = 7`.
 - With the current brute-force search tool, this exact shifted-enumeration strategy appears to top
   out at `n = 7`: an analogous `n = 9` shifted-family count does not finish on a short/medium
   run, so deeper exhaustive search is no longer the right next step.
 - However, exact `n = 5` does **not** support uniqueness of the lex orbit of minimizers:
   for several values of `e`, multiple minimizer orbits occur.
+- But the weaker plateau-connectivity statement now survives exactly in `n = 5`:
+  every two-layer minimizer is connected to a shifted minimizer by a chain of
+  boundary-preserving layer shifts.
+  More strongly, for every `e`, the exact `n = 5` minimizer graph under boundary-preserving
+  layer shifts is connected.
+  So the minimizer plateau does not collapse to one orbit, but it is still a single connected
+  weak-compression plateau leading to the shifted world.
+- More strongly still, the whole exact `n = 5` state space now supports the weak-compression
+  program:
+  for every `e`, every equal-size two-layer pair reaches some shifted pair by a chain of
+  nonincreasing layer-preserving shifts.
+  So in exact `n = 5`, weak compression really does reduce the full problem to the shifted world,
+  not just the minimizer plateau.
+- But the clean two-phase strengthening is now ruled out:
+  exact `n = 5` shows that not every strict local minimum lies in a boundary-preserving shift
+  component containing a shifted pair.
+  Failures already occur at `e = 5` and `e = 6`, so the active route cannot be simplified to
+  “strict descent first, then plateau rigidity.”
+- However, the quotient-level plateau picture is better:
+  exact `n = 5` now shows that for every `e`, the graph of equal-boundary shift components has a
+  unique sink component, and that sink component contains shifted pairs.
+  So while strict local minima need not already lie in shifted plateaus, the full weak-compression
+  quotient still appears to have a canonical shifted terminal component.
 - A tempting stronger sufficient condition,
   \[
   |\partial^\uparrow U| \ge |U\setminus T(V)|,
   \]
   is now archived: it would imply \((B)\) by Hall in the balanced middle-layer inclusion graph,
   but exact `n = 5` search falsifies it.
+- On the flux side, the first local transport picture is now sharper:
+  exact `n = 5` shows that the codimension-`1` local Hall graph fails, but the codimension-`2`
+  local Hall graph survives across all equal-size middle-layer pairs.
+- This is no longer only a tiny-dimensional phenomenon:
+  in the shifted `n = 7` model, codimension-`1` still fails, while codimension-`2` survives across
+  all shifted pairs.
+- But the first naive codimension-`2` calibration is already dead:
+  equal-split transport overloads a boundary point both in exact `n = 5` and in shifted `n = 7`.
+- The next natural codimension-`2` calibration is dead as well:
+  inverse-degree transport overloads a boundary point both in exact `n = 5` and in shifted
+  `n = 7`.
+- The first finite family of canonical codimension-`2` greedy injections is dead as well:
+  all eight tested greedy rules fail already in exact `n = 5`, so the matching route cannot be
+  closed by a fixed local priority rule.
+- But the codimension-`2` matching route has a new exact invariant:
+  in exact `n = 5` and in shifted `n = 7`, the minimum number of codimension-`2` edges required
+  by a perfect local matching always equals the codimension-`1` Hall deficiency.
+- That invariant is not explained by the simplest local obstruction:
+  in exact `n = 5` and in shifted `n = 7`, the codimension-`1` Hall deficiency can be strictly
+  larger than the number of zero-degree lower cells in the codimension-`1` local graph.
+- Nor is it always realized by the simplest geometric cut:
+  in exact `n = 5` and in shifted `n = 7`, the codimension-`1` Hall deficiency can be strictly
+  larger than the best single-coordinate contain/avoid cut deficiency.
+- But the shifted route now has a positive structural witness:
+  in shifted `n = 5` and shifted `n = 7`, the codimension-`1` Hall deficiency is always witnessed
+  by a shifted lower subfamily.
+- The next canonical witness simplification is now partially ruled out:
+  colex-prefix witnesses fail already in shifted `n = 5`, and lex-prefix witnesses fail in shifted
+  `n = 7`.
+- The next principal-star simplification is ruled out as well:
+  initial-principal-star witnesses survive shifted `n = 5` but fail in shifted `n = 7`.
+- But the shifted Hall route still has a positive finite-complexity refinement:
+  exact shifted diagnostics show that one can always choose a shifted Hall witness with at most
+  `1` maximal generator in `n = 5` and at most `4` maximal generators in `n = 7`.
+- That generator-witness branch is now computationally saturated again:
+  the analogous exact shifted summary for `n = 9` does not return on a short/medium run with the
+  current enumerator.
+- The generator-pattern branch is now sharper:
+  exact shifted `n = 7` already has `143` distinct minimal-generator witness patterns, so the
+  whole witness family does not collapse to a tiny finite list;
+  but the maximally complex frontier is rigid, with only `2` four-generator patterns.
+- The coordinate-section decomposition remains exact, but both standalone reductions suggested by
+  it are now archived: the unrestricted even adjacent-layer theorem and the corrected coupled
+  section theorem are both false.
 - This route remains active because \((B)\) removes the auxiliary operator \(T(V)\) and packages
   the remaining work as an ordinary positive-boundary lower bound for a two-layer family.
+
+## Geometric Proof Paths
+
+The direct route now has two active geometric proof paths and one archived heuristic:
+
+- [PLAN_two_layer_geometric_enrichment.md](./PLAN_two_layer_geometric_enrichment.md)
+  records the high-level membrane / one-sided isoperimetry / hypersimplex viewpoint.
+- [PLAN_two_layer_flux_calibration_route.md](./PLAN_two_layer_flux_calibration_route.md)
+  records the divergence-style route, replacing rigid matching by fractional transport from
+  \(C\) to \(\partial^+F\).
+- [STUCK_PLANS.md](./STUCK_PLANS.md)
+  records the archived coarea / section branch and its counterexamples.
 
 ## Current Research Program
 
@@ -158,6 +292,20 @@ for shifted
 F\subseteq \binom{[n]}{m}\sqcup \binom{[n]}{m+1}.
 \]
 
+The current exact `n = 5` evidence suggests the reduction theorem should not be phrased as strict
+descent. The stronger strict-compression shortcut is false, and even the cleaner strict-local-
+minimum variant is false: not every strict local minimum lies in a boundary-preserving plateau
+component containing a shifted pair. But the weaker global reachability statement survives:
+every exact `n = 5` pair reaches a shifted pair by nonincreasing shifts, and the exact `n = 5`
+plateau quotient even has a unique shifted sink component for every `e`. So the likely proof
+shape is:
+
+- weak compression monotonicity for all two-layer families;
+- global reachability of every family to the shifted world by nonincreasing shifts;
+- then a quotient-level rigidity theorem: the equal-boundary component graph has a canonical
+  shifted sink;
+- then the shifted extremal classification.
+
 ### 4. Classify The Shifted Extremizers
 
 Use the exact `n = 5` data and the tight examples to guess the equality cases. The current evidence
@@ -175,9 +323,9 @@ Current `n = 5` evidence suggests the equality cases should be only:
 - the principal-star two-layer family
   \[
   F=
-  \{A\in \tbinom{[n]}{m}: 0\in A\}
+  \{A\in \binom{[n]}{m}: 0\in A\}
   \;\cup\;
-  \{B\in \tbinom{[n]}{m+1}: 0\in B\},
+  \{B\in \binom{[n]}{m+1}: 0\in B\},
   \]
   up to permutation.
 
@@ -187,7 +335,7 @@ This equality conjecture is now supported exactly on the shifted subproblem for 
 The aim should still be a stronger theorem with equality classification, but not one that assumes
 there is a unique lex/shifted orbit.
 
-### 5. Attack The Shifted Case By One-Coordinate Sections
+### 5. Treat Sectioning As Geometric Guidance Only
 
 For shifted \(F\), section by a coordinate \(i\), compare the `contains i` and `avoids i` slices,
 and derive a recursive lower bound for \(|\partial^+F|\). The star-type equality candidates
@@ -201,16 +349,37 @@ decomposition
 |\partial^+(A\cup D)| + |\partial^+(B\cup E)|,
 \]
 where \(A\cup D\) and \(B\cup E\) are two-layer families on \([2m]\) supported on ranks
-\((m-1,m)\) and \((m,m+1)\) respectively. So the next proof target can be stated cleanly:
+\((m-1,m)\) and \((m,m+1)\) respectively. However, both standalone reductions suggested by this
+formula are now archived:
 
-- prove the even-dimensional adjacent-layer theorem
-  \[
-  |\partial^+G| \ge |G_r|
-  \qquad
-  \text{for }G\subseteq \binom{[2m]}{r}\sqcup \binom{[2m]}{r+1},
-  \]
-  at least in the shifted case;
-- then feed it into the section inequality above to recover the odd middle-layer theorem.
+- the unrestricted even adjacent-layer theorem is false;
+- the corrected coupled section theorem is also false already in exact `n = 5`.
+
+So sectioning is no longer an active reduction theorem for the project. It remains a useful way to
+organize the geometry of the problem, but the live proof search has to control the direct boundary
+functional \(|\partial^+F|\) itself. The archived branch is summarized in
+[STUCK_PLANS.md](./STUCK_PLANS.md).
+
+### 5A. Try A Flux / Calibration Proof In Parallel
+
+In parallel with the compression-first route, try to prove \((B)\) by a fractional flow from the
+lower sheet \(C\) to the exposed boundary \(\partial^+F\). The target is a family of weights
+\[
+w_{A,B}\ge 0
+\]
+with
+\[
+\sum_B w_{A,B}=1 \quad (A\in C),
+\qquad
+\sum_A w_{A,B}\le 1 \quad (B\in \partial^+F),
+\]
+which would imply
+\[
+|C| \le |\partial^+F|.
+\]
+
+This route is tracked separately in
+[PLAN_two_layer_flux_calibration_route.md](./PLAN_two_layer_flux_calibration_route.md).
 
 ### 6. Use Computation Only As Structural Guidance
 
@@ -239,6 +408,20 @@ Once the paper proof is stable, the formalization order should be:
 
 After that, the existing closure graph should finish the simple-lower bottleneck and the current
 Erdős #1 route automatically.
+
+## Next Layer Beyond The Exact Bound
+
+The current exact theorem \((B)\) should now be treated as the base case for a stronger
+stability/gap program:
+
+\[
+|\partial^+F| \ge |C| + \Gamma(F),
+\]
+
+where \(\Gamma(F)\ge 0\) and is positive for the transported sum-distinct families of interest.
+
+That next layer is not developed in this note. It is tracked separately in
+[PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](./PLAN_stronger_than_middle_binomial_via_two_layer_gap.md).
 
 ## What Not To Pursue
 
