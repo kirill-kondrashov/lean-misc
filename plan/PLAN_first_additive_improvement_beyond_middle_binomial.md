@@ -71,6 +71,12 @@ within the lifted shifted class, every family other than the two balls
 |\partial^+G| \ge \binom{n}{m} + m.
 ```
 
+From this point on, that restricted half-cube note should be treated as the commit gate for the
+additive route: the next commit should land only if it advances either
+
+- the proof that the shifted equality set in the lifted class is exactly those two balls, or
+- the proof of the global inequality above.
+
 ## Why This Is The Right Next Target
 
 On the stronger two-layer branch, the first nontrivial shifted shell is the template-distance `2`

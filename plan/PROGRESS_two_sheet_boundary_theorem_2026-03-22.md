@@ -50,6 +50,30 @@ Latest stronger-gap sharpening:
   [NOTE_restricted_half_cube_stability_literature_bridge.md](/home/kir/pers/erdos/lean-misc/plan/NOTE_restricted_half_cube_stability_literature_bridge.md):
   the stronger branch is best viewed as a restricted one-sided half-cube analogue of the
   Harper/Keevash–Long local-stability paradigm;
+- the lifted blockers now have an exact reduction note as well:
+  [PROOF_restricted_half_cube_stability_reduces_to_two_layer_gap.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_restricted_half_cube_stability_reduces_to_two_layer_gap.md)
+  shows that the two remaining half-cube blockers are exactly the two-layer statements
+  \[
+  \Delta(F)=0 \Longrightarrow F \in \{F_{\mathrm{full}},F_\star\}
+  \]
+  and
+  \[
+  F \notin \{F_{\mathrm{full}},F_\star\} \Longrightarrow \Delta(F)\ge m;
+  \]
+- commit gate from here:
+  the next commit should land only if it advances one of these two actual blockers:
+  \[
+  \mathcal E_{\mathrm{shifted}}(\mathcal H_m)
+  =
+  \{B(\varnothing,m), B(\{0\},m)\}
+  \]
+  or
+  \[
+  G \notin \{B(\varnothing,m), B(\{0\},m)\}
+  \Longrightarrow
+  |\partial^+G| \ge \binom{n}{m} + m
+  \]
+  for shifted lifted families \(G\);
 - the additive `+m` branch now has a dedicated first-shell theorem-candidate note:
   [PROOF_shifted_first_shell_move_type_theorem_candidate.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_shifted_first_shell_move_type_theorem_candidate.md);
 - the coarse shifted distance-`2` shell law

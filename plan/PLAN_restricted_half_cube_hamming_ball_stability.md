@@ -92,6 +92,22 @@ The closest literature template for this theorem is recorded in
 it is a restricted one-sided half-cube analogue of the Harper/Keevash–Long local-stability
 paradigm around two Hamming balls.
 
+The exact reduction of these lifted blockers back to the underlying two-layer gap problem is now
+recorded in
+[PROOF_restricted_half_cube_stability_reduces_to_two_layer_gap.md](./PROOF_restricted_half_cube_stability_reduces_to_two_layer_gap.md).
+That note shows that the two lifted blockers are equivalent to:
+
+- shifted two-layer zero-defect classification
+  ```math
+  \Delta(F)=0 \Longrightarrow F \in \{F_{\mathrm{full}}, F_\star\};
+  ```
+- shifted two-layer global `+m` gap
+  ```math
+  F \notin \{F_{\mathrm{full}}, F_\star\}
+  \Longrightarrow
+  \Delta(F)\ge m.
+  ```
+
 ## What Is Already Done
 
 The local first-shell theorem is now proved at the model-template level.
@@ -147,6 +163,27 @@ equality balls \(G_{\mathrm{full}}\) and \(G_\star\), and ideally stay at positi
 them.
 
 Once that is done, the additive improvement follows through the existing closure route.
+
+## Commit Gate
+
+The next commit on this stronger branch should land only if it advances one of the following two
+items:
+
+1. equality classification in the shifted lifted class:
+   ```math
+   \mathcal E_{\mathrm{shifted}}(\mathcal H_m)
+   =
+   \{B(\varnothing,m), B(\{0\},m)\};
+   ```
+2. global restricted half-cube stability:
+   ```math
+   G \notin \{B(\varnothing,m), B(\{0\},m)\}
+   \quad\Longrightarrow\quad
+   |\partial^+G| \ge \binom{n}{m} + m
+   ```
+   for shifted \(G \in \mathcal H_m\).
+
+So this note is now the hard gate for future progress claims on the additive route.
 
 ## Why This Plan Is Better
 

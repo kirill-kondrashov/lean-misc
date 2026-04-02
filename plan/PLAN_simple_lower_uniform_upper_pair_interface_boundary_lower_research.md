@@ -11,6 +11,7 @@ The active documentation set for this route is:
 - [PLAN_first_additive_improvement_beyond_middle_binomial.md](./PLAN_first_additive_improvement_beyond_middle_binomial.md)
 - [PLAN_restricted_half_cube_hamming_ball_stability.md](./PLAN_restricted_half_cube_hamming_ball_stability.md)
 - [NOTE_restricted_half_cube_stability_literature_bridge.md](./NOTE_restricted_half_cube_stability_literature_bridge.md)
+- [PROOF_restricted_half_cube_stability_reduces_to_two_layer_gap.md](./PROOF_restricted_half_cube_stability_reduces_to_two_layer_gap.md)
 - [PROOF_shifted_first_shell_move_type_theorem_candidate.md](./PROOF_shifted_first_shell_move_type_theorem_candidate.md)
 - [PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md](./PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md)
 - [NOTE_erdos1_position_against_current_literature.md](./NOTE_erdos1_position_against_current_literature.md)
@@ -174,6 +175,16 @@ within the lifted shifted class, every non-ball family should satisfy
 \[
 |\partial^+G| \ge \binom{n}{m} + m.
 \]
+That half-cube formulation now has an exact blocker reduction note as well:
+[PROOF_restricted_half_cube_stability_reduces_to_two_layer_gap.md](./PROOF_restricted_half_cube_stability_reduces_to_two_layer_gap.md)
+shows that the two lifted blockers are exactly equivalent to the two-layer statements
+\[
+\Delta(F)=0 \Longrightarrow F \in \{F_{\mathrm{full}},F_\star\}
+\]
+and
+\[
+F \notin \{F_{\mathrm{full}},F_\star\} \Longrightarrow \Delta(F)\ge m.
+\]
 The closest current literature model for this step is now summarized in
 [NOTE_restricted_half_cube_stability_literature_bridge.md](./NOTE_restricted_half_cube_stability_literature_bridge.md):
 our stronger branch is best viewed as a restricted one-sided half-cube analogue of the Harper
@@ -202,6 +213,32 @@ So the stronger branch is now blocked at a genuinely global step:
 - identify the full shifted equality set with those two model templates;
 - then lift from the proved model-template distance-`2` shell theorem to full shifted stability
   `\Delta(F)\ge m`.
+
+## Commit Gate
+
+For the current branch, the next commit should land only if it advances one of these two actual
+stronger-branch blockers:
+
+1. prove that the shifted equality set in the lifted class is exactly the two Hamming balls
+   \[
+   B(\varnothing,m)
+   \qquad\text{and}\qquad
+   B(\{0\},m);
+   \]
+2. prove the global restricted half-cube stability theorem
+   \[
+   G \notin \{B(\varnothing,m), B(\{0\},m)\}
+   \quad\Longrightarrow\quad
+   |\partial^+G| \ge \binom{n}{m} + m
+   \]
+   for shifted lifted families \(G\).
+
+This means:
+
+- further reformulations, literature-positioning notes, and shell bookkeeping are no longer
+  sufficient by themselves;
+- future commits should be judged only by whether they make mathematical progress on one of those
+  two items.
 
 ## Archived Routes
 
