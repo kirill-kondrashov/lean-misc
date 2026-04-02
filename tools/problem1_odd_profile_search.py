@@ -465,6 +465,20 @@ class ShiftedTwoLayerTemplateLocalDecompositionResult:
 
 
 @dataclass(frozen=True)
+class ShiftedTwoLayerTemplateLocalZeroDefectSummaryResult:
+    n: int
+    max_shell_distance: int
+    pair_count: int
+    zero_defect_pair_count: int
+    zero_defect_shell_count: int
+    minimal_positive_margin: int | None
+    witness_shell_distance: int | None
+    witness_nearest_template: str | None
+    witness_c_family: Family
+    witness_u_family: Family
+
+
+@dataclass(frozen=True)
 class ExhaustiveShiftedEvenAdjacentLayerSummaryResult:
     n: int
     r: int
@@ -4130,6 +4144,149 @@ def shifted_two_layer_template_local_decomposition_profile(
     )
 
 
+def shifted_two_layer_template_local_zero_defect_summary(
+    n: int,
+    max_shell_distance: int,
+) -> ShiftedTwoLayerTemplateLocalZeroDefectSummaryResult:
+    if n % 2 == 0:
+        raise ValueError("n must be odd")
+    if max_shell_distance < 0:
+        raise ValueError("max_shell_distance must be nonnegative")
+
+    subsets = all_subsets(n)
+    middle = n // 2
+    lower_rank = middle
+    upper_rank = middle + 1
+    lower_rank_sets = rank_subsets(n, lower_rank, subsets)
+    upper_rank_sets = rank_subsets(n, upper_rank, subsets)
+    lower_count = len(lower_rank_sets)
+    upper_count = len(upper_rank_sets)
+    if lower_count != upper_count:
+        raise ValueError("balanced middle layers must have equal size")
+
+    full_lower_template = tuple(lower_rank_sets)
+    principal_star_c_family = tuple(subset for subset in lower_rank_sets if subset & 1)
+    principal_star_u_family = tuple(subset for subset in upper_rank_sets if subset & 1)
+
+    lower_from_full = shifted_uniform_template_local_families(
+        n, lower_rank_sets, full_lower_template, max_shell_distance
+    )
+    lower_from_principal_star = shifted_uniform_template_local_families(
+        n, lower_rank_sets, principal_star_c_family, max_shell_distance
+    )
+    lower_candidates_dict: Dict[Family, Tuple[int, int]] = {}
+    for family, distance in lower_from_full.items():
+        lower_candidates_dict[family] = (
+            distance,
+            lower_from_principal_star.get(
+                family, len(set(family).symmetric_difference(principal_star_c_family))
+            ),
+        )
+    for family, distance in lower_from_principal_star.items():
+        existing = lower_candidates_dict.get(family)
+        distance_to_full_lower = (
+            lower_from_full.get(family, len(set(family).symmetric_difference(full_lower_template)))
+            if existing is None
+            else existing[0]
+        )
+        lower_candidates_dict[family] = (distance_to_full_lower, distance)
+
+    upper_from_full = shifted_uniform_template_local_families(
+        n, upper_rank_sets, (), max_shell_distance
+    )
+    upper_from_principal_star = shifted_uniform_template_local_families(
+        n, upper_rank_sets, principal_star_u_family, max_shell_distance
+    )
+    upper_candidates_by_size: Dict[int, List[Tuple[Family, int, int]]] = {}
+    upper_candidate_dict: Dict[Family, Tuple[int, int]] = {}
+    for family, distance in upper_from_full.items():
+        upper_candidate_dict[family] = (
+            distance,
+            upper_from_principal_star.get(
+                family, len(set(family).symmetric_difference(principal_star_u_family))
+            ),
+        )
+    for family, distance in upper_from_principal_star.items():
+        existing = upper_candidate_dict.get(family)
+        distance_to_full_lower = upper_from_full.get(family, len(family)) if existing is None else existing[0]
+        upper_candidate_dict[family] = (distance_to_full_lower, distance)
+    for family, distances in sorted(upper_candidate_dict.items()):
+        upper_candidates_by_size.setdefault(len(family), []).append(
+            (family, distances[0], distances[1])
+        )
+
+    boundary_cache: Dict[Tuple[Family, Family], int] = {}
+
+    def two_layer_boundary_size(c_family: Family, u_family: Family) -> int:
+        key = (c_family, u_family)
+        cached = boundary_cache.get(key)
+        if cached is not None:
+            return cached
+        family = tuple(sorted(c_family + u_family))
+        value = len(positive_boundary(family, subsets))
+        boundary_cache[key] = value
+        return value
+
+    pair_count = 0
+    zero_defect_pair_count = 0
+    zero_defect_shells: Set[int] = set()
+    minimal_positive_margin: int | None = None
+    witness_shell_distance: int | None = None
+    witness_nearest_template: str | None = None
+    witness_c_family: Family = ()
+    witness_u_family: Family = ()
+
+    for c_family, (
+        distance_c_full_lower,
+        distance_c_principal_star,
+    ) in sorted(lower_candidates_dict.items()):
+        e = lower_count - len(c_family)
+        for (
+            u_family,
+            distance_u_full_lower,
+            distance_u_principal_star,
+        ) in upper_candidates_by_size.get(e, []):
+            distance_to_full_lower = distance_c_full_lower + distance_u_full_lower
+            distance_to_principal_star = distance_c_principal_star + distance_u_principal_star
+            shell_distance = min(distance_to_full_lower, distance_to_principal_star)
+            if shell_distance > max_shell_distance:
+                continue
+            pair_count += 1
+            if distance_to_full_lower < distance_to_principal_star:
+                nearest_template = "full_lower"
+            elif distance_to_principal_star < distance_to_full_lower:
+                nearest_template = "principal_star"
+            else:
+                nearest_template = "tied"
+            margin = two_layer_boundary_size(c_family, u_family) - len(c_family)
+            if shell_distance == 0:
+                continue
+            if margin == 0:
+                zero_defect_pair_count += 1
+                zero_defect_shells.add(shell_distance)
+                if witness_shell_distance is None:
+                    witness_shell_distance = shell_distance
+                    witness_nearest_template = nearest_template
+                    witness_c_family = c_family
+                    witness_u_family = u_family
+                continue
+            if minimal_positive_margin is None or margin < minimal_positive_margin:
+                minimal_positive_margin = margin
+
+    return ShiftedTwoLayerTemplateLocalZeroDefectSummaryResult(
+        n=n,
+        max_shell_distance=max_shell_distance,
+        pair_count=pair_count,
+        zero_defect_pair_count=zero_defect_pair_count,
+        zero_defect_shell_count=len(zero_defect_shells),
+        minimal_positive_margin=minimal_positive_margin,
+        witness_shell_distance=witness_shell_distance,
+        witness_nearest_template=witness_nearest_template,
+        witness_c_family=witness_c_family,
+        witness_u_family=witness_u_family,
+    )
+
+
 def exhaustive_shifted_even_adjacent_layer_summary(
     n: int,
 ) -> List[ExhaustiveShiftedEvenAdjacentLayerSummaryResult]:
@@ -7298,6 +7455,17 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--shifted-two-layer-template-local-zero-defect-summary",
+        type=int,
+        nargs="+",
+        help=(
+            "Run the shifted-only local zero-defect summary on the given odd dimensions. "
+            "Restrict to shifted pairs lying within --template-shell-max-distance of one of the "
+            "two equality templates, then test whether any non-template local pair still has "
+            "boundary defect 0."
+        ),
+    )
+    parser.add_argument(
         "--template-shell-distance",
         type=int,
         default=2,
@@ -8520,6 +8688,49 @@ def main() -> int:
                 )
                 for delta_signature in entry.delta_signatures:
                     print(f"    {delta_signature}")
+        return 0
+
+    if args.shifted_two_layer_template_local_zero_defect_summary is not None:
+        any_warning = False
+        for n in args.shifted_two_layer_template_local_zero_defect_summary:
+            if n % 2 == 0:
+                warn(f"WARNING requested even dimension n={n}; this mode expects odd dimensions.")
+                any_warning = True
+                continue
+            result = shifted_two_layer_template_local_zero_defect_summary(
+                n, args.template_shell_max_distance
+            )
+            if result.zero_defect_pair_count == 0:
+                ok(
+                    "OK shifted local zero-defect summary at "
+                    f"n={n}, d<={result.max_shell_distance}: no non-template local pair has "
+                    "defect 0."
+                )
+            else:
+                any_warning = True
+                warn(
+                    "WARNING shifted local zero-defect summary at "
+                    f"n={n}, d<={result.max_shell_distance}: found "
+                    f"{result.zero_defect_pair_count} non-template local zero-defect pairs."
+                )
+            print(
+                f"  pair_count={result.pair_count} "
+                f"zero_defect_shells={result.zero_defect_shell_count} "
+                f"minimal_positive_margin={result.minimal_positive_margin}"
+            )
+            if result.zero_defect_pair_count > 0:
+                print(
+                    f"  witness d={result.witness_shell_distance} "
+                    f"template={result.witness_nearest_template}"
+                )
+                print(
+                    f"  witness C={format_family(result.witness_c_family)} "
+                    f"U={format_family(result.witness_u_family)}"
+                )
+        if any_warning:
+            warn("WARNING overall: some shifted local zero-defect summaries found extra equality.")
+            return 1
+        ok("OK overall: all requested shifted local zero-defect summaries exclude extra equality.")
         return 0
 
     if args.exhaustive_shifted_even_adjacent_layer_summary is not None:

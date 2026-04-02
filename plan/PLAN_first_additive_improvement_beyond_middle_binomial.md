@@ -200,6 +200,9 @@ F \notin \mathcal E
 Version A is directly supported by exact data in `n = 5,7,9,11,13`. Version B is the actual
 target needed for the first additive literature improvement.
 Version A is now directly supported through shifted `n = 25`.
+More sharply, the new local zero-defect summary now shows that in shifted `n = 7,9,11,13`, every
+template-local family with distance at most `10` from the two model templates already has
+strictly positive defect unless it is one of the templates themselves.
 In the lifted half-cube language, Version B becomes:
 
 ```math

@@ -128,6 +128,18 @@ then
 
 This comes from the proved two-layer first-shell theorem plus the exact half-cube bridge.
 
+There is now a second blocker-facing local exclusion result as well: the dedicated local
+zero-defect summary in `tools/problem1_odd_profile_search.py` shows that, within template
+distance at most `10`, there are no extra shifted equality families beyond the two balls in
+
+- `n = 7`, with minimal positive margin `3`;
+- `n = 9`, with minimal positive margin `4`;
+- `n = 11`, with minimal positive margin `5`;
+- `n = 13`, with minimal positive margin `6`.
+
+So blocker `1` now has exact local support on a sizable neighborhood of the two Hamming-ball
+templates, not just on the first shell.
+
 ## What Is Still Missing
 
 The remaining global gap has three pieces.
