@@ -14,6 +14,23 @@ This is a heuristic program-progress bar for the current formal route, not a pro
 
 Latest stronger-gap sharpening:
 
+- the stronger branch has now been revised to a theorem-first program, recorded in
+  [PLAN_improved_bound_theorem_first_program.md](/home/kir/pers/erdos/lean-misc/plan/PLAN_improved_bound_theorem_first_program.md);
+  larger-`n` scans are no longer progress by themselves and only count if they directly reduce
+  one of the two live blockers
+  \[
+  \Delta(F)=0 \Longrightarrow F \in \{F_{\mathrm{full}},F_\star\}
+  \]
+  or
+  \[
+  F \notin \{F_{\mathrm{full}},F_\star\} \Longrightarrow \Delta(F)\ge m;
+  \]
+- the current preferred reduction of those blockers is now explicit in
+  [PROOF_shifted_gap_reduces_to_inward_descent.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_shifted_gap_reduces_to_inward_descent.md):
+  an inward defect-nonincreasing descent theorem from template distance `d>=4` to `d-2`,
+  together with the already-proved first-shell theorem, would imply both shifted equality
+  classification and the full shifted `+m` gap;
+
 - blocker `1` now has a new exact local exclusion result:
   the dedicated local zero-defect summary in
   `tools/problem1_odd_profile_search.py` shows that in shifted

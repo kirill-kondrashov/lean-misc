@@ -52,6 +52,8 @@ distance-`2` shell around those two Hamming balls inside the lifted shifted clas
 boundary gap `m`.
 The exact global theorem candidate in that language is now isolated in
 [PLAN_restricted_half_cube_hamming_ball_stability.md](./PLAN_restricted_half_cube_hamming_ball_stability.md).
+The revised theorem-first program for the stronger branch is now recorded in
+[PLAN_improved_bound_theorem_first_program.md](./PLAN_improved_bound_theorem_first_program.md).
 
 ## Connection To The Current Route
 
@@ -110,6 +112,9 @@ the next layer:
 - prove a positive gap away from equality;
 - show the transported sum-distinct families are never equality templates, and in fact stay a
   positive distance away.
+
+At this point, larger-`n` shell extension is no longer an active objective. The remaining work is
+to prove those statements, not to keep extending the computational frontier.
 
 ## Equality Templates
 

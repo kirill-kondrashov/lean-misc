@@ -150,6 +150,9 @@ The current computational frontier for this first-shell check is now:
 - shifted `n = 27` does not return on a short/medium run with the current first-shell probe;
 - so the current exact computational frontier on this narrow branch is `n = 25`.
 
+This is enough for theorem-shaping purposes. It should now be read as frozen support, not as the
+next research objective.
+
 ## Conjectural Two-Layer Form
 
 Let
@@ -237,6 +240,14 @@ So the additive improvement program is:
    ```
 
 ## Immediate Research Program
+
+The active program is now theorem-first rather than frontier-first. See
+[PLAN_improved_bound_theorem_first_program.md](./PLAN_improved_bound_theorem_first_program.md).
+The new preferred reduction note is
+[PROOF_shifted_gap_reduces_to_inward_descent.md](./PROOF_shifted_gap_reduces_to_inward_descent.md):
+it shows that, together with the already-proved first-shell theorem, an inward
+defect-nonincreasing descent theorem would imply both shifted equality classification and the full
+shifted `+m` gap.
 
 ### Step 1. Prove Shifted Equality Classification
 

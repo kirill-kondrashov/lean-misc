@@ -142,6 +142,9 @@ distance at most `10`, there are no extra shifted equality families beyond the t
 So blocker `1` now has exact local support on a sizable neighborhood of the two Hamming-ball
 templates, not just on the first shell.
 
+That local evidence is now sufficient for theorem-shaping purposes. Further neighborhood scans are
+out of scope unless they directly settle a structural sublemma for a live blocker.
+
 ## What Is Still Missing
 
 The remaining global gap has three pieces.
@@ -178,6 +181,13 @@ them.
 
 Once that is done, the additive improvement follows through the existing closure route.
 
+The revised theorem-first program for doing this is now recorded in
+[PLAN_improved_bound_theorem_first_program.md](./PLAN_improved_bound_theorem_first_program.md).
+More sharply, the current preferred two-layer reduction is now written out in
+[PROOF_shifted_gap_reduces_to_inward_descent.md](./PROOF_shifted_gap_reduces_to_inward_descent.md):
+an inward defect-nonincreasing descent theorem in the shifted class would already imply both
+equality classification and the global `+m` gap.
+
 ## Commit Gate
 
 The next commit on this stronger branch should land only if it advances one of the following two
@@ -198,6 +208,9 @@ items:
    for shifted \(G \in \mathcal H_m\).
 
 So this note is now the hard gate for future progress claims on the additive route.
+
+In particular, further larger-`n` shell or neighborhood scans are not a reason to commit unless
+they directly reduce one of the two items above.
 
 ## Why This Plan Is Better
 
