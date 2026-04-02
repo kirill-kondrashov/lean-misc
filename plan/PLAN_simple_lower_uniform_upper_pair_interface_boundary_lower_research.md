@@ -215,8 +215,9 @@ So the stronger branch is now blocked at a genuinely global step:
   `\Delta(F)\ge m`.
 
 The equality-classification blocker now has a new exact local exclusion layer:
-the dedicated local zero-defect summary shows that in shifted `n = 7, 9, 11, 13`, within template
-distance at most `10`, no non-template local pair has defect `0`, and the smallest positive
+the dedicated local zero-defect summary shows that in shifted
+`n = 7, 9, 11, 13, 15, 17`, within template distance at most `10`,
+no non-template local pair has defect `0`, and the smallest positive
 margin on that neighborhood is already `m`.
 
 ## Commit Gate

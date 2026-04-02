@@ -136,6 +136,8 @@ distance at most `10`, there are no extra shifted equality families beyond the t
 - `n = 9`, with minimal positive margin `4`;
 - `n = 11`, with minimal positive margin `5`;
 - `n = 13`, with minimal positive margin `6`.
+- `n = 15`, with minimal positive margin `7`;
+- `n = 17`, with minimal positive margin `8`.
 
 So blocker `1` now has exact local support on a sizable neighborhood of the two Hamming-ball
 templates, not just on the first shell.

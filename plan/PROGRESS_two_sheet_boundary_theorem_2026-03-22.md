@@ -16,11 +16,12 @@ Latest stronger-gap sharpening:
 
 - blocker `1` now has a new exact local exclusion result:
   the dedicated local zero-defect summary in
-  `tools/problem1_odd_profile_search.py` shows that in shifted `n = 7, 9, 11, 13`,
+  `tools/problem1_odd_profile_search.py` shows that in shifted
+  `n = 7, 9, 11, 13, 15, 17`,
   within template distance at most `10` from the two model templates,
   no non-template local pair has defect `0`;
   the smallest positive local margin on those neighborhoods is respectively
-  `3, 4, 5, 6`, i.e. exactly `m`;
+  `3, 4, 5, 6, 7, 8`, i.e. exactly `m`;
 - the new bridge note
   [PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md)
   now rewrites the active two-layer theorem as a one-sided half-cube boundary theorem:
