@@ -259,6 +259,10 @@ N \ge \binom{n}{\lfloor n/2\rfloor} + \left\lfloor \frac{n-1}{2}\right\rfloor,
 
 motivated by exact shifted-shell evidence on the two-layer model.
 
+The stronger branch is now theorem-first. The local first-shell theorem is already proved in the
+shifted model, and the remaining work is no longer “check larger `n`”, but prove a global
+stability theorem away from the two extremal templates.
+
 For a short paper-positioning note with references, see
 [plan/NOTE_erdos1_position_against_current_literature.md](./plan/NOTE_erdos1_position_against_current_literature.md).
 
@@ -456,23 +460,98 @@ In expanded form:
 \left|\binom{[n]}{m}\setminus V\right|.
 ```
 
-The latest proof-side reduction now pushes this odd-cube problem to an even-dimensional
-adjacent-layer theorem. If
+The exact route above is still open, but it is now treated as infrastructure: proving it recovers
+the current literature-level middle-binomial bound through the existing Lean closure graph.
+
+The active stronger branch introduces the defect
 
 ```math
-F \subseteq \binom{[2m+1]}{m}\sqcup \binom{[2m+1]}{m+1}
+\Delta(F) := |\partial^+F| - |C|.
 ```
 
-is sectioned by one coordinate, then the proof note reduces the odd theorem to the following
-even-cube statement, first in the shifted case:
+Its two shifted model templates are
 
 ```math
-|\partial^+G| \ge |G_r|,
+F_{\mathrm{full}} := \binom{[n]}{m},
+```
+
+and
+
+```math
+F_\star
+:=
+\{A \in \binom{[n]}{m} : 0 \in A\}
+\cup
+\{B \in \binom{[n]}{m+1} : 0 \in B\}.
+```
+
+The local first-shell theorem is now proved on paper: every shifted family at template distance
+`2` from `F_full` or `F_star` satisfies
+
+```math
+\Delta(F)=m.
+```
+
+The current global stronger target is therefore
+
+```math
+F \notin \{F_{\mathrm{full}},F_\star\}
+\quad\Longrightarrow\quad
+\Delta(F)\ge m,
+```
+
+which would imply the additive lower bound above once the transported sum-distinct families are
+shown to avoid the two equality templates.
+
+Via the half-cube lift, this is the same as the restricted Hamming-ball stability statement
+
+```math
+G \notin \{B(\varnothing,m), B(\{0\},m)\}
+\quad\Longrightarrow\quad
+|\partial^+G| \ge \binom{n}{m} + m
+```
+
+inside the lifted shifted class of half-cube families `G` of size `2^(n-1)`.
+
+The current theorem-first reduction of that global gap is now:
+
+```math
+F \notin \{F_{\mathrm{full}},F_\star\},
 \qquad
-G \subseteq \binom{[2m]}{r}\sqcup \binom{[2m]}{r+1}.
+d(F)\ge 4,
+\qquad
+\Delta(F)<m
+\Longrightarrow
+\exists F'
+\text{ shifted such that }
+d(F')=d(F)-2
+\text{ and }
+\Delta(F')<m,
 ```
 
-This is the current combinatorial bottleneck.
+where
+
+```math
+d(F):=\min\bigl(|F\triangle F_{\mathrm{full}}|,\ |F\triangle F_\star|\bigr).
+```
+
+This is the active subcritical counterexample-descent theorem.
+
+The newest local reduction is sharper still: it is enough to prove an average inward-move
+inequality over the admissible inward repairs `F'` with `d(F')=d(F)-2`, namely
+
+```math
+\sum_{F' \in M_{\mathrm{in}}(F)} \mu_F(F')\,\Delta(F')
+\le
+\Delta(F),
+```
+
+for some probability weights `\mu_F`. If this holds and `\Delta(F)<m`, then at least one inward
+move stays below the threshold `m`, which gives the required descent.
+
+So the current combinatorial bottleneck is no longer the dead even-cube section theorem. It is the
+global shifted / half-cube stability problem above, currently reduced to proving a local average
+inward-move inequality.
 
 Topological meaning of the last frontier:
 
@@ -508,16 +587,19 @@ says that a balanced middle-layer membrane cannot hide from the outside: if one 
 the upper middle layer, then the resulting interface still has at least \(|C|\) outward-facing
 cells above it.
 
-After sectioning by one coordinate, the remaining frontier becomes the even-cube adjacent-layer
-statement
+On the stronger branch, the same membrane picture now comes with two preferred comparison shapes:
+the full lower layer and the principal-star two-layer family. Their half-cube lifts are exactly
+the two Hamming balls
 
 ```math
-|\partial^+G| \ge |G_r|,
-\qquad
-G \subseteq \binom{[2m]}{r}\sqcup \binom{[2m]}{r+1},
+B(\varnothing,m)
+\qquad\text{and}\qquad
+B(\{0\},m).
 ```
 
-which says: any family supported on two adjacent layers of an even cube has positive boundary at
+The improved-bound program asks for a stability gap away from those two balls: every other lifted
+shifted half-cube family should expose at least `m` extra outward-facing cells above the exact
+middle-binomial baseline.
 least as large as its lower layer. This is the cleanest current topological form of the remaining
 Erdős #1 bottleneck.
 
