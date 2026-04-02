@@ -11,9 +11,11 @@ The active documentation set for this route is:
 - [PLAN_first_additive_improvement_beyond_middle_binomial.md](./PLAN_first_additive_improvement_beyond_middle_binomial.md)
 - [PLAN_restricted_half_cube_hamming_ball_stability.md](./PLAN_restricted_half_cube_hamming_ball_stability.md)
 - [PLAN_improved_bound_theorem_first_program.md](./PLAN_improved_bound_theorem_first_program.md)
+- [PLAN_subcritical_inward_descent_discrete_morse_route.md](./PLAN_subcritical_inward_descent_discrete_morse_route.md)
 - [NOTE_restricted_half_cube_stability_literature_bridge.md](./NOTE_restricted_half_cube_stability_literature_bridge.md)
 - [PROOF_restricted_half_cube_stability_reduces_to_two_layer_gap.md](./PROOF_restricted_half_cube_stability_reduces_to_two_layer_gap.md)
 - [PROOF_shifted_gap_reduces_to_inward_descent.md](./PROOF_shifted_gap_reduces_to_inward_descent.md)
+- [PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md](./PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md)
 - [PROOF_shifted_first_shell_move_type_theorem_candidate.md](./PROOF_shifted_first_shell_move_type_theorem_candidate.md)
 - [PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md](./PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md)
 - [NOTE_erdos1_position_against_current_literature.md](./NOTE_erdos1_position_against_current_literature.md)
@@ -195,6 +197,10 @@ The closest current literature model for this step is now summarized in
 [NOTE_restricted_half_cube_stability_literature_bridge.md](./NOTE_restricted_half_cube_stability_literature_bridge.md):
 our stronger branch is best viewed as a restricted one-sided half-cube analogue of the Harper
 local-stability program around two Hamming balls.
+The current theorem-first local target inside that route is now isolated in
+[PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md](./PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md):
+it is enough to show that admissible inward corner repairs exist and that their average defect
+does not exceed the current defect.
 
 The first concrete literature-improvement target on that stronger branch is now recorded in
 [PLAN_first_additive_improvement_beyond_middle_binomial.md](./PLAN_first_additive_improvement_beyond_middle_binomial.md):
@@ -222,13 +228,17 @@ So the stronger branch is now blocked at a genuinely global step:
 
 The cleanest current reduction of those two blockers is now recorded in
 [PROOF_shifted_gap_reduces_to_inward_descent.md](./PROOF_shifted_gap_reduces_to_inward_descent.md):
-an inward defect-nonincreasing descent theorem from template distance `d\ge 4` to `d-2`, together
-with the already-proved first-shell theorem, would imply both shifted equality classification and
-the full shifted `+m` gap.
+the strong inward-descent theorem from template distance `d\ge 4` to `d-2` is false already in
+shifted `n=5`, but the weaker subcritical counterexample-descent theorem, valid only when
+`\Delta(F)<m`, would still imply both shifted equality classification and the full shifted `+m`
+gap.
 
 No further frontier-pushing in `n` should count as progress by itself. The next proof-facing work
 should reduce one of those two blockers directly, as organized in
 [PLAN_improved_bound_theorem_first_program.md](./PLAN_improved_bound_theorem_first_program.md).
+The current preferred active route for doing that is now the discrete-Morse / inward-corner
+program in
+[PLAN_subcritical_inward_descent_discrete_morse_route.md](./PLAN_subcritical_inward_descent_discrete_morse_route.md).
 
 The equality-classification blocker now has a new exact local exclusion layer:
 the dedicated local zero-defect summary shows that in shifted

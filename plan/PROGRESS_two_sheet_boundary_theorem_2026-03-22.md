@@ -27,9 +27,22 @@ Latest stronger-gap sharpening:
   \]
 - the current preferred reduction of those blockers is now explicit in
   [PROOF_shifted_gap_reduces_to_inward_descent.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_shifted_gap_reduces_to_inward_descent.md):
-  an inward defect-nonincreasing descent theorem from template distance `d>=4` to `d-2`,
-  together with the already-proved first-shell theorem, would imply both shifted equality
-  classification and the full shifted `+m` gap;
+  the strong inward-descent theorem has now been falsified already in shifted `n=5`, and the live
+  replacement is the weaker subcritical counterexample-descent theorem: only families with
+  `Delta(F)<m` need admit an inward step from template distance `d>=4` to `d-2` while remaining
+  below the threshold `m`; together with the
+  already-proved first-shell theorem, that would still imply both shifted equality classification
+  and the full shifted `+m` gap;
+- the active proof architecture for that live replacement is now
+  [PLAN_subcritical_inward_descent_discrete_morse_route.md](/home/kir/pers/erdos/lean-misc/plan/PLAN_subcritical_inward_descent_discrete_morse_route.md):
+  encode shifted families as template-relative Ferrers data, define inward corner moves, and prove
+  a local average inward-move inequality below the threshold `Delta(F)<m`;
+- more sharply, that local step is now isolated in
+  [PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md):
+  if admissible inward moves exist and their uniform or weighted average defect does not exceed
+  `\Delta(F)`, then any shifted subcritical counterexample at template distance `d\ge 4` admits
+  an inward repair that stays subcritical, which is exactly the live descent theorem needed for
+  both stronger blockers;
 
 - blocker `1` now has a new exact local exclusion result:
   the dedicated local zero-defect summary in

@@ -185,8 +185,13 @@ The revised theorem-first program for doing this is now recorded in
 [PLAN_improved_bound_theorem_first_program.md](./PLAN_improved_bound_theorem_first_program.md).
 More sharply, the current preferred two-layer reduction is now written out in
 [PROOF_shifted_gap_reduces_to_inward_descent.md](./PROOF_shifted_gap_reduces_to_inward_descent.md):
-an inward defect-nonincreasing descent theorem in the shifted class would already imply both
-equality classification and the global `+m` gap.
+the unconditional inward-descent theorem is false, but the weaker subcritical counterexample-
+descent theorem in the shifted class would still imply both equality classification and the global
+`+m` gap.
+The active proof sketch for that subcritical theorem is now the discrete-Morse route in
+[PLAN_subcritical_inward_descent_discrete_morse_route.md](./PLAN_subcritical_inward_descent_discrete_morse_route.md),
+with the local defect step further isolated as an average inward-move inequality in
+[PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md](./PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md).
 
 ## Commit Gate
 

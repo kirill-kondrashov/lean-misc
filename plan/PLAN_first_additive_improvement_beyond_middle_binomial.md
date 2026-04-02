@@ -217,6 +217,14 @@ G \notin \{B(\varnothing,m), B(\{0\},m)\}
 
 within the lifted shifted class.
 
+The current theorem-first reduction of Version B is now:
+
+- the proved first-shell theorem at distance `2` around the two templates;
+- the subcritical counterexample-descent reduction in
+  [PROOF_shifted_gap_reduces_to_inward_descent.md](./PROOF_shifted_gap_reduces_to_inward_descent.md);
+- and, more locally, the average inward-move inequality isolated in
+  [PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md](./PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md).
+
 ## How This Connects To The Sum-Distinct Transport
 
 The current formal route already reduces the middle-binomial benchmark to the exact two-layer
@@ -245,9 +253,12 @@ The active program is now theorem-first rather than frontier-first. See
 [PLAN_improved_bound_theorem_first_program.md](./PLAN_improved_bound_theorem_first_program.md).
 The new preferred reduction note is
 [PROOF_shifted_gap_reduces_to_inward_descent.md](./PROOF_shifted_gap_reduces_to_inward_descent.md):
-it shows that, together with the already-proved first-shell theorem, an inward
-defect-nonincreasing descent theorem would imply both shifted equality classification and the full
-shifted `+m` gap.
+it records that the strong inward-descent theorem is false already in shifted `n=5`, and replaces
+it by the weaker subcritical counterexample-descent theorem: together with the already-proved
+first-shell theorem, preserving `Delta(F)<m` while moving inward would imply both shifted equality
+classification and the full shifted `+m` gap.
+The current active proof architecture for that subcritical theorem is now
+[PLAN_subcritical_inward_descent_discrete_morse_route.md](./PLAN_subcritical_inward_descent_discrete_morse_route.md).
 
 ### Step 1. Prove Shifted Equality Classification
 

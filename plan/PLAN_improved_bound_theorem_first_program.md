@@ -58,9 +58,16 @@ By the half-cube bridge, these are equivalent to the two lifted Hamming-ball sta
 
 The key reduction note is now
 [PROOF_shifted_gap_reduces_to_inward_descent.md](./PROOF_shifted_gap_reduces_to_inward_descent.md):
-once one proves an inward defect-nonincreasing descent theorem from template distance `d>=4` to
-distance `d-2`, the already-proved first-shell theorem implies both live blockers `(EQ)` and
-`(GAP)`.
+the original unconditional inward-descent theorem is false already in shifted `n=5`, but the
+corrected route can be weakened further to what is actually needed: once one proves subcritical
+counterexample descent for shifted families with `d>=4` and `Delta(F)<m`, the already-proved
+first-shell theorem implies both live blockers `(EQ)` and `(GAP)`.
+
+The current preferred proof architecture for that corrected theorem is now
+[PLAN_subcritical_inward_descent_discrete_morse_route.md](./PLAN_subcritical_inward_descent_discrete_morse_route.md).
+It treats the shifted subcritical region as a discrete-gradient state space and now further reduces
+the route to a local average inward-move inequality, recorded in
+[PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md](./PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md).
 
 ### Route A. Equality Classification First
 
@@ -82,11 +89,17 @@ Primary task:
 
 - prove the inward-descent theorem from
   [PROOF_shifted_gap_reduces_to_inward_descent.md](./PROOF_shifted_gap_reduces_to_inward_descent.md):
-  every shifted non-template family with template distance at least `4` admits a
-  defect-nonincreasing simplification step reducing the template distance by `2`.
+  every shifted non-template family with template distance at least `4` and defect below `m`
+  admits an inward simplification step reducing the template distance by `2` while staying below
+  the threshold `m`.
 
 If this is proved, then the already-established first-shell theorem immediately yields both
 `(EQ)` and `(GAP)`.
+
+The new active proof sketch for this route is the discrete-Morse / corner-slide program in
+[PLAN_subcritical_inward_descent_discrete_morse_route.md](./PLAN_subcritical_inward_descent_discrete_morse_route.md),
+with the local defect step now isolated as an average inward-move inequality in
+[PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md](./PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md).
 
 ### Route C. Template-Directed Simplification
 
@@ -112,10 +125,10 @@ The next proof-facing tasks are:
    and an upper extreme position simultaneously;
 2. prove that any shifted family with minimal positive defect is forced into the distance-`2`
    shell;
-3. isolate a clean monotone complexity measure on shifted families whose local improving moves are
-   exactly the one full-lower shell move and the four principal-star shell moves.
+3. prove a local average inward-move inequality for admissible corner repairs in the shifted class.
 
-The new preferred formulation of Tasks 2 and 3 is exactly the inward-descent statement above.
+The new preferred formulation of Tasks 2 and 3 is exactly the subcritical counterexample-descent
+statement plus its averaging reduction.
 
 ## Commit Rule
 

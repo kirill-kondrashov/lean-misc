@@ -218,6 +218,34 @@ boundary program centered on
   currently viable; any successful calibration must use a genuinely nonuniform construction, or be
   extracted from matching/Hall data by a subtler argument.
 
+### 11. Strong Inward Descent
+
+- Proposed theorem:
+  every shifted non-template two-layer family with template distance at least `4` admits an inward
+  step reducing template distance by `2` without increasing defect.
+- Status: `falsified`.
+- Exact shifted `n=5` shell profile:
+  \[
+  d=4:\ \Delta(F)=3\ \text{for every shifted family,}
+  \]
+  but
+  \[
+  d=6:\ \text{there exists a shifted family with }\Delta(F)=2.
+  \]
+- Representative witness:
+  \[
+  C=\{\{0,1\},\{0,2\},\{1,2\},\{0,3\},\{1,3\},\{0,4\},\{1,4\}\},
+  \]
+  \[
+  U=\{\{0,1,2\},\{0,1,3\},\{0,1,4\}\},
+  \]
+  with
+  \[
+  d(F)=6,\qquad \Delta(F)=2.
+  \]
+- Consequence: the active route must use the weaker subcritical counterexample-descent theorem,
+  not defect-monotone inward descent.
+
 ### 11. Canonical Greedy Codimension-2 Matching Rules
 
 - Tested family: all eight rules obtained by choosing
@@ -326,6 +354,51 @@ boundary program centered on
   \]
 - Consequence: the shifted Hall witness can still be taken shifted, but not reduced to a single
   principal-star cut.
+
+### 15. Strong Inward Descent For The Shifted Gap Route
+
+- Proposed auxiliary theorem:
+  for every shifted balanced two-layer family \(F\),
+  \[
+  F \notin \{F_{\mathrm{full}},F_\star\}
+  \ \text{and}\ 
+  d(F)\ge 4
+  \Longrightarrow
+  \exists F'
+  \text{ shifted with }
+  d(F')=d(F)-2
+  \ \text{and}\ 
+  \Delta(F')\le \Delta(F).
+  \]
+- Status: `falsified`.
+- Exact shifted `n = 5` obstruction:
+  - every shifted family at shell distance `4` has
+    \[
+    \Delta(F)=3;
+    \]
+  - but there is a shifted family at shell distance `6` with
+    \[
+    \Delta(F)=2.
+    \]
+- Explicit witness:
+  \[
+  C=\{\{0,1\},\{0,2\},\{1,2\},\{0,3\},\{1,3\},\{0,4\},\{1,4\}\},
+  \]
+  \[
+  U=\{\{0,1,2\},\{0,1,3\},\{0,1,4\}\}.
+  \]
+  Then
+  \[
+  d(F)=6,\qquad \Delta(F)=2,
+  \]
+  while no shifted family at distance `4` has defect at most `2`.
+- Consequence:
+  the stronger branch cannot be reduced to unconditional inward defect-nonincreasing descent.
+  The live replacement is the weaker subcritical descent theorem:
+  require the same inward step only under the extra hypothesis
+  \[
+  \Delta(F)<m.
+  \]
 
 ## Current Use
 
