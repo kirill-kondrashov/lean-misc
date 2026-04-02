@@ -680,44 +680,44 @@ In this picture:
 
 Read the illustration in four steps:
 
-1. The odd cube is $\mathcal P([3])$, with layers
+Step 1. The odd cube is $\mathcal P([3])$, with layers
 
-   ```math
-   \binom{[3]}{0},\ \binom{[3]}{1},\ \binom{[3]}{2},\ \binom{[3]}{3}.
-   ```
+```math
+\binom{[3]}{0},\ \binom{[3]}{1},\ \binom{[3]}{2},\ \binom{[3]}{3}.
+```
 
-2. The two middle layers are
+Step 2. The two middle layers are
 
-   ```math
-   \binom{[3]}{1} = \{\{0\},\{1\},\{2\}\},
-   \qquad
-   \binom{[3]}{2} = \{\{0,1\},\{0,2\},\{1,2\}\}.
-   ```
+```math
+\binom{[3]}{1} = \{\{0\},\{1\},\{2\}\},
+\qquad
+\binom{[3]}{2} = \{\{0,1\},\{0,2\},\{1,2\}\}.
+```
 
-3. The green lower-middle part is
+Step 3. The green lower-middle part is
 
-   ```math
-   C = \{\{1\},\{2\}\},
-   ```
+```math
+C = \{\{1\},\{2\}\},
+```
 
-   and the green upper-middle part is
+the green upper-middle part is
 
-   ```math
-   U = \{\{0,1\}\},
-   ```
+```math
+U = \{\{0,1\}\},
+```
 
-   so the full green family is
+and the full green family is
 
-   ```math
-   F = C \cup U.
-   ```
+```math
+F = C \cup U.
+```
 
-4. The blue vertices are exactly the sets outside $F$ that lie one upward cube-edge away from a
-   green vertex:
+Step 4. The blue vertices are exactly the sets outside $F$ that lie one upward cube-edge away
+from a green vertex:
 
-   ```math
-   \partial^+F = \{\{1,2\},\{0,2\},\{0,1,2\}\}.
-   ```
+```math
+\partial^+F = \{\{1,2\},\{0,2\},\{0,1,2\}\}.
+```
 
 So this picture is the statement
 
