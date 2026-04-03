@@ -68,6 +68,8 @@ The current preferred proof architecture for that corrected theorem is now
 It treats the shifted subcritical region as a discrete-gradient state space and now further reduces
 the route to a local average inward-move inequality, recorded in
 [PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md](./PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md).
+That local average inequality is now sharpened further to a signed atom-balance theorem in
+[PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md).
 
 ### Route A. Equality Classification First
 
@@ -100,6 +102,8 @@ The new active proof sketch for this route is the discrete-Morse / corner-slide 
 [PLAN_subcritical_inward_descent_discrete_morse_route.md](./PLAN_subcritical_inward_descent_discrete_morse_route.md),
 with the local defect step now isolated as an average inward-move inequality in
 [PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md](./PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md).
+The current concrete target inside that local step is now the multiplicity-balance form from
+[PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md).
 
 ### Route C. Template-Directed Simplification
 
@@ -129,6 +133,10 @@ The next proof-facing tasks are:
 
 The new preferred formulation of Tasks 2 and 3 is exactly the subcritical counterexample-descent
 statement plus its averaging reduction.
+The sharpest current form of Task 3 is now:
+
+- prove that created boundary plus lost lower mass is dominated, in weighted total, by destroyed
+  boundary plus gained lower mass across admissible inward moves.
 
 ## Commit Rule
 

@@ -224,6 +224,8 @@ The current theorem-first reduction of Version B is now:
   [PROOF_shifted_gap_reduces_to_inward_descent.md](./PROOF_shifted_gap_reduces_to_inward_descent.md);
 - and, more locally, the average inward-move inequality isolated in
   [PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md](./PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md).
+The newest sharpening of that last step is the signed local multiplicity-balance note
+[PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md).
 
 ## How This Connects To The Sum-Distinct Transport
 

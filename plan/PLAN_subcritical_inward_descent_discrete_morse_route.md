@@ -117,6 +117,10 @@ The theorem will follow if this move can also be shown to satisfy
 The current preferred route to that local inequality is now the averaging reduction in
 [PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md](./PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md):
 it is enough to show that admissible inward moves exist and have non-increasing average defect.
+More sharply, the new note
+[PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md)
+rewrites that average inequality as a signed local multiplicity balance on created/destroyed
+boundary atoms and created/destroyed lower atoms.
 
 ## Proof Strategy
 
@@ -192,6 +196,9 @@ Proof sketch:
 
 This is the key lemma. Discrete Morse theory organizes the proof, but this local
 average-drift estimate is the real engine.
+The newest sharpening is that this average drift is equivalent to a concrete atom-count inequality,
+so the remaining local task is now a weighted multiplicity comparison, not an abstract defect
+estimate.
 
 ### Step 5. Subcritical-Preservation For One Move
 
@@ -239,6 +246,8 @@ This route is valid only if the following lemmas are established:
 5. the deduction of one subcritical-preserving inward move from that average inequality.
 
 Among these, Lemma 4 is the real unknown.
+In its sharpest current form, Lemma 4 is the signed local multiplicity balance from
+[PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md).
 
 ## Why This Is Better Than More Enumeration
 

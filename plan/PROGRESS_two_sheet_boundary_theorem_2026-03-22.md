@@ -43,6 +43,11 @@ Latest stronger-gap sharpening:
   `\Delta(F)`, then any shifted subcritical counterexample at template distance `d\ge 4` admits
   an inward repair that stays subcritical, which is exactly the live descent theorem needed for
   both stronger blockers;
+- sharper again, the new note
+  [PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](/home/kir/pers/erdos/lean-misc/plan/PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md)
+  rewrites that average inequality in exact signed form:
+  it is enough to prove that, across admissible inward moves, created boundary plus lost lower
+  mass is dominated in weighted total by destroyed boundary plus gained lower mass;
 
 - blocker `1` now has a new exact local exclusion result:
   the dedicated local zero-defect summary in

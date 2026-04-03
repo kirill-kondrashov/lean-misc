@@ -168,3 +168,10 @@ The intended local proof shape is:
 
 So the theorem-first program is now sharply focused on a local averaging inequality, rather than on
 finding a single globally monotone move by inspection.
+
+This local averaging step is now sharpened further in
+[PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md):
+the average inequality is equivalent to a signed multiplicity balance between
+
+- created boundary atoms and lost lower atoms, versus
+- destroyed boundary atoms and gained lower atoms.

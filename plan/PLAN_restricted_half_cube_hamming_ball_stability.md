@@ -192,6 +192,9 @@ The active proof sketch for that subcritical theorem is now the discrete-Morse r
 [PLAN_subcritical_inward_descent_discrete_morse_route.md](./PLAN_subcritical_inward_descent_discrete_morse_route.md),
 with the local defect step further isolated as an average inward-move inequality in
 [PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md](./PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md).
+That local inequality is now reduced further to a signed multiplicity balance on created/destroyed
+boundary and lower atoms in
+[PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md).
 
 ## Commit Gate
 
