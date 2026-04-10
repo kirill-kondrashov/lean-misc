@@ -1,27 +1,83 @@
-# Note: Erdős #1 Position Against Current Literature
+# Note: Erdős #1 Against The Current Literature
 
-As of **March 31, 2026**, the original integer Erdős distinct subset sums problem is still open in
-the literature. The current published benchmark for the original problem remains
-
-```math
-N \ge \binom{n}{\lfloor n/2\rfloor}
-\sim \sqrt{\frac{2}{\pi}}\,\frac{2^n}{\sqrt n},
-```
-
-while the conjectural target is still
+As of **April 7, 2026**, the original integer Erdős distinct subset sums problem is still listed
+as open on the Erdős problems site:
 
 ```math
 N \gg 2^n.
 ```
 
-References:
+The best **published** lower bound for the original problem remains
 
-- Erdős problem page: <https://www.erdosproblems.com/sources_bib/Er82e/yes>
-- Dubroff–Fox–Xu (2021): <https://dblp.org/rec/journals/siamdm/DubroffFX21.html>
-- Steinerberger (2023): <https://doi.org/10.1142/S1793042123500860>
-- Cambie–Gao–Kim–Liu (2025, modular variant only): <https://www.impan.pl/en/publishing-house/journals-and-series/acta-arithmetica/online/115883/the-erdos-distinct-subset-sums-problem-in-a-modular-setting>
+```math
+N \ge \binom{n}{\lfloor n/2\rfloor}
+\sim \sqrt{\frac{2}{\pi}}\,\frac{2^n}{\sqrt n}.
+```
 
-## What This Branch Has Done
+## Published Frontier
+
+The conservative external baseline is:
+
+- Erdős problems page, last edited **January 23, 2026**:
+  <https://www.erdosproblems.com/1>
+  It still marks the problem open and states that the current record is the constant
+  `sqrt(2/pi)`, with Dubroff–Fox–Xu proving the exact middle-binomial bound.
+- Dubroff–Fox–Xu (2021):
+  <https://dblp.org/rec/journals/siamdm/DubroffFX21.html>
+  This is the established exact theorem
+  ```math
+  N \ge \binom{n}{\lfloor n/2\rfloor}.
+  ```
+- Steinerberger (2023):
+  <https://doi.org/10.1142/S1793042123500860>
+  This gives another proof / reformulation of the same benchmark, not a stronger bound.
+
+So the published state of the art for the original problem is still the middle-binomial scale.
+
+## Related Results That Do Not Change The Baseline
+
+These are relevant for context, but they do not improve the accepted frontier for the original
+integer problem.
+
+- Cambie–Gao–Kim–Liu, modular variant:
+  <https://www.impan.pl/en/publishing-house/journals-and-series/acta-arithmetica/online/115883/the-erdos-distinct-subset-sums-problem-in-a-modular-setting>
+- Other 2025–2026 variants and higher-dimensional generalisations may be relevant nearby, but they
+  do not currently change the accepted frontier for the original one-dimensional problem.
+
+## Preprints And Unestablished Claims
+
+There is at least one public 2025 preprint claim of a full resolution:
+
+- Bado, *On Erdős's distinct subset sums conjecture via the circle method*:
+  <https://zenodo.org/records/16117091>
+
+This should currently be treated as **unestablished** for the purposes of this repo:
+
+- the Erdős problems page still lists the problem as open;
+- the standard published benchmark has not been displaced in the sources above;
+- the GitHub/database status pages checked in this search do not indicate that the published
+  frontier has changed.
+
+So preprints can be tracked, but they should not redefine the repo's claimed baseline unless the
+broader literature clearly accepts them.
+
+## GitHub And Database Status
+
+The most useful GitHub-facing status source found in this search is:
+
+- the community database repo behind `erdosproblems.com`:
+  <https://github.com/teorth/erdosproblems>
+
+That repo is useful as a status tracker, but not as proof authority. The problem page itself is
+still the cleanest public summary:
+
+- problem `#1` is open;
+- it is marked as formalised;
+- it still points to the Dubroff–Fox–Xu / Steinerberger benchmark for the original problem.
+
+I did not find a GitHub repository that changes the accepted original-problem frontier beyond that.
+
+## What This Branch Has Actually Achieved
 
 This branch has **not** yet proved a stronger unconditional lower bound than
 
@@ -31,86 +87,30 @@ This branch has **not** yet proved a stronger unconditional lower bound than
 
 So it is not yet a literature-level improvement.
 
-What it *has* done is reduce the proof search to a much sharper form:
+What it has done is reduce the proof search to a much sharper form:
 
-1. The broad prism/half-cube route has been formalized and normalized.
-2. The exact middle-binomial endpoint is now funneled to one explicit two-layer bottleneck:
-
-```math
-\left|\partial^+\!\left(\left(\binom{[n]}{m}\setminus V\right)\cup U\right)\right|
-\ge
-\left|\binom{[n]}{m}\setminus V\right|.
-```
-
-3. A stronger-than-literature program has been isolated:
-
-```math
-|\partial^+F| \ge |C| + \Gamma(F),
-```
-
-with the goal of proving a positive gap away from the equality templates and then showing the
-transported sum-distinct families cannot realize those templates.
-
-## Why This Is Real Progress
-
-The repo is no longer in the state “many possible approaches, unclear bottleneck.” It is now in
-the state:
-
-- one exact theorem would recover the current literature-level benchmark through the formal route;
-- one explicit stability/gap program is the natural next step beyond that benchmark.
-
-That is substantial proof-architecture progress, even though it is not yet a new theorem.
-
-## Current Structural Evidence
-
-The strongest exact evidence on the stronger branch is now:
-
-- in the shifted world, equality appears only in two templates:
-  - the full lower layer,
-  - the principal-star two-layer family;
-- the first strict shifted gap is:
-  - `2` in `n = 5`,
-  - `3` in `n = 7`;
-- the shell-envelope symmetry is now exact in shifted `n = 7, 9, 11`:
-  for the `full_lower` and `principal_star` strands, the shell-by-shell gap interval agrees at
-  every computed shell distance;
-- the principal-star strand dominates multiplicity of near-extremizers, even when the shell gap
-  envelope matches the full-lower strand.
-
-So the stronger branch is now naturally split into two subproblems:
-
-1. a distance-only shell-envelope theorem;
-2. a template-attribution / multiplicity theorem.
-
-## What Still Separates Us From A New Result
-
-Two gaps remain.
-
-First, the exact bottleneck theorem itself is still open:
-
-```math
-\left|\partial^+\!\left(\left(\binom{[n]}{m}\setminus V\right)\cup U\right)\right|
-\ge
-\left|\binom{[n]}{m}\setminus V\right|.
-```
-
-Second, even once that is proved, a literature-level advance needs more:
-
-- prove a positive gap off the equality templates;
-- prove that transported sum-distinct families cannot lie in the equality-template neighborhoods;
-- convert that gap into
-
-```math
-N \ge \binom{n}{\lfloor n/2\rfloor} + g(n)
-```
-
-for some explicit positive function `g(n)`.
+- exact route:
+  one explicit two-layer bottleneck
+  ```math
+  \left|\partial^+\!\left(\left(\binom{[n]}{m}\setminus V\right)\cup U\right)\right|
+  \ge
+  \left|\binom{[n]}{m}\setminus V\right|;
+  ```
+- stronger route:
+  one explicit approximation target
+  ```math
+  N \ge \binom{n}{\lfloor n/2\rfloor} + \left\lfloor \frac{n-1}{2} \right\rfloor,
+  ```
+  now reformulated as a restricted half-cube Hamming-ball stability problem.
 
 ## Bottom Line
 
-Relative to the literature:
+Relative to the current literature:
 
-- no new unconditional bound yet;
-- but a large reduction in proof debt;
-- and a much sharper picture of the exact and stability theorems that would matter for a real
-  advance on Erdős #1.
+- the accepted original-problem baseline is still
+  ```math
+  N \ge \binom{n}{\lfloor n/2\rfloor};
+  ```
+- preprints may claim more, but they are not yet the accepted frontier;
+- this repo's realistic near-term goal is therefore:
+  improve the established approximation, not claim a full solution of Erdős #1.

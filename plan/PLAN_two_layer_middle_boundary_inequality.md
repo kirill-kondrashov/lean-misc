@@ -105,8 +105,10 @@ So:
   equality.
 
 That stronger direction is now tracked in
-[PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](./PLAN_stronger_than_middle_binomial_via_two_layer_gap.md).
-Via the new bridge note, the stronger branch can now be read as the additive half-cube target
+[PLAN_first_additive_improvement_beyond_middle_binomial.md](./PLAN_first_additive_improvement_beyond_middle_binomial.md)
+and
+[PLAN_restricted_half_cube_hamming_ball_stability.md](./PLAN_restricted_half_cube_hamming_ball_stability.md).
+Via the bridge note, the stronger branch can now be read as the additive half-cube target
 
 ```math
 |\partial^+G| \ge \binom{n}{m} + m.

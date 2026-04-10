@@ -121,6 +121,10 @@ More sharply, the new note
 [PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md)
 rewrites that average inequality as a signed local multiplicity balance on created/destroyed
 boundary atoms and created/destroyed lower atoms.
+The new rigorous conditional gradient theorem is now recorded in
+[PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md](./PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md):
+the Morse-theoretic route really closes once one has a canonical weight scheme satisfying the
+local average inequality.
 
 ## Proof Strategy
 
@@ -248,6 +252,9 @@ This route is valid only if the following lemmas are established:
 Among these, Lemma 4 is the real unknown.
 In its sharpest current form, Lemma 4 is the signed local multiplicity balance from
 [PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md).
+Equivalently, by
+[PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md](./PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md),
+the real missing object is a canonical weight scheme on admissible inward moves.
 
 ## Why This Is Better Than More Enumeration
 

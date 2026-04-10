@@ -1,124 +1,55 @@
 # Research Plan: `SimpleLowerUniformUpperPairInterfaceBoundaryLowerStatement`
 
-This note records the active plan for the last remaining simple-lower bottleneck.
+This note is the master index for the current Erdős #1 route.
 
 ## Active Files
 
-The active documentation set for this route is:
+The active documentation set is now:
 
 - [PLAN_two_layer_middle_boundary_inequality.md](./PLAN_two_layer_middle_boundary_inequality.md)
-- [PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](./PLAN_stronger_than_middle_binomial_via_two_layer_gap.md)
 - [PLAN_first_additive_improvement_beyond_middle_binomial.md](./PLAN_first_additive_improvement_beyond_middle_binomial.md)
 - [PLAN_restricted_half_cube_hamming_ball_stability.md](./PLAN_restricted_half_cube_hamming_ball_stability.md)
-- [PLAN_improved_bound_theorem_first_program.md](./PLAN_improved_bound_theorem_first_program.md)
 - [PLAN_subcritical_inward_descent_discrete_morse_route.md](./PLAN_subcritical_inward_descent_discrete_morse_route.md)
-- [NOTE_restricted_half_cube_stability_literature_bridge.md](./NOTE_restricted_half_cube_stability_literature_bridge.md)
+- [PROOF_two_layer_middle_boundary_inequality.md](./PROOF_two_layer_middle_boundary_inequality.md)
+- [PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md](./PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md)
 - [PROOF_restricted_half_cube_stability_reduces_to_two_layer_gap.md](./PROOF_restricted_half_cube_stability_reduces_to_two_layer_gap.md)
+- [PROOF_shifted_first_shell_move_type_theorem_candidate.md](./PROOF_shifted_first_shell_move_type_theorem_candidate.md)
 - [PROOF_shifted_gap_reduces_to_inward_descent.md](./PROOF_shifted_gap_reduces_to_inward_descent.md)
 - [PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md](./PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md)
 - [PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md)
-- [PROOF_shifted_first_shell_move_type_theorem_candidate.md](./PROOF_shifted_first_shell_move_type_theorem_candidate.md)
-- [PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md](./PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md)
+- [PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md](./PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md)
 - [NOTE_erdos1_position_against_current_literature.md](./NOTE_erdos1_position_against_current_literature.md)
-- [PROOF_two_layer_middle_boundary_inequality.md](./PROOF_two_layer_middle_boundary_inequality.md)
-- [PLAN_two_layer_geometric_enrichment.md](./PLAN_two_layer_geometric_enrichment.md)
-- [PLAN_two_layer_flux_calibration_route.md](./PLAN_two_layer_flux_calibration_route.md)
 - [STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md](./STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md)
-- [PROGRESS_two_sheet_boundary_theorem_2026-03-22.md](./PROGRESS_two_sheet_boundary_theorem_2026-03-22.md)
 
-Archived branches are summarized only in [STUCK_PLANS.md](./STUCK_PLANS.md).
+Everything else should be treated as archival only and compressed into
+[STUCK_PLANS.md](./STUCK_PLANS.md).
 
-## Main Target
+## External Baseline
 
-Let
+The current published baseline is:
+
+```math
+N \ge \binom{n}{\lfloor n/2\rfloor}.
+```
+
+The literature note
+[NOTE_erdos1_position_against_current_literature.md](./NOTE_erdos1_position_against_current_literature.md)
+now distinguishes:
+
+- published results;
+- preprints and unestablished claims;
+- GitHub / database status pages.
+
+So the repo should now be read as aiming first at a better **approximation bound**, not at a full
+resolution of Erdős #1.
+
+## Exact Bottleneck
+
+Fix
 
 \[
 n := 2m+1,
 \qquad
-L_m := \{S \subseteq [n] : |S| \le m\}.
-\]
-
-Let
-
-\[
-V \subseteq \binom{[n]}{m},
-\qquad
-U \subseteq \binom{[n]}{m+1},
-\qquad
-|U| = |V|.
-\]
-
-Define
-
-\[
-M := L_m \setminus V,
-\qquad
-N := L_m \cup U.
-\]
-
-The theorem to prove is
-
-\[
-|\partial^+ N| + |(N \setminus M)\cup \partial^+ M|
-\ge
-2\binom{2m+1}{m}.
-\]
-
-## Reduced Middle-Layer Form
-
-The statement has already been reduced to
-
-\[
-|\partial^\uparrow U| \ge |T(V)\setminus U|,
-\]
-
-where
-
-\[
-\partial^\uparrow U
-:=
-\{T \in \binom{[n]}{m+2} : \exists s \in U,\ s \subset T\},
-\]
-
-and
-
-\[
-T(V)
-:=
-\left\{B \in \binom{[n]}{m+1} : \binom{B}{m}\subseteq V\right\}.
-\]
-
-Everything downstream of this inequality is already wired in Lean. No further theorem packaging is
-needed.
-
-## Critical Review Of The Current Route
-
-The present route is extremely successful as a reduction of the *exact* middle-binomial endpoint,
-but it does **not** by itself go beyond the current published lower bound
-\[
-N \ge \binom{n}{\lfloor n/2\rfloor}.
-\]
-
-In particular:
-
-- if we prove the current two-layer theorem exactly as stated, we recover the Dubroff-Fox-Xu
-  lower bound through the existing closure graph;
-- but that alone would still be only the literature-level exact middle-binomial lower bound, not a
-  genuinely stronger result toward the open conjecture \(N \gg 2^n\);
-- so the next research direction has to be a *gap/stability strengthening* of the current
-  reduction, not just completion of the exact-bound bottleneck.
-
-The brute-force phase for that stronger branch should now be treated as saturated. The active
-research program is theorem-first and is recorded in
-[PLAN_improved_bound_theorem_first_program.md](./PLAN_improved_bound_theorem_first_program.md).
-
-## Active Route
-
-The only active route is the direct two-layer boundary route.
-
-Let
-
-\[
 P_m := \binom{[n]}{m},
 \qquad
 C := P_m \setminus V,
@@ -126,482 +57,102 @@ C := P_m \setminus V,
 F := C \cup U.
 \]
 
-Then the reduced middle-layer inequality is equivalent to
+The remaining exact theorem is
 
 \[
-|\partial^+ F| \ge |C|.
+|\partial^+F| \ge |C|.
 \]
 
-This route is recorded in:
+This is the direct two-layer bottleneck isolated in
+[PLAN_two_layer_middle_boundary_inequality.md](./PLAN_two_layer_middle_boundary_inequality.md).
 
-- [PLAN_two_layer_middle_boundary_inequality.md](./PLAN_two_layer_middle_boundary_inequality.md)
-- [PROOF_two_layer_middle_boundary_inequality.md](./PROOF_two_layer_middle_boundary_inequality.md)
-- [PLAN_two_layer_geometric_enrichment.md](./PLAN_two_layer_geometric_enrichment.md)
-- [PLAN_two_layer_flux_calibration_route.md](./PLAN_two_layer_flux_calibration_route.md)
-- [STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md](./STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md)
+Via
+[PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md](./PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md),
+it is equivalent to the lifted half-cube estimate
 
-This route should now be read in two layers:
-
-1. prove the exact two-layer theorem
-   \[
-   |\partial^+F| \ge |C|;
-   \]
-2. strengthen it, on the families coming from the sum-distinct subcube transport, to obtain a
-   positive gap beyond equality. That new direction is recorded in
-   [PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](./PLAN_stronger_than_middle_binomial_via_two_layer_gap.md).
-
-The exact route now also has a cleaner half-cube reformulation in
-[PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md](./PROOF_two_layer_to_half_cube_vertex_boundary_bridge.md):
-the two-layer theorem
-\[
-|\partial^+F| \ge |C|
-\]
-is equivalent to a one-sided positive-boundary lower bound
 \[
 |\partial^+G| \ge \binom{n}{m}
 \]
-for a lifted half-cube family \(G\) of size \(2^{n-1}\). The additive target becomes
-\[
-|\partial^+G| \ge \binom{n}{m} + m.
-\]
-This is the cleanest current bridge from the active plan to vertex-isoperimetric stability
-methods on the cube.
-More sharply, that same note now identifies the two lifted model templates with the two
-radius-\(m\) Hamming balls
-\[
-B(\varnothing,m)
-\qquad\text{and}\qquad
-B(\{0\},m),
-\]
-so the stronger branch is now explicitly a local half-cube stability problem around two Hamming
-balls, restricted to the lifted family class.
-It also transfers the proved local first-shell law into that half-cube language:
-for lifted shifted families, distance `2` from those two Hamming balls already forces boundary
-gap exactly \(m\).
-The corresponding global theorem candidate is now isolated separately in
-[PLAN_restricted_half_cube_hamming_ball_stability.md](./PLAN_restricted_half_cube_hamming_ball_stability.md):
-within the lifted shifted class, every non-ball family should satisfy
-\[
-|\partial^+G| \ge \binom{n}{m} + m.
-\]
-That half-cube formulation now has an exact blocker reduction note as well:
-[PROOF_restricted_half_cube_stability_reduces_to_two_layer_gap.md](./PROOF_restricted_half_cube_stability_reduces_to_two_layer_gap.md)
-shows that the two lifted blockers are exactly equivalent to the two-layer statements
-\[
-\Delta(F)=0 \Longrightarrow F \in \{F_{\mathrm{full}},F_\star\}
-\]
-and
-\[
-F \notin \{F_{\mathrm{full}},F_\star\} \Longrightarrow \Delta(F)\ge m.
-\]
-The closest current literature model for this step is now summarized in
-[NOTE_restricted_half_cube_stability_literature_bridge.md](./NOTE_restricted_half_cube_stability_literature_bridge.md):
-our stronger branch is best viewed as a restricted one-sided half-cube analogue of the Harper
-local-stability program around two Hamming balls.
-The current theorem-first local target inside that route is now isolated in
-[PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md](./PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md):
-it is enough to show that admissible inward corner repairs exist and that their average defect
-does not exceed the current defect.
-That local target is now sharper again in
-[PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md):
-the average inequality is equivalent to showing that created boundary plus lost lower mass is
-dominated, in weighted total, by destroyed boundary plus gained lower mass.
 
-The first concrete literature-improvement target on that stronger branch is now recorded in
-[PLAN_first_additive_improvement_beyond_middle_binomial.md](./PLAN_first_additive_improvement_beyond_middle_binomial.md):
+for the balanced half-cube lift
+
+\[
+G := L_{m-1} \cup C \cup U.
+\]
+
+## Active Approximation Target
+
+The first explicit improvement target is
 
 ```math
 N \ge \binom{n}{\lfloor n/2\rfloor} + \left\lfloor \frac{n-1}{2} \right\rfloor.
 ```
 
-The local theorem note
-[PROOF_shifted_first_shell_move_type_theorem_candidate.md](./PROOF_shifted_first_shell_move_type_theorem_candidate.md)
-has now moved one step beyond “five guessed classes compute correctly”. It proves that the whole
-shifted distance-`2` shell around the two model templates `F_{\mathrm{full}}` and `F_\star`
-consists exactly of those five classes, and hence that every shifted family at distance `2` from
-those model templates satisfies
+This is recorded in
+[PLAN_first_additive_improvement_beyond_middle_binomial.md](./PLAN_first_additive_improvement_beyond_middle_binomial.md).
 
-```math
-\Delta(F)=m.
-```
+Under the half-cube bridge, the stronger route becomes the restricted stability statement
 
-So the stronger branch is now blocked at a genuinely global step:
+\[
+G \notin \{B(\varnothing,m), B(\{0\},m)\}
+\Longrightarrow
+|\partial^+G| \ge \binom{n}{m} + m.
+\]
 
-- identify the full shifted equality set with those two model templates;
-- then lift from the proved model-template distance-`2` shell theorem to full shifted stability
-  `\Delta(F)\ge m`.
+This is isolated in
+[PLAN_restricted_half_cube_hamming_ball_stability.md](./PLAN_restricted_half_cube_hamming_ball_stability.md).
 
-The cleanest current reduction of those two blockers is now recorded in
-[PROOF_shifted_gap_reduces_to_inward_descent.md](./PROOF_shifted_gap_reduces_to_inward_descent.md):
-the strong inward-descent theorem from template distance `d\ge 4` to `d-2` is false already in
-shifted `n=5`, but the weaker subcritical counterexample-descent theorem, valid only when
-`\Delta(F)<m`, would still imply both shifted equality classification and the full shifted `+m`
-gap.
+The corresponding two-layer form is:
 
-No further frontier-pushing in `n` should count as progress by itself. The next proof-facing work
-should reduce one of those two blockers directly, as organized in
-[PLAN_improved_bound_theorem_first_program.md](./PLAN_improved_bound_theorem_first_program.md).
-The current preferred active route for doing that is now the discrete-Morse / inward-corner
-program in
+\[
+\Delta(F) := |\partial^+F| - |C|,
+\]
+\[
+\Delta(F)=0 \Longrightarrow F \in \{F_{\mathrm{full}},F_\star\},
+\]
+\[
+F \notin \{F_{\mathrm{full}},F_\star\} \Longrightarrow \Delta(F)\ge m.
+\]
+
+## Current Local Blocker
+
+The active proof architecture for the stronger branch is the discrete-Morse route in
 [PLAN_subcritical_inward_descent_discrete_morse_route.md](./PLAN_subcritical_inward_descent_discrete_morse_route.md).
 
-The equality-classification blocker now has a new exact local exclusion layer:
-the dedicated local zero-defect summary shows that in shifted
-`n = 7, 9, 11, 13, 15, 17`, within template distance at most `10`,
-no non-template local pair has defect `0`, and the smallest positive
-margin on that neighborhood is already `m`.
+Its strongest rigorous current reduction is:
+
+- subcritical descent:
+  [PROOF_shifted_gap_reduces_to_inward_descent.md](./PROOF_shifted_gap_reduces_to_inward_descent.md)
+- average inward-move inequality:
+  [PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md](./PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md)
+- signed atom balance:
+  [PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md)
+- conditional discrete gradient:
+  [PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md](./PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md)
+
+So the live local theorem is now explicit:
+
+\[
+\text{construct a canonical local weight scheme on admissible inward moves}
+\]
+
+that proves the signed multiplicity-balance inequality and therefore yields a discrete gradient on
+the subcritical shifted region.
 
 ## Commit Gate
 
-For the current branch, the next commit should land only if it advances one of these two actual
-stronger-branch blockers:
+The next commit should land only if it advances one of:
 
-1. prove that the shifted equality set in the lifted class is exactly the two Hamming balls
-   \[
-   B(\varnothing,m)
-   \qquad\text{and}\qquad
-   B(\{0\},m);
-   \]
-2. prove the global restricted half-cube stability theorem
-   \[
-   G \notin \{B(\varnothing,m), B(\{0\},m)\}
-   \quad\Longrightarrow\quad
-   |\partial^+G| \ge \binom{n}{m} + m
-   \]
-   for shifted lifted families \(G\).
-
-This means:
-
-- further reformulations, literature-positioning notes, and shell bookkeeping are no longer
-  sufficient by themselves;
-- future commits should be judged only by whether they make mathematical progress on one of those
-  two items.
-
-## Archived Routes
-
-Archived and falsified branches are summarized in
-[STUCK_PLANS.md](./STUCK_PLANS.md).
-
-In particular, the naive compression route and the weaker colex reduction route are both archived,
-the Hall-shadow sufficient-condition route is now archived as well, and the separate colex
-formalization issue is no longer part of the active proof notebook set.
-
-## Current Evidence
-
-The current computational evidence still points in the right direction:
-
-- the exact direct two-layer boundary inequality survives exhaustive `n = 5` search for all
-  equal-size middle-layer pairs;
-- exact `n = 5` also supports the actual two-layer compression target:
-  every layer-preserving shift of a two-layer family \(F\) weakly decreases \(|\partial^+F|\)
-  across all equal-size middle-layer pairs;
-- this now extends exactly to shifted `n = 7`:
-  across all `5164` shifted pairs and all `108444` layer-preserving shifts, no counterexample to
-  the actual two-layer compression lemma appears;
-- but the stronger strict-descent shortcut is now falsified already in exact `n = 5`:
-  some nonshifted pairs admit no layer-preserving shift that strictly lowers \(|\partial^+F|\),
-  so the compression program has to work with weak descent plus a separate rigidity argument;
-- more sharply, the exact `n = 5` direct search supports the shifted-minimizer model:
-  for every `e`, a lex/shifted two-layer family \(F=C\cup U\) attains the minimum boundary;
-- exact shifted `n = 5` classification is sharper again:
-  equality occurs only in the trivial full lower-layer orbit and the principal-star two-layer
-  orbit;
-- exact shifted `n = 7` enumeration now matches the same picture:
-  all shifted pairs satisfy the two-layer inequality, and the only shifted equality orbits are
-  again the trivial full lower-layer orbit and the principal-star two-layer orbit;
-- the shifted first-shell note now proves the full distance-`2` shell around those two model
-  templates on paper:
-  there is `1` full-lower shell class and `4` principal-star shell classes, and every one of the
-  five classes has exact gap
+- the exact bottleneck
   \[
-  \Delta(F)=m;
+  |\partial^+F| \ge |C|;
   \]
-- with the current brute-force enumerator, exact shifted search is now effectively saturated at
-  `n = 7`: the analogous `n = 9` shifted-family count does not return on a short/medium run, so
-  the next step is paper proof rather than deeper exhaustive computation;
-- but exact `n = 5` rules out the stronger uniqueness guess:
-  the minimizers are not all contained in a single lex/shifted orbit;
-- but the weaker minimizer-plateau statement now survives exactly in `n = 5`:
-  every minimizer is connected to a shifted minimizer by a chain of boundary-preserving
-  layer-preserving shifts;
-- more strongly, for every `e`, the exact `n = 5` minimizer graph under boundary-preserving
-  layer shifts is connected;
-- stronger again, for every `e`, every exact `n = 5` equal-size two-layer pair reaches a shifted
-  pair by a chain of nonincreasing layer-preserving shifts, so the weak-compression reduction to
-  the shifted world now survives exactly on the full `n = 5` state space;
-- but the cleaner strict-descent-plus-plateau version is now ruled out:
-  exact `n = 5` has strict local minima at `e = 5,6` whose boundary-preserving shift components
-  contain no shifted pair, so the active route has to work with genuinely interleaved
-  nonincreasing paths rather than a strict phase followed by a plateau phase;
-- however, the quotient-level weak-compression picture is still positive:
-  exact `n = 5` now shows that for every `e`, the equal-boundary component graph has a unique
-  sink component and that sink component contains shifted pairs;
-- structured uniform-upper `n = 7` classes satisfy
+- shifted equality classification
   \[
-  |\partial^\uparrow U| \ge |T(V)\setminus U|
+  \Delta(F)=0 \Longrightarrow F \in \{F_{\mathrm{full}},F_\star\};
   \]
-  with margins `3`, `5`, and `6`;
-- colex equal-size middle-layer pairs in `n = 7, 9, 11` satisfy the stronger compressed-case
-  containment
+- shifted global `+m` gap
   \[
-  T(V^\ast)\subseteq U^\ast.
+  F \notin \{F_{\mathrm{full}},F_\star\} \Longrightarrow \Delta(F)\ge m;
   \]
-- on the flux side, exact `n = 5` now sharply separates the first naive local transport models:
-  the codimension-`1` local Hall condition fails, but the codimension-`2` local Hall condition
-  survives over all equal-size middle-layer pairs;
-- that same separation now survives in the shifted `n = 7` problem:
-  codimension-`1` fails, but codimension-`2` survives across all shifted pairs;
-- the first naive codimension-`2` weighting rule is now ruled out:
-  equal-split local flux already overloads a boundary point in exact `n = 5`, and also in shifted
-  `n = 7`;
-- the next natural codimension-`2` weighting rule is ruled out as well:
-  inverse-degree local flux already overloads a boundary point in exact `n = 5`, and also in
-  shifted `n = 7`;
-- the first finite family of canonical codimension-`2` greedy injections is ruled out as well:
-  all eight tested rules fail already in exact `n = 5`, even though one of them survives over all
-  shifted pairs in `n = 7`;
-- but the codimension-`2` matching route now has a sharper positive invariant:
-  in exact `n = 5` and in shifted `n = 7`, the minimum number of codimension-`2` edges needed in a
-  perfect local matching always equals the codimension-`1` Hall deficiency lower bound;
-- that invariant is now known to be genuinely global:
-  exact `n = 5` and shifted `n = 7` both show that the codimension-`1` deficiency can be strictly
-  larger than the number of lower cells with no codimension-`1` boundary neighbor;
-- and it is not always realized by a single-coordinate cut either:
-  exact `n = 5` and shifted `n = 7` both show examples where the codimension-`1` deficiency is
-  strictly larger than every one-coordinate contain/avoid cut deficiency;
-- but on the shifted route, the Hall obstruction now has a clean witness theorem candidate:
-  in shifted `n = 5` and shifted `n = 7`, the codimension-`1` deficiency is always witnessed by a
-  shifted lower subfamily;
-- the next canonical strengthening is now limited:
-  colex-prefix witnesses are false already in shifted `n = 5`, and lex-prefix witnesses are false
-  in shifted `n = 7`, so the active shifted Hall route stops at “shifted subfamily witness,” not a
-  simple boundary-order prefix theorem;
-- the next geometric simplification is limited as well:
-  initial-principal-star witnesses survive shifted `n = 5` but are false in shifted `n = 7`, so
-  the active shifted Hall route also does not reduce to a single principal-star witness theorem;
-- but the shifted witness route still has a positive finite-complexity shape:
-  exact shifted diagnostics show that a Hall witness can always be chosen with at most `1` maximal
-  generator in `n = 5` and at most `4` maximal generators in `n = 7`;
-- the current exact search tooling appears saturated again on that branch:
-  the analogous shifted generator-witness summary for `n = 9` does not return on a short/medium
-  run with the current enumerator;
-- the stronger-gap shell branch has now improved materially:
-  the filtered global shell probe has been replaced by a genuinely template-local shifted
-  generator, built by bounded-distance BFS in the lattice of shifted families;
-- that local generator exactly reproduces the shifted `n = 7` strand data through distance `6`,
-  and it now pushes the shell-envelope computation out to shifted `n = 9` and shifted `n = 11`
-  through distance `10`;
-- in both of those dimensions, the `full-lower` and `principal-star` strands still have identical
-  shell gap envelopes at every computed shell distance, so the shell-envelope symmetry now looks
-  genuinely higher-dimensional rather than `n = 7`-specific;
-- but the next computational wall remains real:
-  even the template-local generator does not return quickly at shifted `n = 13` with distance
-  bound `4`, so the current shell program is now saturated at `n = 11`;
-- on the narrower first-shell branch, the local generator has now been optimized further by
-  replacing full comparability with immediate cover relations in the shifted poset;
-- that removes the old first-shell slowdown entirely through shifted `n = 21`, and the exact
-  distance-`2` shell still has the same rigid shape there:
-  `1` full-lower pair, `4` principal-star pairs, all with margin `m = (n-1)/2`;
-- that same rigid first-shell picture now extends exactly through shifted `n = 25`;
-- the next odd dimension `n = 27` no longer returns on a short/medium run with that same probe,
-  so the current exact computational frontier on the narrow first-shell branch is `n = 25`;
-- the new local first-shell decomposition summary now sharpens the theorem candidate in shifted
-  `n = 7, 9, 11, 13, 15, 17, 19, 21`: the full-lower first shell is the single `(1,1)` move type, while the
-  principal-star first shell splits as `(0,2)`, `(1,1)`, `(2,0)` with multiplicities `1,2,1`,
-  and every one of those move types still has margin exactly `m`;
-- that sharper decomposition branch is now exact through shifted `n = 21`, while the coarser
-  first-shell gap law remains exact through shifted `n = 25`;
-- the next pattern-level refinement is now sharply split:
-  exact shifted `n = 7` already has `143` distinct minimal-generator witness patterns overall, so
-  there is no tiny global pattern catalogue;
-  but the maximally complex frontier is rigid, with only `2` four-generator patterns;
-- the corrected coupled section inequality
-  \[
-  |\partial^+(A\cup D)| + |\partial^+(B\cup E)| \ge |A| + |B|
-  \]
-  is false already in exact `n = 5`, so sectioning remains useful only as an exact decomposition,
-  not as a standalone lower-dimensional reduction.
-
-This is evidence only. It does not supply the remaining proof.
-
-What is now ruled out:
-
-- the naive compression-monotonicity route;
-- the weaker colex defect-reduction route;
-- the Hall-shadow sufficient condition
-  \[
-  |\partial^\uparrow U| \ge |U\setminus T(V)|.
-  \]
-- uniqueness of the lex/shifted minimizer orbit.
-
-So the remaining live task is the direct two-layer inequality itself, not any currently known
-stronger substitute.
-
-The latest proof-side sharpening is a coordinate-section reduction written out in
-[PROOF_two_layer_middle_boundary_inequality.md](./PROOF_two_layer_middle_boundary_inequality.md):
-if
-\[
-F=C\cup U\subseteq \binom{[2m+1]}{m}\sqcup \binom{[2m+1]}{m+1}
-\]
-is sectioned at coordinate `0`, then
-\[
-|\partial^+F|
-\ge
-|\partial^+(A\cup D)| + |\partial^+(B\cup E)|.
-\]
-The first naive attempt to close the route from here was the arbitrary even-dimensional
-adjacent-layer theorem
-\[
-|\partial^+G| \ge |G_r|,
-\qquad
-G \subseteq \binom{[2m]}{r}\sqcup \binom{[2m]}{r+1},
-\]
-but exact shifted diagnostics now falsify that statement already in `n = 4` and `n = 6`.
-The next attempt was the corrected coupled theorem
-\[
-|\partial^+(A\cup D)| + |\partial^+(B\cup E)| \ge |A| + |B|,
-\]
-but exact `n = 5` also falsifies that statement. Taking
-\[
-V = \{\{0,1\},\{0,2\},\{0,3\},\{0,4\}\},
-\qquad
-U = \{\{1,2,3\},\{1,2,4\},\{1,3,4\},\{2,3,4\}\},
-\]
-one gets
-\[
-A = \varnothing,
-\qquad
-B = \binom{[4]}{2},
-\qquad
-D = \varnothing,
-\qquad
-E = \binom{[4]}{3},
-\]
-and therefore
-\[
-|\partial^+(A\cup D)| + |\partial^+(B\cup E)| = 1 < 6 = |A| + |B|.
-\]
-So the section route is now archived as a direct proof path. Its exact decomposition remains useful
-geometric context, but the active proof search is back on the direct two-layer boundary functional
-itself.
-
-## Geometric Enrichment
-
-The direct two-layer route now has three live geometric proof shapes.
-
-1. Symmetrization / discrete mean-curvature route.
-   Interpret
-   \[
-   F \subseteq \binom{[n]}{m}\sqcup\binom{[n]}{m+1}
-   \]
-   as a discrete membrane near the equator of the cube and seek a proof that layer-preserving
-   symmetrization does not increase \(|\partial^+F|\). This is the upgraded version of the old
-   compression program, but for the actual boundary functional rather than an auxiliary defect.
-
-2. Flux / calibration route.
-   Replace literal matching arguments by a fractional transport from lower-layer cells
-   \(C = \binom{[n]}{m}\setminus V\) to the outward boundary \(\partial^+F\). The aim is to prove
-   \(|C| \le |\partial^+F|\) by a divergence-style inequality rather than by a rigid injection.
-
-3. Coarea / section route.
-   This now survives only as geometric intuition. Both the unrestricted even adjacent-layer
-   theorem and the corrected coupled section theorem are false, so sectioning is no longer an
-   active reduction theorem for the project.
-
-These geometric routes are recorded separately in:
-
-- [PLAN_two_layer_geometric_enrichment.md](./PLAN_two_layer_geometric_enrichment.md)
-- [PLAN_two_layer_flux_calibration_route.md](./PLAN_two_layer_flux_calibration_route.md)
-- [PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](./PLAN_stronger_than_middle_binomial_via_two_layer_gap.md)
-
-## Quantitative Upgrade Direction
-
-The exact route above remains the active formal bottleneck, but the first quantitative upgrade
-beyond the literature-level middle-binomial bound is now more concrete.
-
-Exact shifted diagnostics now show:
-
-- shifted `n = 5`: off the two equality templates, the first positive boundary gap is `2`;
-- shifted `n = 7`: off the same templates, the first positive boundary gap is `3`.
-
-The shifted distance profile is now sharper too:
-
-- in both `n = 5` and `n = 7`, the nearest non-equality shifted pairs lie at template distance
-  `2`;
-- at that distance, the first boundary gap is `2` in `n = 5` and `3` in `n = 7`.
-
-The global first-gap orbit set is now classified exactly in the shifted world:
-
-- shifted `n = 5`: the global strict gap `2` is attained by `7` orbit types;
-- shifted `n = 7`: the global strict gap `3` is attained by `5` orbit types;
-- in shifted `n = 7`, every global first-gap orbit already lies at template distance `2`.
-- the new shell test is sharper still:
-  the full shifted distance-`2` shell has exactly `5` orbit types in `n = 7`, all with gap `3`,
-  so in shifted `n = 7` the global first-gap set is exactly the distance-`2` shell;
-  but this is false in shifted `n = 5`, where the distance-`2` shell has only `5` orbit types
-  while the global first-gap set has `7`.
-- the shell ladder is now sharper again:
-  shifted `n = 5` has exact shell gaps
-  `0, 2, 3, [2..4], 5`
-  at template distances `0, 2, 4, 6, 8` respectively;
-  shifted `n = 7` has exact shell gaps
-  `3` at distance `2`,
-  `5` at distance `4`,
-  and `[6..7]` at distance `6`;
-  so in the first genuinely nontrivial shifted dimension the first two shells are rigid, but
-  shell rigidity already breaks by distance `6`;
-- the shell-attribution picture is now sharper too:
-  in shifted `n = 7`, the low shells split asymmetrically between the two equality templates:
-  the distance-`2` shell is `1` full-lower pair plus `4` principal-star pairs,
-  the distance-`4` shell is `1` full-lower pair plus `9` principal-star pairs,
-  and the distance-`6` shell is `4` full-lower pairs plus `36` principal-star pairs;
-  so near-equality in the shifted world is dominated by the principal-star side, not by the
-  full-lower side;
-  shifted `n = 5` shows the same asymmetry in the first two shells, but farther shells already
-  contain tied families, so the clean template split is currently a higher-dimensional signal;
-- the full shifted `n = 7` attribution profile is now exact as well:
-  every positive shell from distance `2` through distance `18` splits only into
-  `full-lower` and `principal-star` classes, tied classes do not appear until distance `20`,
-  and in every positive shell the principal-star class is much larger than the full-lower class;
-  so the stronger branch is no longer just “off either equality template”, but more sharply
-  “principal-star-dominated stability with a thin exceptional full-lower strand”;
-- the shifted strand profile is now sharper again:
-  in shifted `n = 7`, throughout the entire pre-tied regime `d = 0,2,\dots,18`,
-  the `full-lower` and `principal-star` strands have exactly the same shell gap envelope;
-  for example the two strands both have gap interval `[5,9]` at distance `8`,
-  `[8,12]` at distance `12`, and `[7,15]` at distance `18`;
-  so the current stronger branch splits naturally into two conjectural layers:
-  a distance-only shell-envelope theorem, and a separate template-attribution/multiplicity theorem;
-- the full shifted `n = 7` shell-profile enumeration is now computationally saturated with the
-  current tool, so this branch has reached a paper-proof boundary again rather than a missing-data
-  boundary.
-
-So the stronger-than-middle-binomial program is no longer just a vague stability question. The
-current evidence supports a sharper first theorem target:
-\[
-F \notin \mathcal E
-\quad\Longrightarrow\quad
-|\partial^+F| \ge |C| + 2
-\]
-for shifted odd two-layer families, where \(\mathcal E\) is the pair of equality templates.
-
-That target is recorded separately in
-[PLAN_stronger_than_middle_binomial_via_two_layer_gap.md](./PLAN_stronger_than_middle_binomial_via_two_layer_gap.md).
-
-## Practical Success Criterion
-
-The active plan is complete once the direct two-layer boundary inequality
-
-\[
-|\partial^+\bigl((\binom{[n]}{m}\setminus V)\cup U\bigr)| \ge |\binom{[n]}{m}\setminus V|
-\]
-
-is proved on paper and then formalized in Lean.
-
-Once that is done, the existing equivalence layer closes:
-
-- `SimpleLowerUniformUpperPairInterfaceBoundaryLowerStatement`,
-- `SimpleLowerPairInterfaceBoundaryDefectForcesUpperCardAboveMiddleStatement`,
-- the canonical defect bottleneck,
-- the prism theorem route,
-- and the exact Erdős #1 endpoint under the current frontier.
+- or the canonical-weight local theorem reducing those stronger blockers.
