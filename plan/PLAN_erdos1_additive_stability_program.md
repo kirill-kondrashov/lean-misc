@@ -134,19 +134,22 @@ The current proof architecture is:
    [PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md)
 6. conditional gradient theorem:
    [PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md](./PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md)
-7. current sharp local target:
+7. template-relative exposed-corner parametrization:
+   [PROOF_template_relative_corner_parametrization.md](./PROOF_template_relative_corner_parametrization.md)
+8. current sharp local target:
    [PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md](./PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md)
 
 ## Current Blocker
 
-The live theorem is now:
+The live theorem is now the local incidence step after the exposed-corner set `K(F)` from
+[PROOF_template_relative_corner_parametrization.md](./PROOF_template_relative_corner_parametrization.md)
+has been fixed:
 
 ```math
 \text{construct a local bad-to-good incidence injection for uniform corner weights.}
 ```
 
-More explicitly, after fixing a canonical template-relative corner parametrisation `K(F)` of
-admissible inward moves, prove an injection
+More explicitly, prove an injection
 
 ```math
 \Phi_F : \mathcal B(F) \hookrightarrow \mathcal G(F),
@@ -171,7 +174,8 @@ It is not an active plan because it does not by itself improve the published sta
 The next useful commit should advance one of:
 
 - the uniform-corner incidence injection;
-- the canonical corner parametrisation of admissible inward moves;
+- nonemptiness or radial exactness for the canonical corner parametrization of admissible inward
+  moves;
 - the shifted zero-defect classification;
 - the shifted global `+m` gap;
 - the transport step proving that the sum-distinct families relevant to Erdős #1 avoid the two

@@ -28,8 +28,9 @@ Assume `F` is shifted and
 d(F)\ge 4.
 ```
 
-Suppose the template-relative Ferrers encoding `\Sigma(F)` has already been established, together
-with a canonical finite set of exposed outer corners
+Use the canonical exposed-corner set defined in
+[PROOF_template_relative_corner_parametrization.md](./PROOF_template_relative_corner_parametrization.md).
+That note defines a finite set of exposed admissible repair corners
 
 ```math
 K(F),
@@ -47,7 +48,9 @@ such that:
    d(F_k)=d(F)-2.
    ```
 
-So `K(F)` is just a canonical parametrization of the admissible inward moves.
+So `K(F)` is now the canonical parametrization of the admissible inward moves. The remaining
+precondition from the parametrization note is nonemptiness of `K(F)` in every shifted subcritical
+state with `d(F)\ge 4`.
 
 For each `k \in K(F)`, write
 
@@ -79,6 +82,8 @@ the defect drift of the `k`-move is
 ```
 
 ## Canonical Uniform Corner Weights
+
+Assume from here through the averaging argument that `K(F)` is nonempty.
 
 The first canonical weight candidate is the uniform distribution on `K(F)`:
 
@@ -160,7 +165,7 @@ and
 
 ### Lemma
 
-Assume the corner parametrization above. Then `(AVG)_{\mathrm{corner}}` is equivalent to
+Assume `K(F)` is nonempty. Then `(AVG)_{\mathrm{corner}}` is equivalent to
 
 ```math
 |\mathcal B(F)| \le |\mathcal G(F)|.
@@ -205,7 +210,7 @@ The incidence inequality `(INC)` will follow from any injection
 
 ### Corollary
 
-Under the corner parametrization, `(INJ)` implies `(AVG)_{\mathrm{corner}}`.
+If `K(F)` is nonempty, `(INJ)` implies `(AVG)_{\mathrm{corner}}`.
 
 ### Proof
 
@@ -251,14 +256,16 @@ That is the next exact theorem candidate on the stronger branch:
 
 ## Present Blocker
 
-This note does not prove `(INJ)`. It proves only that, once the corner parametrization is fixed,
+This note does not prove `(INJ)`. It proves only that, for the corner set `K(F)` defined in
+[PROOF_template_relative_corner_parametrization.md](./PROOF_template_relative_corner_parametrization.md),
 the natural canonical weight scheme `(UNI)` works if and only if one can solve the corresponding
 incidence-transport problem.
 
 So the current blocker is now sharper than before:
 
-- not “find some canonical weight scheme”;
-- but
+- first prove `K(F)\ne\varnothing` in the shifted subcritical region, if this is not bundled into
+  the incidence proof;
+- then prove
   ```math
   \text{prove the uniform-corner incidence injection } \Phi_F.
   ```

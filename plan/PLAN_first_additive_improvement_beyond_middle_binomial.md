@@ -86,12 +86,13 @@ The current theorem-first reduction of that statement is:
 - [PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md](./PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md)
 - [PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md)
 - [PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md](./PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md)
+- [PROOF_template_relative_corner_parametrization.md](./PROOF_template_relative_corner_parametrization.md)
 - [PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md](./PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md)
 
 The sharp current blocker is:
 
 ```math
-\text{construct a local bad-to-good incidence injection for the uniform corner weights}
+\text{prove nonempty exposed inward corners, then construct the uniform-corner incidence injection}
 ```
 
 That is the cleanest current route to the signed multiplicity-balance inequality, hence to the
@@ -109,4 +110,5 @@ The next commit on the additive route should land only if it advances one of:
   ```math
   F \notin \{F_{\mathrm{full}},F_\star\} \Longrightarrow \Delta(F)\ge m;
   ```
+- nonemptiness/radial exactness for the exposed-corner set `K(F)`;
 - the uniform-corner local incidence-transport theorem reducing those two blockers.

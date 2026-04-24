@@ -128,6 +128,10 @@ local average inequality.
 The sharpest current candidate fixes that scheme to be uniform on the canonical exposed corners;
 see
 [PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md](./PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md).
+The exposed-corner set itself is now defined in
+[PROOF_template_relative_corner_parametrization.md](./PROOF_template_relative_corner_parametrization.md);
+the remaining pre-injection issue is proving that this set is nonempty in every shifted
+subcritical state with `d(F)>=4`.
 
 ## Proof Strategy
 
@@ -144,6 +148,8 @@ Requirements:
 - `\Sigma(F)` determines `d(F)`;
 - `\Sigma(F)` has a well-defined set of outer corners;
 - distance `2` corresponds exactly to the five already-classified first-shell shapes.
+- the exposed corners agree with the admissible repair pairs `K(F)` defined in
+  [PROOF_template_relative_corner_parametrization.md](./PROOF_template_relative_corner_parametrization.md).
 
 Proof sketch:
 
@@ -247,19 +253,24 @@ So subcritical families cannot terminate at distance `2`, which proves the two l
 This route is valid only if the following lemmas are established:
 
 1. template-relative Ferrers encoding for shifted two-layer families;
-2. existence of an inward balanced corner move when `d(F)\ge 4`;
-3. exact distance drop `d(F')=d(F)-2`;
-4. a local average inward-move inequality;
-5. the deduction of one subcritical-preserving inward move from that average inequality.
+2. exposed repair-corner parametrization of admissible inward moves;
+3. existence of an inward balanced corner move when `d(F)\ge 4`;
+4. exact distance drop `d(F')=d(F)-2`;
+5. a local average inward-move inequality;
+6. the deduction of one subcritical-preserving inward move from that average inequality.
 
-Among these, Lemma 4 is the real unknown.
-In its sharpest current form, Lemma 4 is the signed local multiplicity balance from
+Among these, Lemma 5 is the real drift unknown.
+In its sharpest current form, Lemma 5 is the signed local multiplicity balance from
 [PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md).
 Equivalently, by
 [PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md](./PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md),
 the real missing object is a canonical weight scheme on admissible inward moves. The current
 preferred candidate is the uniform-corner scheme, whose remaining theorem is a local bad-to-good
 incidence injection.
+Before that injection can be proved without hidden assumptions, the exposed-corner note leaves one
+precise preliminary obligation: prove `K(F)` is nonempty, or equivalently prove a raw exposed
+repair pair satisfying the global radial exactness condition exists, throughout the shifted
+subcritical region.
 
 ## Why This Is Better Than More Enumeration
 
@@ -274,6 +285,6 @@ That is better than more brute-force because:
 
 So the next useful commit on this branch should either:
 
-- prove one of the four lemmas above, or
-- construct the canonical corner parametrisation or the uniform-corner incidence injection needed
-  for the local average inequality.
+- prove one of the six lemmas above, or
+- prove nonemptiness/radial exactness for the canonical corner parametrization, or
+- construct the uniform-corner incidence injection needed for the local average inequality.

@@ -128,6 +128,7 @@ The stronger route is currently reduced to the discrete-Morse program:
 - [PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md](./PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md)
 - [PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md)
 - [PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md](./PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md)
+- [PROOF_template_relative_corner_parametrization.md](./PROOF_template_relative_corner_parametrization.md)
 - [PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md](./PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md)
 
 So the real live local theorem is now:
@@ -137,8 +138,9 @@ So the real live local theorem is now:
 ```
 
 This is sharper than an arbitrary canonical-weight existence statement: the weights are fixed to be
-uniform on the canonical exposed corners, so the remaining problem is a concrete local incidence
-transport inequality.
+uniform on the canonical exposed corners. The corner set is now defined explicitly, so the
+remaining preliminary issue is nonemptiness/radial exactness of that set in the shifted
+subcritical region, followed by the concrete local incidence transport inequality.
 
 ## Commit Gate
 
@@ -156,7 +158,8 @@ The next commit on this stronger branch should land only if it advances one of:
    \Longrightarrow
    |\partial^+G| \ge \binom{n}{m} + m.
    ```
-3. uniform-corner local incidence transport:
+3. nonemptiness/radial exactness for the template-relative exposed-corner set;
+4. uniform-corner local incidence transport:
    ```math
    \Phi_G : \mathcal B(G) \hookrightarrow \mathcal G(G).
    ```
