@@ -125,6 +125,9 @@ The new rigorous conditional gradient theorem is now recorded in
 [PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md](./PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md):
 the Morse-theoretic route really closes once one has a canonical weight scheme satisfying the
 local average inequality.
+The sharpest current candidate fixes that scheme to be uniform on the canonical exposed corners;
+see
+[PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md](./PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md).
 
 ## Proof Strategy
 
@@ -254,7 +257,9 @@ In its sharpest current form, Lemma 4 is the signed local multiplicity balance f
 [PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md).
 Equivalently, by
 [PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md](./PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md),
-the real missing object is a canonical weight scheme on admissible inward moves.
+the real missing object is a canonical weight scheme on admissible inward moves. The current
+preferred candidate is the uniform-corner scheme, whose remaining theorem is a local bad-to-good
+incidence injection.
 
 ## Why This Is Better Than More Enumeration
 
@@ -270,5 +275,5 @@ That is better than more brute-force because:
 So the next useful commit on this branch should either:
 
 - prove one of the four lemmas above, or
-- sharpen the corner-move / local-boundary formalism so that one of those lemmas becomes
-  realistically attackable.
+- construct the canonical corner parametrisation or the uniform-corner incidence injection needed
+  for the local average inequality.

@@ -6,6 +6,10 @@ This note records the first explicit target beyond the current published lower b
 N \ge \binom{n}{\lfloor n/2\rfloor}.
 ```
 
+The April 24, 2026 literature refresh still finds no accepted published all-`n` improvement beyond
+that baseline for the original one-dimensional problem. New nearby work on dissociated sets and
+variants is useful context, but it does not replace the Dubroff-Fox-Xu benchmark.
+
 ## Target Bound
 
 The active stronger target is
@@ -82,15 +86,16 @@ The current theorem-first reduction of that statement is:
 - [PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md](./PROOF_subcritical_descent_reduces_to_average_inward_move_inequality.md)
 - [PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md)
 - [PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md](./PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md)
+- [PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md](./PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md)
 
 The sharp current blocker is:
 
 ```math
-\text{construct a canonical local weight scheme on admissible inward moves}
+\text{construct a local bad-to-good incidence injection for the uniform corner weights}
 ```
 
-that proves the signed multiplicity-balance inequality, hence a discrete gradient on the
-subcritical shifted region.
+That is the cleanest current route to the signed multiplicity-balance inequality, hence to the
+subcritical discrete gradient on the shifted region.
 
 ## Commit Gate
 
@@ -104,4 +109,4 @@ The next commit on the additive route should land only if it advances one of:
   ```math
   F \notin \{F_{\mathrm{full}},F_\star\} \Longrightarrow \Delta(F)\ge m;
   ```
-- the canonical-weight local theorem reducing those two blockers.
+- the uniform-corner local incidence-transport theorem reducing those two blockers.

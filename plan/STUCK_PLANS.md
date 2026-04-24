@@ -1,7 +1,7 @@
 # Stuck Plans
 
-This note compresses the dead and superseded branches. The active route is the direct two-layer
-boundary program plus the restricted half-cube stability strengthening.
+This note compresses the dead and superseded branches. The active route is now the additive
+stability program, not the exact middle-binomial route by itself.
 
 ## Superseded Documentation Wrappers
 
@@ -10,11 +10,32 @@ boundary program plus the restricted half-cube stability strengthening.
   - `PLAN_improved_bound_theorem_first_program.md`
   - `NOTE_restricted_half_cube_stability_literature_bridge.md`
   - `PROGRESS_two_sheet_boundary_theorem_2026-03-22.md`
+  - `PLAN_simple_lower_uniform_upper_pair_interface_boundary_lower_research.md`
+  - `PLAN_two_layer_middle_boundary_inequality.md`
+  - `STATEMENT_simple_lower_uniform_upper_pair_interface_boundary_lower.md`
 - Their live content now sits in:
+  - `PLAN_erdos1_additive_stability_program.md`
   - `PLAN_first_additive_improvement_beyond_middle_binomial.md`
   - `PLAN_restricted_half_cube_hamming_ball_stability.md`
   - `PLAN_subcritical_inward_descent_discrete_morse_route.md`
+  - `PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md`
   - `NOTE_erdos1_position_against_current_literature.md`
+
+## Exact Middle-Binomial Route Status
+
+- The exact two-layer inequality
+  \[
+  |\partial^+F| \ge |C|
+  \]
+  remains mathematically meaningful and is still recorded in
+  `PROOF_two_layer_middle_boundary_inequality.md`.
+- It is no longer an active standalone plan because proving it recovers the known
+  Dubroff-Fox-Xu middle-binomial lower bound, not a new state-of-art approximation.
+- The exact route should be used only as infrastructure or as a base case for the additive gap
+  theorem
+  \[
+  |\partial^+F| \ge |C| + m.
+  \]
 
 ## Archived Branches
 

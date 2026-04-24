@@ -224,13 +224,15 @@ By
 [PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md),
 this is equivalent to proving a signed local atom-balance inequality for that same canonical
 weighting.
+The current preferred canonical weighting is now the uniform measure on exposed corners, isolated
+in
+[PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md](./PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md).
 
 So the active blocker is no longer just “find some inward move”.
 It is:
 
-- define a canonical local weighting on admissible inward moves;
-- prove its weighted bad-atom multiplicities are dominated by its weighted good-atom
-  multiplicities.
+- define the canonical exposed-corner parametrisation of admissible inward moves;
+- prove the uniform-corner bad-incidence set injects into the uniform-corner good-incidence set.
 
 ## Why This Is The PhD-Level Obstruction
 
@@ -240,7 +242,7 @@ The state space, radial function, first-shell barrier, and conditional gradient 
 place. What is still missing is a genuinely new combinatorial inequality:
 
 ```math
-\text{a canonical local charge balance for admissible inward moves.}
+\text{a local bad-to-good incidence transport for admissible inward moves.}
 ```
 
 That is the exact place where the current program stops.
