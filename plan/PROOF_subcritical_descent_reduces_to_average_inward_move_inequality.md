@@ -168,3 +168,17 @@ The intended local proof shape is:
 
 So the theorem-first program is now sharply focused on a local averaging inequality, rather than on
 finding a single globally monotone move by inspection.
+
+This local averaging step is now sharpened further in
+[PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md):
+the average inequality is equivalent to a signed multiplicity balance between
+
+- created boundary atoms and lost lower atoms, versus
+- destroyed boundary atoms and gained lower atoms.
+
+One important logical caveat is now recorded separately in
+[PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md](./PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md):
+if the weights `\mu_F` are allowed to be chosen arbitrarily after seeing the best move, then the
+weighted average inequality is equivalent to the original existence of a non-increasing move.
+So the genuinely useful theorem is not mere existence of some weights, but existence of a
+canonical locally defined weight scheme.

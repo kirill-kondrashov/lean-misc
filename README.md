@@ -220,8 +220,8 @@ Current repo status:
 - `make build` is green.
 - `make check` is green.
 - `scripts/verify_output.sh` is green.
-- The current live target is still the `Prism Theorem`, but the remaining work is now concentrated
-  in one explicit two-layer boundary theorem.
+- The exact `Prism Theorem` route is now treated as infrastructure for the known middle-binomial
+  endpoint; the active research goal is the additive/stability improvement beyond that endpoint.
 - Old candidate frontiers and dead proof branches were explicitly disproved and moved to
   [plan/STUCK_PLANS.md](./plan/STUCK_PLANS.md).
 - Under the current frontier assumptions already formalized in Lean, proving the remaining
@@ -358,9 +358,8 @@ A \notin \mathcal F : \exists x \in A,\ A \setminus \{x\} \in \mathcal F
 \right\}.
 ```
 
-The live remaining target is still the Prism Theorem above, but the active route no longer attacks
-it through the old six-leaf summary. The odd half-cube theorem is already downstream of the prism
-route; the remaining gap is now one explicit two-layer middle-boundary theorem.
+The exact Prism Theorem route remains useful infrastructure, but it is not the active
+state-of-art-improvement target. The active route is the additive stability branch below.
 
 ### Prism theorem status
 
@@ -550,8 +549,8 @@ for some probability weights `\mu_F`. If this holds and `\Delta(F)<m`, then at l
 move stays below the threshold `m`, which gives the required descent.
 
 So the current combinatorial bottleneck is no longer the dead even-cube section theorem. It is the
-global shifted / half-cube stability problem above, currently reduced to proving a local average
-inward-move inequality.
+global shifted / half-cube stability problem above, currently reduced to proving the uniform-corner
+bad-to-good incidence transport behind the local average inward-move inequality.
 
 Topological meaning of the last frontier:
 
@@ -730,8 +729,8 @@ middle-layer family $F = (\binom{[n]}{m}\setminus V)\cup U$, the outward-facing 
 always at least as large as the surviving lower-middle green layer $C = \binom{[n]}{m}\setminus
 V$.
 
-For the current detailed progress log, see
-[plan/PROGRESS_two_sheet_boundary_theorem_2026-03-22.md](./plan/PROGRESS_two_sheet_boundary_theorem_2026-03-22.md).
+For the current active route summary, see
+[plan/PLAN_erdos1_additive_stability_program.md](./plan/PLAN_erdos1_additive_stability_program.md).
 
 What is now ruled out:
 
