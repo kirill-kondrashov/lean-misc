@@ -48,9 +48,9 @@ such that:
    d(F_k)=d(F)-2.
    ```
 
-So `K(F)` is now the canonical parametrization of the admissible inward moves. The remaining
-precondition from the parametrization note is nonemptiness of `K(F)` in every shifted subcritical
-state with `d(F)\ge 4`.
+So `K(F)` is now the canonical parametrization of the admissible inward moves. The parametrization
+note proves that every raw corner already has `d(F_k)=d(F)-2`; the remaining precondition is
+nonemptiness of `K(F)` in every shifted subcritical state with `d(F)\ge 4`.
 
 For each `k \in K(F)`, write
 

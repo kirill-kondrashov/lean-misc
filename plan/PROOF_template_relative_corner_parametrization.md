@@ -237,8 +237,54 @@ Proof:
 one atom from `F\triangle T(F)`. No other atom changes membership. Hence the symmetric difference
 with the fixed template drops by exactly `2`.
 
-This proves the radial algebra for the fixed template. The only extra issue is that the global
-distance is the minimum of the two template distances.
+This proves the radial algebra for the fixed template.
+
+## Exact Global Distance Drop
+
+For every raw exposed repair pair `k=(x,z)`,
+
+```math
+d(F_k)=d(F)-2.
+\tag{GDROP}
+```
+
+Proof:
+Let `T=T(F)` be the chosen nearest template. By definition of `T(F)`,
+
+```math
+d_T(F)=d(F).
+```
+
+By `(TDROP)`,
+
+```math
+d_T(F_k)=d_T(F)-2=d(F)-2.
+```
+
+Therefore
+
+```math
+d(F_k)\le d(F)-2.
+```
+
+For the opposite template `S`, the move from `F` to `F_k` changes exactly two atoms. Symmetric
+difference distance to any fixed template is therefore `2`-Lipschitz:
+
+```math
+d_S(F_k)\ge d_S(F)-2.
+```
+
+Since `T` was nearest, `d_S(F)\ge d(F)`, and hence
+
+```math
+d_S(F_k)\ge d(F)-2.
+```
+
+Both template distances from `F_k` are now at least `d(F)-2`, and the distance to `T` is exactly
+`d(F)-2`. Thus the minimum of the two template distances is exactly `d(F)-2`.
+
+So the anticipated bisector obstruction does not exist: radial exactness is automatic for every
+raw exposed repair pair relative to the chosen nearest template.
 
 ## Canonical Admissible Corner Set
 
@@ -247,16 +293,13 @@ Define
 ```math
 K(F)
 :=
-\{k:\ k\text{ is a raw exposed repair pair and }d(F_k)=d(F)-2\}.
+\{k:\ k\text{ is a raw exposed repair pair}\}.
 \tag{K}
 ```
 
 Thus `K(F)` is the canonical set of exposed inward moves used by the uniform-corner plan.
-
-This definition deliberately bakes in the global radial exactness required by the current
-discrete-Morse reduction. If one proves a separate radial exactness theorem saying every raw
-exposed repair pair has `d(F_k)=d(F)-2` in the subcritical region, then the final condition in
-`(K)` can be removed.
+The global radial condition is not part of the definition because it is already proved by
+`(GDROP)`.
 
 ## Parametrization Lemma
 
@@ -278,7 +321,8 @@ Conversely, every admissible exposed one-repair move relative to the chosen near
 arises from a unique element of `K(F)`.
 
 Proof:
-The forward direction is the definition of `K(F)` plus `(REST)`, `(DEL)`, and `(TDROP)`.
+The forward direction is the definition of `K(F)` plus `(REST)`, `(DEL)`, `(TDROP)`, and
+`(GDROP)`.
 For uniqueness, the changed atoms are recovered from the move itself:
 
 ```math
@@ -306,16 +350,12 @@ d(F)\ge 4,
 \quad
 \Delta(F)<m
 \Longrightarrow
-K(F)\ne\varnothing.
+\text{there is at least one raw exposed repair pair, equivalently }K(F)\ne\varnothing.
 \tag{EXIST}
 ```
 
-There are two viable ways to prove `(EXIST)`:
-
-1. Prove raw-corner nonemptiness from the Ferrers skew shape and then prove radial exactness for
-   the raw corners in the subcritical region.
-2. Prove nonemptiness directly for the filtered set `(K)` by showing at least one exposed repair
-   pair does not cross the bisector between the two templates.
+So `(EXIST)` is now a pure exposed-corner nonemptiness theorem. It no longer has a separate radial
+or bisector component.
 
 After `(EXIST)`, the active local target remains exactly the one in the uniform-corner note:
 
@@ -324,6 +364,38 @@ After `(EXIST)`, the active local target remains exactly the one in the uniform-
 ```
 
 The incidence injection should now be read with `K(F)` as defined in `(K)`.
+
+## Computational Sanity Check
+
+The script
+
+```bash
+python3 tools/problem1_odd_profile_search.py --shifted-two-layer-exposed-corner-summary ...
+```
+
+now checks this exact exposed-corner definition on local shifted template shells. For each checked
+state with `d(F)>=4`, it counts:
+
+- raw exposed repair pairs satisfying `(REST)`, `(DEL)`, and `(COMP)`;
+- `K`-corners satisfying the global condition `d(F_k)=d(F)-2`.
+
+The runs
+
+```bash
+python3 tools/problem1_odd_profile_search.py \
+  --shifted-two-layer-exposed-corner-summary 7 9 \
+  --template-shell-max-distance 8
+
+python3 tools/problem1_odd_profile_search.py \
+  --shifted-two-layer-exposed-corner-summary 11 13 \
+  --template-shell-max-distance 10
+```
+
+found that every checked local shifted state with `d(F)>=4` has at least one raw exposed repair
+pair and at least one `K`-corner. In these local windows there were no subcritical states
+`Delta(F)<m`, so the check is not evidence for the subcritical nonemptiness theorem itself. Its
+value is narrower: it validates the corner definition and agrees with `(GDROP)`, including across
+the template tie-break.
 
 ## Local Proof Obligations
 
@@ -334,8 +406,8 @@ The next rigorous sublemmas are:
    and compatible pairs satisfying `(COMP)` exist when the repair is same-rank.
 2. `BALANCED-PAIR`: For the balanced two-layer state space, restoring one missing template atom
    and deleting one extra non-template atom preserves balance.
-3. `RADIAL-EXACT`: In the subcritical region, at least one raw exposed repair pair satisfies the
-   global condition `d(F_k)=d(F)-2`.
+3. `RAW-NONEMPTY`: Under the shifted subcritical hypotheses, at least one compatible restorable /
+   deletable raw repair pair exists.
 4. `INCIDENCE-LOCALITY`: For `k in K(F)`, all atoms in
    `B_new(k)`, `B_old(k)`, `C_new(k)`, and `C_old(k)` are supported in the cover-neighborhood of
    the two changed atoms.

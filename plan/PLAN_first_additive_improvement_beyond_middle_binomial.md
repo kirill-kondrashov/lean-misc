@@ -110,5 +110,5 @@ The next commit on the additive route should land only if it advances one of:
   ```math
   F \notin \{F_{\mathrm{full}},F_\star\} \Longrightarrow \Delta(F)\ge m;
   ```
-- nonemptiness/radial exactness for the exposed-corner set `K(F)`;
+- raw exposed-corner nonemptiness for the exposed-corner set `K(F)`;
 - the uniform-corner local incidence-transport theorem reducing those two blockers.

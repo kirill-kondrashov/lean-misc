@@ -130,8 +130,9 @@ see
 [PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md](./PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md).
 The exposed-corner set itself is now defined in
 [PROOF_template_relative_corner_parametrization.md](./PROOF_template_relative_corner_parametrization.md);
-the remaining pre-injection issue is proving that this set is nonempty in every shifted
-subcritical state with `d(F)>=4`.
+that note also proves that every raw exposed repair pair automatically satisfies the global
+distance drop `d(F_k)=d(F)-2`. The remaining pre-injection issue is proving that this raw
+exposed-corner set is nonempty in every shifted subcritical state with `d(F)>=4`.
 
 ## Proof Strategy
 
@@ -268,9 +269,9 @@ the real missing object is a canonical weight scheme on admissible inward moves.
 preferred candidate is the uniform-corner scheme, whose remaining theorem is a local bad-to-good
 incidence injection.
 Before that injection can be proved without hidden assumptions, the exposed-corner note leaves one
-precise preliminary obligation: prove `K(F)` is nonempty, or equivalently prove a raw exposed
-repair pair satisfying the global radial exactness condition exists, throughout the shifted
-subcritical region.
+precise preliminary obligation: prove `K(F)` is nonempty, equivalently prove a compatible raw
+exposed repair pair exists, throughout the shifted subcritical region. Radial exactness is already
+proved for every such raw pair.
 
 ## Why This Is Better Than More Enumeration
 
@@ -286,5 +287,5 @@ That is better than more brute-force because:
 So the next useful commit on this branch should either:
 
 - prove one of the six lemmas above, or
-- prove nonemptiness/radial exactness for the canonical corner parametrization, or
+- prove raw exposed-corner nonemptiness for the canonical corner parametrization, or
 - construct the uniform-corner incidence injection needed for the local average inequality.

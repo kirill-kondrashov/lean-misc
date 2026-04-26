@@ -174,7 +174,7 @@ It is not an active plan because it does not by itself improve the published sta
 The next useful commit should advance one of:
 
 - the uniform-corner incidence injection;
-- nonemptiness or radial exactness for the canonical corner parametrization of admissible inward
+- raw exposed-corner nonemptiness for the canonical corner parametrization of admissible inward
   moves;
 - the shifted zero-defect classification;
 - the shifted global `+m` gap;
