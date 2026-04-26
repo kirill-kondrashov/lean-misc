@@ -131,8 +131,9 @@ see
 The exposed-corner set itself is now defined in
 [PROOF_template_relative_corner_parametrization.md](./PROOF_template_relative_corner_parametrization.md);
 that note also proves that every raw exposed repair pair automatically satisfies the global
-distance drop `d(F_k)=d(F)-2`. The remaining pre-injection issue is proving that this raw
-exposed-corner set is nonempty in every shifted subcritical state with `d(F)>=4`.
+distance drop `d(F_k)=d(F)-2`, and the abstract distance algebra is formalized in
+`ErdosProblems/Problem1CubeTemplateDistance.lean`. The remaining pre-injection issue is proving
+that this raw exposed-corner set is nonempty in every shifted subcritical state with `d(F)>=4`.
 
 ## Proof Strategy
 

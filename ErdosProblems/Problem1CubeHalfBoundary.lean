@@ -1,6 +1,7 @@
 import ErdosProblems.Problem1CubeNatBridge
 import ErdosProblems.Problem1CubeEvenExtremizer
 import ErdosProblems.Problem1CubeCompression
+import ErdosProblems.Problem1CubeTemplateDistance
 import Mathlib.Combinatorics.SetFamily.KruskalKatona
 import Mathlib.Combinatorics.SetFamily.LYM
 import Mathlib.Data.Nat.Choose.Sum

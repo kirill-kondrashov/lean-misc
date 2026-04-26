@@ -286,6 +286,24 @@ Both template distances from `F_k` are now at least `d(F)-2`, and the distance t
 So the anticipated bisector obstruction does not exist: radial exactness is automatic for every
 raw exposed repair pair relative to the chosen nearest template.
 
+### Lean Status
+
+The abstract radial algebra is now formalized in
+`ErdosProblems/Problem1CubeTemplateDistance.lean`.
+
+The Lean file defines:
+
+- `templateDistance`;
+- `globalTemplateDistance`;
+- `twoAtomRepair`;
+- `templateDistance_twoAtomRepair_eq_sub_two`;
+- `templateDistance_le_twoAtomRepair_add_two`;
+- `globalTemplateDistance_twoAtomRepair_eq_sub_two_of_left_nearest`;
+- `globalTemplateDistance_twoAtomRepair_eq_sub_two_of_right_nearest`.
+
+This formalizes exactly the distance part of `(GDROP)`. It deliberately does not yet formalize
+shiftedness, exposedness, or layer balance; those are the next objects needed for `RAW-NONEMPTY`.
+
 ## Canonical Admissible Corner Set
 
 Define
