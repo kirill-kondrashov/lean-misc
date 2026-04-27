@@ -136,14 +136,33 @@ The current proof architecture is:
    [PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md](./PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md)
 7. template-relative exposed-corner parametrization:
    [PROOF_template_relative_corner_parametrization.md](./PROOF_template_relative_corner_parametrization.md)
-8. current sharp local target:
+8. current sharp local target after raw-corner nonemptiness:
    [PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md](./PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md)
 
 ## Current Blocker
 
-The live theorem is now the local incidence step after the exposed-corner set `K(F)` from
+The immediate theorem is now raw exposed-corner nonemptiness for the canonical corner set `K(F)`
+from
 [PROOF_template_relative_corner_parametrization.md](./PROOF_template_relative_corner_parametrization.md)
-has been fixed:
+under the shifted subcritical hypotheses:
+
+```math
+F\text{ shifted},
+\quad
+F\notin\{F_{\mathrm{full}},F_\star\},
+\quad
+d(F)\ge 4,
+\quad
+\Delta(F)<m
+\Longrightarrow
+K(F)\ne\varnothing.
+```
+
+The abstract consequences of a supplied raw repair pair are formalized in
+`ErdosProblems/Problem1CubeExposedRepair.lean`: preservation of the lower-set property,
+one-add/one-delete cardinality preservation, and exact fixed/global template-distance drop.
+
+After `K(F)\ne\varnothing` is proved, the next local theorem is the incidence step:
 
 ```math
 \text{construct a local bad-to-good incidence injection for uniform corner weights.}

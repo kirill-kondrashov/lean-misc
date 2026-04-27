@@ -132,8 +132,14 @@ The exposed-corner set itself is now defined in
 [PROOF_template_relative_corner_parametrization.md](./PROOF_template_relative_corner_parametrization.md);
 that note also proves that every raw exposed repair pair automatically satisfies the global
 distance drop `d(F_k)=d(F)-2`, and the abstract distance algebra is formalized in
-`ErdosProblems/Problem1CubeTemplateDistance.lean`. The remaining pre-injection issue is proving
-that this raw exposed-corner set is nonempty in every shifted subcritical state with `d(F)>=4`.
+`ErdosProblems/Problem1CubeTemplateDistance.lean`.
+
+The abstract supplied-corner preservation layer is formalized in
+`ErdosProblems/Problem1CubeExposedRepair.lean`: a raw exposed pair preserves the relevant
+lower-set property, preserves cardinality by adding one atom and deleting one atom, and triggers
+the fixed/global template-distance drop. The remaining pre-injection issue is therefore only the
+existence theorem: prove that this raw exposed-corner set is nonempty in every shifted subcritical
+state with `d(F)>=4`.
 
 ## Proof Strategy
 

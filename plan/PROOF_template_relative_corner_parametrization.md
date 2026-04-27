@@ -288,7 +288,7 @@ raw exposed repair pair relative to the chosen nearest template.
 
 ### Lean Status
 
-The abstract radial algebra is now formalized in
+The abstract radial algebra is formalized in
 `ErdosProblems/Problem1CubeTemplateDistance.lean`.
 
 The Lean file defines:
@@ -301,8 +301,26 @@ The Lean file defines:
 - `globalTemplateDistance_twoAtomRepair_eq_sub_two_of_left_nearest`;
 - `globalTemplateDistance_twoAtomRepair_eq_sub_two_of_right_nearest`.
 
-This formalizes exactly the distance part of `(GDROP)`. It deliberately does not yet formalize
-shiftedness, exposedness, or layer balance; those are the next objects needed for `RAW-NONEMPTY`.
+The abstract exposed-repair layer is now formalized in
+`ErdosProblems/Problem1CubeExposedRepair.lean`.
+
+The Lean file defines:
+
+- `IsRelLowerSet`;
+- `IsRestorable`;
+- `IsDeletable`;
+- `CompatibleRepair`;
+- `IsRawExposedRepairPair`;
+- `isRelLowerSet_twoAtomRepair_of_rawExposed`;
+- `card_twoAtomRepair_eq_card_of_rawExposed`;
+- `templateDistance_twoAtomRepair_eq_sub_two_of_rawExposed`;
+- `globalTemplateDistance_twoAtomRepair_eq_sub_two_of_left_nearest_rawExposed`;
+- `globalTemplateDistance_twoAtomRepair_eq_sub_two_of_right_nearest_rawExposed`.
+
+This formalizes the abstract `(REST)+(DEL)+(COMP)` preservation statement, one-add/one-delete
+cardinality preservation, and the distance-drop consequences for any supplied raw repair pair.
+It still deliberately does not prove `RAW-NONEMPTY`: the missing theorem is the existence of such
+a compatible restorable/deletable pair under the shifted subcritical hypotheses.
 
 ## Canonical Admissible Corner Set
 
@@ -422,14 +440,12 @@ The next rigorous sublemmas are:
 1. `SHIFTED-CORNERS`: In any nonempty mismatch region between two shifted rank families, minimal
    missing template atoms and maximal extra atoms are exposed in the sense of `(REST)` and `(DEL)`,
    and compatible pairs satisfying `(COMP)` exist when the repair is same-rank.
-2. `BALANCED-PAIR`: For the balanced two-layer state space, restoring one missing template atom
-   and deleting one extra non-template atom preserves balance.
-3. `RAW-NONEMPTY`: Under the shifted subcritical hypotheses, at least one compatible restorable /
+2. `RAW-NONEMPTY`: Under the shifted subcritical hypotheses, at least one compatible restorable /
    deletable raw repair pair exists.
-4. `INCIDENCE-LOCALITY`: For `k in K(F)`, all atoms in
+3. `INCIDENCE-LOCALITY`: For `k in K(F)`, all atoms in
    `B_new(k)`, `B_old(k)`, `C_new(k)`, and `C_old(k)` are supported in the cover-neighborhood of
    the two changed atoms.
-5. `INJ`: Construct the local bad-to-good incidence injection for this `K(F)`.
+4. `INJ`: Construct the local bad-to-good incidence injection for this `K(F)`.
 
-Only after these five items are proved does the discrete-Morse route close the proposed `+m`
+Only after these four items are proved does the discrete-Morse route close the proposed `+m`
 additive improvement.
