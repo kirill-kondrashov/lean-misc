@@ -136,31 +136,37 @@ The current proof architecture is:
    [PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md](./PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md)
 7. template-relative exposed-corner parametrization:
    [PROOF_template_relative_corner_parametrization.md](./PROOF_template_relative_corner_parametrization.md)
-8. current sharp local target after raw-corner nonemptiness:
+8. current sharp local target after shifted-template instantiation gives raw corners:
    [PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md](./PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md)
 
 ## Current Blocker
 
-The immediate theorem is now raw exposed-corner nonemptiness for the canonical corner set `K(F)`
-from
-[PROOF_template_relative_corner_parametrization.md](./PROOF_template_relative_corner_parametrization.md)
-under the shifted subcritical hypotheses:
+The abstract finite lower-set mismatch lemma is now formalized in
+`ErdosProblems/Problem1CubeExposedRepair.lean`. It states the following with the current unbundled
+relation API, using `WellFounded lt` and `WellFounded (fun a b => lt b a)` for the two
+minimal/maximal choices.
 
 ```math
-F\text{ shifted},
-\quad
-F\notin\{F_{\mathrm{full}},F_\star\},
-\quad
-d(F)\ge 4,
-\quad
-\Delta(F)<m
+\begin{gathered}
+F,T\text{ are lower sets},\qquad |F|=|T|,\qquad F\ne T
+\\
 \Longrightarrow
-K(F)\ne\varnothing.
+\exists x\in T\setminus F,\ \exists z\in F\setminus T
+\text{ such that }(x,z)\text{ is a raw exposed repair pair.}
+\end{gathered}
 ```
+
+Proof shape: choose `x` minimal in `T\F` and `z` maximal in `F\T`. Minimality gives `(REST)`;
+maximality plus lower-set closure gives `(DEL)`; if `z<x`, lower-set closure of `T` gives
+`z in T`, contradicting `z in F\T`, so `(COMP)` is automatic.
 
 The abstract consequences of a supplied raw repair pair are formalized in
 `ErdosProblems/Problem1CubeExposedRepair.lean`: preservation of the lower-set property,
 one-add/one-delete cardinality preservation, and exact fixed/global template-distance drop.
+The immediate remaining theorem is to instantiate this mismatch lemma to the shifted rank posets
+and the selected nearest template `T(F)`, proving `K(F)` is nonempty for every shifted balanced
+non-template state. The hypothesis `\Delta(F)<m` is not needed for raw-corner existence; it
+belongs to the later average-defect step.
 
 After `K(F)\ne\varnothing` is proved, the next local theorem is the incidence step:
 
@@ -193,8 +199,7 @@ It is not an active plan because it does not by itself improve the published sta
 The next useful commit should advance one of:
 
 - the uniform-corner incidence injection;
-- raw exposed-corner nonemptiness for the canonical corner parametrization of admissible inward
-  moves;
+- the shifted-template instantiation of the lower-set mismatch lemma;
 - the shifted zero-defect classification;
 - the shifted global `+m` gap;
 - the transport step proving that the sum-distinct families relevant to Erdős #1 avoid the two

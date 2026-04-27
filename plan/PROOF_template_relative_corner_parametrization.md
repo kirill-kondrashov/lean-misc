@@ -311,6 +311,14 @@ The Lean file defines:
 - `IsDeletable`;
 - `CompatibleRepair`;
 - `IsRawExposedRepairPair`;
+- `IsRelMinimal`;
+- `IsRelMaximal`;
+- `isRestorable_of_relMinimal_missing`;
+- `isDeletable_of_relMaximal_extra`;
+- `compatibleRepair_of_template_lower_missing_extra`;
+- `rawExposedRepairPair_of_relMinimal_missing_relMaximal_extra`;
+- `exists_rawExposedRepairPair_of_lower_eq_card_ne`;
+- `exists_rawExposedRepairPair_preserving_lower_of_lower_eq_card_ne`;
 - `isRelLowerSet_twoAtomRepair_of_rawExposed`;
 - `card_twoAtomRepair_eq_card_of_rawExposed`;
 - `templateDistance_twoAtomRepair_eq_sub_two_of_rawExposed`;
@@ -318,9 +326,11 @@ The Lean file defines:
 - `globalTemplateDistance_twoAtomRepair_eq_sub_two_of_right_nearest_rawExposed`.
 
 This formalizes the abstract `(REST)+(DEL)+(COMP)` preservation statement, one-add/one-delete
-cardinality preservation, and the distance-drop consequences for any supplied raw repair pair.
-It still deliberately does not prove `RAW-NONEMPTY`: the missing theorem is the existence of such
-a compatible restorable/deletable pair under the shifted subcritical hypotheses.
+cardinality preservation, the abstract finite lower-set mismatch lemma, and the distance-drop
+consequences for every raw repair pair. It still deliberately does not prove the shifted
+instantiation: the remaining theorem is to show the shifted finite rank-posets and selected
+templates satisfy the lower-set, equal-cardinality, and bidirectional well-foundedness hypotheses.
+This theorem should not use the subcritical hypothesis `\Delta(F)<m`.
 
 ## Canonical Admissible Corner Set
 
@@ -375,23 +385,49 @@ atom.
 This note proves that there is no ambiguity in the corner parametrization once exposed repair
 pairs are adopted. It does not prove that useful corners always exist.
 
-The remaining theorem needed before the incidence injection is:
+The abstract finite-poset mismatch lemma is now formalized. In Lean-ready form it requires both
+well-founded directions of the strict relation:
 
 ```math
-F\text{ shifted},
-\quad
-F\notin\{F_{\mathrm{full}},F_\star\},
-\quad
-d(F)\ge 4,
-\quad
-\Delta(F)<m
+\begin{gathered}
+F,T\text{ lower sets in the same bidirectionally well-founded strict rank poset},
+\qquad |F|=|T|,
+\qquad F\ne T
+\\
 \Longrightarrow
-\text{there is at least one raw exposed repair pair, equivalently }K(F)\ne\varnothing.
+\text{there is at least one raw exposed repair pair from }F\text{ toward }T.
+\end{gathered}
 \tag{EXIST}
 ```
 
-So `(EXIST)` is now a pure exposed-corner nonemptiness theorem. It no longer has a separate radial
-or bisector component.
+Proof sketch:
+
+- choose `x` minimal in `T\setminus F`;
+- choose `z` maximal in `F\setminus T`;
+- minimality gives `(REST)`;
+- maximality gives `(DEL)`;
+- `(COMP)` follows because `z<x` and `x in T` would force `z in T` by lower-set closure of `T`,
+  contradicting `z in F\setminus T`.
+
+The shifted consequence is:
+
+```math
+F\text{ shifted and balanced},
+\quad
+F\ne T(F)
+\Longrightarrow
+K(F)\ne\varnothing.
+```
+
+So the remaining `(EXIST)` work is no longer the order-theoretic mismatch lemma itself. It is the
+shifted-template instantiation:
+
+- define the shifted rank-poset relation used by the two-layer model;
+- prove shifted slices and template slices are lower sets;
+- prove the relation and its converse are well-founded on each finite rank;
+- prove balanced non-template states differ from their selected nearest template.
+
+This has no separate radial, bisector, or subcritical component.
 
 After `(EXIST)`, the active local target remains exactly the one in the uniform-corner note:
 
@@ -429,23 +465,20 @@ python3 tools/problem1_odd_profile_search.py \
 
 found that every checked local shifted state with `d(F)>=4` has at least one raw exposed repair
 pair and at least one `K`-corner. In these local windows there were no subcritical states
-`Delta(F)<m`, so the check is not evidence for the subcritical nonemptiness theorem itself. Its
-value is narrower: it validates the corner definition and agrees with `(GDROP)`, including across
-the template tie-break.
+`Delta(F)<m`. With the refined plan this is not a weakness for nonemptiness: raw-corner existence
+should be order-theoretic and independent of `Delta`. The check's value is narrower: it validates
+the corner definition and agrees with `(GDROP)`, including across the template tie-break.
 
 ## Local Proof Obligations
 
 The next rigorous sublemmas are:
 
-1. `SHIFTED-CORNERS`: In any nonempty mismatch region between two shifted rank families, minimal
-   missing template atoms and maximal extra atoms are exposed in the sense of `(REST)` and `(DEL)`,
-   and compatible pairs satisfying `(COMP)` exist when the repair is same-rank.
-2. `RAW-NONEMPTY`: Under the shifted subcritical hypotheses, at least one compatible restorable /
-   deletable raw repair pair exists.
-3. `INCIDENCE-LOCALITY`: For `k in K(F)`, all atoms in
+1. `SHIFTED-INSTANTIATION`: Shifted rank-uniform slices and the template slices satisfy the
+   lower-set hypotheses, so shifted balanced non-template states have `K(F)\ne\varnothing`.
+2. `INCIDENCE-LOCALITY`: For `k in K(F)`, all atoms in
    `B_new(k)`, `B_old(k)`, `C_new(k)`, and `C_old(k)` are supported in the cover-neighborhood of
    the two changed atoms.
-4. `INJ`: Construct the local bad-to-good incidence injection for this `K(F)`.
+3. `INJ`: Construct the local bad-to-good incidence injection for this `K(F)`.
 
-Only after these four items are proved does the discrete-Morse route close the proposed `+m`
+Only after these three items are proved does the discrete-Morse route close the proposed `+m`
 additive improvement.

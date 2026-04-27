@@ -110,5 +110,6 @@ The next commit on the additive route should land only if it advances one of:
   ```math
   F \notin \{F_{\mathrm{full}},F_\star\} \Longrightarrow \Delta(F)\ge m;
   ```
-- raw exposed-corner nonemptiness for the exposed-corner set `K(F)`;
+- the shifted-template instantiation of the formalized lower-set mismatch lemma, giving
+  nonemptiness of the exposed-corner set `K(F)`;
 - the uniform-corner local incidence-transport theorem reducing those two blockers.

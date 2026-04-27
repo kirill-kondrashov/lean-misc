@@ -138,9 +138,11 @@ So the real live local theorem is now:
 ```
 
 This is sharper than an arbitrary canonical-weight existence statement: the weights are fixed to be
-uniform on the canonical exposed corners. The corner set is now defined explicitly, so the
-remaining preliminary issue is raw exposed-corner nonemptiness in the shifted subcritical region,
-followed by the concrete local incidence transport inequality.
+uniform on the canonical exposed corners. The corner set is now defined explicitly. The remaining
+preliminary issue is the abstract lower-set mismatch lemma and its shifted-template
+instantiation. The abstract lemma is now formalized; the remaining part is the shifted-template
+instantiation, which should give raw exposed-corner nonemptiness without using subcriticality.
+After that comes the concrete local incidence transport inequality.
 
 ## Commit Gate
 
@@ -158,7 +160,8 @@ The next commit on this stronger branch should land only if it advances one of:
    \Longrightarrow
    |\partial^+G| \ge \binom{n}{m} + m.
    ```
-3. raw exposed-corner nonemptiness for the template-relative exposed-corner set;
+3. the shifted-template instantiation of the formalized lower-set mismatch lemma for the
+   template-relative exposed-corner set;
 4. uniform-corner local incidence transport:
    ```math
    \Phi_G : \mathcal B(G) \hookrightarrow \mathcal G(G).

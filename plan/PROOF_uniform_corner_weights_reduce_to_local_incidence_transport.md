@@ -49,8 +49,10 @@ such that:
    ```
 
 So `K(F)` is now the canonical parametrization of the admissible inward moves. The parametrization
-note proves that every raw corner already has `d(F_k)=d(F)-2`; the remaining precondition is
-nonemptiness of `K(F)` in every shifted subcritical state with `d(F)\ge 4`.
+note proves that every raw corner already has `d(F_k)=d(F)-2`. The abstract lower-set mismatch
+lemma is now formalized, so the remaining precondition is its shifted-template instantiation:
+prove `K(F)` is nonempty for every shifted balanced non-template state. This should not require
+the subcritical hypothesis `\Delta(F)<m`.
 
 For each `k \in K(F)`, write
 
@@ -263,8 +265,8 @@ incidence-transport problem.
 
 So the current blocker is now sharper than before:
 
-- first prove `K(F)\ne\varnothing` in the shifted subcritical region, if this is not bundled into
-  the incidence proof;
+- first instantiate the lower-set mismatch lemma to get `K(F)\ne\varnothing` for shifted balanced
+  non-template states;
 - then prove
   ```math
   \text{prove the uniform-corner incidence injection } \Phi_F.
