@@ -446,10 +446,8 @@ python3 tools/problem1_odd_profile_search.py --shifted-two-layer-exposed-corner-
 ```
 
 now checks this exact exposed-corner definition on local shifted template shells. For each checked
-state with `d(F)>=4`, it counts:
-
-- raw exposed repair pairs satisfying `(REST)`, `(DEL)`, and `(COMP)`;
-- `K`-corners satisfying the global condition `d(F_k)=d(F)-2`.
+state with `d(F)>=4`, it counts the raw exposed repair pairs satisfying `(REST)`, `(DEL)`, and
+`(COMP)`, equivalently the canonical `K(F)`-corners under the present definition.
 
 The runs
 
@@ -464,10 +462,10 @@ python3 tools/problem1_odd_profile_search.py \
 ```
 
 found that every checked local shifted state with `d(F)>=4` has at least one raw exposed repair
-pair and at least one `K`-corner. In these local windows there were no subcritical states
+pair, hence nonempty `K(F)`. In these local windows there were no subcritical states
 `Delta(F)<m`. With the refined plan this is not a weakness for nonemptiness: raw-corner existence
 should be order-theoretic and independent of `Delta`. The check's value is narrower: it validates
-the corner definition and agrees with `(GDROP)`, including across the template tie-break.
+the corner definition and separately agrees with `(GDROP)`, including across the template tie-break.
 
 ## Local Proof Obligations
 

@@ -1,7 +1,7 @@
 # Note: Erdős #1 Against The Current Literature
 
-As of **April 24, 2026**, the original integer Erdős distinct subset sums problem is still listed
-as open on the Erdős problems site:
+Last literature refresh: **April 24, 2026**. That refresh still found the original integer Erdős
+distinct subset sums problem listed as open on the Erdős problems site:
 
 ```math
 N \gg 2^n.

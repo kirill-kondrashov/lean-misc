@@ -6,7 +6,7 @@ This note records the first explicit target beyond the current published lower b
 N \ge \binom{n}{\lfloor n/2\rfloor}.
 ```
 
-The April 24, 2026 literature refresh still finds no accepted published all-`n` improvement beyond
+The last literature refresh on April 24, 2026 still found no accepted published all-`n` improvement beyond
 that baseline for the original one-dimensional problem. New nearby work on dissociated sets and
 variants is useful context, but it does not replace the Dubroff-Fox-Xu benchmark.
 
@@ -89,10 +89,10 @@ The current theorem-first reduction of that statement is:
 - [PROOF_template_relative_corner_parametrization.md](./PROOF_template_relative_corner_parametrization.md)
 - [PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md](./PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md)
 
-The sharp current blocker is:
+The sharp current blocker stack is:
 
 ```math
-\text{prove nonempty exposed inward corners, then construct the uniform-corner incidence injection}
+\text{prove nonempty exposed inward corners, package the local incidence support, then construct the uniform-corner incidence injection}
 ```
 
 That is the cleanest current route to the signed multiplicity-balance inequality, hence to the
@@ -112,4 +112,5 @@ The next commit on the additive route should land only if it advances one of:
   ```
 - the shifted-template instantiation of the formalized lower-set mismatch lemma, giving
   nonemptiness of the exposed-corner set `K(F)`;
+- the locality package for the canonical bad/good incidence sets used by the uniform-corner route;
 - the uniform-corner local incidence-transport theorem reducing those two blockers.

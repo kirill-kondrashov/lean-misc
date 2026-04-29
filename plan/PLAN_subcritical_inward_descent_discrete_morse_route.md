@@ -149,8 +149,9 @@ acyclicity of the shifted rank posets should discharge these on instantiation. T
 select a move preserving `\Delta<m`.
 
 The abstract finite-poset lemma itself is now formalized in
-`ErdosProblems/Problem1CubeExposedRepair.lean`; the remaining pre-injection task is the shifted
-rank-poset instantiation.
+`ErdosProblems/Problem1CubeExposedRepair.lean`; the remaining pre-injection tasks are the shifted
+rank-poset instantiation and the explicit locality bridge from a corner move to the canonical
+bad/good incidence sets used in the uniform-corner transport note.
 
 ## Proof Strategy
 
@@ -307,20 +308,24 @@ This route is valid only if the following lemmas are established:
 4. shifted-template instantiation of that mismatch lemma, giving `K(F)\ne\varnothing` for shifted
    balanced non-template states;
 5. exact distance drop `d(F')=d(F)-2`;
-6. a local average inward-move inequality;
-7. the deduction of one subcritical-preserving inward move from that average inequality.
+6. incidence-locality: the atoms counted by `B_new(k)`, `B_old(k)`, `C_new(k)`, and `C_old(k)` are
+   controlled by the local cover-neighborhood of the two changed atoms;
+7. a local average inward-move inequality, in its sharp current form the uniform-corner incidence
+   transport theorem;
+8. the deduction of one subcritical-preserving inward move from that average inequality.
 
-Among these, Lemma 6 is the real drift unknown.
-In its sharpest current form, Lemma 6 is the signed local multiplicity balance from
+Among these, Lemmas 6-7 are the real local unknown.
+In its sharpest current form, Lemma 7 is the signed local multiplicity balance from
 [PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md](./PROOF_average_inward_move_reduces_to_local_multiplicity_balance.md).
 Equivalently, by
 [PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md](./PROOF_subcritical_discrete_gradient_conditional_on_canonical_weights.md),
 the real missing object is a canonical weight scheme on admissible inward moves. The current
 preferred candidate is the uniform-corner scheme, whose remaining theorem is a local bad-to-good
-incidence injection.
-Before that injection can be proved without hidden assumptions, finish the shifted-template
-instantiation of the lower-set mismatch lemma. This preliminary obligation should not mention
-`\Delta(F)<m`; radial exactness is already proved for every supplied raw pair.
+incidence injection. Before that injection can be proved without hidden assumptions, finish the
+shifted-template instantiation of the lower-set mismatch lemma and isolate the incidence-locality
+bridge showing that the canonical bad/good incidence sets are genuinely local to a corner move.
+These preliminary obligations should not mention `\Delta(F)<m`; radial exactness is already proved
+for every supplied raw pair.
 
 ## Why This Is Better Than More Enumeration
 
@@ -335,6 +340,7 @@ That is better than more brute-force because:
 
 So the next useful commit on this branch should either:
 
-- prove one of the seven lemmas above, or
+- prove one of the eight lemmas above, or
 - prove the shifted-template instantiation of the lower-set mismatch lemma, or
+- prove the incidence-locality bridge for the canonical bad/good incidence sets, or
 - construct the uniform-corner incidence injection needed for the local average inequality.

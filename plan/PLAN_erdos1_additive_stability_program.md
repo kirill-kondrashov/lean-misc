@@ -11,13 +11,14 @@ The refreshed literature note is:
 
 - [NOTE_erdos1_position_against_current_literature.md](./NOTE_erdos1_position_against_current_literature.md)
 
-As of **April 24, 2026**, the accepted all-`n` original-problem lower bound is
+The last literature refresh on **April 24, 2026** still found the accepted all-`n`
+original-problem lower bound
 
 ```math
 N \ge \binom{n}{\lfloor n/2\rfloor}.
 ```
 
-The Erdős Problems page still marks the original problem open, and the April 2026 search did not
+The Erdős Problems page still marked the original problem open, and that April 2026 search did not
 find an accepted published all-`n` improvement beyond Dubroff-Fox-Xu.
 
 ## Active Target
@@ -168,6 +169,12 @@ and the selected nearest template `T(F)`, proving `K(F)` is nonempty for every s
 non-template state. The hypothesis `\Delta(F)<m` is not needed for raw-corner existence; it
 belongs to the later average-defect step.
 
+There is also one intermediate theorem that should now be treated as explicit rather than implicit:
+prove the locality package for the canonical bad/good incidence sets in the uniform-corner note,
+namely that the atoms counted by `\mathcal B(F)` and `\mathcal G(F)` are controlled by the
+cover-neighborhood of the two changed atoms of a corner move. Without that bridge, the incidence
+injection problem is too underspecified to formalize cleanly.
+
 After `K(F)\ne\varnothing` is proved, the next local theorem is the incidence step:
 
 ```math
@@ -199,6 +206,7 @@ It is not an active plan because it does not by itself improve the published sta
 The next useful commit should advance one of:
 
 - the uniform-corner incidence injection;
+- the incidence-locality bridge for the canonical bad/good incidence sets;
 - the shifted-template instantiation of the lower-set mismatch lemma;
 - the shifted zero-defect classification;
 - the shifted global `+m` gap;

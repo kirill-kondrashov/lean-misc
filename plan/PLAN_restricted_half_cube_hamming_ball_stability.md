@@ -131,10 +131,10 @@ The stronger route is currently reduced to the discrete-Morse program:
 - [PROOF_template_relative_corner_parametrization.md](./PROOF_template_relative_corner_parametrization.md)
 - [PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md](./PROOF_uniform_corner_weights_reduce_to_local_incidence_transport.md)
 
-So the real live local theorem is now:
+So the real live local theorem stack is now:
 
 ```math
-\text{construct a local bad-to-good incidence injection for the uniform corner weights.}
+\text{prove corner nonemptiness, prove locality of the canonical incidence sets, then construct a local bad-to-good incidence injection for the uniform corner weights.}
 ```
 
 This is sharper than an arbitrary canonical-weight existence statement: the weights are fixed to be
@@ -161,8 +161,9 @@ The next commit on this stronger branch should land only if it advances one of:
    |\partial^+G| \ge \binom{n}{m} + m.
    ```
 3. the shifted-template instantiation of the formalized lower-set mismatch lemma for the
-   template-relative exposed-corner set;
-4. uniform-corner local incidence transport:
-   ```math
-   \Phi_G : \mathcal B(G) \hookrightarrow \mathcal G(G).
-   ```
+    template-relative exposed-corner set;
+4. the locality package for the canonical bad/good incidence sets attached to those corners;
+5. uniform-corner local incidence transport:
+    ```math
+    \Phi_G : \mathcal B(G) \hookrightarrow \mathcal G(G).
+    ```

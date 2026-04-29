@@ -3,6 +3,7 @@ import ErdosProblems.Problem1LowerExactCore
 import ErdosProblems.Problem1CubeBoundary
 import ErdosProblems.Problem1CubeCompression
 import ErdosProblems.Problem1CubeDownset
+import ErdosProblems.Problem1CubeShiftedInstantiation
 import ErdosProblems.Problem1CubeMinimalOutside
 import ErdosProblems.Problem1CubeOddExtremizer
 import ErdosProblems.Problem1CubeAlexanderDual

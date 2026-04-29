@@ -231,7 +231,9 @@ in
 So the active blocker is no longer just “find some inward move”.
 It is:
 
-- define the canonical exposed-corner parametrisation of admissible inward moves;
+- instantiate the now-defined canonical exposed-corner parametrisation to prove `K(F)\ne\varnothing`
+  for shifted balanced non-template states;
+- prove the locality package for the canonical bad/good incidence sets attached to those corners;
 - prove the uniform-corner bad-incidence set injects into the uniform-corner good-incidence set.
 
 ## Why This Is The PhD-Level Obstruction

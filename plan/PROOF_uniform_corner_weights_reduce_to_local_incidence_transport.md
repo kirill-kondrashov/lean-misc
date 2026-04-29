@@ -267,6 +267,8 @@ So the current blocker is now sharper than before:
 
 - first instantiate the lower-set mismatch lemma to get `K(F)\ne\varnothing` for shifted balanced
   non-template states;
+- then isolate the locality package showing that the incidences in `\mathcal B(F)` and
+  `\mathcal G(F)` are controlled by the corner-neighborhood of the two changed atoms;
 - then prove
   ```math
   \text{prove the uniform-corner incidence injection } \Phi_F.
