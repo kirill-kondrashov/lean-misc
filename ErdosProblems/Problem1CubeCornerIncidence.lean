@@ -1256,6 +1256,50 @@ def projectedRepairPair
     CubeRepairPair (Fin (n + 1)) :=
   (twoLayerAtomSet (n := n) (m := m) k.1, twoLayerAtomSet (n := n) (m := m) k.2)
 
+/-- Coarse layer-shape of a selected-template repair pair in the two-layer model. -/
+inductive TwoLayerRepairShape
+  | lowerLower
+  | lowerUpper
+  | upperLower
+  | upperUpper
+  deriving DecidableEq
+
+/-- Canonical layer-shape attached to a two-layer repair pair. -/
+def repairShapeOfTwoLayerRepairPair
+    (k : (TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) : TwoLayerRepairShape :=
+  match k.1, k.2 with
+  | Sum.inl _, Sum.inl _ => TwoLayerRepairShape.lowerLower
+  | Sum.inl _, Sum.inr _ => TwoLayerRepairShape.lowerUpper
+  | Sum.inr _, Sum.inl _ => TwoLayerRepairShape.upperLower
+  | Sum.inr _, Sum.inr _ => TwoLayerRepairShape.upperUpper
+
+/-- Final finite local class candidate: repair-pair layer-shape together with the local witnessed
+geometry class. -/
+abbrev ShapedWitnessedCornerGeometry (α : Type*) := TwoLayerRepairShape × WitnessedCornerGeometry α
+
+/-- Geometry-refined witnessed atom decorated by the layer-shape of its ambient repair pair. -/
+abbrev ShapedGeometricWitnessedCornerAtom (α : Type*) := TwoLayerRepairShape × GeometricWitnessedCornerAtom α
+
+/-- Forget the shape/geometric tags and keep only the underlying concrete atom. -/
+def atomOfShapedGeometricWitnessedCornerAtom :
+    ShapedGeometricWitnessedCornerAtom (Fin (n + 1)) → Finset (Fin (n + 1)) :=
+  atomOfGeometricWitnessedCornerAtom ∘ Prod.snd
+
+/-- Canonical shape-refinement of a geometry-refined witnessed atom for a fixed repair pair. -/
+def refineGeometricWitnessedCornerAtomByShape
+    (k : (TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m))
+    (u : GeometricWitnessedCornerAtom (Fin (n + 1))) :
+    ShapedGeometricWitnessedCornerAtom (Fin (n + 1)) :=
+  (repairShapeOfTwoLayerRepairPair (n := n) (m := m) k, u)
+
+def refineGeometricWitnessedCornerAtomByShapeEmb
+    (k : (TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) :
+    GeometricWitnessedCornerAtom (Fin (n + 1)) ↪
+      ShapedGeometricWitnessedCornerAtom (Fin (n + 1)) :=
+  ⟨refineGeometricWitnessedCornerAtomByShape (n := n) (m := m) k, by
+    intro u v h
+    exact congrArg Prod.snd h⟩
+
 /-- Canonical bad incidences for the selected-template repair set. -/
 noncomputable def selectedTemplateBadIncidences (F : Finset (TwoLayerSlice (n + 1) m))
     (𝒜 : Finset (Finset (Fin (n + 1)))) :
@@ -1339,6 +1383,26 @@ noncomputable def selectedTemplateGoodGeometricWitnessedIncidences
       GeometricWitnessedCornerAtom (Fin (n + 1))) :=
   fiberIncidences (selectedTemplateRawRepairPairs (n := n) (m := m) F)
     (fun k => repairGoodGeometricWitnessedAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k))
+
+/-- Shape-refined bad geometry incidences on the selected-template repair family. -/
+noncomputable def selectedTemplateBadShapedGeometricWitnessedIncidences
+    (F : Finset (TwoLayerSlice (n + 1) m)) (𝒜 : Finset (Finset (Fin (n + 1)))) :
+    Finset (((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      ShapedGeometricWitnessedCornerAtom (Fin (n + 1))) :=
+  fiberIncidences (selectedTemplateRawRepairPairs (n := n) (m := m) F)
+    (fun k =>
+      (repairBadGeometricWitnessedAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k)).map
+        (refineGeometricWitnessedCornerAtomByShapeEmb (n := n) (m := m) k))
+
+/-- Shape-refined good geometry incidences on the selected-template repair family. -/
+noncomputable def selectedTemplateGoodShapedGeometricWitnessedIncidences
+    (F : Finset (TwoLayerSlice (n + 1) m)) (𝒜 : Finset (Finset (Fin (n + 1)))) :
+    Finset (((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      ShapedGeometricWitnessedCornerAtom (Fin (n + 1))) :=
+  fiberIncidences (selectedTemplateRawRepairPairs (n := n) (m := m) F)
+    (fun k =>
+      (repairGoodGeometricWitnessedAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k)).map
+        (refineGeometricWitnessedCornerAtomByShapeEmb (n := n) (m := m) k))
 
 theorem atomOfTaggedAtom_mem_selectedTemplateBadIncidences_local
     {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
@@ -1443,6 +1507,40 @@ theorem atomOfGeometricWitnessedCornerAtom_mem_selectedTemplateGoodGeometricWitn
   have hp' := mem_fiberIncidences_iff.mp hp
   exact atomOfGeometricWitnessedCornerAtom_mem_repairLocalNeighborhood
     (Finset.mem_union.mpr <| Or.inr hp'.2)
+
+theorem atomOfShapedGeometricWitnessedCornerAtom_mem_selectedTemplateBadShapedGeometricWitnessedIncidences_local
+    {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    {p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      ShapedGeometricWitnessedCornerAtom (Fin (n + 1))}
+    (hp : p ∈ selectedTemplateBadShapedGeometricWitnessedIncidences (n := n) (m := m) F 𝒜) :
+    atomOfShapedGeometricWitnessedCornerAtom p.2 ∈
+      repairLocalNeighborhood (projectedRepairPair (n := n) (m := m) p.1) := by
+  rcases p with ⟨pk, pu⟩
+  have hp' := mem_fiberIncidences_iff.mp hp
+  rcases Finset.mem_map.mp hp'.2 with ⟨u, hu, hEq⟩
+  change atomOfGeometricWitnessedCornerAtom pu.2 ∈
+    repairLocalNeighborhood (projectedRepairPair (n := n) (m := m) pk)
+  rw [show pu.2 = u by simpa [refineGeometricWitnessedCornerAtomByShapeEmb,
+    refineGeometricWitnessedCornerAtomByShape] using (congrArg Prod.snd hEq).symm]
+  exact atomOfGeometricWitnessedCornerAtom_mem_repairLocalNeighborhood
+    (Finset.mem_union.mpr <| Or.inl hu)
+
+theorem atomOfShapedGeometricWitnessedCornerAtom_mem_selectedTemplateGoodShapedGeometricWitnessedIncidences_local
+    {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    {p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      ShapedGeometricWitnessedCornerAtom (Fin (n + 1))}
+    (hp : p ∈ selectedTemplateGoodShapedGeometricWitnessedIncidences (n := n) (m := m) F 𝒜) :
+    atomOfShapedGeometricWitnessedCornerAtom p.2 ∈
+      repairLocalNeighborhood (projectedRepairPair (n := n) (m := m) p.1) := by
+  rcases p with ⟨pk, pu⟩
+  have hp' := mem_fiberIncidences_iff.mp hp
+  rcases Finset.mem_map.mp hp'.2 with ⟨u, hu, hEq⟩
+  change atomOfGeometricWitnessedCornerAtom pu.2 ∈
+    repairLocalNeighborhood (projectedRepairPair (n := n) (m := m) pk)
+  rw [show pu.2 = u by simpa [refineGeometricWitnessedCornerAtomByShapeEmb,
+    refineGeometricWitnessedCornerAtomByShape] using (congrArg Prod.snd hEq).symm]
+  exact atomOfGeometricWitnessedCornerAtom_mem_repairLocalNeighborhood
+    (Finset.mem_union.mpr <| Or.inr hu)
 
 /-- Canonical refinement of a selected-template bad incidence to structured local corner data. -/
 def refineSelectedTemplateBadIncidence
@@ -1641,6 +1739,47 @@ theorem refineSelectedTemplateGoodWitnessedIncidence_mem_goodGeometricWitnessed
     (hp : p ∈ selectedTemplateGoodWitnessedIncidences (n := n) (m := m) F 𝒜) :
     refineSelectedTemplateGoodWitnessedIncidence p ∈
       selectedTemplateGoodGeometricWitnessedIncidences (n := n) (m := m) F 𝒜 := by
+  rcases p with ⟨pk, pu⟩
+  exact (mem_fiberIncidences_iff).2
+    ⟨(mem_fiberIncidences_iff.mp hp).1, by
+      exact Finset.mem_map.mpr ⟨pu, (mem_fiberIncidences_iff.mp hp).2, rfl⟩⟩
+
+/-- Canonical refinement of a geometry-refined witnessed incidence by the repair-pair layer-shape. -/
+def refineSelectedTemplateBadGeometricWitnessedIncidenceByShape
+    (p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      GeometricWitnessedCornerAtom (Fin (n + 1))) :
+    ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      ShapedGeometricWitnessedCornerAtom (Fin (n + 1)) :=
+  (p.1, refineGeometricWitnessedCornerAtomByShape (n := n) (m := m) p.1 p.2)
+
+/-- Canonical refinement of a good geometry-refined witnessed incidence by the repair-pair
+layer-shape. -/
+def refineSelectedTemplateGoodGeometricWitnessedIncidenceByShape
+    (p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      GeometricWitnessedCornerAtom (Fin (n + 1))) :
+    ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      ShapedGeometricWitnessedCornerAtom (Fin (n + 1)) :=
+  (p.1, refineGeometricWitnessedCornerAtomByShape (n := n) (m := m) p.1 p.2)
+
+theorem refineSelectedTemplateBadGeometricWitnessedIncidence_mem_badShaped
+    {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    {p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      GeometricWitnessedCornerAtom (Fin (n + 1))}
+    (hp : p ∈ selectedTemplateBadGeometricWitnessedIncidences (n := n) (m := m) F 𝒜) :
+    refineSelectedTemplateBadGeometricWitnessedIncidenceByShape (n := n) (m := m) p ∈
+      selectedTemplateBadShapedGeometricWitnessedIncidences (n := n) (m := m) F 𝒜 := by
+  rcases p with ⟨pk, pu⟩
+  exact (mem_fiberIncidences_iff).2
+    ⟨(mem_fiberIncidences_iff.mp hp).1, by
+      exact Finset.mem_map.mpr ⟨pu, (mem_fiberIncidences_iff.mp hp).2, rfl⟩⟩
+
+theorem refineSelectedTemplateGoodGeometricWitnessedIncidence_mem_goodShaped
+    {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    {p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      GeometricWitnessedCornerAtom (Fin (n + 1))}
+    (hp : p ∈ selectedTemplateGoodGeometricWitnessedIncidences (n := n) (m := m) F 𝒜) :
+    refineSelectedTemplateGoodGeometricWitnessedIncidenceByShape (n := n) (m := m) p ∈
+      selectedTemplateGoodShapedGeometricWitnessedIncidences (n := n) (m := m) F 𝒜 := by
   rcases p with ⟨pk, pu⟩
   exact (mem_fiberIncidences_iff).2
     ⟨(mem_fiberIncidences_iff.mp hp).1, by
