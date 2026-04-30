@@ -304,6 +304,163 @@ theorem atomOf_chooseRepairOldBoundaryWitnessAtom {F : Finset (Finset α)} {k : 
     atomOfBoundaryWitnessAtom (chooseRepairOldBoundaryWitnessAtom hs) = s :=
   (Classical.choose_spec (exists_repairOldBoundaryWitnessAtom_of_mem hs)).2
 
+/-- Witness-refined local corner atoms, where boundary atoms carry a concrete cover witness. -/
+inductive WitnessedCornerAtom (α : Type*)
+  | newBoundary : BoundaryWitnessAtom α → WitnessedCornerAtom α
+  | oldBoundary : BoundaryWitnessAtom α → WitnessedCornerAtom α
+  | newFamily : Finset α → WitnessedCornerAtom α
+  | oldFamily : Finset α → WitnessedCornerAtom α
+  deriving DecidableEq
+
+namespace WitnessedCornerAtom
+
+def newBoundaryEmb : BoundaryWitnessAtom α ↪ WitnessedCornerAtom α :=
+  ⟨WitnessedCornerAtom.newBoundary, by intro a b h; cases h; rfl⟩
+
+def oldBoundaryEmb : BoundaryWitnessAtom α ↪ WitnessedCornerAtom α :=
+  ⟨WitnessedCornerAtom.oldBoundary, by intro a b h; cases h; rfl⟩
+
+def newFamilyEmb : Finset α ↪ WitnessedCornerAtom α :=
+  ⟨WitnessedCornerAtom.newFamily, by intro a b h; cases h; rfl⟩
+
+def oldFamilyEmb : Finset α ↪ WitnessedCornerAtom α :=
+  ⟨WitnessedCornerAtom.oldFamily, by intro a b h; cases h; rfl⟩
+
+end WitnessedCornerAtom
+
+/-- Forget witness/role decoration and keep only the underlying cube atom. -/
+def atomOfWitnessedCornerAtom : WitnessedCornerAtom α → Finset α
+  | WitnessedCornerAtom.newBoundary u => atomOfBoundaryWitnessAtom u
+  | WitnessedCornerAtom.oldBoundary u => atomOfBoundaryWitnessAtom u
+  | WitnessedCornerAtom.newFamily s => s
+  | WitnessedCornerAtom.oldFamily s => s
+
+/-- Witness-refined bad atoms: new boundary atoms carry witnesses, deleted family atoms stay plain. -/
+noncomputable def repairBadWitnessedAtoms (F : Finset (Finset α)) (k : CubeRepairPair α) :
+    Finset (WitnessedCornerAtom α) :=
+  (repairNewBoundaryWitnessAtoms F k).map WitnessedCornerAtom.newBoundaryEmb ∪
+    (repairOldFamilyAtoms F k).map WitnessedCornerAtom.oldFamilyEmb
+
+/-- Witness-refined good atoms: old boundary atoms carry witnesses, inserted family atoms stay plain. -/
+noncomputable def repairGoodWitnessedAtoms (F : Finset (Finset α)) (k : CubeRepairPair α) :
+    Finset (WitnessedCornerAtom α) :=
+  (repairOldBoundaryWitnessAtoms F k).map WitnessedCornerAtom.oldBoundaryEmb ∪
+    (repairNewFamilyAtoms F k).map WitnessedCornerAtom.newFamilyEmb
+
+theorem mem_repairBadWitnessedAtoms_iff {F : Finset (Finset α)} {k : CubeRepairPair α}
+    {u : WitnessedCornerAtom α} :
+    u ∈ repairBadWitnessedAtoms F k ↔
+      (∃ w ∈ repairNewBoundaryWitnessAtoms F k, u = WitnessedCornerAtom.newBoundary w) ∨
+        (∃ s ∈ repairOldFamilyAtoms F k, u = WitnessedCornerAtom.oldFamily s) := by
+  constructor
+  · intro hu
+    rw [repairBadWitnessedAtoms, Finset.mem_union] at hu
+    rcases hu with hu | hu
+    · rcases Finset.mem_map.mp hu with ⟨w, hw, rfl⟩
+      exact Or.inl ⟨w, hw, rfl⟩
+    · rcases Finset.mem_map.mp hu with ⟨s, hs, rfl⟩
+      exact Or.inr ⟨s, hs, rfl⟩
+  · intro hu
+    rw [repairBadWitnessedAtoms, Finset.mem_union]
+    rcases hu with ⟨w, hw, rfl⟩ | ⟨s, hs, rfl⟩
+    · exact Or.inl (Finset.mem_map.mpr ⟨w, hw, rfl⟩)
+    · exact Or.inr (Finset.mem_map.mpr ⟨s, hs, rfl⟩)
+
+theorem mem_repairGoodWitnessedAtoms_iff {F : Finset (Finset α)} {k : CubeRepairPair α}
+    {u : WitnessedCornerAtom α} :
+    u ∈ repairGoodWitnessedAtoms F k ↔
+      (∃ w ∈ repairOldBoundaryWitnessAtoms F k, u = WitnessedCornerAtom.oldBoundary w) ∨
+        (∃ s ∈ repairNewFamilyAtoms F k, u = WitnessedCornerAtom.newFamily s) := by
+  constructor
+  · intro hu
+    rw [repairGoodWitnessedAtoms, Finset.mem_union] at hu
+    rcases hu with hu | hu
+    · rcases Finset.mem_map.mp hu with ⟨w, hw, rfl⟩
+      exact Or.inl ⟨w, hw, rfl⟩
+    · rcases Finset.mem_map.mp hu with ⟨s, hs, rfl⟩
+      exact Or.inr ⟨s, hs, rfl⟩
+  · intro hu
+    rw [repairGoodWitnessedAtoms, Finset.mem_union]
+    rcases hu with ⟨w, hw, rfl⟩ | ⟨s, hs, rfl⟩
+    · exact Or.inl (Finset.mem_map.mpr ⟨w, hw, rfl⟩)
+    · exact Or.inr (Finset.mem_map.mpr ⟨s, hs, rfl⟩)
+
+theorem atomOfWitnessedCornerAtom_mem_repairLocalNeighborhood {F : Finset (Finset α)}
+    {k : CubeRepairPair α} {u : WitnessedCornerAtom α} (hu : u ∈ repairBadWitnessedAtoms F k ∪ repairGoodWitnessedAtoms F k) :
+    atomOfWitnessedCornerAtom u ∈ repairLocalNeighborhood k := by
+  rw [Finset.mem_union] at hu
+  rcases hu with hu | hu
+  · rw [mem_repairBadWitnessedAtoms_iff] at hu
+    rcases hu with ⟨w, hw, rfl⟩ | ⟨s, hs, rfl⟩
+    · simpa [atomOfWitnessedCornerAtom] using atomOfBoundaryWitnessAtom_mem_repairLocalNeighborhood_of_new hw
+    · exact Finset.mem_union.mpr <| Or.inl <|
+          Finset.mem_union.mpr <| Or.inr <| by
+            rw [mem_singleton]
+            exact mem_sdiff_twoAtomRepair hs
+  · rw [mem_repairGoodWitnessedAtoms_iff] at hu
+    rcases hu with ⟨w, hw, rfl⟩ | ⟨s, hs, rfl⟩
+    · simpa [atomOfWitnessedCornerAtom] using atomOfBoundaryWitnessAtom_mem_repairLocalNeighborhood_of_old hw
+    · exact Finset.mem_union.mpr <| Or.inr <|
+          Finset.mem_union.mpr <| Or.inr <| by
+            rw [mem_singleton]
+            exact mem_sdiff_of_twoAtomRepair hs
+
+/-- Canonical lift from bad structured atoms to witness-refined bad atoms. -/
+noncomputable def refineBadStructuredAtom (F : Finset (Finset α)) (k : CubeRepairPair α)
+    (u : CornerRole × Finset α) : WitnessedCornerAtom α :=
+  match u with
+  | (CornerRole.newBoundary, s) =>
+      if hs : s ∈ repairNewBoundaryAtoms F k then
+        WitnessedCornerAtom.newBoundary (chooseRepairNewBoundaryWitnessAtom hs)
+      else
+        WitnessedCornerAtom.oldFamily s
+  | (CornerRole.oldFamily, s) => WitnessedCornerAtom.oldFamily s
+  | (_, s) => WitnessedCornerAtom.oldFamily s
+
+/-- Canonical lift from good structured atoms to witness-refined good atoms. -/
+noncomputable def refineGoodStructuredAtom (F : Finset (Finset α)) (k : CubeRepairPair α)
+    (u : CornerRole × Finset α) : WitnessedCornerAtom α :=
+  match u with
+  | (CornerRole.oldBoundary, s) =>
+      if hs : s ∈ repairOldBoundaryAtoms F k then
+        WitnessedCornerAtom.oldBoundary (chooseRepairOldBoundaryWitnessAtom hs)
+      else
+        WitnessedCornerAtom.newFamily s
+  | (CornerRole.newFamily, s) => WitnessedCornerAtom.newFamily s
+  | (_, s) => WitnessedCornerAtom.newFamily s
+
+theorem refineBadStructuredAtom_mem_witnessed {F : Finset (Finset α)} {k : CubeRepairPair α}
+    {u : CornerRole × Finset α} (hu : u ∈ repairBadStructuredAtoms F k) :
+    refineBadStructuredAtom F k u ∈ repairBadWitnessedAtoms F k := by
+  rw [mem_repairBadStructuredAtoms_iff] at hu
+  rcases u with ⟨r, s⟩
+  rcases hu with ⟨hr, hs⟩ | ⟨hr, hs⟩
+  · subst hr
+    rw [mem_repairBadWitnessedAtoms_iff]
+    left
+    exact ⟨chooseRepairNewBoundaryWitnessAtom hs, chooseRepairNewBoundaryWitnessAtom_mem hs, by
+      simp [refineBadStructuredAtom, hs]⟩
+  · subst hr
+    rw [mem_repairBadWitnessedAtoms_iff]
+    right
+    exact ⟨s, hs, by simp [refineBadStructuredAtom]⟩
+
+theorem refineGoodStructuredAtom_mem_witnessed {F : Finset (Finset α)} {k : CubeRepairPair α}
+    {u : CornerRole × Finset α} (hu : u ∈ repairGoodStructuredAtoms F k) :
+    refineGoodStructuredAtom F k u ∈ repairGoodWitnessedAtoms F k := by
+  rw [mem_repairGoodStructuredAtoms_iff] at hu
+  rcases u with ⟨r, s⟩
+  rcases hu with ⟨hr, hs⟩ | ⟨hr, hs⟩
+  · subst hr
+    rw [mem_repairGoodWitnessedAtoms_iff]
+    left
+    exact ⟨chooseRepairOldBoundaryWitnessAtom hs, chooseRepairOldBoundaryWitnessAtom_mem hs, by
+      simp [refineGoodStructuredAtom, hs]⟩
+  · subst hr
+    rw [mem_repairGoodWitnessedAtoms_iff]
+    right
+    exact ⟨s, hs, by simp [refineGoodStructuredAtom]⟩
+
 theorem repairNewFamilyAtoms_subset_singleton (F : Finset (Finset α)) (k : CubeRepairPair α) :
     repairNewFamilyAtoms F k ⊆ ({k.1} : Finset (Finset α)) := by
   intro s hs
@@ -488,6 +645,48 @@ def repairGoodIncidences (F : Finset (Finset α)) (K : Finset (CubeRepairPair α
     Finset (CubeRepairPair α × Sum (Finset α) (Finset α)) :=
   K.biUnion fun k => ({k} : Finset (CubeRepairPair α)).product (repairGoodAtoms F k)
 
+/-- Witness-refined bad incidences fiber the witnessed bad atoms over the repair family. -/
+noncomputable def repairBadWitnessedIncidences (F : Finset (Finset α)) (K : Finset (CubeRepairPair α)) :
+    Finset (CubeRepairPair α × WitnessedCornerAtom α) :=
+  fiberIncidences K (fun k => repairBadWitnessedAtoms F k)
+
+/-- Witness-refined good incidences fiber the witnessed good atoms over the repair family. -/
+noncomputable def repairGoodWitnessedIncidences (F : Finset (Finset α)) (K : Finset (CubeRepairPair α)) :
+    Finset (CubeRepairPair α × WitnessedCornerAtom α) :=
+  fiberIncidences K (fun k => repairGoodWitnessedAtoms F k)
+
+/-- Canonical refinement of a bad structured incidence to a witness-refined bad incidence. -/
+noncomputable def refineBadStructuredIncidence (F : Finset (Finset α))
+    (p : CubeRepairPair α × (CornerRole × Finset α)) :
+    CubeRepairPair α × WitnessedCornerAtom α :=
+  (p.1, refineBadStructuredAtom F p.1 p.2)
+
+/-- Canonical refinement of a good structured incidence to a witness-refined good incidence. -/
+noncomputable def refineGoodStructuredIncidence (F : Finset (Finset α))
+    (p : CubeRepairPair α × (CornerRole × Finset α)) :
+    CubeRepairPair α × WitnessedCornerAtom α :=
+  (p.1, refineGoodStructuredAtom F p.1 p.2)
+
+theorem refineBadStructuredIncidence_mem_repairBadWitnessedIncidences
+    {F : Finset (Finset α)} {K : Finset (CubeRepairPair α)}
+    {p : CubeRepairPair α × (CornerRole × Finset α)} (hp : p ∈ repairBadStructuredIncidences F K) :
+    refineBadStructuredIncidence F p ∈ repairBadWitnessedIncidences F K := by
+  rcases p with ⟨pk, pu⟩
+  exact (mem_fiberIncidences_iff).2
+    ⟨(mem_fiberIncidences_iff.mp hp).1, by
+      simpa [refineBadStructuredIncidence] using
+        refineBadStructuredAtom_mem_witnessed ((mem_fiberIncidences_iff.mp hp).2)⟩
+
+theorem refineGoodStructuredIncidence_mem_repairGoodWitnessedIncidences
+    {F : Finset (Finset α)} {K : Finset (CubeRepairPair α)}
+    {p : CubeRepairPair α × (CornerRole × Finset α)} (hp : p ∈ repairGoodStructuredIncidences F K) :
+    refineGoodStructuredIncidence F p ∈ repairGoodWitnessedIncidences F K := by
+  rcases p with ⟨pk, pu⟩
+  exact (mem_fiberIncidences_iff).2
+    ⟨(mem_fiberIncidences_iff.mp hp).1, by
+      simpa [refineGoodStructuredIncidence] using
+        refineGoodStructuredAtom_mem_witnessed ((mem_fiberIncidences_iff.mp hp).2)⟩
+
 theorem atomOfTaggedAtom_mem_repairBadIncidences_local
     {F : Finset (Finset α)} {K : Finset (CubeRepairPair α)}
     {p : CubeRepairPair α × Sum (Finset α) (Finset α)} (hp : p ∈ repairBadIncidences F K) :
@@ -538,6 +737,22 @@ theorem atomOfCornerRoleAtom_mem_repairStructuredIncidences_local
   have hkEq : pk = k := by simpa using hp'.1
   subst hkEq
   exact atomOfCornerRoleAtom_mem_repairStructuredAtoms_local hp'.2
+
+theorem atomOfWitnessedCornerAtom_mem_repairBadWitnessedIncidences_local
+    {F : Finset (Finset α)} {K : Finset (CubeRepairPair α)}
+    {p : CubeRepairPair α × WitnessedCornerAtom α} (hp : p ∈ repairBadWitnessedIncidences F K) :
+    atomOfWitnessedCornerAtom p.2 ∈ repairLocalNeighborhood p.1 := by
+  have hp' := mem_fiberIncidences_iff.mp hp
+  exact atomOfWitnessedCornerAtom_mem_repairLocalNeighborhood
+    (Finset.mem_union.mpr <| Or.inl hp'.2)
+
+theorem atomOfWitnessedCornerAtom_mem_repairGoodWitnessedIncidences_local
+    {F : Finset (Finset α)} {K : Finset (CubeRepairPair α)}
+    {p : CubeRepairPair α × WitnessedCornerAtom α} (hp : p ∈ repairGoodWitnessedIncidences F K) :
+    atomOfWitnessedCornerAtom p.2 ∈ repairLocalNeighborhood p.1 := by
+  have hp' := mem_fiberIncidences_iff.mp hp
+  exact atomOfWitnessedCornerAtom_mem_repairLocalNeighborhood
+    (Finset.mem_union.mpr <| Or.inr hp'.2)
 
 theorem refineBadIncidence_mem_repairStructuredIncidences
     {F : Finset (Finset α)} {K : Finset (CubeRepairPair α)}
@@ -705,6 +920,22 @@ noncomputable def selectedTemplateGoodStructuredIncidences (F : Finset (TwoLayer
   fiberIncidences (selectedTemplateRawRepairPairs (n := n) (m := m) F)
     (fun k => repairGoodStructuredAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k))
 
+/-- Witness-refined bad incidences on the selected-template repair family. -/
+noncomputable def selectedTemplateBadWitnessedIncidences (F : Finset (TwoLayerSlice (n + 1) m))
+    (𝒜 : Finset (Finset (Fin (n + 1)))) :
+    Finset (((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      WitnessedCornerAtom (Fin (n + 1))) :=
+  fiberIncidences (selectedTemplateRawRepairPairs (n := n) (m := m) F)
+    (fun k => repairBadWitnessedAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k))
+
+/-- Witness-refined good incidences on the selected-template repair family. -/
+noncomputable def selectedTemplateGoodWitnessedIncidences (F : Finset (TwoLayerSlice (n + 1) m))
+    (𝒜 : Finset (Finset (Fin (n + 1)))) :
+    Finset (((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      WitnessedCornerAtom (Fin (n + 1))) :=
+  fiberIncidences (selectedTemplateRawRepairPairs (n := n) (m := m) F)
+    (fun k => repairGoodWitnessedAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k))
+
 theorem atomOfTaggedAtom_mem_selectedTemplateBadIncidences_local
     {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
     {p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
@@ -764,6 +995,28 @@ theorem atomOfCornerRoleAtom_mem_selectedTemplateStructuredIncidences_local
   have hkEq : pk = k := by simpa using hp'.1
   subst hkEq
   exact atomOfCornerRoleAtom_mem_repairStructuredAtoms_local hp'.2
+
+theorem atomOfWitnessedCornerAtom_mem_selectedTemplateBadWitnessedIncidences_local
+    {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    {p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      WitnessedCornerAtom (Fin (n + 1))}
+    (hp : p ∈ selectedTemplateBadWitnessedIncidences (n := n) (m := m) F 𝒜) :
+    atomOfWitnessedCornerAtom p.2 ∈
+      repairLocalNeighborhood (projectedRepairPair (n := n) (m := m) p.1) := by
+  have hp' := mem_fiberIncidences_iff.mp hp
+  exact atomOfWitnessedCornerAtom_mem_repairLocalNeighborhood
+    (Finset.mem_union.mpr <| Or.inl hp'.2)
+
+theorem atomOfWitnessedCornerAtom_mem_selectedTemplateGoodWitnessedIncidences_local
+    {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    {p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      WitnessedCornerAtom (Fin (n + 1))}
+    (hp : p ∈ selectedTemplateGoodWitnessedIncidences (n := n) (m := m) F 𝒜) :
+    atomOfWitnessedCornerAtom p.2 ∈
+      repairLocalNeighborhood (projectedRepairPair (n := n) (m := m) p.1) := by
+  have hp' := mem_fiberIncidences_iff.mp hp
+  exact atomOfWitnessedCornerAtom_mem_repairLocalNeighborhood
+    (Finset.mem_union.mpr <| Or.inr hp'.2)
 
 /-- Canonical refinement of a selected-template bad incidence to structured local corner data. -/
 def refineSelectedTemplateBadIncidence
@@ -882,6 +1135,50 @@ theorem refineSelectedTemplateGoodIncidence_mem_goodStructured
                 (fun k => repairGoodAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k)))).2
         simpa [refineSelectedTemplateGoodIncidence] using
           refineGoodTaggedAtom_mem_repairGoodStructuredAtoms hp'⟩
+
+/-- Canonical refinement of a selected-template bad structured incidence to witness-refined data. -/
+noncomputable def refineSelectedTemplateBadStructuredIncidence
+    (F : Finset (Finset (Fin (n + 1))))
+    (p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      (CornerRole × Finset (Fin (n + 1)))) :
+    ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      WitnessedCornerAtom (Fin (n + 1)) :=
+  (p.1, refineBadStructuredAtom F (projectedRepairPair (n := n) (m := m) p.1) p.2)
+
+/-- Canonical refinement of a selected-template good structured incidence to witness-refined data. -/
+noncomputable def refineSelectedTemplateGoodStructuredIncidence
+    (F : Finset (Finset (Fin (n + 1))))
+    (p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      (CornerRole × Finset (Fin (n + 1)))) :
+    ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      WitnessedCornerAtom (Fin (n + 1)) :=
+  (p.1, refineGoodStructuredAtom F (projectedRepairPair (n := n) (m := m) p.1) p.2)
+
+theorem refineSelectedTemplateBadStructuredIncidence_mem_badWitnessed
+    {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    {p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      (CornerRole × Finset (Fin (n + 1)))}
+    (hp : p ∈ selectedTemplateBadStructuredIncidences (n := n) (m := m) F 𝒜) :
+    refineSelectedTemplateBadStructuredIncidence (n := n) (m := m) 𝒜 p ∈
+      selectedTemplateBadWitnessedIncidences (n := n) (m := m) F 𝒜 := by
+  rcases p with ⟨pk, pu⟩
+  exact (mem_fiberIncidences_iff).2
+    ⟨(mem_fiberIncidences_iff.mp hp).1, by
+      simpa [refineSelectedTemplateBadStructuredIncidence] using
+        refineBadStructuredAtom_mem_witnessed ((mem_fiberIncidences_iff.mp hp).2)⟩
+
+theorem refineSelectedTemplateGoodStructuredIncidence_mem_goodWitnessed
+    {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    {p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      (CornerRole × Finset (Fin (n + 1)))}
+    (hp : p ∈ selectedTemplateGoodStructuredIncidences (n := n) (m := m) F 𝒜) :
+    refineSelectedTemplateGoodStructuredIncidence (n := n) (m := m) 𝒜 p ∈
+      selectedTemplateGoodWitnessedIncidences (n := n) (m := m) F 𝒜 := by
+  rcases p with ⟨pk, pu⟩
+  exact (mem_fiberIncidences_iff).2
+    ⟨(mem_fiberIncidences_iff.mp hp).1, by
+      simpa [refineSelectedTemplateGoodStructuredIncidence] using
+        refineGoodStructuredAtom_mem_witnessed ((mem_fiberIncidences_iff.mp hp).2)⟩
 
 /-- Global transport induced by a fiberwise structured local map on selected-template corners. -/
 def selectedTemplateStructuredTransport

@@ -311,6 +311,10 @@ So the current blocker is now sharper than before:
   `\mathcal G(F)` are controlled by the corner-neighborhood of the two changed atoms;
 - then prove that the selected-template repair-pair parametrization remembers enough **structured
   corner geometry** to make a canonical local transport well-defined;
+- the later witness-refinement layer for boundary atoms improves the Lean packaging of incidences,
+  but it still does **not** by itself supply the missing move-rectangle / Ferrers-corner geometry;
+  so one should **not** treat the witness layer alone as sufficient justification for defining
+  `\Phi_F`;
 - then prove
   ```math
   \text{prove the uniform-corner incidence injection } \Phi_F.
