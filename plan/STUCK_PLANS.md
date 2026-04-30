@@ -138,5 +138,5 @@ stability program, not the exact middle-binomial route by itself.
 - Status: `falsified`.
 - Consequence:
   only the weaker subcritical descent theorem remains live, and the active replacement is now the
-  three-step stack: shifted-template corner existence, incidence locality, then uniform-corner
-  incidence injection.
+  four-step stack: shifted-template corner existence, incidence locality, structured-corner
+  refinement, then uniform-corner incidence injection.

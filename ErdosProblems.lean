@@ -2,6 +2,7 @@ import ErdosProblems.Problem1
 import ErdosProblems.Problem1LowerExactCore
 import ErdosProblems.Problem1CubeBoundary
 import ErdosProblems.Problem1CubeRepairLocality
+import ErdosProblems.Problem1CubeCornerIncidence
 import ErdosProblems.Problem1CubeCompression
 import ErdosProblems.Problem1CubeDownset
 import ErdosProblems.Problem1CubeShiftedInstantiation

@@ -324,6 +324,11 @@ preferred candidate is the uniform-corner scheme, whose remaining theorem is a l
 incidence injection. Before that injection can be proved without hidden assumptions, finish the
 shifted-template instantiation of the lower-set mismatch lemma and isolate the incidence-locality
 bridge showing that the canonical bad/good incidence sets are genuinely local to a corner move.
+That still leaves one further structural obligation: prove that the current repair-pair
+parametrization of `K(F)` actually remembers the canonical local corner geometry needed to define a
+transport rule. The current Lean data already knows the changed atoms and the local support of the
+incidences, but it does not yet encode the move rectangle / local corner role decomposition needed
+to make the injection theorem precise.
 These preliminary obligations should not mention `\Delta(F)<m`; radial exactness is already proved
 for every supplied raw pair.
 
@@ -343,4 +348,6 @@ So the next useful commit on this branch should either:
 - prove one of the eight lemmas above, or
 - prove the shifted-template instantiation of the lower-set mismatch lemma, or
 - prove the incidence-locality bridge for the canonical bad/good incidence sets, or
+- prove the structured-corner refinement theorem connecting selected-template raw repair pairs to
+  their canonical local move geometry, or
 - construct the uniform-corner incidence injection needed for the local average inequality.

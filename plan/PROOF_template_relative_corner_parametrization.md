@@ -476,7 +476,11 @@ The next rigorous sublemmas are:
 2. `INCIDENCE-LOCALITY`: For `k in K(F)`, all atoms in
    `B_new(k)`, `B_old(k)`, `C_new(k)`, and `C_old(k)` are supported in the cover-neighborhood of
    the two changed atoms.
-3. `INJ`: Construct the local bad-to-good incidence injection for this `K(F)`.
+3. `CORNER-REFINEMENT`: Show that this parametrization of `K(F)` retains the canonical local corner
+   geometry needed to classify incidences by a finite move-rectangle type. In Lean terms, the raw
+   repair pair plus locality support must be strengthened to a structured corner object before the
+   transport map is even well-specified.
+4. `INJ`: Construct the local bad-to-good incidence injection for this refined corner data.
 
-Only after these three items are proved does the discrete-Morse route close the proposed `+m`
+Only after these four items are proved does the discrete-Morse route close the proposed `+m`
 additive improvement.
