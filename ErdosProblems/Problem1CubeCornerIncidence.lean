@@ -526,6 +526,39 @@ def atomOfWitnessedCornerGeometry (k : CubeRepairPair α) : WitnessedCornerGeome
   | WitnessedCornerGeometry.newFamily => k.1
   | WitnessedCornerGeometry.oldFamily => k.2
 
+/-- Canonical geometry-refined witnessed atom attached to a local geometry class. -/
+def canonicalGeometricWitnessedCornerAtom (k : CubeRepairPair α) :
+    WitnessedCornerGeometry α → GeometricWitnessedCornerAtom α
+  | WitnessedCornerGeometry.newBoundary BoundaryFacetGeometry.apex =>
+      (WitnessedCornerGeometry.newBoundary BoundaryFacetGeometry.apex,
+        WitnessedCornerAtom.newBoundary (Sum.inl k.2))
+  | WitnessedCornerGeometry.newBoundary (BoundaryFacetGeometry.erase a) =>
+      (WitnessedCornerGeometry.newBoundary (BoundaryFacetGeometry.erase a),
+        WitnessedCornerAtom.newBoundary (Sum.inr (insert a k.1, a)))
+  | WitnessedCornerGeometry.oldBoundary BoundaryFacetGeometry.apex =>
+      (WitnessedCornerGeometry.oldBoundary BoundaryFacetGeometry.apex,
+        WitnessedCornerAtom.oldBoundary (Sum.inl k.1))
+  | WitnessedCornerGeometry.oldBoundary (BoundaryFacetGeometry.erase a) =>
+      (WitnessedCornerGeometry.oldBoundary (BoundaryFacetGeometry.erase a),
+        WitnessedCornerAtom.oldBoundary (Sum.inr (insert a k.2, a)))
+  | WitnessedCornerGeometry.newFamily =>
+      (WitnessedCornerGeometry.newFamily, WitnessedCornerAtom.newFamily k.1)
+  | WitnessedCornerGeometry.oldFamily =>
+      (WitnessedCornerGeometry.oldFamily, WitnessedCornerAtom.oldFamily k.2)
+
+@[simp] theorem fst_canonicalGeometricWitnessedCornerAtom (k : CubeRepairPair α)
+    (g : WitnessedCornerGeometry α) :
+    (canonicalGeometricWitnessedCornerAtom k g).1 = g := by
+  cases g with
+  | newBoundary h =>
+      cases h <;> rfl
+  | oldBoundary h =>
+      cases h <;> rfl
+  | newFamily =>
+      rfl
+  | oldFamily =>
+      rfl
+
 theorem mem_repairBadGeometricWitnessedAtoms_iff {F : Finset (Finset α)} {k : CubeRepairPair α}
     {u : GeometricWitnessedCornerAtom α} :
     u ∈ repairBadGeometricWitnessedAtoms F k ↔
@@ -693,6 +726,68 @@ theorem atomOfGeometricWitnessedCornerAtom_eq_atomOfWitnessedCornerGeometry_of_m
             using atomOfBoundaryWitnessAtom_eq_of_old_geometry (k := k) hw
     · rw [mem_sdiff_of_twoAtomRepair hs]
       rfl
+
+theorem eq_canonicalGeometricWitnessedCornerAtom_of_mem_bad
+    {F : Finset (Finset α)} {k : CubeRepairPair α} {u : GeometricWitnessedCornerAtom α}
+    (hu : u ∈ repairBadGeometricWitnessedAtoms F k) :
+    u = canonicalGeometricWitnessedCornerAtom k u.1 := by
+  rw [mem_repairBadGeometricWitnessedAtoms_iff] at hu
+  rcases hu with ⟨w, hw, rfl⟩ | ⟨s, hs, rfl⟩
+  · cases w with
+    | inl t =>
+        have ht : t = k.2 := by
+          simpa [geometryOfBoundaryWitnessAtom, atomOfBoundaryWitnessAtom] using
+            atomOfBoundaryWitnessAtom_eq_of_new_geometry (k := k) hw
+        simp [canonicalGeometricWitnessedCornerAtom, geometryOfBoundaryWitnessAtom, ht]
+    | inr sa =>
+        rcases sa with ⟨t, a⟩
+        have hEq := atomOfBoundaryWitnessAtom_eq_of_new_geometry (k := k) hw
+        simp [canonicalGeometricWitnessedCornerAtom, geometryOfBoundaryWitnessAtom,
+          atomOfBoundaryWitnessAtom] at hEq ⊢
+        exact hEq
+  · rw [mem_sdiff_twoAtomRepair hs]
+    rfl
+
+theorem eq_canonicalGeometricWitnessedCornerAtom_of_mem_good
+    {F : Finset (Finset α)} {k : CubeRepairPair α} {u : GeometricWitnessedCornerAtom α}
+    (hu : u ∈ repairGoodGeometricWitnessedAtoms F k) :
+    u = canonicalGeometricWitnessedCornerAtom k u.1 := by
+  rw [mem_repairGoodGeometricWitnessedAtoms_iff] at hu
+  rcases hu with ⟨w, hw, rfl⟩ | ⟨s, hs, rfl⟩
+  · cases w with
+    | inl t =>
+        have ht : t = k.1 := by
+          simpa [geometryOfBoundaryWitnessAtom, atomOfBoundaryWitnessAtom] using
+            atomOfBoundaryWitnessAtom_eq_of_old_geometry (k := k) hw
+        simp [canonicalGeometricWitnessedCornerAtom, geometryOfBoundaryWitnessAtom, ht]
+    | inr sa =>
+        rcases sa with ⟨t, a⟩
+        have hEq := atomOfBoundaryWitnessAtom_eq_of_old_geometry (k := k) hw
+        simp [canonicalGeometricWitnessedCornerAtom, geometryOfBoundaryWitnessAtom,
+          atomOfBoundaryWitnessAtom] at hEq ⊢
+        exact hEq
+  · rw [mem_sdiff_of_twoAtomRepair hs]
+    rfl
+
+theorem eq_of_geometry_eq_of_mem_repairBadGeometricWitnessedAtoms
+    {F : Finset (Finset α)} {k : CubeRepairPair α}
+    {u v : GeometricWitnessedCornerAtom α}
+    (hu : u ∈ repairBadGeometricWitnessedAtoms F k)
+    (hv : v ∈ repairBadGeometricWitnessedAtoms F k)
+    (hgeom : u.1 = v.1) :
+    u = v := by
+  rw [eq_canonicalGeometricWitnessedCornerAtom_of_mem_bad hu,
+    eq_canonicalGeometricWitnessedCornerAtom_of_mem_bad hv, hgeom]
+
+theorem eq_of_geometry_eq_of_mem_repairGoodGeometricWitnessedAtoms
+    {F : Finset (Finset α)} {k : CubeRepairPair α}
+    {u v : GeometricWitnessedCornerAtom α}
+    (hu : u ∈ repairGoodGeometricWitnessedAtoms F k)
+    (hv : v ∈ repairGoodGeometricWitnessedAtoms F k)
+    (hgeom : u.1 = v.1) :
+    u = v := by
+  rw [eq_canonicalGeometricWitnessedCornerAtom_of_mem_good hu,
+    eq_canonicalGeometricWitnessedCornerAtom_of_mem_good hv, hgeom]
 
 theorem repairNewFamilyAtoms_subset_singleton (F : Finset (Finset α)) (k : CubeRepairPair α) :
     repairNewFamilyAtoms F k ⊆ ({k.1} : Finset (Finset α)) := by
@@ -1550,6 +1645,106 @@ theorem refineSelectedTemplateGoodWitnessedIncidence_mem_goodGeometricWitnessed
   exact (mem_fiberIncidences_iff).2
     ⟨(mem_fiberIncidences_iff.mp hp).1, by
       exact Finset.mem_map.mpr ⟨pu, (mem_fiberIncidences_iff.mp hp).2, rfl⟩⟩
+
+/-- Transport induced by a local map on geometry classes, using the canonical representative of the
+target class. -/
+def selectedTemplateGeometryClassTransport
+    (ψ : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) →
+      WitnessedCornerGeometry (Fin (n + 1)) → WitnessedCornerGeometry (Fin (n + 1)))
+    (p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      GeometricWitnessedCornerAtom (Fin (n + 1))) :
+    ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      GeometricWitnessedCornerAtom (Fin (n + 1)) :=
+  (p.1, canonicalGeometricWitnessedCornerAtom
+    (projectedRepairPair (n := n) (m := m) p.1) (ψ p.1 p.2.1))
+
+theorem selectedTemplateGeometryClassTransport_mem_good_of_local
+    {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    {ψ : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) →
+      WitnessedCornerGeometry (Fin (n + 1)) → WitnessedCornerGeometry (Fin (n + 1))}
+    (hmap : ∀ ⦃k g⦄,
+      k ∈ selectedTemplateRawRepairPairs (n := n) (m := m) F →
+        canonicalGeometricWitnessedCornerAtom (projectedRepairPair (n := n) (m := m) k) g ∈
+          repairBadGeometricWitnessedAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k) →
+            canonicalGeometricWitnessedCornerAtom (projectedRepairPair (n := n) (m := m) k) (ψ k g) ∈
+              repairGoodGeometricWitnessedAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k))
+    {p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      GeometricWitnessedCornerAtom (Fin (n + 1))}
+    (hp : p ∈ selectedTemplateBadGeometricWitnessedIncidences (n := n) (m := m) F 𝒜) :
+    selectedTemplateGeometryClassTransport (n := n) (m := m) ψ p ∈
+      selectedTemplateGoodGeometricWitnessedIncidences (n := n) (m := m) F 𝒜 := by
+  rcases p with ⟨pk, pu⟩
+  refine (mem_fiberIncidences_iff).2 ?_
+  have hp' := mem_fiberIncidences_iff.mp hp
+  refine ⟨hp'.1, ?_⟩
+  have hcanon : canonicalGeometricWitnessedCornerAtom
+      (projectedRepairPair (n := n) (m := m) pk) pu.1 ∈
+        repairBadGeometricWitnessedAtoms 𝒜 (projectedRepairPair (n := n) (m := m) pk) := by
+    rw [← eq_canonicalGeometricWitnessedCornerAtom_of_mem_bad hp'.2]
+    exact hp'.2
+  simpa [selectedTemplateGeometryClassTransport] using hmap hp'.1 hcanon
+
+theorem selectedTemplateGeometryClassTransport_injOn_of_local
+    {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    {ψ : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) →
+      WitnessedCornerGeometry (Fin (n + 1)) → WitnessedCornerGeometry (Fin (n + 1))}
+    (hinj : ∀ ⦃k g h⦄,
+      k ∈ selectedTemplateRawRepairPairs (n := n) (m := m) F →
+        canonicalGeometricWitnessedCornerAtom (projectedRepairPair (n := n) (m := m) k) g ∈
+          repairBadGeometricWitnessedAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k) →
+            canonicalGeometricWitnessedCornerAtom (projectedRepairPair (n := n) (m := m) k) h ∈
+              repairBadGeometricWitnessedAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k) →
+                ψ k g = ψ k h → g = h) :
+    Set.InjOn (selectedTemplateGeometryClassTransport (n := n) (m := m) ψ)
+      ↑(selectedTemplateBadGeometricWitnessedIncidences (n := n) (m := m) F 𝒜) := by
+  intro p hp q hq heq
+  rcases p with ⟨pk, pu⟩
+  rcases q with ⟨qk, qu⟩
+  have hp' := mem_fiberIncidences_iff.mp hp
+  have hq' := mem_fiberIncidences_iff.mp hq
+  have hk : pk = qk := by simpa [selectedTemplateGeometryClassTransport] using congrArg Prod.fst heq
+  subst hk
+  have hpu : canonicalGeometricWitnessedCornerAtom
+      (projectedRepairPair (n := n) (m := m) pk) pu.1 ∈
+        repairBadGeometricWitnessedAtoms 𝒜 (projectedRepairPair (n := n) (m := m) pk) := by
+    rw [← eq_canonicalGeometricWitnessedCornerAtom_of_mem_bad hp'.2]
+    exact hp'.2
+  have hqu : canonicalGeometricWitnessedCornerAtom
+      (projectedRepairPair (n := n) (m := m) pk) qu.1 ∈
+        repairBadGeometricWitnessedAtoms 𝒜 (projectedRepairPair (n := n) (m := m) pk) := by
+    rw [← eq_canonicalGeometricWitnessedCornerAtom_of_mem_bad hq'.2]
+    exact hq'.2
+  have hclass : ψ pk pu.1 = ψ pk qu.1 := by
+    have hclass' := congrArg (fun r => r.2.1) heq
+    simpa [selectedTemplateGeometryClassTransport] using hclass'
+  have hgeom : pu.1 = qu.1 := hinj hp'.1 hpu hqu hclass
+  have huEq : pu = qu :=
+    eq_of_geometry_eq_of_mem_repairBadGeometricWitnessedAtoms hp'.2 hq'.2 hgeom
+  exact by cases huEq; rfl
+
+theorem card_selectedTemplateBadGeometricWitnessedIncidences_le_card_selectedTemplateGoodGeometricWitnessedIncidences_of_geometryClassMap
+    {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    {ψ : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) →
+      WitnessedCornerGeometry (Fin (n + 1)) → WitnessedCornerGeometry (Fin (n + 1))}
+    (hmap : ∀ ⦃k g⦄,
+      k ∈ selectedTemplateRawRepairPairs (n := n) (m := m) F →
+        canonicalGeometricWitnessedCornerAtom (projectedRepairPair (n := n) (m := m) k) g ∈
+          repairBadGeometricWitnessedAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k) →
+            canonicalGeometricWitnessedCornerAtom (projectedRepairPair (n := n) (m := m) k) (ψ k g) ∈
+              repairGoodGeometricWitnessedAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k))
+    (hinj : ∀ ⦃k g h⦄,
+      k ∈ selectedTemplateRawRepairPairs (n := n) (m := m) F →
+        canonicalGeometricWitnessedCornerAtom (projectedRepairPair (n := n) (m := m) k) g ∈
+          repairBadGeometricWitnessedAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k) →
+            canonicalGeometricWitnessedCornerAtom (projectedRepairPair (n := n) (m := m) k) h ∈
+              repairBadGeometricWitnessedAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k) →
+                ψ k g = ψ k h → g = h) :
+    #(selectedTemplateBadGeometricWitnessedIncidences (n := n) (m := m) F 𝒜) ≤
+      #(selectedTemplateGoodGeometricWitnessedIncidences (n := n) (m := m) F 𝒜) := by
+  exact Finset.card_le_card_of_injOn
+    (selectedTemplateGeometryClassTransport (n := n) (m := m) ψ)
+    (fun _ hp => selectedTemplateGeometryClassTransport_mem_good_of_local hmap hp)
+    (fun _ hp _ hq heq => selectedTemplateGeometryClassTransport_injOn_of_local hinj hp hq heq)
 
 /-- Global transport induced by a fiberwise map on geometry-refined witnessed selected-template
 incidences. -/
