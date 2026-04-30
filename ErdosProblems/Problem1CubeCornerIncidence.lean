@@ -155,6 +155,30 @@ def repairGoodStructuredAtoms (F : Finset (Finset α)) (k : CubeRepairPair α) :
   ({CornerRole.oldBoundary} : Finset CornerRole).product (repairOldBoundaryAtoms F k) ∪
     ({CornerRole.newFamily} : Finset CornerRole).product (repairNewFamilyAtoms F k)
 
+/-- Boundary witness data: either the special changed atom, or a cover witness `(s, a)` with
+`s.erase a` equal to the changed atom. -/
+abbrev BoundaryWitnessAtom (α : Type*) := Sum (Finset α) (Finset α × α)
+
+/-- Forget the witness and keep only the boundary atom. -/
+def atomOfBoundaryWitnessAtom : BoundaryWitnessAtom α → Finset α :=
+  Sum.elim id Prod.fst
+
+/-- Witness-carrying refinement of newly created boundary atoms. -/
+noncomputable def repairNewBoundaryWitnessAtoms (F : Finset (Finset α)) (k : CubeRepairPair α) :
+    Finset (BoundaryWitnessAtom α) :=
+  (({k.2} : Finset (Finset α)).filter fun s => s ∈ repairNewBoundaryAtoms F k).map
+      Function.Embedding.inl ∪
+    (((repairNewBoundaryAtoms F k).product (Finset.univ : Finset α)).filter fun sa =>
+      sa.2 ∈ sa.1 ∧ sa.1.erase sa.2 = k.1).map Function.Embedding.inr
+
+/-- Witness-carrying refinement of removed boundary atoms. -/
+noncomputable def repairOldBoundaryWitnessAtoms (F : Finset (Finset α)) (k : CubeRepairPair α) :
+    Finset (BoundaryWitnessAtom α) :=
+  (({k.1} : Finset (Finset α)).filter fun s => s ∈ repairOldBoundaryAtoms F k).map
+      Function.Embedding.inl ∪
+    (((repairOldBoundaryAtoms F k).product (Finset.univ : Finset α)).filter fun sa =>
+      sa.2 ∈ sa.1 ∧ sa.1.erase sa.2 = k.2).map Function.Embedding.inr
+
 theorem mem_repairStructuredAtoms_iff {F : Finset (Finset α)} {k : CubeRepairPair α}
     {u : CornerRole × Finset α} :
     u ∈ repairStructuredAtoms F k ↔
@@ -181,6 +205,104 @@ theorem mem_repairGoodStructuredAtoms_iff {F : Finset (Finset α)} {k : CubeRepa
         (u.1 = CornerRole.newFamily ∧ u.2 ∈ repairNewFamilyAtoms F k) := by
   rcases u with ⟨r, s⟩
   cases r <;> simp [repairGoodStructuredAtoms, Finset.mem_union, Finset.mem_product]
+
+theorem atomOfBoundaryWitnessAtom_mem_repairNewBoundaryAtoms {F : Finset (Finset α)}
+    {k : CubeRepairPair α} {u : BoundaryWitnessAtom α} (hu : u ∈ repairNewBoundaryWitnessAtoms F k) :
+    atomOfBoundaryWitnessAtom u ∈ repairNewBoundaryAtoms F k := by
+  rw [repairNewBoundaryWitnessAtoms, Finset.mem_union] at hu
+  rcases hu with hu | hu
+  · rcases Finset.mem_map.mp hu with ⟨s, hs, rfl⟩
+    exact (Finset.mem_filter.mp hs).2
+  · rcases Finset.mem_map.mp hu with ⟨sa, hs, rfl⟩
+    exact (Finset.mem_product.mp (Finset.mem_filter.mp hs).1).1
+
+theorem atomOfBoundaryWitnessAtom_mem_repairOldBoundaryAtoms {F : Finset (Finset α)}
+    {k : CubeRepairPair α} {u : BoundaryWitnessAtom α} (hu : u ∈ repairOldBoundaryWitnessAtoms F k) :
+    atomOfBoundaryWitnessAtom u ∈ repairOldBoundaryAtoms F k := by
+  rw [repairOldBoundaryWitnessAtoms, Finset.mem_union] at hu
+  rcases hu with hu | hu
+  · rcases Finset.mem_map.mp hu with ⟨s, hs, rfl⟩
+    exact (Finset.mem_filter.mp hs).2
+  · rcases Finset.mem_map.mp hu with ⟨sa, hs, rfl⟩
+    exact (Finset.mem_product.mp (Finset.mem_filter.mp hs).1).1
+
+theorem atomOfBoundaryWitnessAtom_mem_repairLocalNeighborhood_of_new {F : Finset (Finset α)}
+    {k : CubeRepairPair α} {u : BoundaryWitnessAtom α} (hu : u ∈ repairNewBoundaryWitnessAtoms F k) :
+    atomOfBoundaryWitnessAtom u ∈ repairLocalNeighborhood k := by
+  exact Finset.mem_union.mpr <| Or.inl <| by
+    simpa [repairNewBoundaryAtoms] using
+      sdiff_positiveBoundary_twoAtomRepair_subset_local (F := F) (x := k.1) (z := k.2)
+        (atomOfBoundaryWitnessAtom_mem_repairNewBoundaryAtoms hu)
+
+theorem atomOfBoundaryWitnessAtom_mem_repairLocalNeighborhood_of_old {F : Finset (Finset α)}
+    {k : CubeRepairPair α} {u : BoundaryWitnessAtom α} (hu : u ∈ repairOldBoundaryWitnessAtoms F k) :
+    atomOfBoundaryWitnessAtom u ∈ repairLocalNeighborhood k := by
+  exact Finset.mem_union.mpr <| Or.inr <| by
+    simpa [repairOldBoundaryAtoms] using
+      sdiff_positiveBoundary_of_twoAtomRepair_subset_local (F := F) (x := k.1) (z := k.2)
+        (atomOfBoundaryWitnessAtom_mem_repairOldBoundaryAtoms hu)
+
+theorem exists_repairNewBoundaryWitnessAtom_of_mem {F : Finset (Finset α)} {k : CubeRepairPair α}
+    {s : Finset α} (hs : s ∈ repairNewBoundaryAtoms F k) :
+    ∃ u ∈ repairNewBoundaryWitnessAtoms F k, atomOfBoundaryWitnessAtom u = s := by
+  rcases mem_sdiff_positiveBoundary_twoAtomRepair_local (by simpa [repairNewBoundaryAtoms] using hs) with
+    hsEq | ⟨a, ha, hErase⟩
+  · refine ⟨Sum.inl k.2, ?_, hsEq.symm⟩
+    rw [repairNewBoundaryWitnessAtoms, Finset.mem_union]
+    left
+    exact Finset.mem_map.mpr ⟨k.2, Finset.mem_filter.mpr ⟨by simp, by simpa [hsEq] using hs⟩, rfl⟩
+  · refine ⟨Sum.inr (s, a), ?_, by rfl⟩
+    rw [repairNewBoundaryWitnessAtoms, Finset.mem_union]
+    right
+    refine Finset.mem_map.mpr ⟨(s, a), ?_, rfl⟩
+    refine Finset.mem_filter.mpr ?_
+    exact ⟨Finset.mem_product.mpr ⟨hs, by simpa [ha]⟩, ⟨ha, hErase⟩⟩
+
+theorem exists_repairOldBoundaryWitnessAtom_of_mem {F : Finset (Finset α)} {k : CubeRepairPair α}
+    {s : Finset α} (hs : s ∈ repairOldBoundaryAtoms F k) :
+    ∃ u ∈ repairOldBoundaryWitnessAtoms F k, atomOfBoundaryWitnessAtom u = s := by
+  rcases mem_sdiff_positiveBoundary_of_twoAtomRepair_local (by simpa [repairOldBoundaryAtoms] using hs) with
+    hsEq | ⟨a, ha, hErase⟩
+  · refine ⟨Sum.inl k.1, ?_, hsEq.symm⟩
+    rw [repairOldBoundaryWitnessAtoms, Finset.mem_union]
+    left
+    exact Finset.mem_map.mpr ⟨k.1, Finset.mem_filter.mpr ⟨by simp, by simpa [hsEq] using hs⟩, rfl⟩
+  · refine ⟨Sum.inr (s, a), ?_, by rfl⟩
+    rw [repairOldBoundaryWitnessAtoms, Finset.mem_union]
+    right
+    refine Finset.mem_map.mpr ⟨(s, a), ?_, rfl⟩
+    refine Finset.mem_filter.mpr ?_
+    exact ⟨Finset.mem_product.mpr ⟨hs, by simpa [ha]⟩, ⟨ha, hErase⟩⟩
+
+/-- Deterministic chosen witness for a new boundary atom. -/
+noncomputable def chooseRepairNewBoundaryWitnessAtom {F : Finset (Finset α)} {k : CubeRepairPair α}
+    {s : Finset α} (hs : s ∈ repairNewBoundaryAtoms F k) : BoundaryWitnessAtom α :=
+  Classical.choose (exists_repairNewBoundaryWitnessAtom_of_mem hs)
+
+theorem chooseRepairNewBoundaryWitnessAtom_mem {F : Finset (Finset α)} {k : CubeRepairPair α}
+    {s : Finset α} (hs : s ∈ repairNewBoundaryAtoms F k) :
+    chooseRepairNewBoundaryWitnessAtom hs ∈ repairNewBoundaryWitnessAtoms F k :=
+  (Classical.choose_spec (exists_repairNewBoundaryWitnessAtom_of_mem hs)).1
+
+theorem atomOf_chooseRepairNewBoundaryWitnessAtom {F : Finset (Finset α)} {k : CubeRepairPair α}
+    {s : Finset α} (hs : s ∈ repairNewBoundaryAtoms F k) :
+    atomOfBoundaryWitnessAtom (chooseRepairNewBoundaryWitnessAtom hs) = s :=
+  (Classical.choose_spec (exists_repairNewBoundaryWitnessAtom_of_mem hs)).2
+
+/-- Deterministic chosen witness for an old boundary atom. -/
+noncomputable def chooseRepairOldBoundaryWitnessAtom {F : Finset (Finset α)} {k : CubeRepairPair α}
+    {s : Finset α} (hs : s ∈ repairOldBoundaryAtoms F k) : BoundaryWitnessAtom α :=
+  Classical.choose (exists_repairOldBoundaryWitnessAtom_of_mem hs)
+
+theorem chooseRepairOldBoundaryWitnessAtom_mem {F : Finset (Finset α)} {k : CubeRepairPair α}
+    {s : Finset α} (hs : s ∈ repairOldBoundaryAtoms F k) :
+    chooseRepairOldBoundaryWitnessAtom hs ∈ repairOldBoundaryWitnessAtoms F k :=
+  (Classical.choose_spec (exists_repairOldBoundaryWitnessAtom_of_mem hs)).1
+
+theorem atomOf_chooseRepairOldBoundaryWitnessAtom {F : Finset (Finset α)} {k : CubeRepairPair α}
+    {s : Finset α} (hs : s ∈ repairOldBoundaryAtoms F k) :
+    atomOfBoundaryWitnessAtom (chooseRepairOldBoundaryWitnessAtom hs) = s :=
+  (Classical.choose_spec (exists_repairOldBoundaryWitnessAtom_of_mem hs)).2
 
 theorem repairNewFamilyAtoms_subset_singleton (F : Finset (Finset α)) (k : CubeRepairPair α) :
     repairNewFamilyAtoms F k ⊆ ({k.1} : Finset (Finset α)) := by
