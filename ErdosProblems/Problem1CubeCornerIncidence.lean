@@ -6,6 +6,74 @@ open scoped Finset
 
 namespace Erdos1
 
+section FiberIncidence
+
+variable {κ β γ : Type*} [DecidableEq κ] [DecidableEq β] [DecidableEq γ]
+
+/-- Disjoint-union incidence finset built fiberwise over a finite parameter set. -/
+def fiberIncidences (K : Finset κ) (A : κ → Finset β) : Finset (κ × β) :=
+  K.biUnion fun k => ({k} : Finset κ).product (A k)
+
+theorem mem_fiberIncidences_iff {K : Finset κ} {A : κ → Finset β} {p : κ × β} :
+    p ∈ fiberIncidences K A ↔ p.1 ∈ K ∧ p.2 ∈ A p.1 := by
+  rcases p with ⟨pk, pu⟩
+  constructor
+  · intro hp
+    unfold fiberIncidences at hp
+    rcases mem_biUnion.mp hp with ⟨k, hk, hp⟩
+    have hp' : pk ∈ ({k} : Finset κ) ∧ pu ∈ A k := by
+      have hp'' : pu ∈ A k ∧ k = pk := by
+        simpa [Finset.mem_product] using hp
+      exact ⟨by simpa [mem_singleton] using hp''.2.symm, hp''.1⟩
+    have hkEq : pk = k := by simpa using hp'.1
+    subst hkEq
+    exact ⟨hk, hp'.2⟩
+  · intro hp
+    unfold fiberIncidences
+    refine mem_biUnion.mpr ⟨pk, hp.1, ?_⟩
+    have hpair : pu ∈ A pk ∧ pk = pk := ⟨hp.2, rfl⟩
+    simpa [Finset.mem_product] using hpair
+
+/-- Apply a fiberwise transport map to an incidence while preserving the base corner. -/
+def liftFiberwise (φ : κ → β → γ) (p : κ × β) : κ × γ :=
+  (p.1, φ p.1 p.2)
+
+theorem liftFiberwise_mem_fiberIncidences {K : Finset κ} {A : κ → Finset β} {B : κ → Finset γ}
+    {φ : κ → β → γ}
+    (hmap : ∀ ⦃k u⦄, k ∈ K → u ∈ A k → φ k u ∈ B k)
+    {p : κ × β} (hp : p ∈ fiberIncidences K A) :
+    liftFiberwise φ p ∈ fiberIncidences K B := by
+  exact (mem_fiberIncidences_iff).2 ⟨(mem_fiberIncidences_iff.mp hp).1,
+    hmap (mem_fiberIncidences_iff.mp hp).1 (mem_fiberIncidences_iff.mp hp).2⟩
+
+theorem injOn_liftFiberwise_of_local {K : Finset κ} {A : κ → Finset β} {φ : κ → β → γ}
+    (hinj : ∀ ⦃k u v⦄, k ∈ K → u ∈ A k → v ∈ A k → φ k u = φ k v → u = v) :
+    Set.InjOn (liftFiberwise φ) ↑(fiberIncidences K A) := by
+  intro p hp q hq hpq
+  rcases p with ⟨pk, pu⟩
+  rcases q with ⟨qk, qu⟩
+  have hp' := mem_fiberIncidences_iff.mp hp
+  have hq' := mem_fiberIncidences_iff.mp hq
+  have hkEq : pk = qk := by
+    simpa [liftFiberwise] using congrArg Prod.fst hpq
+  subst qk
+  have huEq : φ pk pu = φ pk qu := by
+    simpa [liftFiberwise] using congrArg Prod.snd hpq
+  have : pu = qu := hinj hp'.1 hp'.2 hq'.2 huEq
+  subst this
+  rfl
+
+theorem card_fiberIncidences_le_card_of_local {K : Finset κ} {A : κ → Finset β} {B : κ → Finset γ}
+    {φ : κ → β → γ}
+    (hmap : ∀ ⦃k u⦄, k ∈ K → u ∈ A k → φ k u ∈ B k)
+    (hinj : ∀ ⦃k u v⦄, k ∈ K → u ∈ A k → v ∈ A k → φ k u = φ k v → u = v) :
+    #(fiberIncidences K A) ≤ #(fiberIncidences K B) := by
+  exact Finset.card_le_card_of_injOn (liftFiberwise φ)
+    (fun _ hp => liftFiberwise_mem_fiberIncidences hmap hp)
+    (fun _ hp _ hq heq => injOn_liftFiberwise_of_local hinj hp hq heq)
+
+end FiberIncidence
+
 variable {α : Type*} [DecidableEq α] [Fintype α]
 
 /-- Concrete repair-pair type for cube families. -/
@@ -75,6 +143,18 @@ def repairStructuredAtoms (F : Finset (Finset α)) (k : CubeRepairPair α) :
 def atomOfCornerRoleAtom : CornerRole × Finset α → Finset α :=
   Prod.snd
 
+/-- Structured bad atoms keep only the roles contributing positively to defect drift. -/
+def repairBadStructuredAtoms (F : Finset (Finset α)) (k : CubeRepairPair α) :
+    Finset (CornerRole × Finset α) :=
+  ({CornerRole.newBoundary} : Finset CornerRole).product (repairNewBoundaryAtoms F k) ∪
+    ({CornerRole.oldFamily} : Finset CornerRole).product (repairOldFamilyAtoms F k)
+
+/-- Structured good atoms keep only the roles contributing negatively to defect drift. -/
+def repairGoodStructuredAtoms (F : Finset (Finset α)) (k : CubeRepairPair α) :
+    Finset (CornerRole × Finset α) :=
+  ({CornerRole.oldBoundary} : Finset CornerRole).product (repairOldBoundaryAtoms F k) ∪
+    ({CornerRole.newFamily} : Finset CornerRole).product (repairNewFamilyAtoms F k)
+
 theorem mem_repairStructuredAtoms_iff {F : Finset (Finset α)} {k : CubeRepairPair α}
     {u : CornerRole × Finset α} :
     u ∈ repairStructuredAtoms F k ↔
@@ -85,6 +165,22 @@ theorem mem_repairStructuredAtoms_iff {F : Finset (Finset α)} {k : CubeRepairPa
   rcases u with ⟨r, s⟩
   cases r <;>
     simp [repairStructuredAtoms, Finset.mem_union, Finset.mem_product, and_left_comm, and_assoc]
+
+theorem mem_repairBadStructuredAtoms_iff {F : Finset (Finset α)} {k : CubeRepairPair α}
+    {u : CornerRole × Finset α} :
+    u ∈ repairBadStructuredAtoms F k ↔
+      (u.1 = CornerRole.newBoundary ∧ u.2 ∈ repairNewBoundaryAtoms F k) ∨
+        (u.1 = CornerRole.oldFamily ∧ u.2 ∈ repairOldFamilyAtoms F k) := by
+  rcases u with ⟨r, s⟩
+  cases r <;> simp [repairBadStructuredAtoms, Finset.mem_union, Finset.mem_product]
+
+theorem mem_repairGoodStructuredAtoms_iff {F : Finset (Finset α)} {k : CubeRepairPair α}
+    {u : CornerRole × Finset α} :
+    u ∈ repairGoodStructuredAtoms F k ↔
+      (u.1 = CornerRole.oldBoundary ∧ u.2 ∈ repairOldBoundaryAtoms F k) ∨
+        (u.1 = CornerRole.newFamily ∧ u.2 ∈ repairNewFamilyAtoms F k) := by
+  rcases u with ⟨r, s⟩
+  cases r <;> simp [repairGoodStructuredAtoms, Finset.mem_union, Finset.mem_product]
 
 theorem repairNewFamilyAtoms_subset_singleton (F : Finset (Finset α)) (k : CubeRepairPair α) :
     repairNewFamilyAtoms F k ⊆ ({k.1} : Finset (Finset α)) := by
@@ -172,6 +268,16 @@ def repairStructuredIncidences (F : Finset (Finset α)) (K : Finset (CubeRepairP
     Finset (CubeRepairPair α × (CornerRole × Finset α)) :=
   K.biUnion fun k => ({k} : Finset (CubeRepairPair α)).product (repairStructuredAtoms F k)
 
+/-- Structured bad incidences fiber the bad roles over the repair family. -/
+def repairBadStructuredIncidences (F : Finset (Finset α)) (K : Finset (CubeRepairPair α)) :
+    Finset (CubeRepairPair α × (CornerRole × Finset α)) :=
+  fiberIncidences K (fun k => repairBadStructuredAtoms F k)
+
+/-- Structured good incidences fiber the good roles over the repair family. -/
+def repairGoodStructuredIncidences (F : Finset (Finset α)) (K : Finset (CubeRepairPair α)) :
+    Finset (CubeRepairPair α × (CornerRole × Finset α)) :=
+  fiberIncidences K (fun k => repairGoodStructuredAtoms F k)
+
 /-- Canonical refinement of a bad tagged atom to a structured local role. -/
 def refineBadTaggedAtom : Sum (Finset α) (Finset α) → CornerRole × Finset α
   | Sum.inl s => (CornerRole.newBoundary, s)
@@ -206,6 +312,20 @@ theorem refineBadTaggedAtom_mem_repairStructuredAtoms {F : Finset (Finset α)}
       exact (mem_repairStructuredAtoms_iff (u := (CornerRole.oldFamily, s))).2
         (Or.inr (Or.inr (Or.inr ⟨rfl, hs⟩)))
 
+theorem refineBadTaggedAtom_mem_repairBadStructuredAtoms {F : Finset (Finset α)}
+    {k : CubeRepairPair α} {u : Sum (Finset α) (Finset α)} (hu : u ∈ repairBadAtoms F k) :
+    refineBadTaggedAtom u ∈ repairBadStructuredAtoms F k := by
+  cases u with
+  | inl s =>
+      have hs : s ∈ repairNewBoundaryAtoms F k := by
+        simpa [repairBadAtoms] using hu
+      exact (mem_repairBadStructuredAtoms_iff (u := (CornerRole.newBoundary, s))).2 (Or.inl ⟨rfl, hs⟩)
+  | inr s =>
+      have hs : s ∈ repairOldFamilyAtoms F k := by
+        simpa [repairBadAtoms] using hu
+      exact (mem_repairBadStructuredAtoms_iff (u := (CornerRole.oldFamily, s))).2
+        (Or.inr ⟨rfl, hs⟩)
+
 theorem refineGoodTaggedAtom_mem_repairStructuredAtoms {F : Finset (Finset α)}
     {k : CubeRepairPair α} {u : Sum (Finset α) (Finset α)} (hu : u ∈ repairGoodAtoms F k) :
     refineGoodTaggedAtom u ∈ repairStructuredAtoms F k := by
@@ -220,6 +340,21 @@ theorem refineGoodTaggedAtom_mem_repairStructuredAtoms {F : Finset (Finset α)}
         simpa [repairGoodAtoms] using hu
       exact (mem_repairStructuredAtoms_iff (u := (CornerRole.newFamily, s))).2
         (Or.inr (Or.inr (Or.inl ⟨rfl, hs⟩)))
+
+theorem refineGoodTaggedAtom_mem_repairGoodStructuredAtoms {F : Finset (Finset α)}
+    {k : CubeRepairPair α} {u : Sum (Finset α) (Finset α)} (hu : u ∈ repairGoodAtoms F k) :
+    refineGoodTaggedAtom u ∈ repairGoodStructuredAtoms F k := by
+  cases u with
+  | inl s =>
+      have hs : s ∈ repairOldBoundaryAtoms F k := by
+        simpa [repairGoodAtoms] using hu
+      exact (mem_repairGoodStructuredAtoms_iff (u := (CornerRole.oldBoundary, s))).2
+        (Or.inl ⟨rfl, hs⟩)
+  | inr s =>
+      have hs : s ∈ repairNewFamilyAtoms F k := by
+        simpa [repairGoodAtoms] using hu
+      exact (mem_repairGoodStructuredAtoms_iff (u := (CornerRole.newFamily, s))).2
+        (Or.inr ⟨rfl, hs⟩)
 
 /-- Bad incidence set for a finite repair family. -/
 def repairBadIncidences (F : Finset (Finset α)) (K : Finset (CubeRepairPair α)) :
@@ -304,6 +439,21 @@ theorem refineBadIncidence_mem_repairStructuredIncidences
   have hpair : refineBadTaggedAtom pu ∈ repairStructuredAtoms F pk ∧ pk = pk := ⟨hmem, rfl⟩
   simpa [refineBadIncidence, Finset.mem_product] using hpair
 
+theorem refineBadIncidence_mem_repairBadStructuredIncidences
+    {F : Finset (Finset α)} {K : Finset (CubeRepairPair α)}
+    {p : CubeRepairPair α × Sum (Finset α) (Finset α)} (hp : p ∈ repairBadIncidences F K) :
+    refineBadIncidence p ∈ repairBadStructuredIncidences F K := by
+  rcases p with ⟨pk, pu⟩
+  exact (mem_fiberIncidences_iff).2
+    ⟨(mem_fiberIncidences_iff.mp (by
+        simpa [repairBadIncidences, fiberIncidences] using hp : (pk, pu) ∈ fiberIncidences K (fun k => repairBadAtoms F k))).1,
+      by
+        have hp' : pu ∈ repairBadAtoms F pk := by
+          exact (mem_fiberIncidences_iff.mp (by
+            simpa [repairBadIncidences, fiberIncidences] using hp :
+              (pk, pu) ∈ fiberIncidences K (fun k => repairBadAtoms F k))).2
+        simpa [refineBadIncidence] using refineBadTaggedAtom_mem_repairBadStructuredAtoms hp'⟩
+
 theorem refineGoodIncidence_mem_repairStructuredIncidences
     {F : Finset (Finset α)} {K : Finset (CubeRepairPair α)}
     {p : CubeRepairPair α × Sum (Finset α) (Finset α)} (hp : p ∈ repairGoodIncidences F K) :
@@ -325,6 +475,21 @@ theorem refineGoodIncidence_mem_repairStructuredIncidences
     refineGoodTaggedAtom_mem_repairStructuredAtoms hp'.2
   have hpair : refineGoodTaggedAtom pu ∈ repairStructuredAtoms F pk ∧ pk = pk := ⟨hmem, rfl⟩
   simpa [refineGoodIncidence, Finset.mem_product] using hpair
+
+theorem refineGoodIncidence_mem_repairGoodStructuredIncidences
+    {F : Finset (Finset α)} {K : Finset (CubeRepairPair α)}
+    {p : CubeRepairPair α × Sum (Finset α) (Finset α)} (hp : p ∈ repairGoodIncidences F K) :
+    refineGoodIncidence p ∈ repairGoodStructuredIncidences F K := by
+  rcases p with ⟨pk, pu⟩
+  exact (mem_fiberIncidences_iff).2
+    ⟨(mem_fiberIncidences_iff.mp (by
+        simpa [repairGoodIncidences, fiberIncidences] using hp : (pk, pu) ∈ fiberIncidences K (fun k => repairGoodAtoms F k))).1,
+      by
+        have hp' : pu ∈ repairGoodAtoms F pk := by
+          exact (mem_fiberIncidences_iff.mp (by
+            simpa [repairGoodIncidences, fiberIncidences] using hp :
+              (pk, pu) ∈ fiberIncidences K (fun k => repairGoodAtoms F k))).2
+        simpa [refineGoodIncidence] using refineGoodTaggedAtom_mem_repairGoodStructuredAtoms hp'⟩
 
 section TwoLayer
 
@@ -401,6 +566,22 @@ noncomputable def selectedTemplateStructuredIncidences (F : Finset (TwoLayerSlic
       (selectedTemplateRawRepairPairs (n := n) (m := m) F).biUnion fun k =>
         ({k} : Finset ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m))).product
           (repairStructuredAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k))
+
+/-- Structured bad incidences on the selected-template repair family. -/
+noncomputable def selectedTemplateBadStructuredIncidences (F : Finset (TwoLayerSlice (n + 1) m))
+    (𝒜 : Finset (Finset (Fin (n + 1)))) :
+    Finset (((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      (CornerRole × Finset (Fin (n + 1)))) :=
+  fiberIncidences (selectedTemplateRawRepairPairs (n := n) (m := m) F)
+    (fun k => repairBadStructuredAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k))
+
+/-- Structured good incidences on the selected-template repair family. -/
+noncomputable def selectedTemplateGoodStructuredIncidences (F : Finset (TwoLayerSlice (n + 1) m))
+    (𝒜 : Finset (Finset (Fin (n + 1)))) :
+    Finset (((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      (CornerRole × Finset (Fin (n + 1)))) :=
+  fiberIncidences (selectedTemplateRawRepairPairs (n := n) (m := m) F)
+    (fun k => repairGoodStructuredAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k))
 
 theorem atomOfTaggedAtom_mem_selectedTemplateBadIncidences_local
     {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
@@ -507,6 +688,28 @@ theorem refineSelectedTemplateBadIncidence_mem_structured
         pk = pk := ⟨hmem, rfl⟩
   simpa [refineSelectedTemplateBadIncidence, Finset.mem_product, and_left_comm, and_assoc] using hpair
 
+theorem refineSelectedTemplateBadIncidence_mem_badStructured
+    {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    {p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      Sum (Finset (Fin (n + 1))) (Finset (Fin (n + 1)))}
+    (hp : p ∈ selectedTemplateBadIncidences (n := n) (m := m) F 𝒜) :
+    refineSelectedTemplateBadIncidence p ∈
+      selectedTemplateBadStructuredIncidences (n := n) (m := m) F 𝒜 := by
+  rcases p with ⟨pk, pu⟩
+  exact (mem_fiberIncidences_iff).2
+    ⟨(mem_fiberIncidences_iff.mp (by
+        simpa [selectedTemplateBadIncidences, fiberIncidences] using hp :
+          (pk, pu) ∈ fiberIncidences (selectedTemplateRawRepairPairs (n := n) (m := m) F)
+            (fun k => repairBadAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k)))).1,
+      by
+        have hp' : pu ∈ repairBadAtoms 𝒜 (projectedRepairPair (n := n) (m := m) pk) := by
+          exact (mem_fiberIncidences_iff.mp (by
+            simpa [selectedTemplateBadIncidences, fiberIncidences] using hp :
+              (pk, pu) ∈ fiberIncidences (selectedTemplateRawRepairPairs (n := n) (m := m) F)
+                (fun k => repairBadAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k)))).2
+        simpa [refineSelectedTemplateBadIncidence] using
+          refineBadTaggedAtom_mem_repairBadStructuredAtoms hp'⟩
+
 theorem refineSelectedTemplateGoodIncidence_mem_structured
     {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
     {p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
@@ -535,6 +738,83 @@ theorem refineSelectedTemplateGoodIncidence_mem_structured
       refineGoodTaggedAtom pu ∈ repairStructuredAtoms 𝒜 (projectedRepairPair (n := n) (m := m) pk) ∧
         pk = pk := ⟨hmem, rfl⟩
   simpa [refineSelectedTemplateGoodIncidence, Finset.mem_product, and_left_comm, and_assoc] using hpair
+
+theorem refineSelectedTemplateGoodIncidence_mem_goodStructured
+    {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    {p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      Sum (Finset (Fin (n + 1))) (Finset (Fin (n + 1)))}
+    (hp : p ∈ selectedTemplateGoodIncidences (n := n) (m := m) F 𝒜) :
+    refineSelectedTemplateGoodIncidence p ∈
+      selectedTemplateGoodStructuredIncidences (n := n) (m := m) F 𝒜 := by
+  rcases p with ⟨pk, pu⟩
+  exact (mem_fiberIncidences_iff).2
+    ⟨(mem_fiberIncidences_iff.mp (by
+        simpa [selectedTemplateGoodIncidences, fiberIncidences] using hp :
+          (pk, pu) ∈ fiberIncidences (selectedTemplateRawRepairPairs (n := n) (m := m) F)
+            (fun k => repairGoodAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k)))).1,
+      by
+        have hp' : pu ∈ repairGoodAtoms 𝒜 (projectedRepairPair (n := n) (m := m) pk) := by
+          exact (mem_fiberIncidences_iff.mp (by
+            simpa [selectedTemplateGoodIncidences, fiberIncidences] using hp :
+              (pk, pu) ∈ fiberIncidences (selectedTemplateRawRepairPairs (n := n) (m := m) F)
+                (fun k => repairGoodAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k)))).2
+        simpa [refineSelectedTemplateGoodIncidence] using
+          refineGoodTaggedAtom_mem_repairGoodStructuredAtoms hp'⟩
+
+/-- Global transport induced by a fiberwise structured local map on selected-template corners. -/
+def selectedTemplateStructuredTransport
+    (φ : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) →
+      (CornerRole × Finset (Fin (n + 1))) → (CornerRole × Finset (Fin (n + 1))))
+    (p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      (CornerRole × Finset (Fin (n + 1)))) :
+    ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      (CornerRole × Finset (Fin (n + 1))) :=
+  liftFiberwise φ p
+
+theorem selectedTemplateStructuredTransport_mem_good_of_local
+    {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    {φ : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) →
+      (CornerRole × Finset (Fin (n + 1))) → (CornerRole × Finset (Fin (n + 1)))}
+    (hmap : ∀ ⦃k u⦄,
+      k ∈ selectedTemplateRawRepairPairs (n := n) (m := m) F →
+        u ∈ repairBadStructuredAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k) →
+          φ k u ∈ repairGoodStructuredAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k))
+    {p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      (CornerRole × Finset (Fin (n + 1)))}
+    (hp : p ∈ selectedTemplateBadStructuredIncidences (n := n) (m := m) F 𝒜) :
+    selectedTemplateStructuredTransport (n := n) (m := m) φ p ∈
+      selectedTemplateGoodStructuredIncidences (n := n) (m := m) F 𝒜 := by
+  exact liftFiberwise_mem_fiberIncidences hmap hp
+
+theorem selectedTemplateStructuredTransport_injOn_of_local
+    {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    {φ : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) →
+      (CornerRole × Finset (Fin (n + 1))) → (CornerRole × Finset (Fin (n + 1)))}
+    (hinj : ∀ ⦃k u v⦄,
+      k ∈ selectedTemplateRawRepairPairs (n := n) (m := m) F →
+        u ∈ repairBadStructuredAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k) →
+          v ∈ repairBadStructuredAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k) →
+            φ k u = φ k v → u = v) :
+    Set.InjOn (selectedTemplateStructuredTransport (n := n) (m := m) φ)
+      ↑(selectedTemplateBadStructuredIncidences (n := n) (m := m) F 𝒜) := by
+  exact injOn_liftFiberwise_of_local hinj
+
+theorem card_selectedTemplateBadStructuredIncidences_le_card_selectedTemplateGoodStructuredIncidences_of_local_inj
+    {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    {φ : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) →
+      (CornerRole × Finset (Fin (n + 1))) → (CornerRole × Finset (Fin (n + 1)))}
+    (hmap : ∀ ⦃k u⦄,
+      k ∈ selectedTemplateRawRepairPairs (n := n) (m := m) F →
+        u ∈ repairBadStructuredAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k) →
+          φ k u ∈ repairGoodStructuredAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k))
+    (hinj : ∀ ⦃k u v⦄,
+      k ∈ selectedTemplateRawRepairPairs (n := n) (m := m) F →
+        u ∈ repairBadStructuredAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k) →
+          v ∈ repairBadStructuredAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k) →
+            φ k u = φ k v → u = v) :
+    #(selectedTemplateBadStructuredIncidences (n := n) (m := m) F 𝒜) ≤
+      #(selectedTemplateGoodStructuredIncidences (n := n) (m := m) F 𝒜) := by
+  exact card_fiberIncidences_le_card_of_local hmap hinj
 
 theorem selectedTemplateRawRepairPairs_nonempty_of_twoLayerState_balanced_nonTemplate
     (C : Finset (Finset (Fin (n + 1)))) (U : Finset (Finset (Fin (n + 1))))
