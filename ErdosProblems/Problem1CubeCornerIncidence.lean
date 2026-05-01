@@ -1249,6 +1249,22 @@ theorem mem_selectedTemplateRawRepairPairs {F : Finset (TwoLayerSlice (n + 1) m)
   classical
   simp [selectedTemplateRawRepairPairs]
 
+@[simp] theorem mem_twoLayerFullTemplate_inl_iff {s : RankSlice (n + 1) m} :
+    Sum.inl s ∈ twoLayerFullTemplate (n + 1) m := by
+  simp [twoLayerFullTemplate]
+
+@[simp] theorem not_mem_twoLayerFullTemplate_inr {u : RankSlice (n + 1) (m + 1)} :
+    Sum.inr u ∉ twoLayerFullTemplate (n + 1) m := by
+  simp [twoLayerFullTemplate]
+
+@[simp] theorem mem_twoLayerStarTemplate_inl_iff {s : RankSlice (n + 1) m} :
+    Sum.inl s ∈ twoLayerStarTemplate n m ↔ (0 : Fin (n + 1)) ∈ s.1 := by
+  simp [twoLayerStarTemplate, RankSlice.containsZeroFamily]
+
+@[simp] theorem mem_twoLayerStarTemplate_inr_iff {u : RankSlice (n + 1) (m + 1)} :
+    Sum.inr u ∈ twoLayerStarTemplate n m ↔ (0 : Fin (n + 1)) ∈ u.1 := by
+  simp [twoLayerStarTemplate, RankSlice.containsZeroFamily]
+
 /-- Project an abstract two-layer repair pair to the concrete subset pair used by boundary/locality
 arguments in the original cube family. -/
 def projectedRepairPair
@@ -1272,6 +1288,60 @@ def repairShapeOfTwoLayerRepairPair
   | Sum.inl _, Sum.inr _ => TwoLayerRepairShape.lowerUpper
   | Sum.inr _, Sum.inl _ => TwoLayerRepairShape.upperLower
   | Sum.inr _, Sum.inr _ => TwoLayerRepairShape.upperUpper
+
+theorem repairShapeOfTwoLayerRepairPair_eq_lowerUpper_of_mem_selectedTemplateRawRepairPairs_full
+    {F : Finset (TwoLayerSlice (n + 1) m)}
+    (hnear : templateDistance F (twoLayerFullTemplate (n + 1) m) ≤
+      templateDistance F (twoLayerStarTemplate n m))
+    {k : (TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)}
+    (hk : k ∈ selectedTemplateRawRepairPairs (n := n) (m := m) F) :
+    repairShapeOfTwoLayerRepairPair (n := n) (m := m) k = TwoLayerRepairShape.lowerUpper := by
+  have hraw := (mem_selectedTemplateRawRepairPairs (n := n) (m := m) (F := F) (k := k)).1 hk
+  rw [selectedTwoLayerTemplate_eq_full_of_le hnear] at hraw
+  cases hkx : k.1 with
+  | inl x =>
+      cases hkz : k.2 with
+      | inl z =>
+          exact (hraw.2.1.2.1 (by simpa [hkz] using (mem_twoLayerFullTemplate_inl_iff (n := n) (m := m) (s := z)))).elim
+      | inr z =>
+          simp [repairShapeOfTwoLayerRepairPair, hkx, hkz]
+  | inr x =>
+      exact (not_mem_twoLayerFullTemplate_inr (n := n) (m := m) (u := x)
+        (by simpa [hkx] using hraw.1.1)).elim
+
+theorem zero_mem_twoLayerAtomSet_of_mem_selectedTemplateRawRepairPairs_star
+    {F : Finset (TwoLayerSlice (n + 1) m)}
+    (hnear : templateDistance F (twoLayerStarTemplate n m) <
+      templateDistance F (twoLayerFullTemplate (n + 1) m))
+    {k : (TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)}
+    (hk : k ∈ selectedTemplateRawRepairPairs (n := n) (m := m) F) :
+    (0 : Fin (n + 1)) ∈ twoLayerAtomSet (n := n) (m := m) k.1 := by
+  have hraw := (mem_selectedTemplateRawRepairPairs (n := n) (m := m) (F := F) (k := k)).1 hk
+  rw [selectedTwoLayerTemplate_eq_star_of_lt hnear] at hraw
+  cases hkx : k.1 with
+  | inl x =>
+      simpa [twoLayerAtomSet, hkx] using
+        (mem_twoLayerStarTemplate_inl_iff (n := n) (m := m) (s := x)).1 (by simpa [hkx] using hraw.1.1)
+  | inr x =>
+      simpa [twoLayerAtomSet, hkx] using
+        (mem_twoLayerStarTemplate_inr_iff (n := n) (m := m) (u := x)).1 (by simpa [hkx] using hraw.1.1)
+
+theorem zero_not_mem_twoLayerAtomSet_of_mem_selectedTemplateRawRepairPairs_star
+    {F : Finset (TwoLayerSlice (n + 1) m)}
+    (hnear : templateDistance F (twoLayerStarTemplate n m) <
+      templateDistance F (twoLayerFullTemplate (n + 1) m))
+    {k : (TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)}
+    (hk : k ∈ selectedTemplateRawRepairPairs (n := n) (m := m) F) :
+    (0 : Fin (n + 1)) ∉ twoLayerAtomSet (n := n) (m := m) k.2 := by
+  have hraw := (mem_selectedTemplateRawRepairPairs (n := n) (m := m) (F := F) (k := k)).1 hk
+  rw [selectedTwoLayerTemplate_eq_star_of_lt hnear] at hraw
+  cases hkz : k.2 with
+  | inl z =>
+      exact fun hz =>
+        hraw.2.1.2.1 (by simpa [hkz] using (mem_twoLayerStarTemplate_inl_iff (n := n) (m := m) (s := z)).2 hz)
+  | inr z =>
+      exact fun hz =>
+        hraw.2.1.2.1 (by simpa [hkz] using (mem_twoLayerStarTemplate_inr_iff (n := n) (m := m) (u := z)).2 hz)
 
 /-- Final finite local class candidate: repair-pair layer-shape together with the local witnessed
 geometry class. -/
