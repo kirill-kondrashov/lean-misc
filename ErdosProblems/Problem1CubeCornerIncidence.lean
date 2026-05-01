@@ -1370,6 +1370,104 @@ def refineGeometricWitnessedCornerAtomByShapeEmb
     intro u v h
     exact congrArg Prod.snd h⟩
 
+/-- Shape-refined bad geometry atoms for one selected-template repair pair. -/
+noncomputable def repairBadShapedGeometricWitnessedAtoms
+    (F : Finset (Finset (Fin (n + 1))))
+    (k : (TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) :
+    Finset (ShapedGeometricWitnessedCornerAtom (Fin (n + 1))) :=
+  (repairBadGeometricWitnessedAtoms F (projectedRepairPair (n := n) (m := m) k)).map
+    (refineGeometricWitnessedCornerAtomByShapeEmb (n := n) (m := m) k)
+
+/-- Shape-refined good geometry atoms for one selected-template repair pair. -/
+noncomputable def repairGoodShapedGeometricWitnessedAtoms
+    (F : Finset (Finset (Fin (n + 1))))
+    (k : (TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) :
+    Finset (ShapedGeometricWitnessedCornerAtom (Fin (n + 1))) :=
+  (repairGoodGeometricWitnessedAtoms F (projectedRepairPair (n := n) (m := m) k)).map
+    (refineGeometricWitnessedCornerAtomByShapeEmb (n := n) (m := m) k)
+
+/-- The shaped local class carried by a shape-refined geometric witnessed atom. -/
+def shapedGeometryOfShapedGeometricWitnessedCornerAtom :
+    ShapedGeometricWitnessedCornerAtom (Fin (n + 1)) →
+      ShapedWitnessedCornerGeometry (Fin (n + 1))
+  | (shape, u) => (shape, u.1)
+
+/-- Canonical shape-refined geometric witnessed atom attached to a shaped local class. -/
+def canonicalShapedGeometricWitnessedCornerAtom
+    (k : (TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) :
+    ShapedWitnessedCornerGeometry (Fin (n + 1)) →
+      ShapedGeometricWitnessedCornerAtom (Fin (n + 1))
+  | (shape, g) => (shape,
+      canonicalGeometricWitnessedCornerAtom (projectedRepairPair (n := n) (m := m) k) g)
+
+@[simp] theorem shapedGeometryOf_refineGeometricWitnessedCornerAtomByShape
+    (k : (TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m))
+    (u : GeometricWitnessedCornerAtom (Fin (n + 1))) :
+    shapedGeometryOfShapedGeometricWitnessedCornerAtom
+        (refineGeometricWitnessedCornerAtomByShape (n := n) (m := m) k u) =
+      (repairShapeOfTwoLayerRepairPair (n := n) (m := m) k, u.1) := by
+  rfl
+
+@[simp] theorem shapedGeometryOf_canonicalShapedGeometricWitnessedCornerAtom
+    (k : (TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m))
+    (g : ShapedWitnessedCornerGeometry (Fin (n + 1))) :
+    shapedGeometryOfShapedGeometricWitnessedCornerAtom
+        (canonicalShapedGeometricWitnessedCornerAtom (n := n) (m := m) k g) = g := by
+  rcases g with ⟨shape, geom⟩
+  simp [canonicalShapedGeometricWitnessedCornerAtom, shapedGeometryOfShapedGeometricWitnessedCornerAtom]
+
+theorem eq_canonicalShapedGeometricWitnessedCornerAtom_of_mem_bad
+    {F : Finset (Finset (Fin (n + 1)))}
+    {k : (TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)}
+    {u : ShapedGeometricWitnessedCornerAtom (Fin (n + 1))}
+    (hu : u ∈ repairBadShapedGeometricWitnessedAtoms (n := n) (m := m) F k) :
+    u = canonicalShapedGeometricWitnessedCornerAtom (n := n) (m := m) k
+      (shapedGeometryOfShapedGeometricWitnessedCornerAtom u) := by
+  rcases Finset.mem_map.mp hu with ⟨v, hv, rfl⟩
+  change (repairShapeOfTwoLayerRepairPair (n := n) (m := m) k, v) = _
+  dsimp [canonicalShapedGeometricWitnessedCornerAtom,
+    shapedGeometryOfShapedGeometricWitnessedCornerAtom]
+  rw [eq_canonicalGeometricWitnessedCornerAtom_of_mem_bad hv]
+  simp [refineGeometricWitnessedCornerAtomByShapeEmb, refineGeometricWitnessedCornerAtomByShape]
+
+theorem eq_canonicalShapedGeometricWitnessedCornerAtom_of_mem_good
+    {F : Finset (Finset (Fin (n + 1)))}
+    {k : (TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)}
+    {u : ShapedGeometricWitnessedCornerAtom (Fin (n + 1))}
+    (hu : u ∈ repairGoodShapedGeometricWitnessedAtoms (n := n) (m := m) F k) :
+    u = canonicalShapedGeometricWitnessedCornerAtom (n := n) (m := m) k
+      (shapedGeometryOfShapedGeometricWitnessedCornerAtom u) := by
+  rcases Finset.mem_map.mp hu with ⟨v, hv, rfl⟩
+  change (repairShapeOfTwoLayerRepairPair (n := n) (m := m) k, v) = _
+  dsimp [canonicalShapedGeometricWitnessedCornerAtom,
+    shapedGeometryOfShapedGeometricWitnessedCornerAtom]
+  rw [eq_canonicalGeometricWitnessedCornerAtom_of_mem_good hv]
+  simp [refineGeometricWitnessedCornerAtomByShapeEmb, refineGeometricWitnessedCornerAtomByShape]
+
+theorem eq_of_shapedGeometry_eq_of_mem_repairBadShapedGeometricWitnessedAtoms
+    {F : Finset (Finset (Fin (n + 1)))}
+    {k : (TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)}
+    {u v : ShapedGeometricWitnessedCornerAtom (Fin (n + 1))}
+    (hu : u ∈ repairBadShapedGeometricWitnessedAtoms (n := n) (m := m) F k)
+    (hv : v ∈ repairBadShapedGeometricWitnessedAtoms (n := n) (m := m) F k)
+    (hgeom : shapedGeometryOfShapedGeometricWitnessedCornerAtom u =
+      shapedGeometryOfShapedGeometricWitnessedCornerAtom v) :
+    u = v := by
+  rw [eq_canonicalShapedGeometricWitnessedCornerAtom_of_mem_bad hu,
+    eq_canonicalShapedGeometricWitnessedCornerAtom_of_mem_bad hv, hgeom]
+
+theorem eq_of_shapedGeometry_eq_of_mem_repairGoodShapedGeometricWitnessedAtoms
+    {F : Finset (Finset (Fin (n + 1)))}
+    {k : (TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)}
+    {u v : ShapedGeometricWitnessedCornerAtom (Fin (n + 1))}
+    (hu : u ∈ repairGoodShapedGeometricWitnessedAtoms (n := n) (m := m) F k)
+    (hv : v ∈ repairGoodShapedGeometricWitnessedAtoms (n := n) (m := m) F k)
+    (hgeom : shapedGeometryOfShapedGeometricWitnessedCornerAtom u =
+      shapedGeometryOfShapedGeometricWitnessedCornerAtom v) :
+    u = v := by
+  rw [eq_canonicalShapedGeometricWitnessedCornerAtom_of_mem_good hu,
+    eq_canonicalShapedGeometricWitnessedCornerAtom_of_mem_good hv, hgeom]
+
 /-- Canonical bad incidences for the selected-template repair set. -/
 noncomputable def selectedTemplateBadIncidences (F : Finset (TwoLayerSlice (n + 1) m))
     (𝒜 : Finset (Finset (Fin (n + 1)))) :
@@ -1460,9 +1558,7 @@ noncomputable def selectedTemplateBadShapedGeometricWitnessedIncidences
     Finset (((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
       ShapedGeometricWitnessedCornerAtom (Fin (n + 1))) :=
   fiberIncidences (selectedTemplateRawRepairPairs (n := n) (m := m) F)
-    (fun k =>
-      (repairBadGeometricWitnessedAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k)).map
-        (refineGeometricWitnessedCornerAtomByShapeEmb (n := n) (m := m) k))
+    (repairBadShapedGeometricWitnessedAtoms (n := n) (m := m) 𝒜)
 
 /-- Shape-refined good geometry incidences on the selected-template repair family. -/
 noncomputable def selectedTemplateGoodShapedGeometricWitnessedIncidences
@@ -1470,9 +1566,7 @@ noncomputable def selectedTemplateGoodShapedGeometricWitnessedIncidences
     Finset (((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
       ShapedGeometricWitnessedCornerAtom (Fin (n + 1))) :=
   fiberIncidences (selectedTemplateRawRepairPairs (n := n) (m := m) F)
-    (fun k =>
-      (repairGoodGeometricWitnessedAtoms 𝒜 (projectedRepairPair (n := n) (m := m) k)).map
-        (refineGeometricWitnessedCornerAtomByShapeEmb (n := n) (m := m) k))
+    (repairGoodShapedGeometricWitnessedAtoms (n := n) (m := m) 𝒜)
 
 theorem atomOfTaggedAtom_mem_selectedTemplateBadIncidences_local
     {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
@@ -1955,6 +2049,117 @@ theorem card_selectedTemplateBadGeometricWitnessedIncidences_le_card_selectedTem
     (fun _ hp => selectedTemplateGeometryClassTransport_mem_good_of_local hmap hp)
     (fun _ hp _ hq heq => selectedTemplateGeometryClassTransport_injOn_of_local hinj hp hq heq)
 
+/-- Transport induced by a local map on shape-refined geometry classes, using the canonical
+representative of the target class. -/
+def selectedTemplateShapedGeometryClassTransport
+    (ψ : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) →
+      ShapedWitnessedCornerGeometry (Fin (n + 1)) →
+        ShapedWitnessedCornerGeometry (Fin (n + 1)))
+  (p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      ShapedGeometricWitnessedCornerAtom (Fin (n + 1))) :
+    ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      ShapedGeometricWitnessedCornerAtom (Fin (n + 1)) :=
+  (p.1, canonicalShapedGeometricWitnessedCornerAtom (n := n) (m := m) p.1
+    (ψ p.1 (shapedGeometryOfShapedGeometricWitnessedCornerAtom p.2)))
+
+theorem selectedTemplateShapedGeometryClassTransport_mem_good_of_local
+    {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    {ψ : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) →
+      ShapedWitnessedCornerGeometry (Fin (n + 1)) →
+        ShapedWitnessedCornerGeometry (Fin (n + 1))}
+    (hmap : ∀ ⦃k g⦄,
+      k ∈ selectedTemplateRawRepairPairs (n := n) (m := m) F →
+        canonicalShapedGeometricWitnessedCornerAtom (n := n) (m := m) k g ∈
+          repairBadShapedGeometricWitnessedAtoms (n := n) (m := m) 𝒜 k →
+            canonicalShapedGeometricWitnessedCornerAtom (n := n) (m := m) k (ψ k g) ∈
+              repairGoodShapedGeometricWitnessedAtoms (n := n) (m := m) 𝒜 k)
+    {p : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) ×
+      ShapedGeometricWitnessedCornerAtom (Fin (n + 1))}
+    (hp : p ∈ selectedTemplateBadShapedGeometricWitnessedIncidences (n := n) (m := m) F 𝒜) :
+    selectedTemplateShapedGeometryClassTransport (n := n) (m := m) ψ p ∈
+      selectedTemplateGoodShapedGeometricWitnessedIncidences (n := n) (m := m) F 𝒜 := by
+  rcases p with ⟨pk, pu⟩
+  refine (mem_fiberIncidences_iff).2 ?_
+  have hp' := mem_fiberIncidences_iff.mp hp
+  refine ⟨hp'.1, ?_⟩
+  have hcanon : canonicalShapedGeometricWitnessedCornerAtom (n := n) (m := m) pk
+      (shapedGeometryOfShapedGeometricWitnessedCornerAtom pu) ∈
+        repairBadShapedGeometricWitnessedAtoms (n := n) (m := m) 𝒜 pk := by
+    rw [← eq_canonicalShapedGeometricWitnessedCornerAtom_of_mem_bad hp'.2]
+    exact hp'.2
+  simpa [selectedTemplateShapedGeometryClassTransport] using hmap hp'.1 hcanon
+
+theorem selectedTemplateShapedGeometryClassTransport_injOn_of_local
+    {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    {ψ : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) →
+      ShapedWitnessedCornerGeometry (Fin (n + 1)) →
+        ShapedWitnessedCornerGeometry (Fin (n + 1))}
+    (hinj : ∀ ⦃k g h⦄,
+      k ∈ selectedTemplateRawRepairPairs (n := n) (m := m) F →
+        canonicalShapedGeometricWitnessedCornerAtom (n := n) (m := m) k g ∈
+          repairBadShapedGeometricWitnessedAtoms (n := n) (m := m) 𝒜 k →
+            canonicalShapedGeometricWitnessedCornerAtom (n := n) (m := m) k h ∈
+              repairBadShapedGeometricWitnessedAtoms (n := n) (m := m) 𝒜 k →
+                ψ k g = ψ k h → g = h) :
+    Set.InjOn (selectedTemplateShapedGeometryClassTransport (n := n) (m := m) ψ)
+      ↑(selectedTemplateBadShapedGeometricWitnessedIncidences (n := n) (m := m) F 𝒜) := by
+  intro p hp q hq heq
+  rcases p with ⟨pk, pu⟩
+  rcases q with ⟨qk, qu⟩
+  have hp' := mem_fiberIncidences_iff.mp hp
+  have hq' := mem_fiberIncidences_iff.mp hq
+  have hk : pk = qk := by
+    simpa [selectedTemplateShapedGeometryClassTransport] using congrArg Prod.fst heq
+  subst hk
+  have hpu : canonicalShapedGeometricWitnessedCornerAtom (n := n) (m := m) pk
+      (shapedGeometryOfShapedGeometricWitnessedCornerAtom pu) ∈
+        repairBadShapedGeometricWitnessedAtoms (n := n) (m := m) 𝒜 pk := by
+    rw [← eq_canonicalShapedGeometricWitnessedCornerAtom_of_mem_bad hp'.2]
+    exact hp'.2
+  have hqu : canonicalShapedGeometricWitnessedCornerAtom (n := n) (m := m) pk
+      (shapedGeometryOfShapedGeometricWitnessedCornerAtom qu) ∈
+        repairBadShapedGeometricWitnessedAtoms (n := n) (m := m) 𝒜 pk := by
+    rw [← eq_canonicalShapedGeometricWitnessedCornerAtom_of_mem_bad hq'.2]
+    exact hq'.2
+  have hclass :
+      ψ pk (shapedGeometryOfShapedGeometricWitnessedCornerAtom pu) =
+        ψ pk (shapedGeometryOfShapedGeometricWitnessedCornerAtom qu) := by
+    have hclass' := congrArg (fun r => shapedGeometryOfShapedGeometricWitnessedCornerAtom r.2) heq
+    simpa [selectedTemplateShapedGeometryClassTransport] using hclass'
+  have hgeom :
+      shapedGeometryOfShapedGeometricWitnessedCornerAtom pu =
+        shapedGeometryOfShapedGeometricWitnessedCornerAtom qu :=
+    hinj hp'.1 hpu hqu hclass
+  have huEq : pu = qu :=
+    eq_of_shapedGeometry_eq_of_mem_repairBadShapedGeometricWitnessedAtoms
+      hp'.2 hq'.2 hgeom
+  exact by cases huEq; rfl
+
+theorem card_selectedTemplateBadShapedGeometricWitnessedIncidences_le_card_selectedTemplateGoodShapedGeometricWitnessedIncidences_of_shapedGeometryClassMap
+    {F : Finset (TwoLayerSlice (n + 1) m)} {𝒜 : Finset (Finset (Fin (n + 1)))}
+    {ψ : ((TwoLayerSlice (n + 1) m) × (TwoLayerSlice (n + 1) m)) →
+      ShapedWitnessedCornerGeometry (Fin (n + 1)) →
+        ShapedWitnessedCornerGeometry (Fin (n + 1))}
+    (hmap : ∀ ⦃k g⦄,
+      k ∈ selectedTemplateRawRepairPairs (n := n) (m := m) F →
+        canonicalShapedGeometricWitnessedCornerAtom (n := n) (m := m) k g ∈
+          repairBadShapedGeometricWitnessedAtoms (n := n) (m := m) 𝒜 k →
+            canonicalShapedGeometricWitnessedCornerAtom (n := n) (m := m) k (ψ k g) ∈
+              repairGoodShapedGeometricWitnessedAtoms (n := n) (m := m) 𝒜 k)
+    (hinj : ∀ ⦃k g h⦄,
+      k ∈ selectedTemplateRawRepairPairs (n := n) (m := m) F →
+        canonicalShapedGeometricWitnessedCornerAtom (n := n) (m := m) k g ∈
+          repairBadShapedGeometricWitnessedAtoms (n := n) (m := m) 𝒜 k →
+            canonicalShapedGeometricWitnessedCornerAtom (n := n) (m := m) k h ∈
+              repairBadShapedGeometricWitnessedAtoms (n := n) (m := m) 𝒜 k →
+                ψ k g = ψ k h → g = h) :
+    #(selectedTemplateBadShapedGeometricWitnessedIncidences (n := n) (m := m) F 𝒜) ≤
+      #(selectedTemplateGoodShapedGeometricWitnessedIncidences (n := n) (m := m) F 𝒜) := by
+  exact Finset.card_le_card_of_injOn
+    (selectedTemplateShapedGeometryClassTransport (n := n) (m := m) ψ)
+    (fun _ hp => selectedTemplateShapedGeometryClassTransport_mem_good_of_local hmap hp)
+    (fun _ hp _ hq heq => selectedTemplateShapedGeometryClassTransport_injOn_of_local hinj hp hq heq)
+
 /-- Global transport induced by a fiberwise map on geometry-refined witnessed selected-template
 incidences. -/
 def selectedTemplateGeometricWitnessedTransport
@@ -2082,6 +2287,137 @@ theorem selectedTemplateRawRepairPairs_nonempty_of_twoLayerState_balanced_nonTem
       (n := n) (m := m) C U hC hU hCLower hULower hCbound hbal hneFull hneStar with
     ⟨x, z, hraw, -⟩
   exact ⟨(x, z), by simpa [selectedTemplateRawRepairPairs] using hraw⟩
+
+section ConcreteShapedCounterexample
+
+private def counterLower01 : RankSlice 3 1 :=
+  ⟨({0} : Finset (Fin 3)), by simp⟩
+
+private def counterUpper12 : RankSlice 3 2 :=
+  ⟨({1, 2} : Finset (Fin 3)), by simp⟩
+
+private abbrev counterRepairPair : (TwoLayerSlice 3 1) × (TwoLayerSlice 3 1) :=
+  (Sum.inl counterLower01, Sum.inr counterUpper12)
+
+private abbrev counterGlobalFamily : Finset (TwoLayerSlice 3 1) :=
+  {Sum.inr counterUpper12}
+
+private abbrev counterLocalFamilyXZ : Finset (Finset (Fin 3)) :=
+  {({0} : Finset (Fin 3)), ({1, 2} : Finset (Fin 3))}
+
+private abbrev counterLocalFamily01Z : Finset (Finset (Fin 3)) :=
+  {({0, 1} : Finset (Fin 3)), ({1, 2} : Finset (Fin 3))}
+
+private abbrev counterBadShapedClass : ShapedWitnessedCornerGeometry (Fin 3) :=
+  (TwoLayerRepairShape.lowerUpper, WitnessedCornerGeometry.oldFamily)
+
+private abbrev counterGoodShapedClassXZ : ShapedWitnessedCornerGeometry (Fin 3) :=
+  (TwoLayerRepairShape.lowerUpper,
+    WitnessedCornerGeometry.oldBoundary (BoundaryFacetGeometry.erase 0))
+
+private abbrev counterGoodShapedClass01Z : ShapedWitnessedCornerGeometry (Fin 3) :=
+  (TwoLayerRepairShape.lowerUpper, WitnessedCornerGeometry.newFamily)
+
+theorem counterBadShapedClass_mem_bad_counterLocalFamilyXZ :
+    canonicalShapedGeometricWitnessedCornerAtom (n := 2) (m := 1)
+        counterRepairPair counterBadShapedClass ∈
+      repairBadShapedGeometricWitnessedAtoms (n := 2) (m := 1)
+        counterLocalFamilyXZ counterRepairPair := by
+  classical
+  decide
+
+theorem counterBadShapedClass_mem_bad_counterLocalFamily01Z :
+    canonicalShapedGeometricWitnessedCornerAtom (n := 2) (m := 1)
+        counterRepairPair counterBadShapedClass ∈
+      repairBadShapedGeometricWitnessedAtoms (n := 2) (m := 1)
+        counterLocalFamily01Z counterRepairPair := by
+  classical
+  decide
+
+theorem no_common_good_shapedClass_for_counterRepairPair_oldFamily :
+    ¬ ∃ y : ShapedWitnessedCornerGeometry (Fin 3),
+        canonicalShapedGeometricWitnessedCornerAtom (n := 2) (m := 1)
+            counterRepairPair y ∈
+          repairGoodShapedGeometricWitnessedAtoms (n := 2) (m := 1)
+            counterLocalFamilyXZ counterRepairPair ∧
+        canonicalShapedGeometricWitnessedCornerAtom (n := 2) (m := 1)
+            counterRepairPair y ∈
+          repairGoodShapedGeometricWitnessedAtoms (n := 2) (m := 1)
+            counterLocalFamily01Z counterRepairPair := by
+  have hXZset :
+      repairGoodShapedGeometricWitnessedAtoms (n := 2) (m := 1)
+          counterLocalFamilyXZ counterRepairPair =
+        {canonicalShapedGeometricWitnessedCornerAtom (n := 2) (m := 1)
+            counterRepairPair counterGoodShapedClassXZ} := by
+    classical
+    decide
+  have h01Zset :
+      repairGoodShapedGeometricWitnessedAtoms (n := 2) (m := 1)
+          counterLocalFamily01Z counterRepairPair =
+        {canonicalShapedGeometricWitnessedCornerAtom (n := 2) (m := 1)
+            counterRepairPair counterGoodShapedClass01Z} := by
+    classical
+    decide
+  intro h
+  rcases h with ⟨y, hXZ, h01Z⟩
+  rw [hXZset, Finset.mem_singleton] at hXZ
+  rw [h01Zset, Finset.mem_singleton] at h01Z
+  have hEq :
+      counterGoodShapedClassXZ = counterGoodShapedClass01Z := by
+    have hcanonEq :
+        canonicalShapedGeometricWitnessedCornerAtom (n := 2) (m := 1)
+            counterRepairPair counterGoodShapedClassXZ =
+          canonicalShapedGeometricWitnessedCornerAtom (n := 2) (m := 1)
+            counterRepairPair counterGoodShapedClass01Z := by
+      calc
+      canonicalShapedGeometricWitnessedCornerAtom (n := 2) (m := 1)
+          counterRepairPair counterGoodShapedClassXZ
+          = canonicalShapedGeometricWitnessedCornerAtom (n := 2) (m := 1)
+              counterRepairPair y := hXZ.symm
+      _ = canonicalShapedGeometricWitnessedCornerAtom (n := 2) (m := 1)
+            counterRepairPair counterGoodShapedClass01Z := h01Z
+    simpa using congrArg shapedGeometryOfShapedGeometricWitnessedCornerAtom hcanonEq
+  cases hEq
+
+/-- The concrete `n = 2`, `m = 1` lower-upper corner already rules out the current plan of finding
+a single family-independent target shaped class for every bad shaped class. In particular, the bad
+class `(lowerUpper, oldFamily)` has no uniform good shaped image across all local families `𝒜`. -/
+theorem not_exists_family_independent_good_shapedClass_for_counterRepairPair_oldFamily :
+    ¬ ∃ y : ShapedWitnessedCornerGeometry (Fin 3),
+        (canonicalShapedGeometricWitnessedCornerAtom (n := 2) (m := 1)
+            counterRepairPair counterBadShapedClass ∈
+          repairBadShapedGeometricWitnessedAtoms (n := 2) (m := 1)
+            counterLocalFamilyXZ counterRepairPair →
+          canonicalShapedGeometricWitnessedCornerAtom (n := 2) (m := 1)
+            counterRepairPair y ∈
+              repairGoodShapedGeometricWitnessedAtoms (n := 2) (m := 1)
+                counterLocalFamilyXZ counterRepairPair) ∧
+        (canonicalShapedGeometricWitnessedCornerAtom (n := 2) (m := 1)
+            counterRepairPair counterBadShapedClass ∈
+          repairBadShapedGeometricWitnessedAtoms (n := 2) (m := 1)
+            counterLocalFamily01Z counterRepairPair →
+          canonicalShapedGeometricWitnessedCornerAtom (n := 2) (m := 1)
+            counterRepairPair y ∈
+              repairGoodShapedGeometricWitnessedAtoms (n := 2) (m := 1)
+                counterLocalFamily01Z counterRepairPair) := by
+  intro h
+  rcases h with ⟨y, hXZ, h01Z⟩
+  have hgoodXZ :
+      canonicalShapedGeometricWitnessedCornerAtom (n := 2) (m := 1)
+          counterRepairPair y ∈
+        repairGoodShapedGeometricWitnessedAtoms (n := 2) (m := 1)
+          counterLocalFamilyXZ counterRepairPair :=
+    hXZ counterBadShapedClass_mem_bad_counterLocalFamilyXZ
+  have hgood01Z :
+      canonicalShapedGeometricWitnessedCornerAtom (n := 2) (m := 1)
+          counterRepairPair y ∈
+        repairGoodShapedGeometricWitnessedAtoms (n := 2) (m := 1)
+          counterLocalFamily01Z counterRepairPair :=
+    h01Z counterBadShapedClass_mem_bad_counterLocalFamily01Z
+  exact no_common_good_shapedClass_for_counterRepairPair_oldFamily
+    ⟨y, hgoodXZ, hgood01Z⟩
+
+end ConcreteShapedCounterexample
 
 end TwoLayer
 

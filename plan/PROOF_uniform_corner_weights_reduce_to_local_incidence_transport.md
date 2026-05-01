@@ -201,6 +201,27 @@ holds if and only if
 
 which is exactly `(INC)`.
 
+At this point the Lean development has gone one step beyond the geometry-class reduction recorded
+below: `Problem1CubeCornerIncidence.lean` now also packages the corresponding **shape-refined**
+local class space
+
+```math
+\text{TwoLayerRepairShape} \times \text{WitnessedCornerGeometry},
+```
+
+and the analogous reduction from selected-template incidences to a local map on those shaped
+classes. However, the first concrete finite obstruction is now formalized as well: in the
+`n = 2`, `m = 1` lower-upper corner, the bad shaped class
+
+```math
+(\mathrm{lowerUpper}, \mathrm{oldFamily})
+```
+
+has **no family-independent good shaped image** across all local families `\mathcal A`. So the
+current plan can no longer be “find the right `\psi` on the existing shaped class space”. Any
+successful continuation must either refine the local state further or abandon the family-independent
+shaped-class transport ansatz.
+
 ## Injection Criterion
 
 The incidence inequality `(INC)` will follow from any injection
