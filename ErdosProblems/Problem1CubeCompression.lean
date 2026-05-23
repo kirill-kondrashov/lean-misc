@@ -1,4 +1,5 @@
 import ErdosProblems.Problem1CubeBoundary
+import ErdosProblems.Problem1CubeDownset
 import Mathlib.Combinatorics.SetFamily.Compression.UV
 
 open Finset
@@ -21,6 +22,11 @@ def swapCoord (i j : α) (s : Finset α) : Finset α :=
   if _ : i ∈ s ∧ j ∉ s then insert j (s.erase i)
   else if _ : j ∈ s ∧ i ∉ s then insert i (s.erase j)
   else s
+
+/-- Sum of coordinate indices in a finite subset of `Fin n`. This is the set-level weight behind
+the `totalIndexWeight` family potential used later in the Prism normalization program. -/
+def setIndexWeight {n : ℕ} (s : Finset (Fin n)) : ℕ :=
+  Finset.sum s (fun a => (a : ℕ))
 
 @[simp]
 theorem card_uvCompression (u v : Finset α) (𝒜 : Finset (Finset α)) :
@@ -53,12 +59,45 @@ theorem swapCoord_of_mem_right {i j : α} {s : Finset α} (hj : j ∈ s) (hi : i
     swapCoord i j s = insert i (s.erase j) := by
   simp [swapCoord, hi, hj]
 
+theorem setIndexWeight_swapCoord_lt_of_mem_right
+    {n : ℕ} {i j : Fin n} {s : Finset (Fin n)}
+    (hij : i < j) (hi : i ∉ s) (hj : j ∈ s) :
+    setIndexWeight (swapCoord i j s) < setIndexWeight s := by
+  have hiErase : i ∉ s.erase j := by
+    intro hiErase
+    exact hi (Finset.mem_of_mem_erase hiErase)
+  calc
+    setIndexWeight (swapCoord i j s)
+      = (i : ℕ) + Finset.sum (s.erase j) (fun a => (a : ℕ)) := by
+          rw [setIndexWeight, swapCoord_of_mem_right hj hi, Finset.sum_insert hiErase]
+    _ < (j : ℕ) + Finset.sum (s.erase j) (fun a => (a : ℕ)) :=
+          Nat.add_lt_add_right hij _
+    _ = setIndexWeight s := by
+          simpa [setIndexWeight, add_comm, add_left_comm, add_assoc] using
+            (Finset.sum_erase_add (s := s) (f := fun a => (a : ℕ)) hj)
+
+theorem card_swapCoord_of_mem_right
+    {n : ℕ} {i j : Fin n} {s : Finset (Fin n)}
+    (hi : i ∉ s) (hj : j ∈ s) :
+    (swapCoord i j s).card = s.card := by
+  rw [swapCoord_of_mem_right hj hi, Finset.card_insert_of_notMem]
+  · simpa using Finset.card_erase_add_one hj
+  · exact hiErase
+    where
+      hiErase : i ∉ s.erase j := by
+        intro hiErase
+        exact hi (Finset.mem_of_mem_erase hiErase)
+
 theorem swapCoord_of_same_side {i j : α} {s : Finset α}
     (h : (i ∈ s ∧ j ∈ s) ∨ (i ∉ s ∧ j ∉ s)) :
     swapCoord i j s = s := by
   rcases h with ⟨hi, hj⟩ | ⟨hi, hj⟩ <;> simp [swapCoord, hi, hj]
 
 theorem coordCompress_of_mem_left {i j : α} {s : Finset α} (hi : i ∈ s) (hj : j ∉ s) :
+    UV.compress ({i} : Finset α) ({j} : Finset α) s = s := by
+  simp [UV.compress, hi, hj]
+
+theorem coordCompress_of_mem_both {i j : α} {s : Finset α} (hi : i ∈ s) (hj : j ∈ s) :
     UV.compress ({i} : Finset α) ({j} : Finset α) s = s := by
   simp [UV.compress, hi, hj]
 
@@ -116,6 +155,10 @@ theorem coordCompress_of_mem_right {i j : α} {s : Finset α} (hi : i ∉ s) (hj
   · subst x
     exact by simp [Ne.symm hij]
   · simp [hxi, hxj]
+
+theorem coordCompress_of_mem_neither {i j : α} {s : Finset α} (hi : i ∉ s) (hj : j ∉ s) :
+    UV.compress ({i} : Finset α) ({j} : Finset α) s = s := by
+  simp [UV.compress, hi, hj]
 
 theorem swapCoord_eq_union_sdiff_singleton_of_mem_right {i j : α} {s : Finset α}
     (hi : i ∉ s) (hj : j ∈ s) :
@@ -186,6 +229,23 @@ theorem swapCoord_swapCoord_of_mem_right {i j : α} {s : Finset α} (hi : i ∉ 
       (mem_swapCoord_left_of_mem_right hi hj)
       (not_mem_swapCoord_right_of_mem_right hi hj)] at hcomp
   exact hcomp
+
+theorem swapCoord_mem_of_mem_of_coordCompression_eq
+    {n : ℕ} {i j : Fin n} {𝒜 : Finset (Finset (Fin n))} {s : Finset (Fin n)}
+    (hfix : coordCompression i j 𝒜 = 𝒜) (hi : i ∉ s) (hj : j ∈ s) (hs : s ∈ 𝒜) :
+    swapCoord i j s ∈ 𝒜 := by
+  have hmem : swapCoord i j s ∈ coordCompression i j 𝒜 := by
+    rw [coordCompression, uvCompression, UV.mem_compression]
+    by_cases hswap : swapCoord i j s ∈ 𝒜
+    · left
+      refine ⟨hswap, ?_⟩
+      simpa [coordCompress_of_mem_left
+        (mem_swapCoord_left_of_mem_right hi hj)
+        (not_mem_swapCoord_right_of_mem_right hi hj)] using hswap
+    · right
+      refine ⟨hswap, s, hs, ?_⟩
+      exact coordCompress_of_mem_right hi hj
+  simpa [hfix] using hmem
 
 theorem coordCompression_mem_both_iff {i j : α} {𝒜 : Finset (Finset α)} {s : Finset α}
     (hi : i ∈ s) (hj : j ∈ s) :
@@ -283,6 +343,216 @@ theorem coordCompression_mem_right_iff {i j : α} {𝒜 : Finset (Finset α)} {s
   · rintro ⟨hsA, hswapA⟩
     rw [coordCompression, uvCompression, UV.mem_compression]
     exact Or.inl ⟨hsA, by simpa [coordCompress_of_mem_right hi hj] using hswapA⟩
+
+/-- Coordinate compression is the union of the sets kept in place and the images of the sets that
+actually move. This is the exact family decomposition used by the minimizer-normalization route for
+the Prism theorem. -/
+theorem coordCompression_eq_filter_union_image_moved (i j : α) (𝒜 : Finset (Finset α)) :
+    coordCompression i j 𝒜 =
+      {A ∈ 𝒜 | UV.compress ({i} : Finset α) ({j} : Finset α) A ∈ 𝒜} ∪
+        ({A ∈ 𝒜 | UV.compress ({i} : Finset α) ({j} : Finset α) A ∉ 𝒜}).image
+          (UV.compress ({i} : Finset α) ({j} : Finset α)) := by
+  rw [coordCompression, uvCompression, UV.compression, filter_image]
+
+theorem sum_setIndexWeight_image_moved_lt_sum_setIndexWeight_moved_of_lt
+    {n : ℕ} {i j : Fin n} {𝒜 : Finset (Finset (Fin n))}
+    (hij : i < j)
+    (hmoved :
+      ({A ∈ 𝒜 | UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A ∉ 𝒜} :
+        Finset (Finset (Fin n))).Nonempty) :
+    Finset.sum
+        (({A ∈ 𝒜 | UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A ∉ 𝒜} :
+          Finset (Finset (Fin n))).image (UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n))))
+        setIndexWeight
+      <
+      Finset.sum
+        ({A ∈ 𝒜 | UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A ∉ 𝒜} :
+          Finset (Finset (Fin n)))
+        setIndexWeight := by
+  rw [Finset.sum_image UV.compress_injOn]
+  refine Finset.sum_lt_sum_of_nonempty hmoved ?_
+  intro A hA
+  rcases Finset.mem_filter.mp hA with ⟨hA𝒜, hAout⟩
+  by_cases hi : i ∈ A <;> by_cases hj : j ∈ A
+  · have hEq :
+        UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A = A := by
+      exact coordCompress_of_mem_both hi hj
+    have hCompIn :
+        UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A ∈ 𝒜 := by
+      simpa [hEq] using hA𝒜
+    exact (hAout hCompIn).elim
+  · have hEq :
+        UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A = A := by
+      exact coordCompress_of_mem_left hi hj
+    have hCompIn :
+        UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A ∈ 𝒜 := by
+      simpa [hEq] using hA𝒜
+    exact (hAout hCompIn).elim
+  · have hEq :
+        UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A = swapCoord i j A := by
+      exact coordCompress_of_mem_right hi hj
+    calc
+      setIndexWeight (UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A)
+        = setIndexWeight (swapCoord i j A) := by rw [hEq]
+      _ < setIndexWeight A := setIndexWeight_swapCoord_lt_of_mem_right hij hi hj
+  · have hEq :
+        UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A = A := by
+      exact coordCompress_of_mem_neither hi hj
+    have hCompIn :
+        UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n)) A ∈ 𝒜 := by
+      simpa [hEq] using hA𝒜
+    exact (hAout hCompIn).elim
+
+theorem sum_setIndexWeight_coordCompression_lt_of_ne
+    {n : ℕ} {i j : Fin n} {𝒜 : Finset (Finset (Fin n))}
+    (hij : i < j) (hne : coordCompression i j 𝒜 ≠ 𝒜) :
+    Finset.sum (coordCompression i j 𝒜) setIndexWeight < Finset.sum 𝒜 setIndexWeight := by
+  let comp := UV.compress ({i} : Finset (Fin n)) ({j} : Finset (Fin n))
+  let kept : Finset (Finset (Fin n)) := {A ∈ 𝒜 | comp A ∈ 𝒜}
+  let moved : Finset (Finset (Fin n)) := {A ∈ 𝒜 | comp A ∉ 𝒜}
+  have hu : kept ∪ moved = 𝒜 := by
+    exact filter_union_filter_not_eq _ _
+  have hmoved : moved.Nonempty := by
+    by_contra hmoved
+    have hmoved' : moved = ∅ := Finset.not_nonempty_iff_eq_empty.mp hmoved
+    have hcompEq : coordCompression i j 𝒜 = kept ∪ moved.image comp := by
+      simpa [kept, moved, comp] using
+        coordCompression_eq_filter_union_image_moved (i := i) (j := j) (𝒜 := 𝒜)
+    apply hne
+    rw [hcompEq, hmoved', Finset.image_empty, Finset.union_empty]
+    simpa [kept, moved, comp, hmoved'] using hu
+  have hlt :
+      Finset.sum (moved.image comp) setIndexWeight < Finset.sum moved setIndexWeight := by
+    simpa [moved, comp] using
+      sum_setIndexWeight_image_moved_lt_sum_setIndexWeight_moved_of_lt (𝒜 := 𝒜) hij hmoved
+  calc
+    Finset.sum (coordCompression i j 𝒜) setIndexWeight
+      = Finset.sum (kept ∪ moved.image comp) setIndexWeight := by
+          have hcompEq : coordCompression i j 𝒜 = kept ∪ moved.image comp := by
+            simpa [kept, moved, comp] using
+              coordCompression_eq_filter_union_image_moved (i := i) (j := j) (𝒜 := 𝒜)
+          rw [hcompEq]
+    _ = Finset.sum kept setIndexWeight + Finset.sum (moved.image comp) setIndexWeight := by
+          have hdisj : Disjoint kept (moved.image comp) := by
+            refine Finset.disjoint_left.2 ?_
+            intro x hxkept hximg
+            rcases Finset.mem_image.mp hximg with ⟨A, hAmoved, rfl⟩
+            exact (Finset.mem_filter.mp hAmoved).2 ((Finset.mem_filter.mp hxkept).1)
+          exact Finset.sum_union hdisj
+    _ < Finset.sum kept setIndexWeight + Finset.sum moved setIndexWeight := by
+          exact Nat.add_lt_add_left hlt _
+    _ = Finset.sum (kept ∪ moved) setIndexWeight := by
+          rw [Finset.sum_union (Finset.disjoint_filter_filter_not _ _ _)]
+    _ = Finset.sum 𝒜 setIndexWeight := by rw [hu]
+
+theorem swapCoord_subset_swapCoord_of_subset {i j : α} {t s : Finset α}
+    (hts : t ⊆ s) :
+    swapCoord i j t ⊆ swapCoord i j s := by
+  by_cases hsi : i ∈ s <;> by_cases hsj : j ∈ s
+  · rw [swapCoord_of_same_side (i := i) (j := j) (s := s) (Or.inl ⟨hsi, hsj⟩)]
+    intro x hx
+    by_cases hti : i ∈ t <;> by_cases htj : j ∈ t
+    · rw [swapCoord_of_same_side (i := i) (j := j) (s := t) (Or.inl ⟨hti, htj⟩)] at hx
+      exact hts hx
+    · rw [swapCoord_of_mem_left (i := i) (j := j) (s := t) hti htj] at hx
+      rcases Finset.mem_insert.mp hx with rfl | hx
+      · exact hsj
+      · exact hts (Finset.mem_of_mem_erase hx)
+    · rw [swapCoord_of_mem_right (i := i) (j := j) (s := t) htj hti] at hx
+      rcases Finset.mem_insert.mp hx with rfl | hx
+      · exact hsi
+      · exact hts (Finset.mem_of_mem_erase hx)
+    · rw [swapCoord_of_same_side (i := i) (j := j) (s := t) (Or.inr ⟨hti, htj⟩)] at hx
+      exact hts hx
+  · rw [swapCoord_of_mem_left (i := i) (j := j) (s := s) hsi hsj]
+    have htj : j ∉ t := fun ht => hsj (hts ht)
+    by_cases hti : i ∈ t
+    · rw [swapCoord_of_mem_left (i := i) (j := j) (s := t) hti htj]
+      intro x hx
+      rcases Finset.mem_insert.mp hx with rfl | hx
+      · exact Finset.mem_insert_self _ _
+      · exact Finset.mem_insert.mpr <| Or.inr <|
+          Finset.mem_erase.mpr ⟨Finset.ne_of_mem_erase hx, hts (Finset.mem_of_mem_erase hx)⟩
+    · rw [swapCoord_of_same_side (i := i) (j := j) (s := t) (Or.inr ⟨hti, htj⟩)]
+      intro x hx
+      exact Finset.mem_insert.mpr <| Or.inr <|
+        Finset.mem_erase.mpr ⟨by
+            intro hxi
+            subst hxi
+            exact hti hx,
+          hts hx⟩
+  · rw [swapCoord_of_mem_right (i := i) (j := j) (s := s) hsj hsi]
+    have hti : i ∉ t := fun ht => hsi (hts ht)
+    by_cases htj : j ∈ t
+    · rw [swapCoord_of_mem_right (i := i) (j := j) (s := t) htj hti]
+      intro x hx
+      rcases Finset.mem_insert.mp hx with rfl | hx
+      · exact Finset.mem_insert_self _ _
+      · exact Finset.mem_insert.mpr <| Or.inr <|
+          Finset.mem_erase.mpr ⟨Finset.ne_of_mem_erase hx, hts (Finset.mem_of_mem_erase hx)⟩
+    · rw [swapCoord_of_same_side (i := i) (j := j) (s := t) (Or.inr ⟨hti, htj⟩)]
+      intro x hx
+      exact Finset.mem_insert.mpr <| Or.inr <|
+        Finset.mem_erase.mpr ⟨by
+            intro hxj
+            subst hxj
+            exact htj hx,
+          hts hx⟩
+  · have hti : i ∉ t := fun ht => hsi (hts ht)
+    have htj : j ∉ t := fun ht => hsj (hts ht)
+    rw [swapCoord_of_same_side (i := i) (j := j) (s := t) (Or.inr ⟨hti, htj⟩)]
+    rw [swapCoord_of_same_side (i := i) (j := j) (s := s) (Or.inr ⟨hsi, hsj⟩)]
+    exact hts
+
+theorem isDownSetFamily_coordCompression {i j : α} {𝒜 : Finset (Finset α)}
+    (h𝒜 : IsDownSetFamily 𝒜) :
+    IsDownSetFamily (coordCompression i j 𝒜) := by
+  intro s t hts hs
+  have hs' : s ∈ coordCompression i j 𝒜 := by
+    simpa using hs
+  have ht' : t ∈ coordCompression i j 𝒜 := by
+    by_cases hsi : i ∈ s <;> by_cases hsj : j ∈ s
+    · rw [coordCompression_mem_both_iff hsi hsj] at hs'
+      by_cases hti : i ∈ t <;> by_cases htj : j ∈ t
+      · rw [coordCompression_mem_both_iff hti htj]
+        exact h𝒜 hts hs'
+      · rw [coordCompression_mem_left_iff hti htj]
+        exact Or.inl (h𝒜 hts hs')
+      · rw [coordCompression_mem_right_iff hti htj]
+        refine ⟨h𝒜 hts hs', ?_⟩
+        have hsSwap : swapCoord i j s ∈ 𝒜 := by
+          simpa [swapCoord_of_same_side (i := i) (j := j) (s := s) (Or.inl ⟨hsi, hsj⟩)] using hs'
+        exact h𝒜 (swapCoord_subset_swapCoord_of_subset (i := i) (j := j) hts) hsSwap
+      · rw [coordCompression_mem_neither_iff hti htj]
+        exact h𝒜 hts hs'
+    · rw [coordCompression_mem_left_iff hsi hsj] at hs'
+      have htj : j ∉ t := fun ht => hsj (hts ht)
+      by_cases hti : i ∈ t
+      · rw [coordCompression_mem_left_iff hti htj]
+        rcases hs' with hsA | hsSwap
+        · exact Or.inl (h𝒜 hts hsA)
+        · exact Or.inr (h𝒜 (swapCoord_subset_swapCoord_of_subset (i := i) (j := j) hts) hsSwap)
+      · rw [coordCompression_mem_neither_iff hti htj]
+        rcases hs' with hsA | hsSwap
+        · exact h𝒜 hts hsA
+        · have hsub : t ⊆ swapCoord i j s := by
+            simpa [swapCoord_of_same_side (i := i) (j := j) (s := t) (Or.inr ⟨hti, htj⟩)] using
+              (swapCoord_subset_swapCoord_of_subset (i := i) (j := j) hts)
+          exact h𝒜 hsub hsSwap
+    · rw [coordCompression_mem_right_iff hsi hsj] at hs'
+      have hti : i ∉ t := fun ht => hsi (hts ht)
+      by_cases htj : j ∈ t
+      · rw [coordCompression_mem_right_iff hti htj]
+        refine ⟨h𝒜 hts hs'.1, ?_⟩
+        exact h𝒜 (swapCoord_subset_swapCoord_of_subset (i := i) (j := j) hts) hs'.2
+      · rw [coordCompression_mem_neither_iff hti htj]
+        exact h𝒜 hts hs'.1
+    · have hti : i ∉ t := fun ht => hsi (hts ht)
+      have htj : j ∉ t := fun ht => hsj (hts ht)
+      rw [coordCompression_mem_neither_iff hsi hsj] at hs'
+      rw [coordCompression_mem_neither_iff hti htj]
+      exact h𝒜 hts hs'
+  simpa using ht'
 
 theorem mem_coordCompression_sdiff_iff_swap_mem_sdiff_coordCompression
     {i j : α} {𝒜 : Finset (Finset α)} {s : Finset α}
@@ -637,6 +907,84 @@ theorem card_positiveBoundary_coordCompression_le
     #(positiveBoundary (coordCompression i j 𝒜)) ≤ #(positiveBoundary 𝒜) := by
   exact (Finset.card_sdiff_le_card_sdiff_iff).mp
     (card_positiveBoundary_sdiff_le i j 𝒜)
+
+theorem coordCompression_preserves_downset_card_positiveBoundary
+    (i j : α) (𝒜 : Finset (Finset α)) (h𝒜 : IsDownSetFamily 𝒜) :
+    IsDownSetFamily (coordCompression i j 𝒜) ∧
+      #(coordCompression i j 𝒜) = #𝒜 ∧
+      #(positiveBoundary (coordCompression i j 𝒜)) ≤ #(positiveBoundary 𝒜) := by
+  refine ⟨isDownSetFamily_coordCompression h𝒜, card_coordCompression i j 𝒜, ?_⟩
+  exact card_positiveBoundary_coordCompression_le i j 𝒜
+
+theorem mem_sdiff_coordCompression_implies_mem_right
+    {i j : α} {𝒜 : Finset (Finset α)} {s : Finset α}
+    (hs : s ∈ 𝒜 \ coordCompression i j 𝒜) :
+    i ∉ s ∧ j ∈ s := by
+  rcases Finset.mem_sdiff.mp hs with ⟨hsA, hsNotC⟩
+  by_cases hsi : i ∈ s <;> by_cases hsj : j ∈ s
+  · exfalso
+    exact hsNotC ((coordCompression_mem_both_iff hsi hsj).2 hsA)
+  · exfalso
+    exact hsNotC ((coordCompression_mem_left_iff hsi hsj).2 (Or.inl hsA))
+  · exact ⟨hsi, hsj⟩
+  · exfalso
+    exact hsNotC ((coordCompression_mem_neither_iff hsi hsj).2 hsA)
+
+theorem rightSector_coordCompression_subset
+    (i j : α) (𝒜 : Finset (Finset α)) :
+    ((coordCompression i j 𝒜).filter fun s => i ∉ s ∧ j ∈ s) ⊆
+      (𝒜.filter fun s => i ∉ s ∧ j ∈ s) := by
+  intro s hs
+  rw [Finset.mem_filter] at hs ⊢
+  rcases hs with ⟨hsC, hsi, hsj⟩
+  exact ⟨(coordCompression_mem_right_iff hsi hsj).mp hsC |>.1, hsi, hsj⟩
+
+theorem exists_mem_rightSector_sdiff_of_coordCompression_ne
+    (i j : α) (𝒜 : Finset (Finset α))
+    (hne : coordCompression i j 𝒜 ≠ 𝒜) :
+    ∃ s, s ∈ (𝒜.filter fun s => i ∉ s ∧ j ∈ s) ∧
+      s ∉ ((coordCompression i j 𝒜).filter fun s => i ∉ s ∧ j ∈ s) := by
+  have hnotSub : ¬ 𝒜 ⊆ coordCompression i j 𝒜 := by
+    intro hsub
+    have hEq : 𝒜 = coordCompression i j 𝒜 := by
+      exact Finset.eq_of_subset_of_card_le hsub (by simpa [card_coordCompression i j 𝒜] using le_rfl)
+    exact hne hEq.symm
+  have hWitness : ∃ s, s ∈ 𝒜 ∧ s ∉ coordCompression i j 𝒜 := by
+    classical
+    by_contra hNo
+    apply hnotSub
+    intro s hsA
+    by_contra hsNotC
+    exact hNo ⟨s, hsA, hsNotC⟩
+  rcases hWitness with ⟨s, hsA, hsNotC⟩
+  refine ⟨s, ?_, ?_⟩
+  · have hsector :
+        i ∉ s ∧ j ∈ s :=
+      mem_sdiff_coordCompression_implies_mem_right (i := i) (j := j)
+        (𝒜 := 𝒜) (Finset.mem_sdiff.mpr ⟨hsA, hsNotC⟩)
+    exact Finset.mem_filter.mpr ⟨hsA, hsector.1, hsector.2⟩
+  · intro hs
+    exact hsNotC ((Finset.mem_filter.mp hs).1)
+
+theorem card_rightSector_coordCompression_lt_of_ne
+    (i j : α) (𝒜 : Finset (Finset α))
+    (hne : coordCompression i j 𝒜 ≠ 𝒜) :
+    #(((coordCompression i j 𝒜).filter fun s => i ∉ s ∧ j ∈ s))
+      < #((𝒜.filter fun s => i ∉ s ∧ j ∈ s)) := by
+  let 𝒞 := ((coordCompression i j 𝒜).filter fun s => i ∉ s ∧ j ∈ s)
+  let ℛ := (𝒜.filter fun s => i ∉ s ∧ j ∈ s)
+  have hsub : 𝒞 ⊆ ℛ := by
+    simpa [𝒞, ℛ] using rightSector_coordCompression_subset i j 𝒜
+  have hle : #𝒞 ≤ #ℛ := Finset.card_le_card hsub
+  have hne_mem : ∃ s, s ∈ ℛ ∧ s ∉ 𝒞 := by
+    simpa [𝒞, ℛ] using exists_mem_rightSector_sdiff_of_coordCompression_ne i j 𝒜 hne
+  have hneq : #𝒞 ≠ #ℛ := by
+    intro hEq
+    have hEqSet : 𝒞 = ℛ := by
+      exact Finset.eq_of_subset_of_card_le hsub (by simpa [hEq] using le_rfl)
+    rcases hne_mem with ⟨s, hsR, hsNotC⟩
+    exact hsNotC (hEqSet.symm ▸ hsR)
+  exact lt_of_le_of_ne hle hneq
 
 theorem card_upShadow_coordCompression_le (i j : α) (𝒜 : Finset (Finset α)) :
     #(∂⁺ (coordCompression i j 𝒜)) ≤ #(∂⁺ 𝒜) := by
