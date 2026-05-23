@@ -19,7 +19,7 @@ theorem real_cont_comp(f g : ℝ → ℝ)
   specialize hξ (g y) hδ
   exact hξ
 
-theorem real_cont_scale' (f : ℝ → ℝ) (a : ℝ)
+theorem real_cont_scale_non_zero' (f : ℝ → ℝ) (a : ℝ)
   (hf : realCont f) (ha: a ≠ 0):
   realCont ((fun y : ℝ => a * y) ∘ f) := by
   apply real_cont_comp
@@ -35,7 +35,22 @@ theorem real_cont_scale' (f : ℝ → ℝ) (a : ℝ)
       _ < |a| * (ε / |a|) := mul_lt_mul_of_pos_left hy (abs_pos.mpr ha)
       _ = ε := by field_simp [ha]
 
-theorem real_cont_scale (f : ℝ → ℝ) (a : ℝ)
+theorem real_cont_scale_non_zero (f : ℝ → ℝ) (a : ℝ)
   (hf : realCont f) (ha: a ≠ 0):
   realCont (fun x : ℝ => a * (f x)) := by
-  exact real_cont_scale' f a hf ha
+  exact real_cont_scale_non_zero' f a hf ha
+
+
+theorem real_cont_scale (f : ℝ → ℝ) (a : ℝ) (hf: realCont f):
+  realCont (fun x : ℝ => a * (f x)) := by
+  by_cases ha : a = 0
+  · subst a
+    unfold realCont
+    intro x ε hε
+    use 1
+    use by linarith
+    intro y hy
+    simpa using hε
+  · apply real_cont_scale_non_zero
+    · exact hf
+    · exact ha
