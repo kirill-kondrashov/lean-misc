@@ -20,22 +20,22 @@ theorem real_cont_comp(f g : ℝ → ℝ)
   exact hξ
 
 theorem real_cont_scale' (f : ℝ → ℝ) (a : ℝ)
-  (hf : realCont f) (ha: a > 0):
+  (hf : realCont f) (ha: a ≠ 0):
   realCont ((fun y : ℝ => a * y) ∘ f) := by
   apply real_cont_comp
   · exact hf
   · unfold realCont
     intro x ε hε
-    use ε / a
-    use div_pos hε ha
+    use ε / |a|
+    use div_pos hε (abs_pos.mpr ha)
     intro y hy
     calc
-      |a * x - a * y| = a * |x - y|
-      := by rw [← mul_sub, abs_mul, abs_of_pos ha]
-      _ < a * (ε / a) := mul_lt_mul_of_pos_left hy ha
-      _ = ε := by field_simp [ne_of_gt ha]
+      |a * x - a * y| = |a| * |x - y|
+      := by rw [← mul_sub, abs_mul]
+      _ < |a| * (ε / |a|) := mul_lt_mul_of_pos_left hy (abs_pos.mpr ha)
+      _ = ε := by field_simp [ha]
 
 theorem real_cont_scale (f : ℝ → ℝ) (a : ℝ)
-  (hf : realCont f) (ha: a > 0):
+  (hf : realCont f) (ha: a ≠ 0):
   realCont (fun x : ℝ => a * (f x)) := by
   exact real_cont_scale' f a hf ha
