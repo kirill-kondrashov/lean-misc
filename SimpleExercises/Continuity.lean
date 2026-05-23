@@ -58,17 +58,10 @@ theorem real_cont_scale (f : ℝ → ℝ) (a : ℝ) (hf: realCont f):
 theorem real_cont_linear_transform (f : ℝ → ℝ) (a b : ℝ)
   (hf: realCont f):
   realCont (fun x : ℝ => a*(f x) + b) := by
-  by_cases hb : b = 0
-  · subst b
-    simp
-    apply real_cont_scale
-    · exact hf
-  · apply real_cont_comp (fun y : ℝ => y + b) (fun x : ℝ => a * f x)
-    · apply real_cont_scale
-      · exact hf
-    · unfold realCont
-      intro x ε hε
-      use ε
-      use hε
-      intro y hy
-      simpa [add_sub_add_right_eq_sub] using hy
+  apply real_cont_comp (fun y : ℝ => y + b) (fun x : ℝ => a * f x)
+  · exact real_cont_scale f a hf
+  · unfold realCont
+    intro x ε hε
+    use ε, hε
+    intro y hy
+    simpa using hy
