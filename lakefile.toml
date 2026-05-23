@@ -1,6 +1,6 @@
 name = "tao_exercises"
 version = "0.1.0"
-defaultTargets = ["TaoExercises"]
+defaultTargets = ["TaoExercises", "SimpleExercises"]
 
 [[require]]
 name = "mathlib"
@@ -14,6 +14,9 @@ rev = "v4.27.0"
 
 [[lean_lib]]
 name = "TaoExercises"
+
+[[lean_lib]]
+name = "SimpleExercises"
 
 [[lean_exe]]
 name = "check_axioms"

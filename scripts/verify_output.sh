@@ -27,7 +27,7 @@ if [ $EXIT_CODE -ne 0 ]; then
 fi
 
 # Drop wrapper/build noise so README comparison stays stable.
-grep -Ev '^(info: \[root\]:|lake exe check_axioms$|make(\[[0-9]+\])?: (Entering|Leaving) directory|⚠ \[[0-9]+/[0-9]+\]|✔ \[[0-9]+/[0-9]+\]|warning: |Note: This linter can be disabled)' \
+grep -Ev '^(info: \[root\]:|lake exe check_axioms$|lake env bash \./scripts/check_axioms\.sh$|make(\[[0-9]+\])?: (Entering|Leaving) directory|⚠ \[[0-9]+/[0-9]+\]|✔ \[[0-9]+/[0-9]+\]|warning: |Note: This linter can be disabled)' \
   "$ACTUAL" \
   | sed '/^$/d' > actual_filtered.txt
 
