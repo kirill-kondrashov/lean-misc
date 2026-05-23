@@ -9,7 +9,7 @@ the extremal transport inequality for `r_3`.
 
 ## Status
 
-Progress: `█---` `1 / 4`
+Progress: `████` `4 / 4`
 
 ## Encoding Question
 
@@ -31,19 +31,28 @@ support one narrower direct-counting consequence, without pulling in a full prog
    - literature/import layer
    - extremal transport target
 
-2. `[ ]` Encode the import-facing extremal transport target cleanly.
+2. `[x]` Encode the import-facing extremal transport target cleanly.
    - avoid introducing a new `T3(A)` API
 
-3. `[ ]` Decide the next narrower direct-counting consequence.
+3. `[x]` Decide the next narrower direct-counting consequence.
    - likely a conditional direct density transport from subscale upper control
+   - note: `NOTES_problem142_k3_varnavides_conditional_density_transport_2026-03-09.md`
 
-4. `[ ]` Produce the encoding verdict.
+4. `[x]` Produce the encoding verdict.
    - either keep building this route
    - or close it if even the transport layer remains too coarse
+   - outcome: open the conditional density-transport cycle
+   - successor: `PLAN_erdos_problem_142_k3_varnavides_conditional_density_transport_2026-03-09.md`
 
 ## Current Verdict
 
 ```text
-The active work is now concrete:
-integrate the source-backed transport inequality as the first repo-facing Varnavides object.
+Complete.
+
+The source-backed transport inequality is now encoded as the first repo-facing Varnavides object.
+The next narrower direct-counting debt is the conditional density transport from subscale upper
+control.
+
+The active successor cycle is now
+`PLAN_erdos_problem_142_k3_varnavides_conditional_density_transport_2026-03-09.md`.
 ```

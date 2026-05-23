@@ -5,6 +5,9 @@ Date: 2026-03-08
 Revision: reset the active program from wrapper/regression expansion to mathematical debt
 reduction.
 
+Second revision: convert the exhausted restart chain into a dormant governance program after the
+Varnavides conditional density-transport branch closed.
+
 ## Objective
 
 Replace the current self-extending packaging chain by a math-first research program with explicit
@@ -24,7 +27,7 @@ what is the next action that could actually change the mathematical debt profile
 
 ## Status
 
-Progress: `███████` `7 / 7`
+Progress: `██████████` `10 / 10`
 
 ## What This Revises
 
@@ -55,64 +58,57 @@ do not open another cycle whose only effect is:
 - or another theorem-surface alias.
 ```
 
-## Active Program
+## Current Program
 
-### Track A. Frontier debt ledger
-
-Freeze the actual remaining debt list and rank it by mathematical leverage:
-
-1. `k = 3` matched-profile strengthening beyond the audited `β = 1 / 12` split route;
-2. `k = 4` profile-dominance / coupling debt;
-3. `k ≥ 5` profile-dominance / coupling debt;
-4. alternative integer-transfer or structured-object route not covered by the current barrier
-   template.
-
-Deliverable:
+### Program Mode
 
 ```text
-one debt ledger with:
-- source status,
-- exact theorem target,
-- reason it matters,
-- reason current evidence does or does not support it.
+dormant, with explicit admission gates for any future restart.
 ```
 
-### Track B. Source-first audit before more Lean packaging
+This file is no longer the driver of an active theorem-construction chain.
+It is the governance surface that decides whether a new chain is admissible at all.
 
-Pick exactly one live debt from Track A and run a source-first audit.
+Revision note:
 
-Allowed outputs:
+- `NOTES_problem142_post_varnavides_program_revision_2026-03-09.md`
 
-1. audited positive import target;
-2. audited negative verdict;
-3. precise statement that the repo's present theorem target is mis-specified.
+### Track A. Benchmark-surviving transport search
 
-Disallowed output:
+Reopen the Varnavides branch only if a concrete upper benchmark survives transport at a proper
+subscale without circular same-scale reuse.
+
+Allowed output:
 
 ```text
-more theorem-surface packaging without new mathematical content.
+one exact benchmark input whose transported consequence is strictly smaller than the benchmark
+theorem itself.
 ```
 
-### Track C. Negative-route scope control
+### Track B. Exact-debt admission gate
 
-Keep the negative `k = 3` route live only as a scoped theorem about the present architecture.
+Any future restart must first identify one exact smaller debt with clear downstream consequence.
 
-The program must continue to ask:
+Disallowed admission candidates:
 
 ```text
-what exact hypotheses does the barrier theorem really need,
-and what would count as a real escape rather than a cosmetic reparameterization?
+- a generic reduction wrapper;
+- a same-scale reformulation of an existing theorem;
+- a vague “choose M(N)” discussion without one exact target statement.
 ```
 
-This prevents the negative route from becoming self-sealing.
+### Track C. External source watchlist
 
-### Track D. Lean work gated by math
+Only keep short source-first watchlists that could actually trip Track A or Track B:
 
-Lean-side work continues only after Tracks A-C produce one of:
+1. stronger quantitative Varnavides / supersaturation inputs for `r_3`;
+2. near-extremal structure or stability results for 3-AP-free sets;
+3. transport or ambient-model inputs that change the decisive loss profile.
 
-1. a new source-backed theorem target;
-2. a revised no-go theorem;
-3. a corrected route interface.
+### Track D. Lean quarantine
+
+No new Lean/checker/README/theorem-surface cycle is active unless Tracks A-C first produce an
+admissible new debt or an audited source hit.
 
 ## Milestones
 
@@ -139,37 +135,44 @@ Lean-side work continues only after Tracks A-C produce one of:
    - completed as:
      `PLAN_erdos_problem_142_kge5_target_correction_2026-03-08.md`
 
+8. `[x]` Revise the top-level program again after the Varnavides branch closed.
+   - note: `NOTES_problem142_post_varnavides_program_revision_2026-03-09.md`
+
+9. `[x]` Open an admission-layer successor instead of reopening theorem construction directly.
+   - successor: `PLAN_erdos_problem_142_restart_admission_program_2026-03-09.md`
+
+10. `[x]` Complete the admission-layer successor and return to explicit dormancy.
+    - note: `NOTES_problem142_restart_admission_current_candidates_verdict_2026-03-09.md`
+
 ## Current Active Cycle
 
-- `PLAN_erdos_problem_142_k3_varnavides_extremal_transport_encoding_2026-03-09.md`
+- `none`
 
 ## Current Verdict
 
 ```text
-The previous chain improved honesty and public structure, but it no longer deserves to be called
-the active research program.
+The original March 8 revision succeeded at its intended reset: it stopped wrapper drift and forced
+math-first debt reduction.
 
-The revised program exhausted its original live debt cycles under the audited source set.
+That program, its route-generation successor, and the post-dormancy Varnavides restart are now all
+historically complete.
 
-Its successor is now explicit:
-the route-generation program.
+So this file has changed role.
+It is now the governance layer for future restarts, not a live theorem-building agenda.
 
-That program also reached dormancy.
-The active successor after that dormant endpoint is now:
-the post-dormancy exact-debt extraction program.
+The honest current state is:
+  no active theorem-construction cycle,
+  one valid imported Varnavides reduction object in reserve,
+  no admissible smaller downstream debt yet extracted from the current benchmark set,
+  and the admission-layer successor has now also closed with a no-go verdict.
 
-That extraction program succeeded on its first cluster and opened a new active successor:
-the quantitative Varnavides import route.
+The only honest theorem-route reopen channels are still:
+  a benchmark input that survives Varnavides transport without circular same-scale reuse,
+  a smaller direct-counting intermediate debt,
+or
+  an exact smaller debt outside the exhausted family.
 
-That route is now also localized:
-its first repository-facing object is the literature-layer extremal transport target for `r_3`.
-
-So the honest current state is:
-  no reused active theorem-construction cycle from the old debt set,
-  the route-generation successor has exhausted its active branches,
-  and the only active restart is now the Varnavides extremal-transport encoding route.
-
-Its only acceptable success criterion is:
-integrate that transport target cleanly enough to determine whether it supports one narrower
-direct-counting theorem-generation chain.
+The admission-layer successor is now complete as well.
+So the top-level program is back at explicit dormancy:
+`Current Active Cycle: none`.
 ```
