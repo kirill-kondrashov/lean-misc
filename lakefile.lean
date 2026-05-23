@@ -4,6 +4,8 @@ open Lake DSL
 package tao_exercises where
   @[default_target]
   lean_lib TaoExercises
+  @[default_target]
+  lean_lib SimpleExercises
   lean_lib ErdosProblems
 
 require mathlib from git

@@ -64,7 +64,7 @@ GitHub renders the old table too narrowly, so this section uses a list instead.
 | Refresh cache + build + check | `make auto-build` |
 | Build docs | `make docs` |
 | Direct `lake` build | `lake build` |
-| Direct checker run | `lake exe check_axioms` |
+| Direct checker run | `lake env bash ./scripts/check_axioms.sh` |
 
 ## Verification policy
 
@@ -72,6 +72,7 @@ All solved exercises are checked to ensure they:
 
 - do not use `sorry`
 - depend only on the base axioms `propext`, `Quot.sound`, and `Classical.choice`
+- build the top-level `SimpleExercises` library, including `SimpleExercises.Continuity`
 - build the top-level `ErdosProblems` library, including the `Erdos1` modules
 - include the checked `Erdos1` theorems
   (`Erdos1.erdos_1.variants.weaker`, `Erdos1.choose_middle_isEquivalent`,
@@ -82,9 +83,12 @@ All solved exercises are checked to ensure they:
   (`Erdos142.erdos_problem_142_explicit_iff_deepmind`)
 - keep checker output explicit about temporary axiom frontier debt where present
 
-The checker now imports the top-level `ErdosProblems` library, so `Erdos1` is built as part of
-`make check`. It currently reports two `Erdos1` theorems that are fully local and base-axiom
-clean: `Erdos1.erdos_1.variants.weaker` and `Erdos1.choose_middle_isEquivalent`.
+The checker now imports the top-level `SimpleExercises` and `ErdosProblems` libraries, so
+`SimpleExercises.Continuity` and `Erdos1` are built as part of `make check`.
+`SimpleExercises.Continuity` now contributes the definition `realCont` and the composition theorem
+`real_cont_comp`; both are checked and currently require no axioms at all.
+It also reports two `Erdos1` theorems that are fully local and base-axiom clean:
+`Erdos1.erdos_1.variants.weaker` and `Erdos1.choose_middle_isEquivalent`.
 It also reports the open-problem wrapper `Erdos1.erdos_1_solution_axiom`, with the placeholder
 axiom `Erdos1.erdos_1` treated as temporary allowed axiom debt in the same style as the current
 `Erdos142` frontier checks.
@@ -159,6 +163,10 @@ Temporarily allowed non-base axioms (must be proved later):
 - Erdos142.splitGap_k3_upper_exponent_gt_half_frontier
 - Erdos142.splitGap_k4_profile_dominance_frontier
 - Erdos142.splitGap_kge5_profile_dominance_frontier
+✅ The proof of 'realCont' is free of 'sorry' and uses only base axioms.
+Axioms used:
+✅ The proof of 'real_cont_comp' is free of 'sorry' and uses only base axioms.
+Axioms used:
 ✅ All checked items are free of 'sorry'. Temporary Erdős #1/#142 axiom debt is explicitly allowed.
 ```
 
