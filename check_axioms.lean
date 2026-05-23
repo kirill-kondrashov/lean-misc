@@ -1,5 +1,6 @@
 import TaoExercises.TaoBook.Chapter2.Exercise2_3
 import TaoExercises.TaoBook.Chapter2.Exercise2_6
+import SimpleExercises
 import ErdosProblems
 import Lean
 
@@ -20,6 +21,9 @@ def checkedTheorems : List Name :=
   , ``Erdos142.erdos_problem_142_solution_axiom
   , ``Erdos142.erdos_problem_142_of_mainSplitGap_and_frontier
   ]
+
+def checkedModules : List String :=
+  [ "SimpleExercises.Continuity" ]
 
 def baseAxioms : Array Name :=
   #[``propext, ``Quot.sound, ``Classical.choice]
@@ -68,11 +72,31 @@ def checkOne (env : Environment) (name : Name) : IO CheckResult := do
 
   pure ⟨ok, usedTemporary⟩
 
+def isCheckableModuleDecl (env : Environment) (name : Name) : Bool :=
+  if name.isInternalDetail then
+    false
+  else
+    match env.find? name with
+    | some (.defnInfo _) | some (.thmInfo _) | some (.axiomInfo _) | some (.opaqueInfo _) => true
+    | _ => false
+
+def moduleDecls (env : Environment) (moduleName : String) : Array Name :=
+  env.const2ModIdx.fold
+      (fun acc declName modIdx =>
+        if env.header.moduleNames[modIdx.toNat]!.toString == moduleName &&
+            isCheckableModuleDecl env declName then
+          acc.push declName
+        else
+          acc)
+      #[]
+    |>.qsort Name.lt
+
 def main : IO UInt32 := do
   initSearchPath (← findSysroot)
   let env ← importModules
     #[ { module := `TaoExercises.TaoBook.Chapter2.Exercise2_3 }
      , { module := `TaoExercises.TaoBook.Chapter2.Exercise2_6 }
+     , { module := `SimpleExercises }
      , { module := `ErdosProblems }
      ]
     {}
@@ -84,6 +108,15 @@ def main : IO UInt32 := do
       let result ← checkOne env name
       allOk := allOk && result.ok
       anyTemporary := anyTemporary || result.usedTemporary
+    for moduleName in checkedModules do
+      let decls := moduleDecls env moduleName
+      if decls.isEmpty then
+        IO.println s!"✅ The module '{moduleName}' is included in the checker and currently has no checkable declarations."
+      else
+        for declName in decls do
+          let result ← checkOne env declName
+          allOk := allOk && result.ok
+          anyTemporary := anyTemporary || result.usedTemporary
 
     if allOk then
       if anyTemporary then

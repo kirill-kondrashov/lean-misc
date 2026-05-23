@@ -72,6 +72,7 @@ All solved exercises are checked to ensure they:
 
 - do not use `sorry`
 - depend only on the base axioms `propext`, `Quot.sound`, and `Classical.choice`
+- build the top-level `SimpleExercises` library, including `SimpleExercises.Continuity`
 - build the top-level `ErdosProblems` library, including the `Erdos1` modules
 - include the checked `Erdos1` theorems
   (`Erdos1.erdos_1.variants.weaker`, `Erdos1.choose_middle_isEquivalent`,
@@ -82,9 +83,11 @@ All solved exercises are checked to ensure they:
   (`Erdos142.erdos_problem_142_explicit_iff_deepmind`)
 - keep checker output explicit about temporary axiom frontier debt where present
 
-The checker now imports the top-level `ErdosProblems` library, so `Erdos1` is built as part of
-`make check`. It currently reports two `Erdos1` theorems that are fully local and base-axiom
-clean: `Erdos1.erdos_1.variants.weaker` and `Erdos1.choose_middle_isEquivalent`.
+The checker now imports the top-level `SimpleExercises` and `ErdosProblems` libraries, so
+`SimpleExercises.Continuity` and `Erdos1` are built as part of `make check`.
+`SimpleExercises.Continuity` is currently empty, so the checker reports that it has no checkable
+declarations yet. It also reports two `Erdos1` theorems that are fully local and base-axiom clean:
+`Erdos1.erdos_1.variants.weaker` and `Erdos1.choose_middle_isEquivalent`.
 It also reports the open-problem wrapper `Erdos1.erdos_1_solution_axiom`, with the placeholder
 axiom `Erdos1.erdos_1` treated as temporary allowed axiom debt in the same style as the current
 `Erdos142` frontier checks.
@@ -159,6 +162,7 @@ Temporarily allowed non-base axioms (must be proved later):
 - Erdos142.splitGap_k3_upper_exponent_gt_half_frontier
 - Erdos142.splitGap_k4_profile_dominance_frontier
 - Erdos142.splitGap_kge5_profile_dominance_frontier
+✅ The module 'SimpleExercises.Continuity' is included in the checker and currently has no checkable declarations.
 ✅ All checked items are free of 'sorry'. Temporary Erdős #1/#142 axiom debt is explicitly allowed.
 ```
 
