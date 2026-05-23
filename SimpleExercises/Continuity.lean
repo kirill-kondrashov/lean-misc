@@ -26,14 +26,14 @@ theorem real_cont_scale_non_zero' (f : ℝ → ℝ) (a : ℝ)
   · exact hf
   · unfold realCont
     intro x ε hε
+    have hapos : 0 < |a| := abs_pos.mpr ha
     use ε / |a|
-    use div_pos hε (abs_pos.mpr ha)
+    use div_pos hε hapos
     intro y hy
-    calc
-      |a * x - a * y| = |a| * |x - y|
-      := by rw [← mul_sub, abs_mul]
-      _ < |a| * (ε / |a|) := mul_lt_mul_of_pos_left hy (abs_pos.mpr ha)
-      _ = ε := by field_simp [ha]
+    have h : |a| * |x - y| < |a| * (ε / |a|) :=
+      mul_lt_mul_of_pos_left hy hapos
+    have hε' : |a| * (ε / |a|) = ε := by field_simp [ha]
+    simpa [← mul_sub, abs_mul, hε'] using h
 
 theorem real_cont_scale_non_zero (f : ℝ → ℝ) (a : ℝ)
   (hf : realCont f) (ha: a ≠ 0):
@@ -47,13 +47,10 @@ theorem real_cont_scale (f : ℝ → ℝ) (a : ℝ) (hf: realCont f):
   · subst a
     unfold realCont
     intro x ε hε
-    use 1
-    use by linarith
+    use ε, hε
     intro y hy
     simpa using hε
-  · apply real_cont_scale_non_zero
-    · exact hf
-    · exact ha
+  · exact real_cont_scale_non_zero f a hf ha
 
 theorem real_cont_linear_transform (f : ℝ → ℝ) (a b : ℝ)
   (hf: realCont f):
