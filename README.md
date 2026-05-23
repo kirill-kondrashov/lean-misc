@@ -85,8 +85,9 @@ All solved exercises are checked to ensure they:
 
 The checker now imports the top-level `SimpleExercises` and `ErdosProblems` libraries, so
 `SimpleExercises.Continuity` and `Erdos1` are built as part of `make check`.
-`SimpleExercises.Continuity` is currently empty, so the checker reports that it has no checkable
-declarations yet. It also reports two `Erdos1` theorems that are fully local and base-axiom clean:
+`SimpleExercises.Continuity` now contributes the definition `realCont` and the composition theorem
+`real_cont_comp`; both are checked and currently require no axioms at all.
+It also reports two `Erdos1` theorems that are fully local and base-axiom clean:
 `Erdos1.erdos_1.variants.weaker` and `Erdos1.choose_middle_isEquivalent`.
 It also reports the open-problem wrapper `Erdos1.erdos_1_solution_axiom`, with the placeholder
 axiom `Erdos1.erdos_1` treated as temporary allowed axiom debt in the same style as the current
@@ -162,7 +163,10 @@ Temporarily allowed non-base axioms (must be proved later):
 - Erdos142.splitGap_k3_upper_exponent_gt_half_frontier
 - Erdos142.splitGap_k4_profile_dominance_frontier
 - Erdos142.splitGap_kge5_profile_dominance_frontier
-✅ The module 'SimpleExercises.Continuity' is included in the checker and currently has no checkable declarations.
+✅ The proof of 'realCont' is free of 'sorry' and uses only base axioms.
+Axioms used:
+✅ The proof of 'real_cont_comp' is free of 'sorry' and uses only base axioms.
+Axioms used:
 ✅ All checked items are free of 'sorry'. Temporary Erdős #1/#142 axiom debt is explicitly allowed.
 ```
 
