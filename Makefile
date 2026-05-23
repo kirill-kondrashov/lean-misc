@@ -14,7 +14,7 @@ build:
 
 # Check axioms
 check:
-	lake exe check_axioms
+	lake env bash ./scripts/check_axioms.sh
 
 # Verify check output matches README's expected output block
 verify:

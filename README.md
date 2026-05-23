@@ -64,7 +64,7 @@ GitHub renders the old table too narrowly, so this section uses a list instead.
 | Refresh cache + build + check | `make auto-build` |
 | Build docs | `make docs` |
 | Direct `lake` build | `lake build` |
-| Direct checker run | `lake exe check_axioms` |
+| Direct checker run | `lake env bash ./scripts/check_axioms.sh` |
 
 ## Verification policy
 
