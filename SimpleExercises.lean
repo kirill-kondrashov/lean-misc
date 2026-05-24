@@ -1,2 +1,2 @@
 import SimpleExercises.Continuity
-import SimpleExercises.Groups
+import SimpleExercises.HeisenbergGroup
