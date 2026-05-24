@@ -94,8 +94,9 @@ All solved exercises are checked to ensure they:
   (`Erdos142.erdos_problem_142_explicit_iff_deepmind`)
 - keep checker output explicit about temporary axiom frontier debt where present
 
-The checker now imports the top-level `SimpleExercises`, `Groups`, and `ErdosProblems` libraries, so
-`SimpleExercises.Continuity`, `Groups.HeisenbergGroup`, and `Erdos1` are built as part of `make check`.
+The checker now builds the top-level `Groups` library and imports the checked
+`SimpleExercises` and `ErdosProblems` proof modules, so `Groups.HeisenbergGroup`,
+`SimpleExercises.Continuity`, and `Erdos1` are built as part of `make check`.
 `SimpleExercises.Continuity` now contributes the definition `realCont` and the composition theorem
 `real_cont_comp`; both are checked and currently require no axioms at all.
 It also reports two `Erdos1` theorems that are fully local and base-axiom clean:
