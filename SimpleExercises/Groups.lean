@@ -15,8 +15,13 @@ inductive Generator where
   | y
   deriving DecidableEq
 
-local notation "X" => (FreeGroup.of Generator.x : FreeGroup Generator)
-local notation "Y" => (FreeGroup.of Generator.y : FreeGroup Generator)
+/-- The free-group word corresponding to the generator `x`. -/
+abbrev X : FreeGroup Generator :=
+  FreeGroup.of Generator.x
+
+/-- The free-group word corresponding to the generator `y`. -/
+abbrev Y : FreeGroup Generator :=
+  FreeGroup.of Generator.y
 
 /-- The discrete Heisenberg group, presented as
 `⟨x, y | [[x, y], x] = 1, [[x, y], y] = 1⟩`. -/
