@@ -33,6 +33,7 @@ def checkedImports : Array Import :=
   #[ { module := dotted "TaoExercises.TaoBook.Chapter2.Exercise2_3" }
    , { module := dotted "TaoExercises.TaoBook.Chapter2.Exercise2_6" }
    , { module := dotted "SimpleExercises.Continuity" }
+   , { module := dotted "Groups.HeisenbergGroup" }
    , { module := dotted "ErdosProblems.Problem1Literature" }
    , { module := dotted "ErdosProblems.Problem142Gap" }
    ]
@@ -45,6 +46,7 @@ def temporaryAllowedAxioms : Array Name :=
    , dotted "Erdos142.splitGap_k3_upper_exponent_gt_half_frontier"
    , dotted "Erdos142.splitGap_k4_profile_dominance_frontier"
    , dotted "Erdos142.splitGap_kge5_profile_dominance_frontier"
+   , dotted "Heisenberg.theorem_1_1"
    ]
 
 def timeIO (enabled : Bool) (label : String) (action : IO α) : IO α := do

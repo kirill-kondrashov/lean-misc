@@ -36,7 +36,7 @@ run_decl() {
   esac
 }
 
-lake build check_axioms >/dev/null
+lake build Groups check_axioms >/dev/null
 
 all_ok=1
 any_temporary=0
@@ -46,19 +46,7 @@ for decl in "${THEOREMS[@]}"; do
 done
 
 for module_name in "${MODULES[@]}"; do
-  case "$module_name" in
-    "SimpleExercises.Continuity")
-      module_file="SimpleExercises/Continuity.lean"
-      ;;
-    *)
-      echo "No declaration scanner configured for module '$module_name'." >&2
-      exit 1
-      ;;
-  esac
-  mapfile -t decls < <(
-    grep -E '^(def|theorem|lemma|axiom|opaque)[[:space:]]+[A-Za-z0-9_.]+' "$module_file" \
-      | sed -E 's/^(def|theorem|lemma|axiom|opaque)[[:space:]]+([A-Za-z0-9_.]+).*/\2/'
-  )
+  mapfile -t decls < <("$BIN" --list-module-decls "$module_name")
   if [ "${#decls[@]}" -eq 0 ]; then
     echo "✅ The module '$module_name' is included in the checker and currently has no checkable declarations."
   else

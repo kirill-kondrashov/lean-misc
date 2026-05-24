@@ -8,13 +8,16 @@ after <https://github.com/kirill-kondrashov/yoccos-theorem>.
 ## At a glance
 
 - Main active fronts:
-  [Erdős #1](#erdős-1) and [Erdős #142](#erdős-142)
+  [Erdős #1](#erdős-1), [Erdős #142](#erdős-142), and
+  [the Heisenberg-group geodesics formalization](#heisenberg-group-geodesics)
 - Toolchain:
   Lean `v4.27.0`, mathlib `v4.27.0`
 - Main entrypoint for the current Erdős #1 frontier:
   [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean)
 - Main entrypoint for the current Erdős #142 frontier:
   [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean)
+- Main entrypoint for the Heisenberg-group geodesics formalization:
+  [Groups/HeisenbergGroup.lean](./Groups/HeisenbergGroup.lean)
 
 ## Quick links
 
@@ -25,6 +28,7 @@ after <https://github.com/kirill-kondrashov/yoccos-theorem>.
 - [CI workflow](#ci-workflow-github-actions)
 - [Erdős #1](#erdős-1)
 - [Erdős #142](#erdős-142)
+- [Heisenberg group geodesics](#heisenberg-group-geodesics)
 
 ## Repository map
 
@@ -45,6 +49,12 @@ GitHub renders the old table too narrowly, so this section uses a list instead.
 - `ErdosProblems` (`Erdos142`)
   Erdős #142 statement, explicit-profile strengthening, gap decomposition, and the current frontier packages.
   Main file: [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean)
+
+- `Groups.HeisenbergGroup`
+  Formalization work for the discrete Heisenberg group and its geodesic language, following
+  Alekseev--Magdiev, "The language of geodesics for the discrete Heisenberg group"
+  (<https://arxiv.org/pdf/1905.03226>).
+  Main file: [Groups/HeisenbergGroup.lean](./Groups/HeisenbergGroup.lean)
 
 ## Toolchain and dependencies
 
@@ -73,6 +83,7 @@ All solved exercises are checked to ensure they:
 - do not use `sorry`
 - depend only on the base axioms `propext`, `Quot.sound`, and `Classical.choice`
 - build the top-level `SimpleExercises` library, including `SimpleExercises.Continuity`
+- build the top-level `Groups` library, including `Groups.HeisenbergGroup`
 - build the top-level `ErdosProblems` library, including the `Erdos1` modules
 - include the checked `Erdos1` theorems
   (`Erdos1.erdos_1.variants.weaker`, `Erdos1.choose_middle_isEquivalent`,
@@ -83,8 +94,8 @@ All solved exercises are checked to ensure they:
   (`Erdos142.erdos_problem_142_explicit_iff_deepmind`)
 - keep checker output explicit about temporary axiom frontier debt where present
 
-The checker now imports the top-level `SimpleExercises` and `ErdosProblems` libraries, so
-`SimpleExercises.Continuity` and `Erdos1` are built as part of `make check`.
+The checker now imports the top-level `SimpleExercises`, `Groups`, and `ErdosProblems` libraries, so
+`SimpleExercises.Continuity`, `Groups.HeisenbergGroup`, and `Erdos1` are built as part of `make check`.
 `SimpleExercises.Continuity` now contributes the definition `realCont` and the composition theorem
 `real_cont_comp`; both are checked and currently require no axioms at all.
 It also reports two `Erdos1` theorems that are fully local and base-axiom clean:
@@ -94,6 +105,19 @@ axiom `Erdos1.erdos_1` treated as temporary allowed axiom debt in the same style
 `Erdos142` frontier checks.
 The exact-value theorems proved by `native_decide` are still excluded from this checker because the
 current policy treats `Lean.ofReduceBool` / `Lean.trustCompiler` as non-base axioms.
+
+## Heisenberg Group Geodesics
+
+The `Groups` library is the home for formalization work around geodesics in finitely generated
+groups. The current focus is `Groups.HeisenbergGroup`, which sets up the standard presentation of
+the discrete Heisenberg group and the vocabulary needed for finite and one-sided infinite geodesic
+words.
+
+This track is aimed at formalizing results from Ilya Alekseev and Ruslan Magdiev,
+"The language of geodesics for the discrete Heisenberg group" (arXiv:1905.03226). The present file
+also records an imported theorem statement for the earlier one-sided infinite-geodesic
+classification used as background; that declaration is explicit axiom debt and is kept visible to
+the checker.
 
 Run:
 
