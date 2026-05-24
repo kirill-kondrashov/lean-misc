@@ -33,7 +33,6 @@ def checkedImports : Array Import :=
   #[ { module := dotted "TaoExercises.TaoBook.Chapter2.Exercise2_3" }
    , { module := dotted "TaoExercises.TaoBook.Chapter2.Exercise2_6" }
    , { module := dotted "SimpleExercises.Continuity" }
-   , { module := dotted "Groups.HeisenbergGroup" }
    , { module := dotted "ErdosProblems.Problem1Literature" }
    , { module := dotted "ErdosProblems.Problem142Gap" }
    ]
