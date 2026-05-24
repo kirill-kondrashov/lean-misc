@@ -5,7 +5,7 @@ namespace Heisenberg
 /-!
 # The discrete Heisenberg group
 
-This file defines the discrete Heisenberg group by the two-generator presentation
+Discrete Heisenberg group by the two-generator presentation
 `⟨x, y | [[x, y], x] = 1, [[x, y], y] = 1⟩`.
 -/
 
@@ -15,22 +15,12 @@ inductive Generator where
   | y
   deriving DecidableEq
 
-/-- The relators `[[x, y], x]` and `[[x, y], y]` in the free group on `x` and `y`. -/
-def relators : Set (FreeGroup Generator) :=
-  {⁅⁅FreeGroup.of Generator.x, FreeGroup.of Generator.y⁆, FreeGroup.of Generator.x⁆,
-    ⁅⁅FreeGroup.of Generator.x, FreeGroup.of Generator.y⁆, FreeGroup.of Generator.y⁆}
+local notation "X" => (FreeGroup.of Generator.x : FreeGroup Generator)
+local notation "Y" => (FreeGroup.of Generator.y : FreeGroup Generator)
 
 /-- The discrete Heisenberg group, presented as
 `⟨x, y | [[x, y], x] = 1, [[x, y], y] = 1⟩`. -/
 abbrev Group : Type :=
-  PresentedGroup relators
-
-/-- The image of the generator `x` in the discrete Heisenberg group. -/
-abbrev x : Group :=
-  PresentedGroup.of Generator.x
-
-/-- The image of the generator `y` in the discrete Heisenberg group. -/
-abbrev y : Group :=
-  PresentedGroup.of Generator.y
+  PresentedGroup ({⁅⁅X, Y⁆, X⁆, ⁅⁅X, Y⁆, Y⁆} : Set (FreeGroup Generator))
 
 end Heisenberg
