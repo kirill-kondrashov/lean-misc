@@ -97,8 +97,9 @@ All solved exercises are checked to ensure they:
 The checker now builds the top-level `Groups` library and imports the checked
 `SimpleExercises` and `ErdosProblems` proof modules, so `Groups.HeisenbergGroup`,
 `SimpleExercises.Continuity`, and `Erdos1` are built as part of `make check`.
-`SimpleExercises.Continuity` now contributes the definition `realCont` and the composition theorem
-`real_cont_comp`; both are checked and currently require no axioms at all.
+`SimpleExercises.Continuity` contributes the local `RealCont` API, including composition,
+affine transformations, sums, products, and polynomial evaluation; these declarations are checked
+and currently require no non-base axioms.
 It also reports two `Erdos1` theorems that are fully local and base-axiom clean:
 `Erdos1.erdos_1.variants.weaker` and `Erdos1.choose_middle_isEquivalent`.
 It also reports the open-problem wrapper `Erdos1.erdos_1_solution_axiom`, with the placeholder
@@ -188,10 +189,34 @@ Temporarily allowed non-base axioms (must be proved later):
 - Erdos142.splitGap_k3_upper_exponent_gt_half_frontier
 - Erdos142.splitGap_k4_profile_dominance_frontier
 - Erdos142.splitGap_kge5_profile_dominance_frontier
-✅ The proof of 'realCont' is free of 'sorry' and uses only base axioms.
+✅ The proof of 'RealCont' is free of 'sorry' and uses only base axioms.
 Axioms used:
-✅ The proof of 'real_cont_comp' is free of 'sorry' and uses only base axioms.
+- propext
+- Quot.sound
+- Classical.choice
+✅ The proof of 'comp' is free of 'sorry' and uses only base axioms.
 Axioms used:
+✅ The proof of 'const_mul_nonzero_comp' is free of 'sorry' and uses only base axioms.
+Axioms used:
+✅ The proof of 'const_mul_nonzero' is free of 'sorry' and uses only base axioms.
+Axioms used:
+✅ The proof of 'const_mul' is free of 'sorry' and uses only base axioms.
+Axioms used:
+✅ The proof of 'const_mul_add' is free of 'sorry' and uses only base axioms.
+Axioms used:
+✅ The proof of 'const' is free of 'sorry' and uses only base axioms.
+Axioms used:
+✅ The proof of 'id' is free of 'sorry' and uses only base axioms.
+Axioms used:
+✅ The proof of 'add' is free of 'sorry' and uses only base axioms.
+Axioms used:
+✅ The proof of 'mul' is free of 'sorry' and uses only base axioms.
+Axioms used:
+✅ The proof of 'RealCont.polynomial_eval_comp' is free of 'sorry' and uses only base axioms.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
 ✅ All checked items are free of 'sorry'. Temporary Erdős #1/#142 axiom debt is explicitly allowed.
 ```
 
