@@ -34,6 +34,24 @@ reduces this to a concrete enumeration problem involving prefixes of dead-end
 words and minimal-perimeter polyominoes, but it does not by itself give the
 generating function.
 
+There is also a related endpoint-counting literature for geodesics in the
+standard Heisenberg generators. Vershik-Malyutin [VM'19, Theorem 1] prove an
+asymptotic stability result for the number $\dim(g)$ of shortest paths from the
+identity to a positive-cone element:
+
+> $\frac{\dim([x,y]^{k+1}y^nx^m)}{\dim([x,y]^ky^nx^m)} \to 1.$
+
+Malyutin [M'23] summarizes the Young-diagram interpretation behind this:
+
+> the number of geodesic paths between two given points is equal to the number
+> of restricted partitions
+
+These results concern geodesics with a fixed endpoint, especially in the positive
+cone, so they do not directly determine the all-word series
+$\Gamma_{\mathrm{geo}}(z)$. They do, however, point to the same restricted
+partition and Young-diagram enumeration that one would have to control in a
+full solution.
+
 This is the Heisenberg-specific version of a broader formal-geodesic-growth
 question raised by Brönnimann [Bro'16, Appendix A, Question 3]:
 
@@ -104,6 +122,12 @@ above as a separate and natural enumeration problem.
 - [VM'17] A. M. Vershik and A. V. Malyutin, "Infinite Geodesics in the Discrete
    Heisenberg Group." [Local PDF](../refs/znsl6495.pdf),
    [MathNet](https://www.mathnet.ru/eng/znsl6495).
+- [VM'19] A. M. Vershik and A. V. Malyutin, "Asymptotics of the Number of
+   Geodesics in the Discrete Heisenberg Group."
+   [Local PDF](../refs/vershik_malyutin_asymptotic_geodesics_heisenberg_2018.pdf).
+- [M'23] A. Malyutin, "The (Discrete) Heisenberg Group and (Restricted)
+   Young's Lattices."
+   [Local PDF](../refs/malyutin_heisenberg_young_lattices_2023.pdf).
 - [Bro'16] J. M. Brönnimann, "Geodesic Growth of Groups."
    [Local PDF](../refs/bronnimann_geodesic_growth_of_groups_2016.pdf),
    [University of Neuchatel record](https://libra.unine.ch/entities/publication/26df3766-1b6c-47db-8f96-d75aa5cbd5db).
