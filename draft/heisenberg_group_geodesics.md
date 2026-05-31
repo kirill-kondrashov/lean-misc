@@ -114,30 +114,85 @@ This settles the broad search for a non-rational geodesic-growth example with
 solvable word problem, but it leaves the standard discrete Heisenberg series
 above as a separate and natural enumeration problem.
 
+## Formal Question
+
+Let
+
+$$
+\operatorname{Geo}_S =
+\{w \in S^\ast \mid |w| = d_S(1,\overline w)\}
+$$
+
+be the full geodesic language of $\mathbb H(\mathbb Z)$, where
+$S = \{a,a^{-1},b,b^{-1}\}$ and $\overline w$ denotes the element represented by
+$w$. Let
+
+$$
+\operatorname{DE}_S =
+\{w \in \operatorname{Geo}_S \mid
+   \overline w = [a,b]^k \text{ for some } k \in \mathbb Z \setminus \{0\}\}
+$$
+
+be the language of dead-end words. Combining [AM'19, Proposition 1.2] with
+[AM'19, Theorem 1.3] gives the exact language identity
+
+$$
+\operatorname{Geo}_S = \operatorname{Pref}(\operatorname{DE}_S),
+$$
+
+where $\operatorname{Pref}(L)$ denotes the set of finite prefixes of words in
+$L$. By [AM'19, Proposition 1.6], $\operatorname{DE}_S$ is equivalently the
+language read on oriented boundaries of minimal-perimeter polyominoes whose
+boundary contains the origin. Thus the concrete formal question is:
+
+$$
+\text{Is }
+\Gamma_{\mathrm{geo}}(z)
+=
+\sum_{n \ge 0}
+\#\bigl(\operatorname{Pref}(\operatorname{DE}_S) \cap S^n\bigr)z^n
+\text{ a rational function in } z?
+$$
+
+Equivalently, does the sequence
+
+$$
+\gamma(n)=\#\bigl(\operatorname{Pref}(\operatorname{DE}_S) \cap S^n\bigr)
+$$
+
+satisfy an eventual linear recurrence with constant coefficients?
+
+## Strategy Hypotheses
+
+The most optimistic strategy hypothesis is a finite polyhedral decomposition:
+after choosing finitely many boundary types, prefix positions, and symmetries, the
+admissible minimal-perimeter polyomino data can be encoded by integer parameters
+satisfying only finitely many linear equalities, inequalities, and congruences. If
+this decomposition can be made injective on prefixes, or corrected by a finite
+inclusion-exclusion, then the same kind of rational-polyhedral enumeration used in
+ordinary Heisenberg growth would suggest rationality of
+$\Gamma_{\mathrm{geo}}(z)$.
+
+A possible obstruction is that the prefix count may retain genuinely
+two-dimensional restricted-partition data. The endpoint-counting results
+[VM'19, Theorem 1] and [M'23] show that fixed-endpoint geodesics already involve
+Young diagrams in rectangles. If those restricted-partition contributions survive
+in the all-prefix count in a way that is not reducible to finitely many polyhedral
+families, one should instead expect non-rationality, perhaps detectable by showing
+that $\gamma(n)$ cannot satisfy an eventual linear recurrence.
+
+A practical intermediate hypothesis is to first compute a canonical, nonredundant
+prefix parametrization. In this form, two questions become testable: whether the
+parameter set is eventually semilinear, and whether the resulting sequence
+$\gamma(n)$ has asymptotics compatible with a rational generating function. A
+negative answer to either question would give a concrete route toward proving that
+the standard Heisenberg geodesic growth series is not rational.
+
 ## References
 
 - [AM'19] I. Alekseev and R. Magdiev, "The Language of Geodesics for the Discrete
    Heisenberg Group." [Local PDF](../refs/1905.03226v1.pdf),
    [arXiv:1905.03226](https://arxiv.org/abs/1905.03226).
-- [VM'17] A. M. Vershik and A. V. Malyutin, "Infinite Geodesics in the Discrete
-   Heisenberg Group." [Local PDF](../refs/znsl6495.pdf),
-   [MathNet](https://www.mathnet.ru/eng/znsl6495).
-- [VM'19] A. M. Vershik and A. V. Malyutin, "Asymptotics of the Number of
-   Geodesics in the Discrete Heisenberg Group."
-   [Local PDF](../refs/vershik_malyutin_asymptotic_geodesics_heisenberg_2018.pdf).
-- [M'23] A. Malyutin, "The (Discrete) Heisenberg Group and (Restricted)
-   Young's Lattices."
-   [Local PDF](../refs/malyutin_heisenberg_young_lattices_2023.pdf).
-- [Bro'16] J. M. Brönnimann, "Geodesic Growth of Groups."
-   [Local PDF](../refs/bronnimann_geodesic_growth_of_groups_2016.pdf),
-   [University of Neuchatel record](https://libra.unine.ch/entities/publication/26df3766-1b6c-47db-8f96-d75aa5cbd5db).
-- [BBES'12] M. R. Bridson, J. Burillo, M. Elder, and Z. Šunić, "On Groups
-   Whose Geodesic Growth Is Polynomial."
-   [Local PDF](../refs/bridson_burillo_elder_sunic_polynomial_geodesic_growth_2012.pdf),
-   [author PDF](https://web.mat.upc.edu/pep.burillo/Papers/geogro.pdf).
-- [DS'19] M. Duchin and M. Shapiro, "The Heisenberg Group Is Pan-Rational."
-   [Local PDF](../refs/duchin_shapiro_heisenberg_pan_rational_2019.pdf),
-   [arXiv:1411.4201](https://arxiv.org/abs/1411.4201).
 - [B'21] A. Bishop, "Geodesic Growth in Virtually Abelian Groups."
    [Local PDF](../refs/bishop_geodesic_growth_virtually_abelian_2019.pdf),
    [arXiv:1908.07294](https://arxiv.org/abs/1908.07294).
@@ -150,3 +205,22 @@ above as a separate and natural enumeration problem.
    [Local PDF](../refs/bodart_intermediate_geodesic_growth_virtually_nilpotent_2025.pdf),
    [arXiv:2306.10381](https://arxiv.org/abs/2306.10381),
    [EMS](https://ems.press/journals/ggd/articles/14298929).
+- [BBES'12] M. R. Bridson, J. Burillo, M. Elder, and Z. Šunić, "On Groups
+   Whose Geodesic Growth Is Polynomial."
+   [Local PDF](../refs/bridson_burillo_elder_sunic_polynomial_geodesic_growth_2012.pdf),
+   [author PDF](https://web.mat.upc.edu/pep.burillo/Papers/geogro.pdf).
+- [Bro'16] J. M. Brönnimann, "Geodesic Growth of Groups."
+   [Local PDF](../refs/bronnimann_geodesic_growth_of_groups_2016.pdf),
+   [University of Neuchatel record](https://libra.unine.ch/entities/publication/26df3766-1b6c-47db-8f96-d75aa5cbd5db).
+- [DS'19] M. Duchin and M. Shapiro, "The Heisenberg Group Is Pan-Rational."
+   [Local PDF](../refs/duchin_shapiro_heisenberg_pan_rational_2019.pdf),
+   [arXiv:1411.4201](https://arxiv.org/abs/1411.4201).
+- [M'23] A. Malyutin, "The (Discrete) Heisenberg Group and (Restricted)
+   Young's Lattices."
+   [Local PDF](../refs/malyutin_heisenberg_young_lattices_2023.pdf).
+- [VM'17] A. M. Vershik and A. V. Malyutin, "Infinite Geodesics in the Discrete
+   Heisenberg Group." [Local PDF](../refs/znsl6495.pdf),
+   [MathNet](https://www.mathnet.ru/eng/znsl6495).
+- [VM'19] A. M. Vershik and A. V. Malyutin, "Asymptotics of the Number of
+   Geodesics in the Discrete Heisenberg Group."
+   [Local PDF](../refs/vershik_malyutin_asymptotic_geodesics_heisenberg_2018.pdf).
