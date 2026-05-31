@@ -36,7 +36,7 @@ run_decl() {
   esac
 }
 
-lake build check_axioms >/dev/null
+lake build Groups check_axioms >/dev/null
 
 all_ok=1
 any_temporary=0

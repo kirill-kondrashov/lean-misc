@@ -6,6 +6,8 @@ package tao_exercises where
   lean_lib TaoExercises
   @[default_target]
   lean_lib SimpleExercises
+  @[default_target]
+  lean_lib Groups
   lean_lib ErdosProblems
 
 require mathlib from git
