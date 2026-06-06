@@ -162,6 +162,46 @@ $$
 
 satisfy an eventual linear recurrence with constant coefficients?
 
+## Literature Status and Connections
+
+A literature search on May 31, 2026 did not locate a citable source that states
+or solves the exact rationality question above in the prefix-counting form
+$\operatorname{Geo}_S=\operatorname{Pref}(\operatorname{DE}_S)$. The closest
+source is Alekseev-Magdiev [AM'19]. They explicitly quote Brönnimann's
+irrational-geodesic-growth question in [AM'19, Question 1.1], point to
+$\mathbb H(\mathbb Z)$ as the expected test case in the following paragraph, and
+then prove the finite-language classification that makes the formal question
+above possible. Thus the question is not new as motivation, but the exact
+generating-function formulation appears to be a precise consequence of
+[AM'19, Proposition 1.2, Theorem 1.3, Proposition 1.6] rather than a separately
+stated theorem or problem in that paper.
+
+The first connection is to Brönnimann's broad problem [Bro'16, Appendix A,
+Question 3]. A negative answer to the formal question would show that the
+standard discrete Heisenberg group has irrational geodesic growth, giving an
+especially natural nilpotent example with solvable word problem. A positive
+answer would show that the Alekseev-Magdiev polyomino-prefix description still
+has enough finite recurrence to produce a rational counting series.
+
+The second connection is to the contrast between ordinary growth and geodesic
+growth. Duchin-Shapiro [DS'19, Theorem 1] prove rationality of ordinary growth
+for all finite generating sets of $\mathbb H(\mathbb Z)$, while their discussion of
+standard generators recalls that Shapiro's work gives no regular geodesic
+language in the standard metric [DS'19, Section 3.1]. The present question asks
+whether the full geodesic language can nevertheless have a rational counting
+series.
+
+The third connection is to the known boundary of rationality results. Bishop
+[B'21, Theorem 6.5] settles the virtually abelian case, so the standard
+Heisenberg group is the next basic nilpotent test case outside that theorem.
+Bishop-Elder [BE'22, Theorem 1 and Section 2] then show that a virtually
+Heisenberg group can have polynomial geodesic growth and record experimental
+evidence suggesting non-rationality of its geodesic growth sequence. Bodart
+[Bod'25, Theorem 4] gives an intermediate-growth virtually nilpotent example,
+so the broad existence problem for non-rational geodesic growth is no longer the
+main issue. What remains here is the sharper two-step nilpotent enumeration
+problem for the standard discrete Heisenberg generators.
+
 ## Strategy Hypotheses
 
 The most optimistic strategy hypothesis is a finite polyhedral decomposition:
