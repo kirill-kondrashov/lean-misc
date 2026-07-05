@@ -825,6 +825,28 @@ theorem mk_HallX_A :
     group
   rw [h]
 
+/-- Reverse form of `mk_Aconj_A`: `mk (A * Aconj) = mk (Aconj * A * HallX)`. -/
+theorem mk_A_Aconj :
+    (PresentedGroup.mk relators (A * Aconj) : PresentedGroup relators) =
+      PresentedGroup.mk relators (Aconj * A * HallX) := by
+  have h : (A * Aconj : FreeGroup Generator) = Aconj * A * HallX := by
+    show A * (T⁻¹ * A * T) = (T⁻¹ * A * T) * A *
+        (A⁻¹ * (T⁻¹ * A * T)⁻¹ * A * (T⁻¹ * A * T))
+    group
+  rw [h]
+
+/-- Moving `A⁻¹` past `Aconj⁻¹`: `mk (Aconj⁻¹ * A⁻¹) = mk (HallX⁻¹ * A⁻¹ * Aconj⁻¹)`.
+
+Free-group inverse of `mk_A_Aconj`. -/
+theorem mk_Aconjinv_Ainv :
+    (PresentedGroup.mk relators (Aconj⁻¹ * A⁻¹) : PresentedGroup relators) =
+      PresentedGroup.mk relators (HallX⁻¹ * A⁻¹ * Aconj⁻¹) := by
+  have h : (Aconj⁻¹ * A⁻¹ : FreeGroup Generator) = HallX⁻¹ * A⁻¹ * Aconj⁻¹ := by
+    show (T⁻¹ * A * T)⁻¹ * A⁻¹ =
+        (A⁻¹ * (T⁻¹ * A * T)⁻¹ * A * (T⁻¹ * A * T))⁻¹ * A⁻¹ * (T⁻¹ * A * T)⁻¹
+    group
+  rw [h]
+
 /-- `mk` sends the third-relator commutator `⁅C, A⁆` to `1`. -/
 theorem mk_commutator_C_A :
     (PresentedGroup.mk relators ⁅C, A⁆ : PresentedGroup relators) = 1 :=
