@@ -1200,6 +1200,59 @@ theorem mk_T_HallY_T :
     rw [e1]; group
   rw [insert, hTAinvT, hTHXinvT, hTAT, hTHXT]
 
+/-!
+### Deriving `mk HallX = mk (HallXC · C⁻²)` and `mk HallY = mk C`
+
+The Hall commutator `HallX = ⁅A, Aconj⁆_Hall` and the mathlib commutator
+`HallXC = ⁅A, Aconj⁆_mathlib` differ by a specific central class-3 element in the presented
+group. The derivation uses that `mk (Aconj · A)` has two representations: the free-group
+identity `mk_Aconj_A` gives `mk (A · Aconj · HallX⁻¹)`, while chaining shift lemmas gives
+`mk (A · Aconj · HallXC⁻¹ · C²)`. Equating both determines `mk HallX = mk (HallXC · C⁻²)`.
+
+Once this is available, `mk HallY = mk C` follows from a short calculation using the shift
+lemmas.
+-/
+
+/-- Second shift of `HallXC⁻¹` past `A`: `mk (HallXC⁻¹ · A) = mk (C · A · HallXC⁻¹)`.
+
+Derived from `mk_HallXC_A_shift` by manipulation using centrality of `C`. -/
+theorem mk_HallXCinv_A :
+    (PresentedGroup.mk relators (⁅A, Aconj⁆⁻¹ * A) : PresentedGroup relators) =
+      PresentedGroup.mk relators (C * A * ⁅A, Aconj⁆⁻¹) := by
+  set a := (PresentedGroup.mk relators A : PresentedGroup relators)
+  set xc := (PresentedGroup.mk relators ⁅A, Aconj⁆ : PresentedGroup relators)
+  set c := (PresentedGroup.mk relators C : PresentedGroup relators)
+  have hcA : Commute c a := mk_C_A_comm
+  have hcXC : Commute c xc := mk_C_HallXC_comm
+  have hshift : xc * a = a * xc * c⁻¹ := by
+    have := mk_HallXC_A_shift
+    have h1 : (PresentedGroup.mk relators (⁅A, Aconj⁆ * A) : PresentedGroup relators)
+        = xc * a := by rw [map_mul]
+    have h2 : (PresentedGroup.mk relators (A * ⁅A, Aconj⁆ * C⁻¹) :
+        PresentedGroup relators) = a * xc * c⁻¹ := by rw [map_mul, map_mul, map_inv]
+    rw [h1, h2] at this; exact this
+  show PresentedGroup.mk relators ⁅A, Aconj⁆⁻¹ * PresentedGroup.mk relators A =
+      PresentedGroup.mk relators C * PresentedGroup.mk relators A *
+        PresentedGroup.mk relators ⁅A, Aconj⁆⁻¹
+  simp only [map_inv]
+  change xc⁻¹ * a = c * a * xc⁻¹
+  -- From xc·a = a·xc·c⁻¹:  left-mult by xc⁻¹ gives a = xc⁻¹·a·xc·c⁻¹.
+  -- Right-mult by c gives a·c = xc⁻¹·a·xc, i.e. c·a = xc⁻¹·a·xc.
+  -- Right-mult by xc⁻¹ gives c·a·xc⁻¹ = xc⁻¹·a.
+  have h1 : a = xc⁻¹ * a * xc * c⁻¹ := by
+    calc a = xc⁻¹ * (xc * a) := by rw [← mul_assoc, inv_mul_cancel, one_mul]
+      _ = xc⁻¹ * (a * xc * c⁻¹) := by rw [hshift]
+      _ = xc⁻¹ * a * xc * c⁻¹ := by rw [← mul_assoc, ← mul_assoc]
+  have h2 : a * c = xc⁻¹ * a * xc := by
+    have := congrArg (· * c) h1
+    simp only [mul_assoc, inv_mul_cancel, mul_one] at this
+    exact this
+  have h3 : c * a * xc⁻¹ = xc⁻¹ * a := by
+    have hca : c * a = a * c := hcA.eq
+    rw [hca, h2]
+    rw [mul_assoc, mul_inv_cancel, mul_one]
+  exact h3.symm
+
 /-- Theorem 4 of Bodart, recorded as an internal-facing axiom to be formalized.
 
 It states that the virtually Engel group above has intermediate geodesic growth with respect to
