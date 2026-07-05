@@ -816,6 +816,69 @@ theorem mk_A_HallX :
     group
   rw [h]
 
+/-- `mk` sends the third-relator commutator `⁅C, A⁆` to `1`. -/
+theorem mk_commutator_C_A :
+    (PresentedGroup.mk relators ⁅C, A⁆ : PresentedGroup relators) = 1 :=
+  PresentedGroup.mk_eq_one_iff.mpr <|
+    Subgroup.subset_normalClosure (by
+      show ⁅C, A⁆ ∈ ({T * T, C * (⁅Aconj, ⁅A, Aconj⁆⁆)⁻¹, ⁅C, A⁆, ⁅C, Aconj⁆}
+        : Set (FreeGroup Generator))
+      simp)
+
+/-- `mk` sends the fourth-relator commutator `⁅C, Aconj⁆` to `1`. -/
+theorem mk_commutator_C_Aconj :
+    (PresentedGroup.mk relators ⁅C, Aconj⁆ : PresentedGroup relators) = 1 :=
+  PresentedGroup.mk_eq_one_iff.mpr <|
+    Subgroup.subset_normalClosure (by
+      show ⁅C, Aconj⁆ ∈ ({T * T, C * (⁅Aconj, ⁅A, Aconj⁆⁆)⁻¹, ⁅C, A⁆, ⁅C, Aconj⁆}
+        : Set (FreeGroup Generator))
+      simp)
+
+/-- Centrality of `mk C` against `mk A`: `mk (C * A) = mk (A * C)`. -/
+theorem mk_C_A_comm :
+    (PresentedGroup.mk relators (C * A) : PresentedGroup relators) =
+      PresentedGroup.mk relators (A * C) := by
+  have hcomm' :
+      ⁅(PresentedGroup.mk relators C : PresentedGroup relators),
+        PresentedGroup.mk relators A⁆ = 1 := by
+    have := mk_commutator_C_A
+    simpa [map_commutatorElement] using this
+  have hcomm := commutatorElement_eq_one_iff_commute.mp hcomm'
+  show (PresentedGroup.mk relators C) * PresentedGroup.mk relators A =
+    PresentedGroup.mk relators A * PresentedGroup.mk relators C
+  exact hcomm
+
+/-- Centrality of `mk C` against `mk Aconj`: `mk (C * Aconj) = mk (Aconj * C)`. -/
+theorem mk_C_Aconj_comm :
+    (PresentedGroup.mk relators (C * Aconj) : PresentedGroup relators) =
+      PresentedGroup.mk relators (Aconj * C) := by
+  have hcomm' :
+      ⁅(PresentedGroup.mk relators C : PresentedGroup relators),
+        PresentedGroup.mk relators Aconj⁆ = 1 := by
+    have := mk_commutator_C_Aconj
+    simpa [map_commutatorElement] using this
+  have hcomm := commutatorElement_eq_one_iff_commute.mp hcomm'
+  show (PresentedGroup.mk relators C) * PresentedGroup.mk relators Aconj =
+    PresentedGroup.mk relators Aconj * PresentedGroup.mk relators C
+  exact hcomm
+
+/-- The second relator, applied: `mk C = mk ⁅Aconj, ⁅A, Aconj⁆⁆` in the presented group. -/
+theorem mk_C_eq_mk_Engel :
+    (PresentedGroup.mk relators C : PresentedGroup relators) =
+      PresentedGroup.mk relators ⁅Aconj, ⁅A, Aconj⁆⁆ := by
+  have hrel :
+      (PresentedGroup.mk relators (C * (⁅Aconj, ⁅A, Aconj⁆⁆)⁻¹) :
+          PresentedGroup relators) = 1 :=
+    PresentedGroup.mk_eq_one_iff.mpr <|
+      Subgroup.subset_normalClosure (by
+        show C * (⁅Aconj, ⁅A, Aconj⁆⁆)⁻¹ ∈
+          ({T * T, C * (⁅Aconj, ⁅A, Aconj⁆⁆)⁻¹, ⁅C, A⁆, ⁅C, Aconj⁆}
+            : Set (FreeGroup Generator))
+        simp)
+  have := hrel
+  rw [map_mul, map_inv, mul_inv_eq_one] at this
+  exact this
+
 /-- Theorem 4 of Bodart, recorded as an internal-facing axiom to be formalized.
 
 It states that the virtually Engel group above has intermediate geodesic growth with respect to
