@@ -762,11 +762,151 @@ sending a coordinate to `mk` of its Hall word — would witness injectivity, and
 what the ongoing algebraic groundwork (the Hall normal-form reconstruction, the lattice
 congruence subgroup, the coordinate model of every relator) is designed to support. -/
 
-/-- Injectivity of the coordinate representation `toCoordGroup`.
+/-!
+## Image of the coordinate map lies in the lattice
 
-This is a purely algebraic statement inside the presented group. It replaces the coarser
-`solvableWordProblem` witness previously imported: the decision procedure of the word problem
-below is derived from it. -/
+The presentation generators land in `coordLattice`, and `coordLattice` is a subgroup, so the
+image of every word in the presented group lies in `coordLattice`.
+-/
+
+/-- The coordinate homomorphism factored through the lattice subgroup. -/
+def toCoordLattice : FreeGroup Generator →* coordLattice :=
+  FreeGroup.lift coordLatticeGenerator
+
+theorem toCoordLattice_val (w : FreeGroup Generator) :
+    (toCoordLattice w).1 = FreeGroup.lift coordGenerator w := by
+  refine FreeGroup.induction_on w ?_ ?_ ?_ ?_
+  · simp [toCoordLattice]
+  · intro g; cases g <;> simp [toCoordLattice, coordLatticeGenerator, coordGenerator]
+  · intro g; cases g <;> simp [toCoordLattice, coordLatticeGenerator, coordGenerator]
+  · intro x y hx hy
+    simp [map_mul, hx, hy]
+
+/-- The image of any word in the free group lies in the coordinate lattice. -/
+theorem coordGenerator_lift_mem_lattice (w : FreeGroup Generator) :
+    FreeGroup.lift coordGenerator w ∈ coordLattice := by
+  rw [← toCoordLattice_val]
+  exact (toCoordLattice w).2
+
+/-- The image of any presented-group element lies in the coordinate lattice. -/
+theorem toCoordGroup_mem_lattice (x : PresentedGroup relators) :
+    toCoordGroup x ∈ coordLattice := by
+  induction x with
+  | H z =>
+    have h := coordGenerator_lift_mem_lattice z
+    simpa [toCoordGroup, PresentedGroup.toGroup] using h
+
+/-!
+## A canonical set-theoretic retract
+
+Every element of the coordinate lattice can be reconstructed as `mk` of an explicit Hall normal
+form word. The following retract lifts this reconstruction to `CoordGroup`, sending elements
+outside the lattice to `1`. Injectivity of `toCoordGroup` is equivalent to `retract` being a
+left inverse of `toCoordGroup`.
+-/
+
+/-- The set-theoretic retract from the coordinate model back to the presented group. On lattice
+elements it is the `mk` of the Hall normal form; elsewhere it is arbitrarily set to `1`. -/
+noncomputable def retract (g : CoordGroup) : PresentedGroup relators := by
+  classical exact
+    if h : g ∈ coordLattice then
+      PresentedGroup.mk relators (coordLatticeWord ⟨g, h⟩)
+    else 1
+
+theorem retract_of_mem_lattice {g : CoordGroup} (h : g ∈ coordLattice) :
+    retract g = PresentedGroup.mk relators (coordLatticeWord ⟨g, h⟩) := by
+  simp [retract, dif_pos h]
+
+/-- Injectivity of `toCoordGroup` is equivalent to `retract` being a left inverse.
+
+Given `retract ∘ toCoordGroup = id`, `toCoordGroup` is injective. Conversely, given
+injectivity, `retract ∘ toCoordGroup` and `id` agree on lattice elements after applying
+`toCoordGroup`, which is enough to derive the left-inverse property from `coordLatticeWord_spec`.
+
+This reduces the remaining internal step to a single algebraic identity in
+`PresentedGroup relators`, namely that for every word `w`,
+`mk (coordLatticeWord (toCoordGroup (mk w))) = mk w`. -/
+theorem toCoordGroup_injective_iff_retract :
+    Function.Injective toCoordGroup ↔
+      Function.LeftInverse (retract : CoordGroup → PresentedGroup relators) toCoordGroup := by
+  refine ⟨?_, Function.LeftInverse.injective⟩
+  intro hinj x
+  have hmem : toCoordGroup x ∈ coordLattice := toCoordGroup_mem_lattice x
+  rw [retract_of_mem_lattice hmem]
+  apply hinj
+  have hspec := coordLatticeWord_spec ⟨toCoordGroup x, hmem⟩
+  have hlift :
+      toCoordGroup
+          (PresentedGroup.mk relators
+              (coordLatticeWord ⟨toCoordGroup x, hmem⟩)) =
+        FreeGroup.lift coordGenerator
+          (coordLatticeWord ⟨toCoordGroup x, hmem⟩) := rfl
+  rw [hlift, hspec]
+
+/-!
+### Base cases of the retract identity
+
+The retract identity `retract (toCoordGroup x) = x` is checked here on the presentation
+generators. The general case reduces to a multiplication-compatibility identity for the Hall
+normal form inside `PresentedGroup relators`. -/
+
+/-- Retract sends the trivial coordinate element back to the identity of the presented group. -/
+@[simp] theorem retract_one : (retract 1 : PresentedGroup relators) = 1 := by
+  have hmem : (1 : CoordGroup) ∈ coordLattice := coordLattice.one_mem
+  rw [retract_of_mem_lattice hmem]
+  -- coordLatticeWord ⟨1, _⟩ = (1.left).hallWord * symmetryWord 1.right = 1 * 1 = 1
+  show PresentedGroup.mk relators (coordLatticeWord ⟨(1 : CoordGroup), hmem⟩) = 1
+  have hword : coordLatticeWord ⟨(1 : CoordGroup), hmem⟩ = 1 := by
+    -- Both factors reduce to `1` in the free group.
+    show EngelCoords.hallWord (1 : EngelCoords) * symmetryWord (1 : Symmetry) = 1
+    simp [EngelCoords.hallWord, hallNormalWord, EngelCoords.hallM, EngelCoords.hallN, symmetryWord]
+  rw [hword]
+  simp
+
+/-- Retract identity checked on the generator `a`. -/
+theorem retract_toCoordGroup_of_a :
+    retract (toCoordGroup (PresentedGroup.of Generator.a))
+      = (PresentedGroup.of Generator.a : PresentedGroup relators) := by
+  have himg : toCoordGroup (PresentedGroup.of Generator.a) = coordA := by
+    unfold toCoordGroup
+    rw [PresentedGroup.toGroup.of]
+    rfl
+  have hmem : coordA ∈ coordLattice := coordA_mem_lattice
+  rw [himg, retract_of_mem_lattice hmem]
+  show PresentedGroup.mk relators (coordLatticeWord ⟨coordA, hmem⟩)
+        = PresentedGroup.of Generator.a
+  have hword : coordLatticeWord ⟨coordA, hmem⟩ = A := by
+    show EngelCoords.hallWord (engelA : EngelCoords) * symmetryWord (1 : Symmetry) = A
+    simp [EngelCoords.hallWord, hallNormalWord, EngelCoords.hallM, EngelCoords.hallN,
+      symmetryWord, engelA, EngelCoords.areaResidue, EngelCoords.baryResidue]
+  rw [hword]
+  rfl
+
+/-- Retract identity checked on the generator `t`. -/
+theorem retract_toCoordGroup_of_t :
+    retract (toCoordGroup (PresentedGroup.of Generator.t))
+      = (PresentedGroup.of Generator.t : PresentedGroup relators) := by
+  have himg : toCoordGroup (PresentedGroup.of Generator.t) = coordT := by
+    unfold toCoordGroup
+    rw [PresentedGroup.toGroup.of]
+    rfl
+  have hmem : coordT ∈ coordLattice := coordT_mem_lattice
+  rw [himg, retract_of_mem_lattice hmem]
+  show PresentedGroup.mk relators (coordLatticeWord ⟨coordT, hmem⟩)
+        = PresentedGroup.of Generator.t
+  have hword : coordLatticeWord ⟨coordT, hmem⟩ = T := by
+    show EngelCoords.hallWord (1 : EngelCoords) * symmetryWord Symmetry.flip = T
+    simp [EngelCoords.hallWord, hallNormalWord, EngelCoords.hallM, EngelCoords.hallN,
+      symmetryWord]
+  rw [hword]
+  rfl
+
+
+/-- Injectivity of the coordinate representation `toCoordGroup`, equivalently the statement
+that `retract` is a left inverse of `toCoordGroup`.
+
+By `toCoordGroup_injective_iff_retract` above, this is the same as: for every word `w`,
+`mk (coordLatticeWord (toCoordGroup (mk w))) = mk w` in the presented group. -/
 axiom toCoordGroup_injective : Function.Injective toCoordGroup
 
 /-- The word-problem decidability witness reconstructed from injectivity of the coordinate map.

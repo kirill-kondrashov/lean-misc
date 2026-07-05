@@ -69,6 +69,26 @@ converse implication is exactly injectivity. On the coordinate side, equality is
 componentwise on the underlying integer tuples and the two-element symmetry factor.
 \end{proof}
 
+\subsection*{Framework for the injectivity theorem}
+
+The internal framework now includes a canonical set-theoretic retract $r\colon
+\operatorname{CoordGroup} \to \operatorname{PresentedGroup} R$ whose value on a coordinate that
+lies in the coordinate lattice is the equivalence class of its Hall normal-form word. The
+following facts are proved internally:
+\begin{itemize}
+  \item every image of a word in the presented group lies in the coordinate lattice
+    (\emph{lattice closure of the coordinate map});
+  \item injectivity of the coordinate homomorphism is equivalent to $r$ being a left inverse of
+    the coordinate homomorphism;
+  \item on each of the presentation generators, $r$ composed with the coordinate homomorphism
+    returns the same generator inside the presented group.
+\end{itemize}
+Together these reduce the remaining internal step to a single multiplication-compatibility
+identity: for all pairs of elements of the presented group, the retract of the product of their
+coordinate images equals the product of their retracts. The Hall commutation identities implied
+by the four defining relators of the presentation are precisely what is needed to establish this
+identity.
+
 \subsection*{Remaining internal step}
 The only remaining algebraic obligation is injectivity of the coordinate homomorphism, i.e.\ the
 statement that two words representing distinct elements in the presented group are separated by
