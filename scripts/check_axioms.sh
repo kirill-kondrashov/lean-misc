@@ -6,6 +6,8 @@ BIN=".lake/build/bin/check_axioms"
 THEOREMS=(
   "TaoExercises.TaoBook.Chapter2.exercise_2_3"
   "TaoExercises.TaoBook.Chapter2.exercise_2_6"
+  "BronnimannQuestion3.positive_answer_of_witness"
+  "BronnimannQuestion3.positive_answer"
   "Erdos1.erdos_1.variants.weaker"
   "Erdos1.choose_middle_isEquivalent"
   "Erdos1.erdos_1_solution_axiom"

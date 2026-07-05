@@ -1,19 +1,4 @@
-import Mathlib
-
-namespace PresentedGroup
-
-/-- The element of a presented group represented by a finite word. -/
-abbrev evalWord {α : Type*} (rels : Set (FreeGroup α)) (w : List (α × Bool)) :
-    PresentedGroup rels :=
-  mk rels (FreeGroup.mk w)
-
-end PresentedGroup
-
-/-- A finite word is geodesic for the presentation with relators `rels` if no shorter finite word
-represents the same element of the presented group. A letter is represented by `(a, true)`, and the
-formal inverse letter by `(a, false)`. -/
-def IsGeodesicWord {α : Type*} (rels : Set (FreeGroup α)) (w : List (α × Bool)) : Prop :=
-  ∀ v, PresentedGroup.evalWord rels v = PresentedGroup.evalWord rels w → w.length ≤ v.length
+import Groups.GeodesicGrowth
 
 namespace Heisenberg
 
