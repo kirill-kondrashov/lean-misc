@@ -1592,7 +1592,74 @@ theorem mk_Aconj_HallX :
   show b * x = x * b * y
   rw [step, hYX.eq, mul_assoc, hYB.eq, ← mul_assoc]
 
+/-- Reverse shift: `mk (HallX · Aconj) = mk (Aconj · HallX · HallY⁻¹)`. -/
+theorem mk_HallX_Aconj :
+    (PresentedGroup.mk relators (HallX * Aconj) : PresentedGroup relators) =
+      PresentedGroup.mk relators (Aconj * HallX * HallY⁻¹) := by
+  set b := (PresentedGroup.mk relators Aconj : PresentedGroup relators)
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators)
+  set y := (PresentedGroup.mk relators HallY : PresentedGroup relators)
+  -- From mk_Aconj_HallX: b·x = x·b·y  ⟹  x·b = b·x·y⁻¹.
+  have h : b * x = x * b * y := by
+    have := mk_Aconj_HallX
+    have hl : (PresentedGroup.mk relators (Aconj * HallX) : PresentedGroup relators) = b * x := by
+      rw [map_mul]
+    have hr : (PresentedGroup.mk relators (HallX * Aconj * HallY) : PresentedGroup relators)
+        = x * b * y := by rw [map_mul, map_mul]
+    rw [hl, hr] at this; exact this
+  have hYX : Commute y x := mk_HallY_HallX_comm
+  have hYB : Commute y b := mk_HallY_Aconj_comm
+  show x * b = b * x * y⁻¹
+  -- b·x·y⁻¹ = x·b·y·y⁻¹ = x·b
+  have : b * x * y⁻¹ = x * b := by
+    rw [h]; simp [mul_assoc]
+  exact this.symm
 
+/-!
+### Iterated shifts through integer powers
+
+The single-step shifts above can be iterated over integer powers of A, Aconj, HallX. Since
+mk HallY is central, HallY-corrections accumulate simply. These iterated shifts are the
+building blocks of Malcev collection for hallNormalWord multiplication.
+-/
+
+/-- Iterated shift: `mk (A^n · HallX) = mk (HallX · A^n · HallY^n)` for natural n. -/
+theorem mk_A_pow_HallX_nat (n : ℕ) :
+    (PresentedGroup.mk relators (A ^ n * HallX) : PresentedGroup relators) =
+      PresentedGroup.mk relators (HallX * A ^ n * HallY ^ n) := by
+  set a := (PresentedGroup.mk relators A : PresentedGroup relators)
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators)
+  set y := (PresentedGroup.mk relators HallY : PresentedGroup relators)
+  have hYA : Commute y a := mk_HallY_A_comm
+  have hAX : a * x = x * a * y := by
+    have := mk_A_HallX
+    have hl : (PresentedGroup.mk relators (A * HallX) : PresentedGroup relators) = a * x := by
+      rw [map_mul]
+    have hr : (PresentedGroup.mk relators (HallX * A * HallY) : PresentedGroup relators)
+        = x * a * y := by rw [map_mul, map_mul]
+    rw [hl, hr] at this; exact this
+  suffices h : ∀ n : ℕ, a^n * x = x * a^n * y^n by
+    have := h n
+    show (PresentedGroup.mk relators (A ^ n * HallX) : PresentedGroup relators) =
+        PresentedGroup.mk relators (HallX * A ^ n * HallY ^ n)
+    have hl : (PresentedGroup.mk relators (A ^ n * HallX) : PresentedGroup relators)
+        = a ^ n * x := by rw [map_mul, map_pow]
+    have hr : (PresentedGroup.mk relators (HallX * A ^ n * HallY ^ n) : PresentedGroup relators)
+        = x * a ^ n * y ^ n := by rw [map_mul, map_mul, map_pow, map_pow]
+    rw [hl, hr]; exact this
+  intro k
+  induction k with
+  | zero => simp
+  | succ k ih =>
+      calc a^(k+1) * x
+          = a * (a^k * x) := by rw [pow_succ']; simp [mul_assoc]
+        _ = a * (x * a^k * y^k) := by rw [ih]
+        _ = (a * x) * a^k * y^k := by simp [mul_assoc]
+        _ = (x * a * y) * a^k * y^k := by rw [hAX]
+        _ = x * a * (y * a^k) * y^k := by simp [mul_assoc]
+        _ = x * a * (a^k * y) * y^k := by rw [(hYA.pow_right k).eq]
+        _ = x * (a * a^k) * (y * y^k) := by simp [mul_assoc]
+        _ = x * a^(k+1) * y^(k+1) := by rw [← pow_succ', ← pow_succ']
 
 /-- Theorem 4 of Bodart, recorded as an internal-facing axiom to be formalized.
 
