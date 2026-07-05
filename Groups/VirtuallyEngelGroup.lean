@@ -1502,6 +1502,98 @@ theorem mk_HallY_HallXC_comm :
       (PresentedGroup.mk relators ⁅A, Aconj⁆) := by
   rw [mk_HallY_eq_C]; exact mk_C_HallXC_comm
 
+/-!
+### Cross-commutation `[Aconj, HallX] = HallY`
+
+The class-3 commutator identity `mk (Aconj · HallX · Aconj⁻¹ · HallX⁻¹) = mk HallY` follows
+from `mk C = mk ⁅Aconj, HallXC⁆` (a relator) via substitution of `mk HallX = mk (HallXC · C⁻²)`.
+This unlocks all Aconj/HallX shift lemmas needed for Malcev collection.
+-/
+
+/-- The class-3 commutator identity: `mk (Aconj · HallX · Aconj⁻¹ · HallX⁻¹) = mk C = mk HallY`. -/
+theorem mk_commutator_Aconj_HallX_eq_HallY :
+    (PresentedGroup.mk relators (Aconj * HallX * Aconj⁻¹ * HallX⁻¹) : PresentedGroup relators) =
+      PresentedGroup.mk relators HallY := by
+  set b := (PresentedGroup.mk relators Aconj : PresentedGroup relators)
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators)
+  set xc := (PresentedGroup.mk relators ⁅A, Aconj⁆ : PresentedGroup relators)
+  set c := (PresentedGroup.mk relators C : PresentedGroup relators)
+  have hcB : Commute c b := mk_C_Aconj_comm
+  have hcXC : Commute c xc := mk_C_HallXC_comm
+  have hcBinv : Commute c b⁻¹ := hcB.inv_right
+  -- LHS = b · x · b⁻¹ · x⁻¹.
+  have hlhs : (PresentedGroup.mk relators (Aconj * HallX * Aconj⁻¹ * HallX⁻¹) :
+      PresentedGroup relators) = b * x * b⁻¹ * x⁻¹ := by
+    rw [map_mul, map_mul, map_mul, map_inv, map_inv]
+  rw [hlhs, mk_HallY_eq_C]
+  -- Substitute x = xc·c⁻¹·c⁻¹, x⁻¹ = c·c·xc⁻¹.
+  have hx : x = xc * c⁻¹ * c⁻¹ := mk_HallX_eq_HallXC_Cinv_sq
+  have hxinv : x⁻¹ = c * c * xc⁻¹ := by rw [hx]; simp [mul_inv_rev, mul_assoc]
+  rw [hxinv, hx]
+  -- b · (xc·c⁻¹·c⁻¹) · b⁻¹ · (c·c·xc⁻¹)
+  -- Move c⁻¹·c⁻¹ past b⁻¹ (central), c·c past xc⁻¹ (central), collect c⁻²·c² = 1.
+  have hcc_binv : Commute (c⁻¹ * c⁻¹) b⁻¹ := hcBinv.inv_left.mul_left hcBinv.inv_left
+  have hcinv_xc : Commute c⁻¹ xc := hcXC.inv_left
+  have hcc_xc : Commute (c⁻¹ * c⁻¹) xc := hcinv_xc.mul_left hcinv_xc
+  -- We want to show b·xc·c⁻¹·c⁻¹·b⁻¹·c·c·xc⁻¹ = c.
+  -- Move c⁻¹·c⁻¹ past b⁻¹: get b·xc·b⁻¹·(c⁻¹·c⁻¹)·c·c·xc⁻¹ = b·xc·b⁻¹·xc⁻¹.
+  -- Now use inner identity b·xc·b⁻¹·xc⁻¹ = c? No, we need to check.
+  -- Actually from mk_C_eq_mk_Engel: mk C = mk ⁅Aconj, ⁅A, Aconj⁆⁆ = mk (b·xc·b⁻¹·xc⁻¹).
+  have hmkC : c = b * xc * b⁻¹ * xc⁻¹ := by
+    have := mk_C_eq_mk_Engel
+    have h : (PresentedGroup.mk relators ⁅Aconj, ⁅A, Aconj⁆⁆ : PresentedGroup relators) =
+        b * xc * b⁻¹ * xc⁻¹ := by
+      show PresentedGroup.mk relators (Aconj * ⁅A, Aconj⁆ * Aconj⁻¹ * ⁅A, Aconj⁆⁻¹) = _
+      rw [map_mul, map_mul, map_mul, map_inv, map_inv]
+    rw [h] at this; exact this
+  -- Now the calc:
+  calc b * (xc * c⁻¹ * c⁻¹) * b⁻¹ * (c * c * xc⁻¹)
+      = b * xc * (c⁻¹ * c⁻¹) * b⁻¹ * (c * c * xc⁻¹) := by simp [mul_assoc]
+    _ = b * xc * (b⁻¹ * (c⁻¹ * c⁻¹)) * (c * c * xc⁻¹) := by
+        rw [show b * xc * (c⁻¹ * c⁻¹) * b⁻¹ = b * xc * ((c⁻¹ * c⁻¹) * b⁻¹) from by simp [mul_assoc],
+            hcc_binv.eq]
+    _ = b * xc * b⁻¹ * ((c⁻¹ * c⁻¹) * (c * c)) * xc⁻¹ := by simp [mul_assoc]
+    _ = b * xc * b⁻¹ * xc⁻¹ := by
+        rw [show (c⁻¹ * c⁻¹) * (c * c) = 1 from by group, mul_one]
+    _ = c := hmkC.symm
+
+/-- `mk HallY` commutes with `mk HallX`. -/
+theorem mk_HallY_HallX_comm :
+    Commute (PresentedGroup.mk relators HallY : PresentedGroup relators)
+      (PresentedGroup.mk relators HallX) := by
+  rw [mk_HallY_eq_C, mk_HallX_eq_HallXC_Cinv_sq]
+  have h1 : Commute (PresentedGroup.mk relators C : PresentedGroup relators)
+      (PresentedGroup.mk relators ⁅A, Aconj⁆) := mk_C_HallXC_comm
+  have h2 : Commute (PresentedGroup.mk relators C : PresentedGroup relators)
+      (PresentedGroup.mk relators C)⁻¹ :=
+    (Commute.refl _).inv_right
+  exact (h1.mul_right h2).mul_right h2
+
+/-- Basic shift: `mk (Aconj · HallX) = mk (HallX · Aconj · HallY)`. -/
+theorem mk_Aconj_HallX :
+    (PresentedGroup.mk relators (Aconj * HallX) : PresentedGroup relators) =
+      PresentedGroup.mk relators (HallX * Aconj * HallY) := by
+  set b := (PresentedGroup.mk relators Aconj : PresentedGroup relators)
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators)
+  set y := (PresentedGroup.mk relators HallY : PresentedGroup relators)
+  have hcomm : b * x * b⁻¹ * x⁻¹ = y := by
+    have := mk_commutator_Aconj_HallX_eq_HallY
+    have h : (PresentedGroup.mk relators (Aconj * HallX * Aconj⁻¹ * HallX⁻¹)
+        : PresentedGroup relators) = b * x * b⁻¹ * x⁻¹ := by
+      rw [map_mul, map_mul, map_mul, map_inv, map_inv]
+    rw [h] at this; exact this
+  have hYX : Commute y x := mk_HallY_HallX_comm
+  have hYB : Commute y b := mk_HallY_Aconj_comm
+  have step : b * x = y * x * b := by
+    have h2 : b * x * b⁻¹ * x⁻¹ * (x * b) = y * (x * b) := by rw [hcomm]
+    rw [show b * x * b⁻¹ * x⁻¹ * (x * b) = b * x * b⁻¹ * (x⁻¹ * x) * b from by simp [mul_assoc],
+        inv_mul_cancel, mul_one, mul_assoc, inv_mul_cancel, mul_one] at h2
+    rw [h2]; simp [mul_assoc]
+  show b * x = x * b * y
+  rw [step, hYX.eq, mul_assoc, hYB.eq, ← mul_assoc]
+
+
+
 /-- Theorem 4 of Bodart, recorded as an internal-facing axiom to be formalized.
 
 It states that the virtually Engel group above has intermediate geodesic growth with respect to
