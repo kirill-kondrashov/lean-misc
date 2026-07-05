@@ -121,6 +121,15 @@ also records an imported theorem statement for the earlier one-sided infinite-ge
 classification used as background; that declaration is explicit axiom debt and is kept visible to
 the checker.
 
+Two adjacent literature stubs extend this setup toward Brönnimann's Question 3. The file
+`Groups.VirtuallyHeisenbergGroup` records the Bishop--Elder virtually Heisenberg example with
+polynomial geodesic growth, while `Groups.VirtuallyEngelGroup` records Bodart's virtually Engel
+example with intermediate geodesic growth. The shared file `Groups.GeodesicGrowth` provides a
+geodesic-growth definition over arbitrary finite alphabets so these examples can use the exact
+generating sets appearing in the papers, including involutory generators. Finally,
+`Groups.BronnimannQuestion3` packages Bodart's virtually Engel example into a formal positive
+answer to Brönnimann's Question 3 about solvable word problem and irrational geodesic growth.
+
 Run:
 
 ```bash
