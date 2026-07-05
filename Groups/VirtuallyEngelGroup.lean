@@ -1253,6 +1253,237 @@ theorem mk_HallXCinv_A :
     rw [mul_assoc, mul_inv_cancel, mul_one]
   exact h3.symm
 
+/-- Symmetric shift for `Aconj`: `mk (HallXC⁻¹ · Aconj) = mk (C · Aconj · HallXC⁻¹)`.
+
+Derived from `mk_Aconj_HallXC_shift` the same way `mk_HallXCinv_A` is derived from
+`mk_HallXC_A_shift`. -/
+theorem mk_HallXCinv_Aconj :
+    (PresentedGroup.mk relators (⁅A, Aconj⁆⁻¹ * Aconj) : PresentedGroup relators) =
+      PresentedGroup.mk relators (C * Aconj * ⁅A, Aconj⁆⁻¹) := by
+  set b := (PresentedGroup.mk relators Aconj : PresentedGroup relators)
+  set xc := (PresentedGroup.mk relators ⁅A, Aconj⁆ : PresentedGroup relators)
+  set c := (PresentedGroup.mk relators C : PresentedGroup relators)
+  have hcB : Commute c b := mk_C_Aconj_comm
+  have hcXC : Commute c xc := mk_C_HallXC_comm
+  have hshift : b * xc = xc * b * c := by
+    have := mk_Aconj_HallXC_shift
+    have h1 : (PresentedGroup.mk relators (Aconj * ⁅A, Aconj⁆) : PresentedGroup relators)
+        = b * xc := by rw [map_mul]
+    have h2 : (PresentedGroup.mk relators (⁅A, Aconj⁆ * Aconj * C) :
+        PresentedGroup relators) = xc * b * c := by rw [map_mul, map_mul]
+    rw [h1, h2] at this; exact this
+  show PresentedGroup.mk relators ⁅A, Aconj⁆⁻¹ * PresentedGroup.mk relators Aconj =
+      PresentedGroup.mk relators C * PresentedGroup.mk relators Aconj *
+        PresentedGroup.mk relators ⁅A, Aconj⁆⁻¹
+  simp only [map_inv]
+  change xc⁻¹ * b = c * b * xc⁻¹
+  -- From b·xc = xc·b·c: symmetric derivation.
+  -- xc·b·c = b·xc  ⟹  xc·b = b·xc·c⁻¹  [right-mult by c⁻¹]
+  -- Now this matches the pattern from mk_HallXCinv_A with (b, +c⁻¹) instead of (a, +c⁻¹)?
+  -- Actually here we have b·xc = xc·b·c, which is xc·b = b·xc·c⁻¹ after swap.
+  -- Then follow the same steps as before with the sign convention swapped.
+  have hshift' : xc * b = b * xc * c⁻¹ := by
+    have h := hshift
+    -- b*xc = xc*b*c  ⟹  b*xc*c⁻¹ = xc*b
+    have h2 : b * xc * c⁻¹ = xc * b := by
+      rw [h]; rw [mul_assoc, mul_inv_cancel, mul_one]
+    exact h2.symm
+  have h1 : b = xc⁻¹ * b * xc * c⁻¹ := by
+    calc b = xc⁻¹ * (xc * b) := by rw [← mul_assoc, inv_mul_cancel, one_mul]
+      _ = xc⁻¹ * (b * xc * c⁻¹) := by rw [hshift']
+      _ = xc⁻¹ * b * xc * c⁻¹ := by rw [← mul_assoc, ← mul_assoc]
+  have h2 : b * c = xc⁻¹ * b * xc := by
+    have := congrArg (· * c) h1
+    simp only [mul_assoc, inv_mul_cancel, mul_one] at this
+    exact this
+  have h3 : c * b * xc⁻¹ = xc⁻¹ * b := by
+    have hcb : c * b = b * c := hcB.eq
+    rw [hcb, h2, mul_assoc, mul_inv_cancel, mul_one]
+  exact h3.symm
+
+/-- Free-group identity: `Aconj · A = ⁅A, Aconj⁆⁻¹ · A · Aconj`. -/
+theorem freeGroup_Aconj_A_HallXC :
+    (Aconj * A : FreeGroup Generator) = ⁅A, Aconj⁆⁻¹ * A * Aconj := by
+  show T⁻¹ * A * T * A = (A * (T⁻¹ * A * T) * A⁻¹ * (T⁻¹ * A * T)⁻¹)⁻¹ * A * (T⁻¹ * A * T)
+  group
+
+/-- Second derivation of `mk (Aconj · A)`: via the `HallXC` shift chain. -/
+theorem mk_Aconj_A_HallXC :
+    (PresentedGroup.mk relators (Aconj * A) : PresentedGroup relators) =
+      PresentedGroup.mk relators (A * Aconj * ⁅A, Aconj⁆⁻¹ * C * C) := by
+  set a := (PresentedGroup.mk relators A : PresentedGroup relators)
+  set b := (PresentedGroup.mk relators Aconj : PresentedGroup relators)
+  set xc := (PresentedGroup.mk relators ⁅A, Aconj⁆ : PresentedGroup relators)
+  set c := (PresentedGroup.mk relators C : PresentedGroup relators)
+  have hcA : Commute c a := mk_C_A_comm
+  have hcB : Commute c b := mk_C_Aconj_comm
+  have hcXC : Commute c xc := mk_C_HallXC_comm
+  -- Step 1: rewrite via free-group identity.
+  rw [freeGroup_Aconj_A_HallXC]
+  -- Now goal: mk(HallXC⁻¹ · A · Aconj) = mk(A · Aconj · HallXC⁻¹ · C · C)
+  have s1 : (PresentedGroup.mk relators (⁅A, Aconj⁆⁻¹ * A * Aconj) : PresentedGroup relators)
+      = xc⁻¹ * a * b := by rw [map_mul, map_mul, map_inv]
+  have s2 : (PresentedGroup.mk relators (A * Aconj * ⁅A, Aconj⁆⁻¹ * C * C) :
+      PresentedGroup relators) = a * b * xc⁻¹ * c * c := by
+    rw [map_mul, map_mul, map_mul, map_mul, map_inv]
+  rw [s1, s2]
+  -- Use mk_HallXCinv_A: xc⁻¹ * a = c * a * xc⁻¹
+  have hA : xc⁻¹ * a = c * a * xc⁻¹ := by
+    have := mk_HallXCinv_A
+    have h1 : (PresentedGroup.mk relators (⁅A, Aconj⁆⁻¹ * A) : PresentedGroup relators)
+        = xc⁻¹ * a := by rw [map_mul, map_inv]
+    have h2 : (PresentedGroup.mk relators (C * A * ⁅A, Aconj⁆⁻¹) :
+        PresentedGroup relators) = c * a * xc⁻¹ := by rw [map_mul, map_mul, map_inv]
+    rw [h1, h2] at this; exact this
+  have hB : xc⁻¹ * b = c * b * xc⁻¹ := by
+    have := mk_HallXCinv_Aconj
+    have h1 : (PresentedGroup.mk relators (⁅A, Aconj⁆⁻¹ * Aconj) : PresentedGroup relators)
+        = xc⁻¹ * b := by rw [map_mul, map_inv]
+    have h2 : (PresentedGroup.mk relators (C * Aconj * ⁅A, Aconj⁆⁻¹) :
+        PresentedGroup relators) = c * b * xc⁻¹ := by rw [map_mul, map_mul, map_inv]
+    rw [h1, h2] at this; exact this
+  -- xc⁻¹ · a · b = a · b · xc⁻¹ · c · c
+  have hcc_a : Commute (c * c) a := hcA.mul_left hcA
+  have hcc_b : Commute (c * c) b := hcB.mul_left hcB
+  have hcc_xc : Commute (c * c) xc := hcXC.mul_left hcXC
+  have hcc_xcinv : Commute (c * c) xc⁻¹ := hcc_xc.inv_right
+  calc xc⁻¹ * a * b
+      = (xc⁻¹ * a) * b := by rw [mul_assoc]
+    _ = (c * a * xc⁻¹) * b := by rw [hA]
+    _ = c * a * (xc⁻¹ * b) := by simp [mul_assoc]
+    _ = c * a * (c * b * xc⁻¹) := by rw [hB]
+    _ = (c * a * c) * (b * xc⁻¹) := by simp [mul_assoc]
+    _ = (c * (c * a)) * (b * xc⁻¹) := by rw [mul_assoc c a c, hcA.eq]
+    _ = (c * c) * a * b * xc⁻¹ := by simp [mul_assoc]
+    _ = a * (c * c) * b * xc⁻¹ := by rw [← hcc_a.eq]
+    _ = a * b * (c * c) * xc⁻¹ := by rw [mul_assoc a (c*c) b, hcc_b.eq, ← mul_assoc]
+    _ = a * b * (xc⁻¹ * (c * c)) := by rw [mul_assoc, hcc_xcinv.eq]
+    _ = a * b * xc⁻¹ * c * c := by simp [mul_assoc]
+
+/-- `mk HallX = mk (⁅A, Aconj⁆ · C⁻² )`. Combines the two derivations of `mk (Aconj · A)`. -/
+theorem mk_HallX_eq_HallXC_Cinv_sq :
+    (PresentedGroup.mk relators HallX : PresentedGroup relators) =
+      PresentedGroup.mk relators (⁅A, Aconj⁆ * C⁻¹ * C⁻¹) := by
+  set a := (PresentedGroup.mk relators A : PresentedGroup relators)
+  set b := (PresentedGroup.mk relators Aconj : PresentedGroup relators)
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators)
+  set xc := (PresentedGroup.mk relators ⁅A, Aconj⁆ : PresentedGroup relators)
+  set c := (PresentedGroup.mk relators C : PresentedGroup relators)
+  -- Two derivations of mk(Aconj·A):
+  -- (i)  mk_Aconj_A         : mk(Aconj·A) = mk(A·Aconj·HallX⁻¹) = a·b·x⁻¹
+  -- (ii) mk_Aconj_A_HallXC  : mk(Aconj·A) = mk(A·Aconj·HallXC⁻¹·C·C) = a·b·xc⁻¹·c·c
+  have e1 : b * a = a * b * x⁻¹ := by
+    have := mk_Aconj_A
+    have h1 : (PresentedGroup.mk relators (Aconj * A) : PresentedGroup relators)
+        = b * a := by rw [map_mul]
+    have h2 : (PresentedGroup.mk relators (A * Aconj * HallX⁻¹) :
+        PresentedGroup relators) = a * b * x⁻¹ := by rw [map_mul, map_mul, map_inv]
+    rw [h1, h2] at this; exact this
+  have e2 : b * a = a * b * xc⁻¹ * c * c := by
+    have := mk_Aconj_A_HallXC
+    have h1 : (PresentedGroup.mk relators (Aconj * A) : PresentedGroup relators)
+        = b * a := by rw [map_mul]
+    have h2 : (PresentedGroup.mk relators (A * Aconj * ⁅A, Aconj⁆⁻¹ * C * C) :
+        PresentedGroup relators) = a * b * xc⁻¹ * c * c := by
+      rw [map_mul, map_mul, map_mul, map_mul, map_inv]
+    rw [h1, h2] at this; exact this
+  have eq : a * b * x⁻¹ = a * b * xc⁻¹ * c * c := e1.symm.trans e2
+  -- Cancel a·b on the left.
+  have hcancel : x⁻¹ = xc⁻¹ * c * c := by
+    have hab : a * b * x⁻¹ = (a * b) * x⁻¹ := by rfl
+    have heq' : (a * b) * x⁻¹ = (a * b) * (xc⁻¹ * c * c) := by
+      rw [eq]; simp [mul_assoc]
+    exact mul_left_cancel heq'
+  -- Invert.
+  have hcXC : Commute c xc := mk_C_HallXC_comm
+  have hinv : x = c⁻¹ * c⁻¹ * xc := by
+    have := congrArg (·⁻¹) hcancel
+    simp only [mul_inv_rev, inv_inv] at this
+    -- this : x = c⁻¹ * c⁻¹ * xc  (after inversion)
+    exact this
+  show x = xc * c⁻¹ * c⁻¹
+  rw [hinv]
+  -- c⁻¹·c⁻¹·xc = xc·c⁻¹·c⁻¹  (c⁻¹ central)
+  have : Commute (c⁻¹ * c⁻¹) xc := (hcXC.inv_left.mul_left hcXC.inv_left)
+  rw [this.eq, mul_assoc]
+
+/-- The key class-3 identity: `mk HallY = mk C` in the presented group. -/
+theorem mk_HallY_eq_C :
+    (PresentedGroup.mk relators HallY : PresentedGroup relators) =
+      PresentedGroup.mk relators C := by
+  set a := (PresentedGroup.mk relators A : PresentedGroup relators)
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators)
+  set xc := (PresentedGroup.mk relators ⁅A, Aconj⁆ : PresentedGroup relators)
+  set c := (PresentedGroup.mk relators C : PresentedGroup relators)
+  have hcA : Commute c a := mk_C_A_comm
+  have hcXC : Commute c xc := mk_C_HallXC_comm
+  -- Step A: mk HallY = a⁻¹ · x⁻¹ · a · x  by definition.
+  have step0 : (PresentedGroup.mk relators HallY : PresentedGroup relators) =
+      a⁻¹ * x⁻¹ * a * x := by
+    show (PresentedGroup.mk relators (A⁻¹ * HallX⁻¹ * A * HallX) : PresentedGroup relators) =
+      a⁻¹ * x⁻¹ * a * x
+    rw [map_mul, map_mul, map_mul, map_inv, map_inv]
+  -- Step B: substitute x = xc · c⁻² and simplify.
+  have hx : x = xc * c⁻¹ * c⁻¹ := mk_HallX_eq_HallXC_Cinv_sq
+  have hxinv : x⁻¹ = c * c * xc⁻¹ := by
+    rw [hx]; simp [mul_inv_rev, mul_assoc]
+  rw [step0, hxinv, hx]
+  -- Now goal: a⁻¹ · (c·c·xc⁻¹) · a · (xc·c⁻¹·c⁻¹) = c
+  -- Use centrality of c to move c·c and c⁻¹·c⁻¹ to the end and cancel.
+  have hcAinv : Commute c a⁻¹ := hcA.inv_right
+  have hcinv_xc : Commute c⁻¹ xc := hcXC.inv_left
+  -- Rewrite as (c·c) · (a⁻¹·xc⁻¹·a·xc) · (c⁻¹·c⁻¹) using centrality, then note c·c · X · c⁻¹·c⁻¹ = X when everything commutes with c.
+  have key : a⁻¹ * (c * c * xc⁻¹) * a * (xc * c⁻¹ * c⁻¹) =
+      (c * c) * (a⁻¹ * xc⁻¹ * a * xc) * (c⁻¹ * c⁻¹) := by
+    have h1 : a⁻¹ * (c * c * xc⁻¹) = c * c * a⁻¹ * xc⁻¹ := by
+      have hcc_a : Commute (c * c) a⁻¹ := hcAinv.mul_left hcAinv
+      rw [show a⁻¹ * (c * c * xc⁻¹) = a⁻¹ * (c * c) * xc⁻¹ from by simp [mul_assoc],
+          ← hcc_a.eq]
+    have h2 : (xc * c⁻¹ * c⁻¹) = c⁻¹ * c⁻¹ * xc := by
+      have hcc_xc : Commute (c⁻¹ * c⁻¹) xc := hcinv_xc.mul_left hcinv_xc
+      have := hcc_xc.eq  -- c⁻¹·c⁻¹·xc = xc·(c⁻¹·c⁻¹)
+      rw [show xc * c⁻¹ * c⁻¹ = xc * (c⁻¹ * c⁻¹) from by rw [mul_assoc], ← this]
+    calc a⁻¹ * (c * c * xc⁻¹) * a * (xc * c⁻¹ * c⁻¹)
+        = (c * c * a⁻¹ * xc⁻¹) * a * (xc * c⁻¹ * c⁻¹) := by rw [h1]
+      _ = c * c * (a⁻¹ * xc⁻¹ * a) * (xc * c⁻¹ * c⁻¹) := by
+          simp [mul_assoc]
+      _ = c * c * (a⁻¹ * xc⁻¹ * a) * (xc * (c⁻¹ * c⁻¹)) := by
+          rw [show xc * c⁻¹ * c⁻¹ = xc * (c⁻¹ * c⁻¹) from by rw [mul_assoc]]
+      _ = c * c * (a⁻¹ * xc⁻¹ * a * xc) * (c⁻¹ * c⁻¹) := by
+          simp [mul_assoc]
+  rw [key]
+  -- Now reduce the inner commutator: a⁻¹ · xc⁻¹ · a · xc = c.
+  have inner : a⁻¹ * xc⁻¹ * a * xc = c := by
+    -- From mk_HallXC_A_shift: xc·a = a·xc·c⁻¹  ⟹  a⁻¹·xc·a = xc·c⁻¹.
+    have hshift : xc * a = a * xc * c⁻¹ := by
+      have := mk_HallXC_A_shift
+      have h1 : (PresentedGroup.mk relators (⁅A, Aconj⁆ * A) : PresentedGroup relators)
+          = xc * a := by rw [map_mul]
+      have h2 : (PresentedGroup.mk relators (A * ⁅A, Aconj⁆ * C⁻¹) :
+          PresentedGroup relators) = a * xc * c⁻¹ := by rw [map_mul, map_mul, map_inv]
+      rw [h1, h2] at this; exact this
+    -- a⁻¹ * (xc * a) = a⁻¹ * (a * xc * c⁻¹) = xc * c⁻¹
+    have hconj : a⁻¹ * xc * a = xc * c⁻¹ := by
+      calc a⁻¹ * xc * a = a⁻¹ * (xc * a) := by rw [mul_assoc]
+        _ = a⁻¹ * (a * xc * c⁻¹) := by rw [hshift]
+        _ = xc * c⁻¹ := by rw [show a⁻¹ * (a * xc * c⁻¹) = (a⁻¹ * a) * xc * c⁻¹ from by
+                                simp [mul_assoc], inv_mul_cancel, one_mul]
+    -- Invert to get a⁻¹ · xc⁻¹ · a = c · xc⁻¹.
+    have hconj_inv : a⁻¹ * xc⁻¹ * a = c * xc⁻¹ := by
+      have := congrArg (·⁻¹) hconj
+      simp only [mul_inv_rev, inv_inv] at this
+      -- this : a⁻¹·xc⁻¹·a = c·xc⁻¹  (after inversion)
+      -- Actually (a⁻¹·xc·a)⁻¹ = a⁻¹·xc⁻¹·a, and (xc·c⁻¹)⁻¹ = c·xc⁻¹.
+      convert this using 1 <;> group
+    -- Now right-mult by xc.
+    calc a⁻¹ * xc⁻¹ * a * xc = (a⁻¹ * xc⁻¹ * a) * xc := by rw [mul_assoc]
+      _ = c * xc⁻¹ * xc := by rw [hconj_inv]
+      _ = c := by rw [mul_assoc, inv_mul_cancel, mul_one]
+  rw [inner]
+  -- Now: c * c * c * (c⁻¹ * c⁻¹) = c
+  rw [show c * c * c * (c⁻¹ * c⁻¹) = c * (c * (c * c⁻¹) * c⁻¹) from by simp [mul_assoc]]
+  simp
+
 /-- Theorem 4 of Bodart, recorded as an internal-facing axiom to be formalized.
 
 It states that the virtually Engel group above has intermediate geodesic growth with respect to
