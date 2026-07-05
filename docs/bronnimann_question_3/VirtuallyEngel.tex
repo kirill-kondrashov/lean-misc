@@ -84,19 +84,25 @@ It is this Hall commutator that matches the experimentally derived normal forms.
 Lean development now assigns to every lattice point an explicit computable Hall normal-form word
 and proves that its image in the coordinate model recovers the original lattice point exactly.
 
-\subsection*{Imported literature facts}
-The first imported input is Bodart's asymptotic theorem:
+\subsection*{Imported literature fact}
+The only literature-facing input is Bodart's asymptotic theorem:
 \[
 \gamma_{\mathrm{geod}}(n) \asymp \exp(n^{3/5}\log n).
 \]
-This gives intermediate geodesic growth and, in particular, excludes rational geodesic growth for
-the chosen alphabet once the abstract asymptotic-to-irrationality bridge has been formalized.
+This gives intermediate geodesic growth and, in particular, will exclude rational geodesic growth
+for the chosen alphabet once the abstract asymptotic-to-irrationality bridge is formalized.
 
-The second imported input is the standard consequence that this virtually nilpotent group has
-solvable word problem. Thus one obtains the following two facts:
+\subsection*{Current internal-facing axioms}
+Two further axioms remain in the development but are not literature facts. They are
+internal-facing reformulations pinpointing the exact algebraic and analytic gaps that remain.
 \begin{enumerate}[label=(\roman*)]
-  \item the virtually Engel presentation has solvable word problem;
-  \item the geodesic growth with respect to $S=\{a,a^{-1},t\}$ is irrational.
+  \item Injectivity of the coordinate homomorphism from the presented group into the computable
+    coordinate model. The solvable-word-problem witness for the virtually Engel presentation is
+    derived internally from this injectivity, so the coarse word-problem statement is no longer
+    an axiom of the development.
+  \item Irrational geodesic growth of the virtually Engel group with respect to
+    $S=\{a,a^{-1},t\}$. This will follow from Bodart's asymptotic theorem once the
+    asymptotic-to-irrationality bridge is formalized in the abstract geodesic-growth layer.
 \end{enumerate}
-At present these two witness properties are still imported. The new coordinate model is the
-internal starting point for the word-problem part of the argument.
+The new coordinate model, its lattice subgroup, and the Hall normal-form reconstruction are the
+internal starting points for eliminating axiom (i).

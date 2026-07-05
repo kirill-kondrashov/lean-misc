@@ -53,10 +53,12 @@ The formalization has three parts:
 
 \subsection{Disclaimer and Verification}
 The witness-packaging theorem is checked by the Lean kernel and uses only the base axioms. The
-application to Bodart's group presently depends on two imported witness facts: irrationality of the
-geodesic growth and injectivity of the coordinate homomorphism from the virtually Engel
-presentation into its coordinate model. The solvable-word-problem witness is derived internally
-from injectivity of the coordinate homomorphism.
+application to Bodart's group presently depends on one literature fact, Bodart's asymptotic
+theorem, and two internal-facing axioms: injectivity of the coordinate homomorphism from the
+virtually Engel presentation into its coordinate model, and irrationality of the geodesic growth
+(the latter still to be derived from the asymptotic theorem via the asymptotic-to-irrationality
+bridge). The solvable-word-problem witness is derived internally from injectivity of the
+coordinate homomorphism.
 
 \vspace{1em}
 \noindent
@@ -67,7 +69,7 @@ from injectivity of the coordinate homomorphism.
         witness-packaging theorem. On the Bodart side the coarse decidability of the word problem
         has been replaced by a strictly algebraic hypothesis, namely injectivity of the coordinate
         homomorphism, from which decidability of equality of words is derived internally. Bodart's
-        asymptotic estimate is still imported.
+        asymptotic theorem and the irrational-growth witness derived from it remain imported.
     \end{minipage}%
 }
 \vspace{1em}
