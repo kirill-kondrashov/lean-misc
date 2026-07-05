@@ -1014,6 +1014,73 @@ theorem mk_T_HallX_T :
     rw [e1]; group
   rw [insert, hTAinvT, hTBinvT, hTAT, hTBT]
 
+/-- T-conjugation on `HallY`: at the presented-group level,
+`T * HallY * T = Aconj⁻¹ * HallX * Aconj * HallX⁻¹`.
+
+This is the analog of `mk_T_HallX_T`, expressing the effect of T-conjugation on the
+Hall-convention class-3 commutator `HallY = A⁻¹ * HallX⁻¹ * A * HallX`. It follows from
+inserting `T² = 1` between the four factors of `HallY` and applying the swaps
+`T * A * T = Aconj`, `T * A⁻¹ * T = Aconj⁻¹`, `T * HallX * T = HallX⁻¹`,
+`T * HallX⁻¹ * T = HallX`. -/
+theorem mk_T_HallY_T :
+    (PresentedGroup.mk relators (T * HallY * T) : PresentedGroup relators) =
+      PresentedGroup.mk relators (Aconj⁻¹ * HallX * Aconj * HallX⁻¹) := by
+  set t := (PresentedGroup.mk relators T : PresentedGroup relators)
+  set a := (PresentedGroup.mk relators A : PresentedGroup relators)
+  set b := (PresentedGroup.mk relators Aconj : PresentedGroup relators)
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators)
+  have htt : t * t = 1 := by
+    have := mk_T_sq
+    have hmul : (PresentedGroup.mk relators (T * T) : PresentedGroup relators) = t * t :=
+      map_mul _ _ _
+    rw [hmul] at this; exact this
+  -- Four T-conjugation identities.
+  have hTAT : t * a * t = b := by
+    have := mk_T_A_T
+    have h1 : (PresentedGroup.mk relators (T * A * T) : PresentedGroup relators) = t * a * t := by
+      rw [map_mul, map_mul]
+    rw [h1] at this; exact this
+  have hTAinvT : t * a⁻¹ * t = b⁻¹ := by
+    have : (t * a * t)⁻¹ = b⁻¹ := congrArg (·⁻¹) hTAT
+    have ht_inv : t⁻¹ = t := inv_eq_of_mul_eq_one_left htt
+    rw [mul_inv_rev, mul_inv_rev, ht_inv] at this
+    rw [← mul_assoc] at this; exact this
+  have hTHXT : t * x * t = x⁻¹ := by
+    have := mk_T_HallX_T
+    have h1 : (PresentedGroup.mk relators (T * HallX * T) : PresentedGroup relators)
+        = t * x * t := by
+      rw [map_mul, map_mul]
+    have h2 : (PresentedGroup.mk relators HallX⁻¹ : PresentedGroup relators) = x⁻¹ := by
+      rw [map_inv]
+    rw [h1, h2] at this; exact this
+  have hTHXinvT : t * x⁻¹ * t = x := by
+    have : (t * x * t)⁻¹ = (x⁻¹ : PresentedGroup relators)⁻¹ := congrArg (·⁻¹) hTHXT
+    have ht_inv : t⁻¹ = t := inv_eq_of_mul_eq_one_left htt
+    rw [mul_inv_rev, mul_inv_rev, ht_inv, inv_inv] at this
+    rw [← mul_assoc] at this; exact this
+  -- Expand LHS in `a, b, x, t`.
+  have hlhs :
+      (PresentedGroup.mk relators (T * HallY * T) : PresentedGroup relators)
+        = t * (a⁻¹ * x⁻¹ * a * x) * t := by
+    show PresentedGroup.mk relators (T * (A⁻¹ * HallX⁻¹ * A * HallX) * T) =
+      t * (a⁻¹ * x⁻¹ * a * x) * t
+    rw [map_mul, map_mul, map_mul, map_mul, map_mul, map_inv, map_inv]
+  have hrhs :
+      (PresentedGroup.mk relators (Aconj⁻¹ * HallX * Aconj * HallX⁻¹)
+          : PresentedGroup relators)
+        = b⁻¹ * x * b * x⁻¹ := by
+    rw [map_mul, map_mul, map_mul, map_inv, map_inv]
+  rw [hlhs, hrhs]
+  -- Insert `t * t = 1` between the four factors and apply the swaps.
+  have insert :
+      t * (a⁻¹ * x⁻¹ * a * x) * t =
+        (t * a⁻¹ * t) * (t * x⁻¹ * t) * (t * a * t) * (t * x * t) := by
+    have e1 : t * (a⁻¹ * x⁻¹ * a * x) * t =
+        t * a⁻¹ * (t * t) * x⁻¹ * (t * t) * a * (t * t) * x * t := by
+      rw [htt]; group
+    rw [e1]; group
+  rw [insert, hTAinvT, hTHXinvT, hTAT, hTHXT]
+
 /-- Theorem 4 of Bodart, recorded as an internal-facing axiom to be formalized.
 
 It states that the virtually Engel group above has intermediate geodesic growth with respect to
