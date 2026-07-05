@@ -1484,6 +1484,24 @@ theorem mk_HallY_eq_C :
   rw [show c * c * c * (c⁻¹ * c⁻¹) = c * (c * (c * c⁻¹) * c⁻¹) from by simp [mul_assoc]]
   simp
 
+/-- `mk HallY` commutes with `mk A`, since `mk HallY = mk C` and `mk C` is central. -/
+theorem mk_HallY_A_comm :
+    Commute (PresentedGroup.mk relators HallY : PresentedGroup relators)
+      (PresentedGroup.mk relators A) := by
+  rw [mk_HallY_eq_C]; exact mk_C_A_comm
+
+/-- `mk HallY` commutes with `mk Aconj`. -/
+theorem mk_HallY_Aconj_comm :
+    Commute (PresentedGroup.mk relators HallY : PresentedGroup relators)
+      (PresentedGroup.mk relators Aconj) := by
+  rw [mk_HallY_eq_C]; exact mk_C_Aconj_comm
+
+/-- `mk HallY` commutes with `mk ⁅A, Aconj⁆` (the mathlib commutator `HallXC`). -/
+theorem mk_HallY_HallXC_comm :
+    Commute (PresentedGroup.mk relators HallY : PresentedGroup relators)
+      (PresentedGroup.mk relators ⁅A, Aconj⁆) := by
+  rw [mk_HallY_eq_C]; exact mk_C_HallXC_comm
+
 /-- Theorem 4 of Bodart, recorded as an internal-facing axiom to be formalized.
 
 It states that the virtually Engel group above has intermediate geodesic growth with respect to
