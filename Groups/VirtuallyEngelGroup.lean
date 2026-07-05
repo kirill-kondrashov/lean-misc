@@ -1661,6 +1661,32 @@ theorem mk_A_pow_HallX_nat (n : ℕ) :
         _ = x * (a * a^k) * (y * y^k) := by simp [mul_assoc]
         _ = x * a^(k+1) * y^(k+1) := by rw [← pow_succ', ← pow_succ']
 
+/-- Conjugation form: `a · x · a⁻¹ = x · y` in the presented group. -/
+theorem mk_A_HallX_Ainv :
+    (PresentedGroup.mk relators (A * HallX * A⁻¹) : PresentedGroup relators) =
+      PresentedGroup.mk relators (HallX * HallY) := by
+  set a := (PresentedGroup.mk relators A : PresentedGroup relators)
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators)
+  set y := (PresentedGroup.mk relators HallY : PresentedGroup relators)
+  have hYA : Commute y a := mk_HallY_A_comm
+  have h1 : (PresentedGroup.mk relators (A * HallX) : PresentedGroup relators) =
+      PresentedGroup.mk relators (HallX * A * HallY) := mk_A_HallX
+  have hL : (PresentedGroup.mk relators (A * HallX) : PresentedGroup relators) = a * x := by
+    rw [map_mul]
+  have hR : (PresentedGroup.mk relators (HallX * A * HallY) : PresentedGroup relators)
+      = x * a * y := by rw [map_mul, map_mul]
+  have hax : a * x = x * a * y := hR ▸ hL ▸ h1
+  show a * x * a⁻¹ = x * y
+  rw [hax]
+  -- Goal: x * a * y * a⁻¹ = x * y. hYA : Commute y a i.e. y*a = a*y, so a*y = y*a.
+  have hay : a * y = y * a := hYA.symm.eq
+  have : x * a * y * a⁻¹ = x * y := by
+    rw [mul_assoc x a y, hay, ← mul_assoc x y a, mul_assoc (x*y) a a⁻¹, mul_inv_cancel, mul_one]
+  exact this
+
+
+
+
 /-- Theorem 4 of Bodart, recorded as an internal-facing axiom to be formalized.
 
 It states that the virtually Engel group above has intermediate geodesic growth with respect to
