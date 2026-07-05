@@ -51,13 +51,23 @@ The formalization has three parts:
 \end{itemize}
 
 \subsection{Disclaimer and Verification}
-The abstract witness-packaging theorem is checked by the Lean kernel and uses only the base
-axioms. The goal of the development is an unconditional positive answer to Question~3 obtained
-by instantiating this theorem with Bodart's virtually Engel group. This instantiation currently
-depends on three internal-facing axioms recorded in the development, all listed in a single
-consolidated section at the end of this document. The solvable-word-problem witness for the
-virtually Engel presentation is derived internally from injectivity of the coordinate
-homomorphism, so is not itself an axiom.
+The abstract witness-packaging theorem \texttt{BronnimannQuestion3.positive\_answer\_of\_witness}
+is checked by the Lean kernel and, in the axiom report produced by the local checker, uses only
+the base axioms \texttt{propext}, \texttt{Quot.sound}, and \texttt{Classical.choice}. The
+unconditional-shape theorem \texttt{BronnimannQuestion3.positive\_answer} instantiates the
+witness-packaging theorem with Bodart's virtually Engel group; the local checker reports its
+axiom dependencies as the base axioms together with
+\begin{itemize}
+  \item \texttt{VirtuallyEngel.toCoordGroup\_injective},
+  \item \texttt{VirtuallyEngel.irrationalGeodesicGrowth},
+  \item \texttt{Lean.ofReduceBool} and \texttt{Lean.trustCompiler}, introduced by the
+    \texttt{native\_decide} step inside the word-problem decision procedure.
+\end{itemize}
+The internal-facing axiom \texttt{VirtuallyEngel.theorem\_4} does not appear in this list because
+\texttt{irrationalGeodesicGrowth} is currently stated as an independent axiom; morally, however,
+(A3) is expected to be derived from (A2), so all three axioms below are treated as remaining
+internal work. The solvable-word-problem witness for the virtually Engel presentation is derived
+internally from injectivity of the coordinate homomorphism, so it is not itself an axiom.
 
 \vspace{1em}
 \noindent

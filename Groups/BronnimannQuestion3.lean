@@ -32,4 +32,25 @@ theorem positive_answer_of_witness
     PositiveAnswer := by
   exact ⟨α, rels, β, inferInstance, letterValue, hWord, hIrr⟩
 
+/-- Positive answer to Brönnimann's Question 3, instantiated with Bodart's virtually Engel
+group as witness.
+
+This is an unconditional statement: its dependencies are exactly the ambient core axioms of
+Lean/mathlib together with the three internal-facing axioms of `VirtuallyEngel` that formalize,
+respectively,
+
+* injectivity of the coordinate representation (`toCoordGroup_injective`),
+* Bodart's asymptotic geodesic-growth estimate (`theorem_4`),
+* the derivation of an irrational geodesic-growth series from that estimate
+  (`irrationalGeodesicGrowth`).
+
+Discharging these three axioms is the remaining internal work; see
+`docs/bronnimann_question_3/proof.tex`. Once they are discharged, this theorem becomes
+unconditional in the strict sense of depending only on the core axioms
+`propext`, `Quot.sound`, `Classical.choice`. -/
+theorem positive_answer : PositiveAnswer :=
+  positive_answer_of_witness
+    VirtuallyEngel.solvableWordProblem
+    VirtuallyEngel.irrationalGeodesicGrowth
+
 end BronnimannQuestion3

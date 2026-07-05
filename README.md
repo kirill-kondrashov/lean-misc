@@ -94,7 +94,9 @@ All solved exercises are checked to ensure they:
   (`Erdos1.erdos_1.variants.weaker`, `Erdos1.choose_middle_isEquivalent`,
   and the temporary-axiom wrapper `Erdos1.erdos_1_solution_axiom`)
 - include the fully local Brönnimann Question 3 witness-packaging theorem
-  (`BronnimannQuestion3.positive_answer_of_witness`)
+  (`BronnimannQuestion3.positive_answer_of_witness`) and the unconditional-shape
+  Question 3 theorem (`BronnimannQuestion3.positive_answer`), whose axiom
+  dependencies are explicitly reported
 - include the Problem #142 DeepMind-equivalence theorem
   (`Erdos142.erdos_problem_142_iff_deepmind`)
 - include the strengthened explicit-profile DeepMind-equivalence theorem
@@ -114,6 +116,15 @@ It also reports the fully local Question 3 packaging theorem
 word problem and irrational geodesic growth into a core-axiom-clean proof of the existential
 statement. This theorem is conditional: the witness properties are hypotheses, so the checker sees
 no extra axioms beyond the core ones.
+It also reports the unconditional-shape Question 3 theorem `BronnimannQuestion3.positive_answer`,
+which instantiates the witness-packaging theorem with Bodart's virtually Engel group. Its
+axiom dependencies currently include the three internal-facing axioms
+`VirtuallyEngel.toCoordGroup_injective`, `VirtuallyEngel.theorem_4`, and
+`VirtuallyEngel.irrationalGeodesicGrowth`, together with the compiler-side axioms
+`Lean.ofReduceBool` and `Lean.trustCompiler` introduced by the `native_decide` step in the word
+problem decision procedure; all of these are treated as temporary allowed axiom debt and are
+reported explicitly by the checker. Discharging the three internal-facing axioms is the
+remaining internal work described in `docs/bronnimann_question_3/proof.tex`.
 It also reports the open-problem wrapper `Erdos1.erdos_1_solution_axiom`, with the placeholder
 axiom `Erdos1.erdos_1` treated as temporary allowed axiom debt in the same style as the current
 `Erdos142` frontier checks.
@@ -167,6 +178,20 @@ Axioms used:
 - propext
 - Quot.sound
 - Classical.choice
+🟡 The proof of 'BronnimannQuestion3.positive_answer' is free of 'sorry' but relies on temporary allowed axiom debt.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+- Lean.ofReduceBool
+- Lean.trustCompiler
+- VirtuallyEngel.toCoordGroup_injective
+- VirtuallyEngel.irrationalGeodesicGrowth
+Temporarily allowed non-base axioms (must be proved later):
+- Lean.ofReduceBool
+- Lean.trustCompiler
+- VirtuallyEngel.toCoordGroup_injective
+- VirtuallyEngel.irrationalGeodesicGrowth
 ✅ The proof of 'Erdos1.erdos_1.variants.weaker' is free of 'sorry' and uses only base axioms.
 Axioms used:
 - propext

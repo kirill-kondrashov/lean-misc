@@ -13,6 +13,7 @@ def checkedTheorems : List Name :=
   [ dotted "TaoExercises.TaoBook.Chapter2.exercise_2_3"
   , dotted "TaoExercises.TaoBook.Chapter2.exercise_2_6"
   , dotted "BronnimannQuestion3.positive_answer_of_witness"
+  , dotted "BronnimannQuestion3.positive_answer"
   , dotted "Erdos1.erdos_1.variants.weaker"
   , dotted "Erdos1.choose_middle_isEquivalent"
   , dotted "Erdos1.erdos_1_solution_axiom"
@@ -47,6 +48,11 @@ def temporaryAllowedAxioms : Array Name :=
    , dotted "Erdos142.splitGap_k3_upper_exponent_gt_half_frontier"
    , dotted "Erdos142.splitGap_k4_profile_dominance_frontier"
    , dotted "Erdos142.splitGap_kge5_profile_dominance_frontier"
+   , dotted "VirtuallyEngel.toCoordGroup_injective"
+   , dotted "VirtuallyEngel.theorem_4"
+   , dotted "VirtuallyEngel.irrationalGeodesicGrowth"
+   , ``Lean.ofReduceBool
+   , ``Lean.trustCompiler
    ]
 
 def timeIO (enabled : Bool) (label : String) (action : IO α) : IO α := do
