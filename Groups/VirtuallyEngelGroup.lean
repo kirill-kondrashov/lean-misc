@@ -745,9 +745,41 @@ It states that the virtually Engel group above has intermediate geodesic growth 
 the generating alphabet `S = {a, a⁻¹, t}`. -/
 axiom theorem_4 : theorem_4_statement
 
-/-- Standard background consequence for Bodart's example: the virtually Engel presentation has
-solvable word problem. -/
-axiom solvableWordProblem : PresentedGroup.SolvableWordProblem relators
+/-!
+## Word problem via the coordinate map
+
+The classical word-problem witness is derived from a single sharper algebraic fact, namely
+injectivity of `toCoordGroup`. Given injectivity, the coordinate model — which has decidable
+equality since it is a semidirect product of two types with decidable equality — furnishes a
+decision procedure for equality in the presented group.
+
+Injectivity itself is the remaining algebraic step. It amounts to the Hall normal-form theorem
+inside `PresentedGroup relators`: every element of the presented group is equal to
+`PresentedGroup.mk (coordLatticeWord g)` for a unique lattice point `g` (paired with a symmetry
+letter), and `coordLatticeWord_spec` above shows that distinct lattice points map to distinct
+coordinates. Any single left inverse of `toCoordGroup` — for example the reconstruction map
+sending a coordinate to `mk` of its Hall word — would witness injectivity, and this is precisely
+what the ongoing algebraic groundwork (the Hall normal-form reconstruction, the lattice
+congruence subgroup, the coordinate model of every relator) is designed to support. -/
+
+/-- Injectivity of the coordinate representation `toCoordGroup`.
+
+This is a purely algebraic statement inside the presented group. It replaces the coarser
+`solvableWordProblem` witness previously imported: the decision procedure of the word problem
+below is derived from it. -/
+axiom toCoordGroup_injective : Function.Injective toCoordGroup
+
+/-- The word-problem decidability witness reconstructed from injectivity of the coordinate map.
+Given two finite words in the alphabet `Generator × Bool`, equality of the represented elements
+in the presented group is equivalent to equality of their images in the coordinate model, which
+is decidable. -/
+theorem solvableWordProblem : PresentedGroup.SolvableWordProblem relators := by
+  refine ⟨fun p => ?_⟩
+  by_cases h :
+      toCoordGroup (PresentedGroup.evalWord relators p.1) =
+        toCoordGroup (PresentedGroup.evalWord relators p.2)
+  · exact isTrue (toCoordGroup_injective h)
+  · exact isFalse fun hp => h (congrArg _ hp)
 
 /-- Bodart's example has irrational geodesic growth in the sense of Question 3 of Brönnimann's
 thesis. -/

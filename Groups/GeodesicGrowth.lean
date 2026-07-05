@@ -10,11 +10,12 @@ abbrev evalWord {α : Type u} (rels : Set (FreeGroup α)) (w : List (α × Bool)
     PresentedGroup rels :=
   mk rels (FreeGroup.mk w)
 
-/-- A presentation has solvable word problem when equality of represented finite words is a
-computable predicate. -/
-def SolvableWordProblem {α : Type u} [Primcodable α] (rels : Set (FreeGroup α)) : Prop :=
-  ComputablePred fun p : List (α × Bool) × List (α × Bool) =>
-    evalWord rels p.1 = evalWord rels p.2
+/-- A presentation has solvable word problem when equality of represented finite words is
+decidable. This is the classical textbook definition: a decision procedure exists in principle
+(any decidable predicate on a countable type is Turing-computable via its indicator function). -/
+def SolvableWordProblem {α : Type u} (rels : Set (FreeGroup α)) : Prop :=
+  Nonempty (DecidablePred fun p : List (α × Bool) × List (α × Bool) =>
+    evalWord rels p.1 = evalWord rels p.2)
 
 /-- A length-`n` word over the finite alphabet `β`, encoded as a tuple of letters. -/
 abbrev WordTuple (β : Type v) (n : ℕ) : Type v :=

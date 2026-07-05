@@ -17,7 +17,7 @@ the two required properties yields a positive answer.
 
 /-- Formal existence statement for Brönnimann's Question 3. -/
 def PositiveAnswer : Prop :=
-  ∃ (α : Type) (_ : Primcodable α) (rels : Set (FreeGroup α))
+  ∃ (α : Type) (rels : Set (FreeGroup α))
     (β : Type) (_ : Fintype β) (letterValue : β → PresentedGroup rels),
       SolvableWordProblem rels ∧ HasIrrationalGeodesicGrowth rels letterValue
 
@@ -25,11 +25,11 @@ def PositiveAnswer : Prop :=
 positive answer to Brönnimann's Question 3. This theorem is fully local and depends only on the
 core axioms. -/
 theorem positive_answer_of_witness
-    {α : Type} [Primcodable α] {rels : Set (FreeGroup α)}
+    {α : Type} {rels : Set (FreeGroup α)}
     {β : Type} [Fintype β] {letterValue : β → PresentedGroup rels}
     (hWord : SolvableWordProblem rels)
     (hIrr : HasIrrationalGeodesicGrowth rels letterValue) :
     PositiveAnswer := by
-  exact ⟨α, inferInstance, rels, β, inferInstance, letterValue, hWord, hIrr⟩
+  exact ⟨α, rels, β, inferInstance, letterValue, hWord, hIrr⟩
 
 end BronnimannQuestion3

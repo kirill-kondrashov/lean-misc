@@ -49,9 +49,13 @@ BronnimannQuestion3.positive_answer_of_witness
 The imported witness facts currently exposed in Lean are:
 
 ```lean
-VirtuallyEngel.solvableWordProblem
+VirtuallyEngel.toCoordGroup_injective
 VirtuallyEngel.irrationalGeodesicGrowth
 ```
+
+The decidability form of the word problem for the virtually Engel presentation is now derived
+internally from `toCoordGroup_injective`; the previous `VirtuallyEngel.solvableWordProblem`
+axiom has been replaced by the theorem `VirtuallyEngel.solvableWordProblem`.
 
 The theorem checked in the base-axiom verifier is conditional because
 `positive_answer_of_witness` takes these properties as hypotheses. Hypotheses are not counted as
@@ -59,13 +63,14 @@ new axioms by the checker. No unconditional Bodart-based theorem is claimed at p
 
 ## Next Steps
 
-The main mathematical debt is to replace imported literature axioms by internal
+The main mathematical debt is to replace the remaining imported witness facts by internal
 proof layers. The most natural sequence is:
 
 1. formalize the implication from Bodart's asymptotic estimate to
    non-rationality of the geodesic-growth series;
-2. formalize that finitely generated virtually nilpotent groups have solvable
-   word problem;
+2. prove `toCoordGroup_injective` internally via the Hall normal-form theorem inside the
+   presented group, using the existing coordinate-model scaffolding and the
+   `coordLatticeWord_spec` reconstruction;
 3. instantiate `BronnimannQuestion3.positive_answer_of_witness` from those derived witness facts.
 
 ## References

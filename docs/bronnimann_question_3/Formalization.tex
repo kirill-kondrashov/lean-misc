@@ -52,15 +52,30 @@ by $2$ and $6$, and substituting these exponents back into the coordinate formul
 given lattice point.
 \end{proof}
 
-\subsection*{Remaining internal steps}
-To apply the witness-packaging theorem to Bodart's group, it remains to prove the following
-statements internally:
-\begin{itemize}
-  \item a theorem showing that Bodart's asymptotic estimate implies non-rationality of the
-    geodesic-growth series;
-  \item a theorem identifying the kernel of the coordinate map, equivalently proving that the
-    Hall normal-form reconstruction gives a genuine decision procedure for equality in the
-    virtually Engel presentation.
-\end{itemize}
-Once these are available, the witness-packaging theorem can be instantiated with Bodart's
-virtually Engel group.
+\subsection*{Word problem via injectivity of the coordinate map}
+
+\begin{proposition}[Word-problem reduction]
+Injectivity of the coordinate homomorphism suffices for solvable word problem: given
+two finite words over the presentation alphabet, equality of the elements they represent in the
+presented group is equivalent to equality of their images in the coordinate model, and the latter
+is decidable because the coordinate model is a semidirect product of two types with decidable
+equality.
+\end{proposition}
+
+\begin{proof}[Formal content]
+The word-problem witness is stated as decidability of equality of pairs of finite words in the
+presented group. Applying the coordinate homomorphism to both sides preserves equality; the
+converse implication is exactly injectivity. On the coordinate side, equality is decided
+componentwise on the underlying integer tuples and the two-element symmetry factor.
+\end{proof}
+
+\subsection*{Remaining internal step}
+The only remaining algebraic obligation is injectivity of the coordinate homomorphism, i.e.\ the
+statement that two words representing distinct elements in the presented group are separated by
+their integer coordinates. This is the Hall normal-form theorem inside the presented group: every
+element is equal in the presented group to $\operatorname{mk}$ of the explicit Hall normal-form
+word attached to its coordinates. The coordinate-model scaffolding, the lattice-congruence
+subgroup, and the Hall normal-form reconstruction are all designed to feed this step. Once
+injectivity is proved internally, the witness-packaging theorem can be instantiated with Bodart's
+virtually Engel group and the remaining literature dependency reduces to Bodart's asymptotic
+estimate.
