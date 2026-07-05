@@ -18,14 +18,13 @@
 
 \begin{abstract}
   This document records the current Lean formalization around Br\"onnimann's Question 3: whether
-  there exists a group with solvable word problem and irrational geodesic growth. The repository
-  contains a fully internal theorem reducing the question to the existence of a concrete witness
-  with the required properties. The repository also contains a formal presentation of Bodart's
-  virtually Engel group from \texttt{arXiv:2306.10381}, together with an explicit computable
-  coordinate model into which the presentation maps. The solvable-word-problem witness for the
-  virtually Engel presentation is derived internally from injectivity of the coordinate
-  homomorphism; the irrational-growth witness remains to be derived from Bodart's asymptotic
-  estimate.
+  there exists a group with solvable word problem and irrational geodesic growth. The final goal
+  of the development is a fully formalized unconditional positive answer to Question~3, obtained
+  by instantiating the witness-packaging theorem with Bodart's virtually Engel group from
+  \texttt{arXiv:2306.10381}. At present the abstract witness-packaging theorem is checked by the
+  Lean kernel and uses only the base axioms. The Bodart-side application depends on three
+  internal-facing axioms that pinpoint the exact algebraic and analytic gaps still to be
+  discharged; a single consolidated section at the end of this document lists them.
 \end{abstract}
 
 \maketitle
@@ -52,13 +51,13 @@ The formalization has three parts:
 \end{itemize}
 
 \subsection{Disclaimer and Verification}
-The witness-packaging theorem is checked by the Lean kernel and uses only the base axioms. The
-application to Bodart's group presently depends on one literature fact, Bodart's asymptotic
-theorem, and two internal-facing axioms: injectivity of the coordinate homomorphism from the
-virtually Engel presentation into its coordinate model, and irrationality of the geodesic growth
-(the latter still to be derived from the asymptotic theorem via the asymptotic-to-irrationality
-bridge). The solvable-word-problem witness is derived internally from injectivity of the
-coordinate homomorphism.
+The abstract witness-packaging theorem is checked by the Lean kernel and uses only the base
+axioms. The goal of the development is an unconditional positive answer to Question~3 obtained
+by instantiating this theorem with Bodart's virtually Engel group. This instantiation currently
+depends on three internal-facing axioms recorded in the development, all listed in a single
+consolidated section at the end of this document. The solvable-word-problem witness for the
+virtually Engel presentation is derived internally from injectivity of the coordinate
+homomorphism, so is not itself an axiom.
 
 \vspace{1em}
 \noindent
@@ -66,10 +65,9 @@ coordinate homomorphism.
     \begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule}
         \centering
         \textbf{Disclaimer}: the development described below contains a fully internal
-        witness-packaging theorem. On the Bodart side the coarse decidability of the word problem
-        has been replaced by a strictly algebraic hypothesis, namely injectivity of the coordinate
-        homomorphism, from which decidability of equality of words is derived internally. Bodart's
-        asymptotic theorem and the irrational-growth witness derived from it remain imported.
+        witness-packaging theorem. The unconditional positive answer to Question~3 requires
+        internalizing three further axioms recorded in the development, all listed in the
+        consolidated section \S\ref{sec:RemainingSteps}.
     \end{minipage}%
 }
 \vspace{1em}
@@ -89,14 +87,45 @@ The argument has the following form.
     by generators and relators.
   \item One fixes a criterion for rationality of the geodesic-growth series in terms of eventual
     linear recurrences with constant coefficients.
-  \item One proves that any witness with solvable word problem and irrational geodesic growth gives
-    a positive answer to Br\"onnimann's Question~3.
+  \item One proves that any witness with solvable word problem and irrational geodesic growth
+    gives a positive answer to Br\"onnimann's Question~3.
   \item One records Bodart's virtually Engel group, constructs an explicit computable coordinate
     model for it, and verifies the defining relators in that model.
-  \item It remains to derive injectivity of the coordinate homomorphism internally, from which the
-    solvable-word-problem witness is already obtained by direct decidability of coordinates, and
-    to derive from Bodart's asymptotic estimate the irrational-growth witness.
+  \item One derives the solvable-word-problem witness for the virtually Engel presentation from
+    injectivity of the coordinate homomorphism.
+  \item The remaining internal steps needed to reach an unconditional positive answer are
+    consolidated in \S\ref{sec:RemainingSteps}.
 \end{enumerate}
+
+\section{Remaining Internal Steps}
+\label{sec:RemainingSteps}
+
+To reach a fully formalized unconditional positive answer to Question~3 it remains to discharge
+the following three axioms currently recorded in the Bodart-side development. Each is stated as
+an internal-facing axiom to be proved, not as an imported literature fact.
+
+\begin{enumerate}[label=(A\arabic*)]
+  \item \emph{Injectivity of the coordinate homomorphism from the virtually Engel presentation
+    into its computable coordinate model.} The framework reducing this to a single
+    multiplication-compatibility identity for the Hall normal-form reconstruction is already in
+    place: the image of every element of the presented group is proved to lie in the coordinate
+    lattice, injectivity is proved equivalent to a canonical set-theoretic retract being a left
+    inverse, and the retract identity is checked on the trivial element and on each presentation
+    generator. The remaining obligation is the multiplication-compatibility identity for the
+    retract restricted to the lattice, whose input is the Hall commutation identities implied by
+    the four defining relators.
+  \item \emph{Bodart's asymptotic estimate for the geodesic-growth function}
+    $\gamma_{\mathrm{geod}}(n)\asymp \exp(n^{3/5}\log n)$. This is the main quantitative result
+    of Bodart's paper, to be formalized from the geometric path-counting construction over the
+    virtually Engel group.
+  \item \emph{Asymptotic-to-irrationality bridge}, i.e.\ the theorem that an integer sequence
+    satisfying an eventual linear recurrence with constant coefficients cannot have intermediate
+    growth of the form $\exp(n^{3/5}\log n)$. Combined with axiom~(A2), this yields the
+    irrational-growth witness for the virtually Engel presentation with respect to the alphabet
+    $S=\{a,a^{-1},t\}$.
+\end{enumerate}
+Once (A1), (A2), and (A3) are proved internally, the witness-packaging theorem instantiated at
+Bodart's virtually Engel group yields the unconditional positive answer.
 
 \begin{thebibliography}{9}
 

@@ -739,10 +739,12 @@ theorem coordLatticeWord_spec (g : coordLattice) :
   rw [coordLatticeWord, map_mul, EngelCoords.hallWord_spec g.2, coord_symmetryWord]
   simpa using (SemidirectProduct.mk_eq_inl_mul_inr g.1.right g.1.left).symm
 
-/-- Theorem 4 of Bodart, imported as literature axiom.
+/-- Theorem 4 of Bodart, recorded as an internal-facing axiom to be formalized.
 
 It states that the virtually Engel group above has intermediate geodesic growth with respect to
-the generating alphabet `S = {a, a⁻¹, t}`. -/
+the generating alphabet `S = {a, a⁻¹, t}`, i.e.\ `γ(n) ≍ exp(n^(3/5) log n)`. Discharging this
+axiom is one of the three remaining internal steps for an unconditional positive answer to
+Brönnimann's Question 3. -/
 axiom theorem_4 : theorem_4_statement
 
 /-!
