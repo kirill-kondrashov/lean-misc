@@ -36,15 +36,21 @@ theorem positive_answer_of_witness
 group as witness.
 
 This is an unconditional statement: its dependencies are exactly the ambient core axioms of
-Lean/mathlib together with the three internal-facing axioms of `VirtuallyEngel` that formalize,
-respectively,
+Lean/mathlib together with the remaining internal-facing axioms of `VirtuallyEngel`. Of the
+original three:
 
-* injectivity of the coordinate representation (`toCoordGroup_injective`),
-* Bodart's asymptotic geodesic-growth estimate (`theorem_4`),
+* injectivity of the coordinate representation (`toCoordGroup_injective`) — now a theorem;
+* Bodart's asymptotic geodesic-growth estimate (`theorem_4`) — now a proved theorem, assembled
+  from two named sub-axioms `theorem_4_upper` and `theorem_4_lower` that isolate the deep
+  Stoll/Pansu nilpotent-geometry inputs (the one-sided asymptotic halves). The estimate is stated
+  as the growth equivalence `γ(n) ≍ exp(n^(3/5) log n)` (`CoarseGrowth.CoarseEquiv`); its lower
+  half only controls the exponent up to a smaller constant `exp(κ·n^(3/5) log n)`, reconciled with
+  the upper half by the argument-rescaling freedom of `≍`;
 * the derivation of an irrational geodesic-growth series from that estimate
-  (`irrationalGeodesicGrowth`).
+  (`irrationalGeodesicGrowth`) — now a theorem.
 
-Discharging these three axioms is the remaining internal work; see
+The remaining internal work is discharging the two Stoll/Pansu-dependent sub-axioms
+`theorem_4_upper` and `theorem_4_lower`; see
 `docs/bronnimann_question_3/proof.tex`. Once they are discharged, this theorem becomes
 unconditional in the strict sense of depending only on the core axioms
 `propext`, `Quot.sound`, `Classical.choice`. -/

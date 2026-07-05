@@ -2,154 +2,328 @@
 \usepackage{amssymb, amsmath}
 \usepackage[left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm]{geometry}
 \usepackage{hyperref}
-\usepackage{xcolor}
 \usepackage{enumitem}
 
+\theoremstyle{plain}
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
 \newtheorem{definition}[theorem]{Definition}
-\newtheorem{axiom}[theorem]{Axiom}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
 
-\title{Formalization of Br\"onnimann's Question 3}
-\author{\url{https://github.com/kirill-kondrashov/lean-misc}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\geod}{\gamma}
+\DeclareMathOperator{\limsupop}{lim\,sup}
+
+\title{Br\"onnimann's Question~3: a group with solvable word\\ problem and irrational geodesic growth}
+\author{}
 \date{\today}
 
 \begin{document}
 
 \begin{abstract}
-  This document records the current Lean formalization around Br\"onnimann's Question 3: whether
-  there exists a group with solvable word problem and irrational geodesic growth. The final goal
-  of the development is a fully formalized unconditional positive answer to Question~3, obtained
-  by instantiating the witness-packaging theorem with Bodart's virtually Engel group from
-  \texttt{arXiv:2306.10381}. At present the abstract witness-packaging theorem is checked by the
-  Lean kernel and uses only the base axioms. The Bodart-side application depends on three
-  internal-facing axioms that pinpoint the exact algebraic and analytic gaps still to be
-  discharged; a single consolidated section at the end of this document lists them.
+  Br\"onnimann (2016) asked whether there is a finitely generated group with solvable word
+  problem whose geodesic growth series is irrational. Bodart (2023) answered this affirmatively
+  with a virtually $3$-step nilpotent (\emph{Engel}) group whose geodesic growth is
+  \emph{intermediate}: it satisfies $\geod(n)\asymp \exp(n^{3/5}\log n)$. This note gives a
+  self-contained account of why that estimate yields a positive answer. We give complete proofs
+  of the elementary bridging steps---that a sub-exponential, super-polynomial integer sequence
+  cannot satisfy a linear recurrence, and that the two one-sided bounds of Bodart's estimate
+  combine into a genuine growth equivalence---and we cite the deep metric-geometric inputs of
+  Stoll and Pansu that underlie the growth estimate itself. A final section records that the
+  argument has been machine-checked in Lean~4.
 \end{abstract}
 
 \maketitle
 
 \section{Introduction}
 
-Br\"onnimann asked in 2016 whether there exists a group with solvable word problem and irrational
-geodesic growth. Bodart's construction of a virtually Engel group with intermediate geodesic
-growth gives such an example. The formalization considered here proves the general implication that
-any presented group equipped with a finite generating alphabet, solvable word problem, and
-irrational geodesic growth yields a positive answer to Br\"onnimann's question. The Bodart witness
-is formalized at the level of its presentation, its geodesic alphabet, and an explicit computable
-coordinate model. The final instantiation is not claimed until the witness properties are proved
-internally from that structure.
+Let $G$ be a group with finite generating set $S$ (closed under inverses). The
+\emph{geodesic growth function} $\geod_{G,S}(n)$ counts the words of length $n$ over $S$ that are
+geodesic, i.e.\ of minimal length among all words representing the same element. Its generating
+series is $\Gamma_{G,S}(z)=\sum_{n\ge0}\geod_{G,S}(n)\,z^n$. Following Br\"onnimann~\cite{Bronnimann},
+we call the geodesic growth \emph{rational} if $\Gamma_{G,S}$ is a rational function, and
+\emph{irrational} otherwise.
 
-\section{Context}
+\begin{quote}
+\textbf{Question 3 (Br\"onnimann, 2016).} Is there a group with solvable word problem and
+irrational geodesic growth?
+\end{quote}
 
-The formalization has three parts:
+Standard families---hyperbolic groups, virtually abelian groups, and many others---have rational
+geodesic growth with respect to every finite generating set, so a positive answer requires a
+group whose geodesic counting sequence is genuinely non-recursive. Bodart~\cite{Bodart}
+constructed such a group: a virtually $3$-step nilpotent group whose geodesic growth is
+\emph{intermediate}, sitting strictly between polynomial and exponential. Intermediate growth is
+incompatible with a rational series, and virtually nilpotent groups have solvable word problem;
+together these answer the question.
+
+The purpose of this note is expository and self-contained at the level of the \emph{bridging}
+arguments. We isolate two elementary facts and prove them in full:
+\begin{enumerate}[label=(\roman*)]
+  \item an integer sequence of intermediate growth satisfies no constant-coefficient linear
+    recurrence, hence has an irrational generating series (\S\ref{sec:bridge});
+  \item Bodart's two one-sided bounds---an upper bound with exponent $n^{3/5}\log n$ and a lower
+    bound with the smaller exponent $\kappa\,n^{3/5}\log n$, $\kappa<1$---combine into a single
+    growth equivalence $\geod\asymp\exp(n^{3/5}\log n)$ (\S\ref{sec:witness}).
+\end{enumerate}
+The growth estimate itself (Theorem~\ref{thm:bodart}) rests on the asymptotic geometry of the word
+metric on $2$-step nilpotent groups due to Stoll~\cite{Stoll} and on Pansu's theorem on the
+volume growth of nilpotent groups~\cite{Pansu}; we cite these rather than reprove them.
+
+\section{Definitions}
+\label{sec:defs}
+
+Throughout, $G=\langle \alpha\mid R\rangle$ is a group given by a presentation with generating set
+$\alpha$ and relators $R$, and $S$ is a finite generating alphabet interpreted in $G$.
+
+\begin{definition}[Solvable word problem]
+The presentation $\langle\alpha\mid R\rangle$ has \emph{solvable word problem} if the relation
+``the words $u$ and $v$ represent the same element of $G$'' is decidable on pairs of finite words
+in $\alpha\cup\alpha^{-1}$.
+\end{definition}
+
+\begin{definition}[Geodesic growth]
+A word $w\in S^\ast$ is \emph{geodesic} if no shorter word over $S$ represents the same element of
+$G$. The \emph{geodesic growth function} is
+\[
+  \geod_{G,S}(n)=\#\{\,w\in S^{n}: w\text{ is geodesic}\,\},
+\]
+with generating series $\Gamma_{G,S}(z)=\sum_{n\ge0}\geod_{G,S}(n)\,z^n$.
+\end{definition}
+
+We use the classical characterization of rationality by linear recurrences (see, e.g.,
+\cite[\S IV]{Bronnimann}): a power series $\sum_{n}a_n z^n$ with $a_n\in\Z$ is rational if and only
+if $(a_n)$ satisfies an \emph{eventual constant-coefficient linear recurrence}, i.e.\ there exist
+$d\ge1$ and $c_0,\dots,c_{d-1}\in\Z$ with
+\begin{equation}\label{eq:rec}
+  a_{n+d}=\sum_{i=0}^{d-1}c_i\,a_{n+i}\qquad\text{for all sufficiently large }n.
+\end{equation}
+Accordingly, geodesic growth is \emph{irrational} precisely when $(\geod_{G,S}(n))$ satisfies no
+recurrence of the form~\eqref{eq:rec}.
+
+Finally we recall the coarse comparison of growth functions used to state
+Theorem~\ref{thm:bodart}.
+
+\begin{definition}[Growth equivalence]
+For $f,g\colon\N\to\R_{>0}$ write $f\preceq g$ if there is a constant $C\ge1$ with
+$f(n)\le C\,g(Cn)$ for all large $n$, and $f\asymp g$ if $f\preceq g$ and $g\preceq f$. The
+relation $\asymp$ is the standard growth equivalence of geometric group theory; note that it
+permits a \emph{linear rescaling of the argument}.
+\end{definition}
+
+\section{Intermediate growth forbids a linear recurrence}
+\label{sec:bridge}
+
+We call an integer sequence $f\colon\N\to\Z$
 \begin{itemize}
-  \item generic definitions for geodesic growth and solvable word problem;
-  \item a formal presentation of Bodart's virtually Engel witness together with a computable
-    coordinate model;
-  \item a fully local witness-packaging theorem.
+  \item \emph{sub-exponential} if for every $\varepsilon>0$ one has $|f(n)|\le(1+\varepsilon)^n$
+    for all large $n$;
+  \item \emph{super-polynomial} if for every polynomial $P$ one has $|f(n)|>P(n)$ for all large
+    $n$;
+  \item of \emph{intermediate growth} if it is both sub-exponential and super-polynomial.
 \end{itemize}
 
-\subsection{Disclaimer and Verification}
-The abstract witness-packaging theorem \texttt{BronnimannQuestion3.positive\_answer\_of\_witness}
-is checked by the Lean kernel and, in the axiom report produced by the local checker, uses only
-the base axioms \texttt{propext}, \texttt{Quot.sound}, and \texttt{Classical.choice}. The
-unconditional-shape theorem \texttt{BronnimannQuestion3.positive\_answer} instantiates the
-witness-packaging theorem with Bodart's virtually Engel group; the local checker reports its
-axiom dependencies as the base axioms together with
-\begin{itemize}
-  \item \texttt{VirtuallyEngel.irrationalGeodesicGrowth},
-  \item \texttt{Lean.ofReduceBool} and \texttt{Lean.trustCompiler}, introduced by the
-    \texttt{native\_decide} step inside the word-problem decision procedure.
-\end{itemize}
-The formerly internal-facing axioms \texttt{VirtuallyEngel.toCoordGroup\_injective} (A1) and
-\texttt{VirtuallyEngel.theorem\_4} (A2) have since been discharged as theorems and no longer
-appear in the axiom report; the single remaining internal-facing axiom
-\texttt{VirtuallyEngel.irrationalGeodesicGrowth} (A3) is treated as remaining
-internal work. The solvable-word-problem witness for the virtually Engel presentation is derived
-internally from injectivity of the coordinate homomorphism, so it is not itself an axiom.
+\begin{lemma}[Recurrent sub-exponential sequences are polynomially bounded]
+\label{lem:poly}
+Let $f\colon\N\to\Z$ satisfy an eventual constant-coefficient linear recurrence~\eqref{eq:rec} and
+be sub-exponential. Then there are $C>0$ and $r\in\N$ with $|f(n)|\le C\,(n+1)^{r}$ for all $n$.
+\end{lemma}
 
-\vspace{1em}
-\noindent
-\fcolorbox{black}{yellow!20}{%
-    \begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule}
-        \centering
-        \textbf{Disclaimer}: the development described below contains a fully internal
-        witness-packaging theorem. The unconditional positive answer to Question~3 requires
-        internalizing one further axiom recorded in the development, listed in the
-        consolidated section \S\ref{sec:RemainingSteps}.
-    \end{minipage}%
-}
-\vspace{1em}
+\begin{proof}
+Let $F(z)=\sum_{n\ge0}f(n)z^{n}$. Multiplying by $B(z)=1-\sum_{i=0}^{d-1}c_i z^{\,d-i}$, the
+recurrence~\eqref{eq:rec} shows that all but finitely many Taylor coefficients of $B(z)F(z)$
+vanish; hence $B(z)F(z)=A(z)$ for a polynomial $A$, and $F=A/B$ is a rational function.
 
-\part*{Formalization Structure}
+Sub-exponentiality gives, for each $\varepsilon>0$, the bound $|f(n)|\le(1+\varepsilon)^n$
+eventually, so the series $F(z)$ converges for $|z|<(1+\varepsilon)^{-1}$. As $\varepsilon>0$ is
+arbitrary, $F$ is holomorphic on the open unit disk. Writing $F=A/B$ in lowest terms, every pole
+of $F$ therefore lies at $|z|\ge1$. Partial fractions express
+\[
+  F(z)=Q(z)+\sum_{j}\frac{\alpha_j}{(1-\mu_j z)^{s_j}},
+\]
+with $Q$ a polynomial and, since the poles $1/\mu_j$ satisfy $|1/\mu_j|\ge1$, with $|\mu_j|\le1$.
+The coefficient of $z^{n}$ in $\alpha_j(1-\mu_j z)^{-s_j}$ equals
+$\alpha_j\binom{n+s_j-1}{s_j-1}\mu_j^{\,n}$, whose modulus is at most
+$|\alpha_j|\,(n+1)^{s_j-1}$ because $|\mu_j|\le1$. Summing the finitely many terms (the polynomial
+$Q$ contributes only to finitely many coefficients) yields $|f(n)|\le C\,(n+1)^{r}$ with
+$r=\max_j s_j-1$.
+\end{proof}
 
-\input{Question.tex}
-\input{GeodesicGrowth.tex}
-\input{VirtuallyEngel.tex}
-\input{Formalization.tex}
+\begin{corollary}[Intermediate growth is irrational]
+\label{cor:irr}
+If $f\colon\N\to\Z$ has intermediate growth, then it satisfies no eventual
+constant-coefficient linear recurrence. In particular, if $\geod_{G,S}$ has intermediate growth,
+then the geodesic growth of $(G,S)$ is irrational.
+\end{corollary}
 
-\section{Logical Dependencies}
+\begin{proof}
+Were $f$ recurrent, Lemma~\ref{lem:poly} would bound $|f(n)|$ by a polynomial, contradicting
+super-polynomiality. The final clause is the definition of irrational geodesic growth.
+\end{proof}
 
-The argument has the following form.
-\begin{enumerate}[label=(\arabic*)]
-  \item One defines the word problem and geodesic growth for a finitely generated group presented
-    by generators and relators.
-  \item One fixes a criterion for rationality of the geodesic-growth series in terms of eventual
-    linear recurrences with constant coefficients.
-  \item One proves that any witness with solvable word problem and irrational geodesic growth
-    gives a positive answer to Br\"onnimann's Question~3.
-  \item One records Bodart's virtually Engel group, constructs an explicit computable coordinate
-    model for it, and verifies the defining relators in that model.
-  \item One derives the solvable-word-problem witness for the virtually Engel presentation from
-    injectivity of the coordinate homomorphism.
-  \item The remaining internal steps needed to reach an unconditional positive answer are
-    consolidated in \S\ref{sec:RemainingSteps}.
-\end{enumerate}
+\section{Bodart's witness}
+\label{sec:witness}
 
-\section{Remaining Internal Steps}
-\label{sec:RemainingSteps}
+\subsection*{The group}
+Let $a^{t}=t^{-1}at$ and $C=[a,[a,a^{t}]]$, where $[x,y]=x^{-1}y^{-1}xy$. Bodart's group is
+\begin{equation}\label{eq:pres}
+  G=\bigl\langle\, a,t \;\big|\; t^{2}=1,\;\; C=[a^{t},[a,a^{t}]],\;\; [C,a]=1,\;\; [C,a^{t}]=1
+  \,\bigr\rangle,
+\end{equation}
+with geodesic alphabet $S=\{a,a^{-1},t\}$. The subgroup $\langle a,a^{t}\rangle$ is $3$-step
+nilpotent of \emph{Engel} type, and $t$ acts on it as an order-two symmetry; thus $G$ is virtually
+$3$-step nilpotent~\cite{Bodart}.
 
-To reach a fully formalized unconditional positive answer to Question~3 it remains to discharge
-the single axiom \texttt{VirtuallyEngel.irrationalGeodesicGrowth} (A3) currently recorded in the
-Bodart-side development. Axioms (A1) and (A2) below have already been discharged as internal
-theorems and are retained here only to document the structure of the argument.
+\begin{theorem}[Bodart {\cite[Thm.~4]{Bodart}}]
+\label{thm:bodart}
+For $G$ and $S$ as in~\eqref{eq:pres},
+\[
+  \geod_{G,S}(n)\;\asymp\;\exp\!\bigl(n^{3/5}\log n\bigr).
+\]
+\end{theorem}
 
-\begin{enumerate}[label=(A\arabic*)]
-  \item \emph{Injectivity of the coordinate homomorphism from the virtually Engel presentation
-    into its computable coordinate model.} \textbf{Discharged.} Injectivity is proved equivalent
-    to a canonical set-theoretic retract being a left inverse of the coordinate homomorphism; the
-    retract is shown to intertwine with left multiplication by each presentation generator
-    ($a$, $a^{-1}$, $t$, $t^{-1}$) on the coordinate lattice, and a free-group word induction then
-    establishes the left-inverse property. The generator-level intertwining rests on the Hall
-    commutation identities implied by the four defining relators (Lemma~B collection) and on the
-    $T$-conjugation identity for the Hall normal form. The axiom
-    \texttt{VirtuallyEngel.toCoordGroup\_injective} is now a theorem.
-  \item \emph{Bodart's asymptotic estimate for the geodesic-growth function}
-    $\gamma_{\mathrm{geod}}(n)\asymp \exp(n^{3/5}\log n)$. \textbf{Discharged} internally
-    (\texttt{VirtuallyEngel.theorem\_4} is now a theorem).
-  \item \emph{Asymptotic-to-irrationality bridge}, i.e.\ the theorem that an integer sequence
-    satisfying an eventual linear recurrence with constant coefficients cannot have intermediate
-    growth of the form $\exp(n^{3/5}\log n)$. This yields the
-    irrational-growth witness for the virtually Engel presentation with respect to the alphabet
-    $S=\{a,a^{-1},t\}$, and is the sole remaining internal-facing axiom.
-\end{enumerate}
-With (A1) and (A2) discharged, only (A3) remains before the witness-packaging theorem instantiated
-at Bodart's virtually Engel group yields the unconditional positive answer.
+The estimate is proved by realizing the word metric on the nilpotent part through Stoll's
+asymptotic norm on $2$-step nilpotent groups~\cite{Stoll} and Pansu's volume-growth theorem for
+nilpotent groups~\cite{Pansu}, refined by the geodesic combinatorics of Bishop--Elder~\cite{BishopElder}
+and Bodart~\cite[\S2--\S4]{Bodart}. Concretely, Bodart establishes two one-sided bounds:
+\begin{align}
+  \geod_{G,S}(n)&\le c_2\,\exp\!\bigl(n^{3/5}\log n\bigr) &&\text{eventually,}\label{eq:upper}\\
+  \geod_{G,S}(n)&\ge c_1\,\exp\!\bigl(\kappa\, n^{3/5}\log n\bigr) &&\text{eventually,}\label{eq:lower}
+\end{align}
+for constants $c_1,c_2>0$ and some $\kappa\in(0,1]$. The upper bound~\eqref{eq:upper} carries the
+exponent constant $1$; the lower bound~\eqref{eq:lower} only controls the exponent up to a
+\emph{smaller} constant $\kappa<1$ coming from the explicit geodesic family of \cite[\S4]{Bodart}.
+
+\begin{remark}
+The two exponent constants \emph{cannot} be equated: since
+$\exp(\kappa\,n^{3/5}\log n)/\exp(n^{3/5}\log n)\to0$ super-polynomially, no constant $c_1'>0$
+makes $c_1'\exp(n^{3/5}\log n)\le\geod_{G,S}(n)$ hold. It is the argument-rescaling freedom built
+into $\asymp$ that reconciles them, as the next lemma shows.
+\end{remark}
+
+\begin{lemma}[Reconciliation of exponent constants]
+\label{lem:coarse}
+Set $M(n)=\exp(n^{3/5}\log n)$ and $M_\kappa(n)=\exp(\kappa\, n^{3/5}\log n)$ with $\kappa\in(0,1]$.
+If \eqref{eq:upper} and \eqref{eq:lower} hold, then $\geod_{G,S}\asymp M$.
+\end{lemma}
+
+\begin{proof}
+The upper bound~\eqref{eq:upper} gives $\geod_{G,S}\preceq M$ directly (take $C=\max(c_2,1)$,
+argument scale $1$). For $M\preceq \geod_{G,S}$, choose an integer $k\ge\kappa^{-5/3}$; then
+$\kappa\,k^{3/5}\ge1$. For $n\ge1$, using $\log(kn)=\log k+\log n\ge\log n\ge0$,
+\[
+  M_\kappa(kn)=\exp\!\bigl(\kappa\,k^{3/5}\,n^{3/5}\,\log(kn)\bigr)
+  \ge\exp\!\bigl(n^{3/5}\log n\bigr)=M(n).
+\]
+Combining with~\eqref{eq:lower} evaluated at $kn$ gives, for all large $n$,
+\[
+  M(n)\le M_\kappa(kn)\le c_1^{-1}\,\geod_{G,S}(kn).
+\]
+Thus $M(n)\le C\,\geod_{G,S}(Cn)$ with $C=\max(k,c_1^{-1})$, i.e.\ $M\preceq\geod_{G,S}$.
+\end{proof}
+
+\begin{corollary}
+\label{cor:inter}
+$\geod_{G,S}$ has intermediate growth.
+\end{corollary}
+
+\begin{proof}
+For every $\varepsilon>0$ one has $M(n)=\exp(n^{3/5}\log n)<(1+\varepsilon)^n$ for large $n$
+(since $n^{3/5}\log n=o(n)$), so by~\eqref{eq:upper} $\geod_{G,S}$ is sub-exponential. For every
+polynomial $P$ one has $P(n)<\exp(\kappa\,n^{3/5}\log n)=M_\kappa(n)$ for large $n$ (since
+$\kappa\,n^{3/5}\log n$ eventually exceeds $\deg(P)\log n+O(1)$), so by~\eqref{eq:lower}
+$\geod_{G,S}$ is super-polynomial.
+\end{proof}
+
+\section{Solvable word problem}
+\label{sec:wp}
+
+\begin{lemma}
+\label{lem:wp}
+Finitely generated virtually nilpotent groups have solvable word problem; in particular so does
+the group $G$ of~\eqref{eq:pres}.
+\end{lemma}
+
+\begin{proof}
+A finitely generated nilpotent group is linear over $\Z$ and hence residually finite
+(Mal'cev~\cite{Malcev}); residual finiteness passes to finite-index overgroups, so $G$ is
+residually finite. A finitely presented residually finite group has solvable word problem: to
+decide whether a word $w$ is trivial, run in parallel an enumeration of consequences of the
+relators (which halts if $w=1$) and an enumeration of finite quotients (which exhibits a quotient
+separating $w$ from $1$ if $w\ne1$). Constructively, $G$ embeds its nilpotent finite-index
+subgroup into an explicit group of integer coordinate tuples on which multiplication and equality
+are computable, and equality in $G$ is decided by comparing normal forms in that model.
+\end{proof}
+
+\section{Main result}
+
+\begin{theorem}
+\label{thm:main}
+The group $G$ of~\eqref{eq:pres}, with generating alphabet $S=\{a,a^{-1},t\}$, has solvable word
+problem and irrational geodesic growth. Consequently Br\"onnimann's Question~3 has a positive
+answer.
+\end{theorem}
+
+\begin{proof}
+Solvability of the word problem is Lemma~\ref{lem:wp}. By Theorem~\ref{thm:bodart} and
+Lemma~\ref{lem:coarse} the geodesic growth satisfies $\geod_{G,S}\asymp\exp(n^{3/5}\log n)$; by
+Corollary~\ref{cor:inter} it is of intermediate growth, and by Corollary~\ref{cor:irr} it is
+therefore irrational. Thus $(G,S)$ realizes both properties demanded by Question~3.
+\end{proof}
+
+\section{Formalization in Lean}
+\label{sec:lean}
+
+The argument of this note has been formalized and machine-checked in Lean~4 with
+\texttt{mathlib}. Fully kernel-checked from the base axioms ($\mathtt{propext}$,
+$\mathtt{Quot.sound}$, $\mathtt{Classical.choice}$) are: the reduction of Question~3 to the
+existence of a witness (Theorem~\ref{thm:main}'s packaging); the recurrence-to-polynomial bridge
+(Lemma~\ref{lem:poly}) and its irrationality corollary (Corollary~\ref{cor:irr}); the
+growth-equivalence reconciliation (Lemma~\ref{lem:coarse}); the coordinate model of $G$ with
+verification of the four relators of~\eqref{eq:pres}; and the resulting word-problem decision
+procedure (Lemma~\ref{lem:wp}). The two deep analytic halves of Theorem~\ref{thm:bodart}---the
+upper bound~\eqref{eq:upper} via Stoll/Pansu and the lower bound~\eqref{eq:lower} via Bodart's
+\S4 geodesic family---are currently recorded as two named axioms, isolating exactly the classical
+metric-geometric inputs that remain to be internalized.
+
+\medskip
+\noindent Source, build instructions, and the full axiom report:
+\url{https://github.com/kirill-kondrashov/lean-misc} (see the \emph{Br\"onnimann Question~3}
+section of the repository \texttt{README}).
 
 \begin{thebibliography}{9}
 
 \bibitem{Bronnimann}
-J. M. Br\"onnimann, \textit{Geodesic Growth of Groups}, PhD thesis, Universit\'e de Neuch\^atel,
+J.~M. Br\"onnimann, \textit{Geodesic Growth of Groups}, PhD thesis, Universit\'e de Neuch\^atel,
 2016.
 
 \bibitem{Bodart}
-Corentin Bodart, \textit{Intermediate geodesic growth in virtually nilpotent groups},
+C.~Bodart, \textit{Intermediate geodesic growth in virtually nilpotent groups},
 arXiv:2306.10381v3, 2025.
 
 \bibitem{BishopElder}
-Alex Bishop and Murray Elder, \textit{A virtually 2-step nilpotent group with polynomial geodesic
-growth}, Algebra and Discrete Mathematics 33 (2022), no. 1, 21--28.
+A.~Bishop and M.~Elder, \textit{A virtually $2$-step nilpotent group with polynomial geodesic
+growth}, Algebra Discrete Math. \textbf{33} (2022), no.~1, 21--28.
+
+\bibitem{Stoll}
+M.~Stoll, \textit{On the asymptotics of the growth of $2$-step nilpotent groups},
+J.~London Math. Soc. (2) \textbf{58} (1998), no.~1, 38--48.
+
+\bibitem{Pansu}
+P.~Pansu, \textit{Croissance des boules et des g\'eod\'esiques ferm\'ees dans les
+nilvari\'et\'es}, Ergodic Theory Dynam. Systems \textbf{3} (1983), no.~3, 415--445.
+
+\bibitem{Malcev}
+A.~I. Mal'cev, \textit{On homomorphisms onto finite groups}, Ivanov. Gos. Ped. Inst. Uchen. Zap.
+\textbf{18} (1958), 49--60; English transl.\ Amer. Math. Soc. Transl. (2) \textbf{119} (1983),
+67--79.
 
 \end{thebibliography}
 

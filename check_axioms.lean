@@ -48,9 +48,8 @@ def temporaryAllowedAxioms : Array Name :=
    , dotted "Erdos142.splitGap_k3_upper_exponent_gt_half_frontier"
    , dotted "Erdos142.splitGap_k4_profile_dominance_frontier"
    , dotted "Erdos142.splitGap_kge5_profile_dominance_frontier"
-   , dotted "VirtuallyEngel.toCoordGroup_injective"
-   , dotted "VirtuallyEngel.theorem_4"
-   , dotted "VirtuallyEngel.irrationalGeodesicGrowth"
+   , dotted "VirtuallyEngel.theorem_4_upper"
+   , dotted "VirtuallyEngel.theorem_4_lower"
    , ``Lean.ofReduceBool
    , ``Lean.trustCompiler
    ]
