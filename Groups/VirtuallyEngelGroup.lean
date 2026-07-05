@@ -816,6 +816,15 @@ theorem mk_A_HallX :
     group
   rw [h]
 
+/-- Reverse form of `mk_A_HallX`: `mk (HallX * A) = mk (A * HallX * HallY⁻¹)`. -/
+theorem mk_HallX_A :
+    (PresentedGroup.mk relators (HallX * A) : PresentedGroup relators) =
+      PresentedGroup.mk relators (A * HallX * HallY⁻¹) := by
+  have h : (HallX * A : FreeGroup Generator) = A * HallX * HallY⁻¹ := by
+    change HallX * A = A * HallX * (A⁻¹ * HallX⁻¹ * A * HallX)⁻¹
+    group
+  rw [h]
+
 /-- `mk` sends the third-relator commutator `⁅C, A⁆` to `1`. -/
 theorem mk_commutator_C_A :
     (PresentedGroup.mk relators ⁅C, A⁆ : PresentedGroup relators) = 1 :=
