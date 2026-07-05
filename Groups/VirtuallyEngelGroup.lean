@@ -1615,6 +1615,37 @@ theorem mk_HallX_Aconj :
     rw [h]; simp [mul_assoc]
   exact this.symm
 
+/-- T-conjugation inverts `HallY`: `mk (T * HallY * T) = mk HallY⁻¹`.
+
+Combining `mk_T_HallY_T` with the shift `mk_Aconj_HallX` (`b·x = x·b·y`) collapses the
+class-3 correction `mk (Aconj⁻¹ * HallX * Aconj * HallX⁻¹)` to `y⁻¹`. -/
+theorem mk_T_HallY_T_eq :
+    (PresentedGroup.mk relators (T * HallY * T) : PresentedGroup relators) =
+      PresentedGroup.mk relators HallY⁻¹ := by
+  rw [mk_T_HallY_T]
+  set b := (PresentedGroup.mk relators Aconj : PresentedGroup relators)
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators)
+  set y := (PresentedGroup.mk relators HallY : PresentedGroup relators)
+  have hexp : (PresentedGroup.mk relators (Aconj⁻¹ * HallX * Aconj * HallX⁻¹)
+      : PresentedGroup relators) = b⁻¹ * x * b * x⁻¹ := by
+    rw [map_mul, map_mul, map_mul, map_inv, map_inv]
+  have hrhs : (PresentedGroup.mk relators HallY⁻¹ : PresentedGroup relators) = y⁻¹ := by
+    rw [map_inv]
+  rw [hexp, hrhs]
+  have hbx : b * x = x * b * y := by
+    have := mk_Aconj_HallX
+    have hl : (PresentedGroup.mk relators (Aconj * HallX) : PresentedGroup relators) = b * x := by
+      rw [map_mul]
+    have hr : (PresentedGroup.mk relators (HallX * Aconj * HallY) : PresentedGroup relators)
+        = x * b * y := by rw [map_mul, map_mul]
+    rw [hl, hr] at this; exact this
+  have hYX : Commute y x := mk_HallY_HallX_comm
+  have hbxy : b * (x * y⁻¹) = x * b := by
+    rw [← mul_assoc, hbx, mul_assoc, mul_inv_cancel, mul_one]
+  have h1 : b⁻¹ * x * b = x * y⁻¹ := by
+    rw [mul_assoc, ← hbxy, ← mul_assoc, inv_mul_cancel, one_mul]
+  rw [h1, (hYX.symm.inv_right).eq, mul_assoc, mul_inv_cancel, mul_one]
+
 /-!
 ### Iterated shifts through integer powers
 
@@ -1729,12 +1760,568 @@ theorem mk_HallX_pow_A_nat (n : ℕ) :
             rw [show (-(k+1 : ℤ)) = (-1 : ℤ) + (-(k : ℤ)) by ring, zpow_add, zpow_neg_one]
           rw [hy]
 
+/-- Iterated shift: `mk (Aconj^n · HallX) = mk (HallX · Aconj^n · HallY^n)` for natural n. -/
+theorem mk_Aconj_pow_HallX_nat (n : ℕ) :
+    (PresentedGroup.mk relators (Aconj ^ n * HallX) : PresentedGroup relators) =
+      PresentedGroup.mk relators (HallX * Aconj ^ n * HallY ^ n) := by
+  set b := (PresentedGroup.mk relators Aconj : PresentedGroup relators)
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators)
+  set y := (PresentedGroup.mk relators HallY : PresentedGroup relators)
+  have hYB : Commute y b := mk_HallY_Aconj_comm
+  have hBX : b * x = x * b * y := by
+    have := mk_Aconj_HallX
+    have hl : (PresentedGroup.mk relators (Aconj * HallX) : PresentedGroup relators) = b * x := by
+      rw [map_mul]
+    have hr : (PresentedGroup.mk relators (HallX * Aconj * HallY) : PresentedGroup relators)
+        = x * b * y := by rw [map_mul, map_mul]
+    rw [hl, hr] at this
+    exact this
+  suffices h : ∀ n : ℕ, b^n * x = x * b^n * y^n by
+    have := h n
+    show (PresentedGroup.mk relators (Aconj ^ n * HallX) : PresentedGroup relators) =
+        PresentedGroup.mk relators (HallX * Aconj ^ n * HallY ^ n)
+    have hl : (PresentedGroup.mk relators (Aconj ^ n * HallX) : PresentedGroup relators) = b ^ n * x := by
+      rw [map_mul, map_pow]
+    have hr : (PresentedGroup.mk relators (HallX * Aconj ^ n * HallY ^ n) : PresentedGroup relators)
+        = x * b ^ n * y ^ n := by rw [map_mul, map_mul, map_pow, map_pow]
+    rw [hl, hr]
+    exact this
+  intro k
+  induction k with
+  | zero => simp
+  | succ k ih =>
+      calc b^(k+1) * x
+          = b * (b^k * x) := by rw [pow_succ']; simp [mul_assoc]
+        _ = b * (x * b^k * y^k) := by rw [ih]
+        _ = (b * x) * b^k * y^k := by simp [mul_assoc]
+        _ = (x * b * y) * b^k * y^k := by rw [hBX]
+        _ = x * b * (y * b^k) * y^k := by simp [mul_assoc]
+        _ = x * b * (b^k * y) * y^k := by rw [(hYB.pow_right k).eq]
+        _ = x * (b * b^k) * (y * y^k) := by simp [mul_assoc]
+        _ = x * b^(k+1) * y^(k+1) := by rw [← pow_succ', ← pow_succ']
 
+/-- Iterated reverse shift: `mk (HallX^n * Aconj) = mk (Aconj * HallX^n * HallY^(-n))` for natural n. -/
+theorem mk_HallX_pow_Aconj_nat (n : ℕ) :
+    (PresentedGroup.mk relators (HallX ^ n * Aconj) : PresentedGroup relators) =
+      PresentedGroup.mk relators (Aconj * HallX ^ n * HallY ^ (-(n : ℤ))) := by
+  set b := (PresentedGroup.mk relators Aconj : PresentedGroup relators)
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators)
+  set y := (PresentedGroup.mk relators HallY : PresentedGroup relators)
+  have hYB : Commute y b := mk_HallY_Aconj_comm
+  have hYX : Commute y x := mk_HallY_HallX_comm
+  have hXB : x * b = b * x * y⁻¹ := by
+    have := mk_HallX_Aconj
+    have hl : (PresentedGroup.mk relators (HallX * Aconj) : PresentedGroup relators) = x * b := by
+      rw [map_mul]
+    have hr : (PresentedGroup.mk relators (Aconj * HallX * HallY⁻¹) : PresentedGroup relators)
+        = b * x * y⁻¹ := by rw [map_mul, map_mul, map_inv]
+    rw [hl, hr] at this
+    simpa using this
+  suffices h : ∀ n : ℕ, x^n * b = b * x^n * y ^ (-(n : ℤ)) by
+    have := h n
+    show (PresentedGroup.mk relators (HallX ^ n * Aconj) : PresentedGroup relators) =
+        PresentedGroup.mk relators (Aconj * HallX ^ n * HallY ^ (-(n : ℤ)))
+    have hl : (PresentedGroup.mk relators (HallX ^ n * Aconj) : PresentedGroup relators) = x ^ n * b := by
+      rw [map_mul, map_pow]
+    have hr : (PresentedGroup.mk relators (Aconj * HallX ^ n * HallY ^ (-(n : ℤ))) : PresentedGroup relators)
+        = b * x ^ n * y ^ (-(n : ℤ)) := by
+      rw [map_mul, map_mul, map_pow, map_zpow]
+    rw [hl, hr]
+    exact this
+  intro k
+  induction k with
+  | zero => simp
+  | succ k ih =>
+      calc x^(k+1) * b
+          = x * (x^k * b) := by rw [pow_succ']; simp [mul_assoc]
+        _ = x * (b * x^k * y ^ (-(k : ℤ))) := by rw [ih]
+        _ = (x * b) * x^k * y ^ (-(k : ℤ)) := by simp [mul_assoc]
+        _ = (b * x * y⁻¹) * x^k * y ^ (-(k : ℤ)) := by rw [hXB]
+        _ = b * x * (y⁻¹ * x^k) * y ^ (-(k : ℤ)) := by simp [mul_assoc]
+        _ = b * x * (x^k * y⁻¹) * y ^ (-(k : ℤ)) := by rw [(hYX.pow_right k).inv_left.eq]
+        _ = b * (x * x^k) * (y⁻¹ * y ^ (-(k : ℤ))) := by simp [mul_assoc]
+        _ = b * x^(k+1) * y ^ (-(k+1 : ℤ)) := by
+          rw [← pow_succ']
+          have hy : y⁻¹ * y ^ (-(k : ℤ)) = y ^ (-(k+1 : ℤ)) := by
+            rw [show (-(k+1 : ℤ)) = (-1 : ℤ) + (-(k : ℤ)) by ring, zpow_add, zpow_neg_one]
+          rw [hy]
 
+/-!
+### Class-2 collection of an `A` past a power of `Aconj`
+
+Moving a single `A` leftwards past `Aconj^p` produces a correction `HallX^{-p}` (one commutator
+per crossing) together with a class-3 correction `HallY^{p(p-1)/2}` coming from re-collecting the
+`HallX` factors past the remaining `Aconj`s. This is the first genuinely two-variable collection
+identity and the key input to the `T`-conjugation compatibility of the Hall normal form.
+-/
+
+/-- Auxiliary: `x⁻¹ * b^p = b^p * x⁻¹ * y^p` (moving `HallX⁻¹` right past `Aconj^p`). -/
+theorem mk_HallXinv_Aconj_pow (p : ℕ) :
+    (PresentedGroup.mk relators HallX : PresentedGroup relators)⁻¹ *
+        (PresentedGroup.mk relators Aconj) ^ p =
+      (PresentedGroup.mk relators Aconj) ^ p *
+        (PresentedGroup.mk relators HallX)⁻¹ * (PresentedGroup.mk relators HallY) ^ p := by
+  set b := (PresentedGroup.mk relators Aconj : PresentedGroup relators)
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators)
+  set y := (PresentedGroup.mk relators HallY : PresentedGroup relators)
+  have hbpx : b ^ p * x = x * b ^ p * y ^ p := by
+    have := mk_Aconj_pow_HallX_nat p
+    have hl : (PresentedGroup.mk relators (Aconj ^ p * HallX) : PresentedGroup relators)
+        = b ^ p * x := by rw [map_mul, map_pow]
+    have hr : (PresentedGroup.mk relators (HallX * Aconj ^ p * HallY ^ p)
+        : PresentedGroup relators) = x * b ^ p * y ^ p := by rw [map_mul, map_mul, map_pow, map_pow]
+    rw [hl, hr] at this; exact this
+  have hYcomm : Commute y x := mk_HallY_HallX_comm
+  have hcomm : x⁻¹ * b ^ p * x = b ^ p * y ^ p := by
+    rw [mul_assoc, hbpx]; group
+  calc x⁻¹ * b ^ p
+      = x⁻¹ * b ^ p * x * x⁻¹ := by group
+    _ = b ^ p * y ^ p * x⁻¹ := by rw [hcomm]
+    _ = b ^ p * x⁻¹ * y ^ p := by
+          rw [mul_assoc, (hYcomm.pow_left p).inv_right.eq, ← mul_assoc]
+
+/-- Collection of a single `A` past `Aconj^p`:
+`mk (Aconj^p * A) = mk (A * Aconj^p * HallX^{-p} * HallY^{p choose 2})`. -/
+theorem mk_Aconj_pow_A (p : ℕ) :
+    (PresentedGroup.mk relators (Aconj ^ p * A) : PresentedGroup relators) =
+      PresentedGroup.mk relators
+        (A * Aconj ^ p * HallX ^ (-(p : ℤ)) * HallY ^ (p.choose 2)) := by
+  set a := (PresentedGroup.mk relators A : PresentedGroup relators)
+  set b := (PresentedGroup.mk relators Aconj : PresentedGroup relators)
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators)
+  set y := (PresentedGroup.mk relators HallY : PresentedGroup relators)
+  have hba : b * a = a * b * x⁻¹ := by
+    have := mk_Aconj_A
+    have hl : (PresentedGroup.mk relators (Aconj * A) : PresentedGroup relators) = b * a := by
+      rw [map_mul]
+    have hr : (PresentedGroup.mk relators (A * Aconj * HallX⁻¹) : PresentedGroup relators)
+        = a * b * x⁻¹ := by rw [map_mul, map_mul, map_inv]
+    rw [hl, hr] at this; exact this
+  suffices h : ∀ p : ℕ, b ^ p * a = a * b ^ p * x ^ (-(p : ℤ)) * y ^ (p.choose 2) by
+    have hp := h p
+    have hl : (PresentedGroup.mk relators (Aconj ^ p * A) : PresentedGroup relators)
+        = b ^ p * a := by rw [map_mul, map_pow]
+    have hr : (PresentedGroup.mk relators
+        (A * Aconj ^ p * HallX ^ (-(p : ℤ)) * HallY ^ (p.choose 2))
+          : PresentedGroup relators)
+        = a * b ^ p * x ^ (-(p : ℤ)) * y ^ (p.choose 2) := by
+      rw [map_mul, map_mul, map_mul, map_pow, map_zpow, map_pow]
+    rw [hl, hr]; exact hp
+  intro k
+  induction k with
+  | zero => simp
+  | succ k ih =>
+      have hxinv := mk_HallXinv_Aconj_pow k
+      have hkk : (k + 1).choose 2 = k + k.choose 2 := by
+        rw [Nat.choose_succ_succ, Nat.choose_one_right]
+      have hcast : (-(((k : ℕ) + 1 : ℕ) : ℤ)) = -((k : ℤ) + 1) := by push_cast; ring
+      rw [hcast]
+      calc b ^ (k + 1) * a
+          = b * (b ^ k * a) := by group
+        _ = b * (a * b ^ k * x ^ (-(k : ℤ)) * y ^ (k.choose 2)) := by rw [ih]
+        _ = (b * a) * b ^ k * x ^ (-(k : ℤ)) * y ^ (k.choose 2) := by group
+        _ = (a * b * x⁻¹) * b ^ k * x ^ (-(k : ℤ)) * y ^ (k.choose 2) := by rw [hba]
+        _ = a * b * (x⁻¹ * b ^ k) * x ^ (-(k : ℤ)) * y ^ (k.choose 2) := by group
+        _ = a * b * (b ^ k * x⁻¹ * y ^ k) * x ^ (-(k : ℤ)) * y ^ (k.choose 2) := by rw [hxinv]
+        _ = a * b ^ (k + 1) * x⁻¹ * (y ^ k * x ^ (-(k : ℤ))) * y ^ (k.choose 2) := by group
+        _ = a * b ^ (k + 1) * x⁻¹ * (x ^ (-(k : ℤ)) * y ^ k) * y ^ (k.choose 2) := by
+              rw [(mk_HallY_HallX_comm.pow_left k).zpow_right (-(k : ℤ)) |>.eq]
+        _ = a * b ^ (k + 1) * x ^ (-((k : ℤ) + 1)) * y ^ (k + k.choose 2) := by group
+        _ = a * b ^ (k + 1) * x ^ (-((k : ℤ) + 1)) * y ^ ((k + 1).choose 2) := by rw [hkk]
+
+/-!
+### General two-variable collection `a^P * b^Q`
+
+The `T`-conjugation compatibility of the Hall normal form needs to move a whole power of `A`
+past a whole power of `Aconj`. In the class-3 nilpotent quotient generated by
+`a = mk A`, `b = mk Aconj`, `x = mk HallX`, `y = mk HallY` (with `[a,b]=x`, `[a,x]=[b,x]=y`,
+`y` central) the collection identity is
+
+  `a^P * b^Q = b^Q * a^P * x^{PQ} * y^f`,  where `2 f = -P Q (P + Q - 2)`.
+
+To avoid integer division, the `y`-exponent is carried as a free variable `f` constrained by
+`2 f = …`; each induction step verifies the constraint with `linear_combination`. The class-2
+sub-shift `x^Q * b = b * x^Q * y^{-Q}` is obtained without induction from `conj_zpow`. -/
+
+/-- Class-2 shift of a power of `HallX` past `Aconj`: `x^Q * b = b * x^Q * y^{-Q}`. -/
+theorem mk_HallX_zpow_Aconj (Q : ℤ) :
+    (PresentedGroup.mk relators HallX : PresentedGroup relators) ^ Q *
+        PresentedGroup.mk relators Aconj =
+      PresentedGroup.mk relators Aconj *
+        (PresentedGroup.mk relators HallX) ^ Q * (PresentedGroup.mk relators HallY) ^ (-Q) := by
+  set b := (PresentedGroup.mk relators Aconj : PresentedGroup relators)
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators)
+  set y := (PresentedGroup.mk relators HallY : PresentedGroup relators)
+  have hxb : x * b = b * x * y⁻¹ := by
+    have := mk_HallX_Aconj
+    have hl : (PresentedGroup.mk relators (HallX * Aconj) : PresentedGroup relators) = x * b := by
+      rw [map_mul]
+    have hr : (PresentedGroup.mk relators (Aconj * HallX * HallY⁻¹) : PresentedGroup relators)
+        = b * x * y⁻¹ := by rw [map_mul, map_mul, map_inv]
+    rw [hl, hr] at this; exact this
+  have hYX : Commute y x := mk_HallY_HallX_comm
+  have hconj : b⁻¹ * x * b = x * y⁻¹ := by
+    rw [mul_assoc, hxb]; group
+  have key : b⁻¹ * x ^ Q * b = x ^ Q * y ^ (-Q) := by
+    have hcz : (b⁻¹ * x * (b⁻¹)⁻¹) ^ Q = b⁻¹ * x ^ Q * (b⁻¹)⁻¹ := conj_zpow
+    rw [inv_inv] at hcz
+    rw [← hcz, hconj, (hYX.symm.inv_right).mul_zpow, inv_zpow, ← zpow_neg]
+  calc x ^ Q * b = b * (b⁻¹ * x ^ Q * b) := by group
+    _ = b * (x ^ Q * y ^ (-Q)) := by rw [key]
+    _ = b * x ^ Q * y ^ (-Q) := by rw [mul_assoc]
+
+/-- Class-2 shift of a power of `HallX` past `Aconj⁻¹`: `x^Q * b⁻¹ = b⁻¹ * x^Q * y^{Q}`. -/
+theorem mk_HallX_zpow_Aconjinv (Q : ℤ) :
+    (PresentedGroup.mk relators HallX : PresentedGroup relators) ^ Q *
+        (PresentedGroup.mk relators Aconj)⁻¹ =
+      (PresentedGroup.mk relators Aconj)⁻¹ *
+        (PresentedGroup.mk relators HallX) ^ Q * (PresentedGroup.mk relators HallY) ^ Q := by
+  set b := (PresentedGroup.mk relators Aconj : PresentedGroup relators)
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators)
+  set y := (PresentedGroup.mk relators HallY : PresentedGroup relators)
+  have hbx : b * x = x * b * y := by
+    have := mk_Aconj_HallX
+    have hl : (PresentedGroup.mk relators (Aconj * HallX) : PresentedGroup relators) = b * x := by
+      rw [map_mul]
+    have hr : (PresentedGroup.mk relators (HallX * Aconj * HallY) : PresentedGroup relators)
+        = x * b * y := by rw [map_mul, map_mul]
+    rw [hl, hr] at this; exact this
+  have hYX : Commute y x := mk_HallY_HallX_comm
+  have hYb : Commute y b := mk_HallY_Aconj_comm
+  have hconj : b * x * b⁻¹ = x * y := by
+    calc b * x * b⁻¹ = x * b * y * b⁻¹ := by rw [hbx]
+      _ = x * (y * b) * b⁻¹ := by rw [mul_assoc x b y, hYb.symm.eq]
+      _ = x * y := by group
+  have key : b * x ^ Q * b⁻¹ = x ^ Q * y ^ Q := by
+    have hcz : (b * x * b⁻¹) ^ Q = b * x ^ Q * b⁻¹ := conj_zpow
+    rw [← hcz, hconj, (hYX.symm).mul_zpow]
+  calc x ^ Q * b⁻¹ = b⁻¹ * (b * x ^ Q * b⁻¹) := by group
+    _ = b⁻¹ * (x ^ Q * y ^ Q) := by rw [key]
+    _ = b⁻¹ * x ^ Q * y ^ Q := by rw [mul_assoc]
+
+/-- Class-2 shift of a power of `HallX` past `A`: `x^Q * a = a * x^Q * y^{-Q}`. -/
+theorem mk_HallX_zpow_A (Q : ℤ) :
+    (PresentedGroup.mk relators HallX : PresentedGroup relators) ^ Q *
+        PresentedGroup.mk relators A =
+      PresentedGroup.mk relators A *
+        (PresentedGroup.mk relators HallX) ^ Q * (PresentedGroup.mk relators HallY) ^ (-Q) := by
+  set a := (PresentedGroup.mk relators A : PresentedGroup relators)
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators)
+  set y := (PresentedGroup.mk relators HallY : PresentedGroup relators)
+  have hxa : x * a = a * x * y⁻¹ := by
+    have := mk_HallX_A
+    have hl : (PresentedGroup.mk relators (HallX * A) : PresentedGroup relators) = x * a := by
+      rw [map_mul]
+    have hr : (PresentedGroup.mk relators (A * HallX * HallY⁻¹) : PresentedGroup relators)
+        = a * x * y⁻¹ := by rw [map_mul, map_mul, map_inv]
+    rw [hl, hr] at this; exact this
+  have hYX : Commute y x := mk_HallY_HallX_comm
+  have hconj : a⁻¹ * x * a = x * y⁻¹ := by
+    rw [mul_assoc, hxa]; group
+  have key : a⁻¹ * x ^ Q * a = x ^ Q * y ^ (-Q) := by
+    have hcz : (a⁻¹ * x * (a⁻¹)⁻¹) ^ Q = a⁻¹ * x ^ Q * (a⁻¹)⁻¹ := conj_zpow
+    rw [inv_inv] at hcz
+    rw [← hcz, hconj, (hYX.symm.inv_right).mul_zpow, inv_zpow, ← zpow_neg]
+  calc x ^ Q * a = a * (a⁻¹ * x ^ Q * a) := by group
+    _ = a * (x ^ Q * y ^ (-Q)) := by rw [key]
+    _ = a * x ^ Q * y ^ (-Q) := by rw [mul_assoc]
+
+/-- Class-2 shift of a power of `HallX` past `A⁻¹`: `x^Q * a⁻¹ = a⁻¹ * x^Q * y^{Q}`. -/
+theorem mk_HallX_zpow_Ainv (Q : ℤ) :
+    (PresentedGroup.mk relators HallX : PresentedGroup relators) ^ Q *
+        (PresentedGroup.mk relators A)⁻¹ =
+      (PresentedGroup.mk relators A)⁻¹ *
+        (PresentedGroup.mk relators HallX) ^ Q * (PresentedGroup.mk relators HallY) ^ Q := by
+  set a := (PresentedGroup.mk relators A : PresentedGroup relators)
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators)
+  set y := (PresentedGroup.mk relators HallY : PresentedGroup relators)
+  have hax : a * x = x * a * y := by
+    have := mk_A_HallX
+    have hl : (PresentedGroup.mk relators (A * HallX) : PresentedGroup relators) = a * x := by
+      rw [map_mul]
+    have hr : (PresentedGroup.mk relators (HallX * A * HallY) : PresentedGroup relators)
+        = x * a * y := by rw [map_mul, map_mul]
+    rw [hl, hr] at this; exact this
+  have hYX : Commute y x := mk_HallY_HallX_comm
+  have hYa : Commute y a := mk_HallY_A_comm
+  have hconj : a * x * a⁻¹ = x * y := by
+    calc a * x * a⁻¹ = x * a * y * a⁻¹ := by rw [hax]
+      _ = x * (y * a) * a⁻¹ := by rw [mul_assoc x a y, hYa.symm.eq]
+      _ = x * y := by group
+  have key : a * x ^ Q * a⁻¹ = x ^ Q * y ^ Q := by
+    have hcz : (a * x * a⁻¹) ^ Q = a * x ^ Q * a⁻¹ := conj_zpow
+    rw [← hcz, hconj, (hYX.symm).mul_zpow]
+  calc x ^ Q * a⁻¹ = a⁻¹ * (a * x ^ Q * a⁻¹) := by group
+    _ = a⁻¹ * (x ^ Q * y ^ Q) := by rw [key]
+    _ = a⁻¹ * x ^ Q * y ^ Q := by rw [mul_assoc]
+
+/-- Collection of a single `A` past a power of `Aconj`, class-3 form:
+`a * b^Q = b^Q * a * x^Q * y^f` whenever `2 f = -Q*(Q-1)`. The `y`-exponent is carried as a free
+variable constrained by `2 f = …` to avoid integer division; each step of the `Int.induction_on`
+verifies the constraint with `linear_combination`. -/
+theorem mk_A_Aconj_zpow (Q : ℤ) :
+    ∀ (f : ℤ), 2 * f = -Q * (Q - 1) →
+      (PresentedGroup.mk relators A : PresentedGroup relators) * (PresentedGroup.mk relators Aconj) ^ Q =
+        (PresentedGroup.mk relators Aconj) ^ Q * (PresentedGroup.mk relators A) *
+          (PresentedGroup.mk relators HallX) ^ Q * (PresentedGroup.mk relators HallY) ^ f := by
+  set a := (PresentedGroup.mk relators A : PresentedGroup relators) with ha
+  set b := (PresentedGroup.mk relators Aconj : PresentedGroup relators) with hb
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators) with hx
+  set y := (PresentedGroup.mk relators HallY : PresentedGroup relators) with hy
+  -- Single-step relations, restated in `a b x y` by defeq.
+  have hab : a * b = b * a * x := by
+    have := mk_A_Aconj
+    have hl : (PresentedGroup.mk relators (A * Aconj) : PresentedGroup relators) = a * b := by
+      rw [map_mul]
+    have hr : (PresentedGroup.mk relators (Aconj * A * HallX) : PresentedGroup relators)
+        = b * a * x := by rw [map_mul, map_mul]
+    rw [hl, hr] at this; exact this
+  have hba : b * a = a * b * x⁻¹ := by
+    have := mk_Aconj_A
+    have hl : (PresentedGroup.mk relators (Aconj * A) : PresentedGroup relators) = b * a := by
+      rw [map_mul]
+    have hr : (PresentedGroup.mk relators (A * Aconj * HallX⁻¹) : PresentedGroup relators)
+        = a * b * x⁻¹ := by rw [map_mul, map_mul, map_inv]
+    rw [hl, hr] at this; exact this
+  have hbx : b * x = x * b * y := by
+    have := mk_Aconj_HallX
+    have hl : (PresentedGroup.mk relators (Aconj * HallX) : PresentedGroup relators) = b * x := by
+      rw [map_mul]
+    have hr : (PresentedGroup.mk relators (HallX * Aconj * HallY) : PresentedGroup relators)
+        = x * b * y := by rw [map_mul, map_mul]
+    rw [hl, hr] at this; exact this
+  have hYx : Commute y x := mk_HallY_HallX_comm
+  have hYb : Commute y b := mk_HallY_Aconj_comm
+  -- Class-2 shifts of `x^n` past `b^{±1}`, restated by defeq.
+  have hxnb : ∀ n : ℤ, x ^ n * b = b * x ^ n * y ^ (-n) := fun n => mk_HallX_zpow_Aconj n
+  have hxnbinv : ∀ n : ℤ, x ^ n * b⁻¹ = b⁻¹ * x ^ n * y ^ n := fun n => mk_HallX_zpow_Aconjinv n
+  -- `a * b⁻¹ = b⁻¹ * a * x⁻¹ * y⁻¹`.
+  have hbxbinv : b * x * b⁻¹ = x * y := by
+    calc b * x * b⁻¹ = x * b * y * b⁻¹ := by rw [hbx]
+      _ = x * (y * b) * b⁻¹ := by rw [mul_assoc x b y, hYb.symm.eq]
+      _ = x * y := by group
+  have hbxinvbinv : b * x⁻¹ * b⁻¹ = y⁻¹ * x⁻¹ := by
+    calc b * x⁻¹ * b⁻¹ = (b * x * b⁻¹)⁻¹ := by group
+      _ = (x * y)⁻¹ := by rw [hbxbinv]
+      _ = y⁻¹ * x⁻¹ := by rw [mul_inv_rev]
+  have habinv : a * b⁻¹ = b⁻¹ * a * x⁻¹ * y⁻¹ := by
+    have hbab : b * a * b⁻¹ = a * x⁻¹ * y⁻¹ := by
+      calc b * a * b⁻¹ = a * b * x⁻¹ * b⁻¹ := by rw [hba]
+        _ = a * (b * x⁻¹ * b⁻¹) := by group
+        _ = a * (y⁻¹ * x⁻¹) := by rw [hbxinvbinv]
+        _ = a * (x⁻¹ * y⁻¹) := by rw [(hYx.inv_left.inv_right).eq]
+        _ = a * x⁻¹ * y⁻¹ := by group
+    calc a * b⁻¹ = b⁻¹ * (b * a * b⁻¹) := by group
+      _ = b⁻¹ * (a * x⁻¹ * y⁻¹) := by rw [hbab]
+      _ = b⁻¹ * a * x⁻¹ * y⁻¹ := by group
+  -- Main induction on `Q`.
+  induction Q using Int.induction_on with
+  | zero =>
+      intro f hf
+      have hf0 : f = 0 := by omega
+      subst hf0; simp
+  | succ n ih =>
+      intro f hf
+      have hf0 : 2 * (f + n) = -(n : ℤ) * ((n : ℤ) - 1) := by push_cast at hf ⊢; linarith
+      have ihn := ih (f + n) hf0
+      have hstep : a * b ^ ((n : ℤ) + 1) = b ^ ((n : ℤ) + 1) * a * x ^ ((n : ℤ) + 1) * y ^ f := by
+        calc a * b ^ ((n : ℤ) + 1)
+            = a * b ^ (n : ℤ) * b := by rw [zpow_add_one, ← mul_assoc]
+          _ = (b ^ (n : ℤ) * a * x ^ (n : ℤ) * y ^ (f + n)) * b := by rw [ihn]
+          _ = b ^ (n : ℤ) * a * x ^ (n : ℤ) * (y ^ (f + n) * b) := by rw [mul_assoc]
+          _ = b ^ (n : ℤ) * a * x ^ (n : ℤ) * (b * y ^ (f + n)) := by
+                rw [(hYb.zpow_left (f + n)).eq]
+          _ = b ^ (n : ℤ) * a * (x ^ (n : ℤ) * b) * y ^ (f + n) := by group
+          _ = b ^ (n : ℤ) * a * (b * x ^ (n : ℤ) * y ^ (-(n : ℤ))) * y ^ (f + n) := by
+                rw [hxnb]
+          _ = b ^ (n : ℤ) * (a * b) * x ^ (n : ℤ) * y ^ (-(n : ℤ)) * y ^ (f + n) := by group
+          _ = b ^ (n : ℤ) * (b * a * x) * x ^ (n : ℤ) * y ^ (-(n : ℤ)) * y ^ (f + n) := by
+                rw [hab]
+          _ = b ^ ((n : ℤ) + 1) * a * x ^ ((n : ℤ) + 1) * y ^ f := by group
+      exact hstep
+  | pred n ih =>
+      intro f hf
+      set m : ℤ := -(n : ℤ) with hm
+      have hf0 : 2 * (f - m + 1) = -m * (m - 1) := by linear_combination hf
+      have ihm := ih (f - m + 1) hf0
+      have hstep : a * b ^ (m - 1) = b ^ (m - 1) * a * x ^ (m - 1) * y ^ f := by
+        calc a * b ^ (m - 1)
+            = a * b ^ m * b⁻¹ := by rw [zpow_sub_one, ← mul_assoc]
+          _ = (b ^ m * a * x ^ m * y ^ (f - m + 1)) * b⁻¹ := by rw [ihm]
+          _ = b ^ m * a * x ^ m * (y ^ (f - m + 1) * b⁻¹) := by rw [mul_assoc]
+          _ = b ^ m * a * x ^ m * (b⁻¹ * y ^ (f - m + 1)) := by
+                rw [(hYb.inv_right.zpow_left (f - m + 1)).eq]
+          _ = b ^ m * a * (x ^ m * b⁻¹) * y ^ (f - m + 1) := by group
+          _ = b ^ m * a * (b⁻¹ * x ^ m * y ^ m) * y ^ (f - m + 1) := by rw [hxnbinv]
+          _ = b ^ m * (a * b⁻¹) * x ^ m * y ^ m * y ^ (f - m + 1) := by group
+          _ = b ^ m * (b⁻¹ * a * x⁻¹ * y⁻¹) * x ^ m * y ^ m * y ^ (f - m + 1) := by
+                rw [habinv]
+          _ = b ^ (m - 1) * a * x ^ (m - 1) * y ^ f := by
+                simp only [mul_assoc]
+                rw [← mul_assoc (y⁻¹) (x ^ m), (hYx.inv_left.zpow_right m).eq]
+                group
+      exact hstep
+
+/-- Class-3 collection of a single `A⁻¹` past a power of `Aconj`:
+`a⁻¹ * b^Q = b^Q * a⁻¹ * x^{-Q} * y^h` whenever `2 h = Q*(Q-3)`. Derived algebraically from
+`mk_A_Aconj_zpow` together with the class-2 shift `mk_HallX_zpow_Ainv`. -/
+theorem mk_Ainv_Aconj_zpow (Q : ℤ) (h : ℤ) (hh : 2 * h = Q * (Q - 3)) :
+    (PresentedGroup.mk relators A : PresentedGroup relators)⁻¹ *
+        (PresentedGroup.mk relators Aconj) ^ Q =
+      (PresentedGroup.mk relators Aconj) ^ Q * (PresentedGroup.mk relators A)⁻¹ *
+        (PresentedGroup.mk relators HallX) ^ (-Q) * (PresentedGroup.mk relators HallY) ^ h := by
+  set a := (PresentedGroup.mk relators A : PresentedGroup relators) with ha
+  set b := (PresentedGroup.mk relators Aconj : PresentedGroup relators) with hb
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators) with hx
+  set y := (PresentedGroup.mk relators HallY : PresentedGroup relators) with hy
+  obtain ⟨g, hg⟩ : ∃ g : ℤ, 2 * g = -Q * (Q - 1) := by
+    obtain ⟨r, hr⟩ := Int.even_mul_succ_self (Q - 1)
+    exact ⟨-r, by linarith [hr]⟩
+  have hLA : a * b ^ Q = b ^ Q * a * x ^ Q * y ^ g := mk_A_Aconj_zpow Q g hg
+  have hxainv : ∀ k : ℤ, x ^ k * a⁻¹ = a⁻¹ * x ^ k * y ^ k := fun k => mk_HallX_zpow_Ainv k
+  have hYa : Commute y a := mk_HallY_A_comm
+  have hYx : Commute y x := mk_HallY_HallX_comm
+  have e1 : a⁻¹ * b ^ Q = b ^ Q * y ^ (-g) * x ^ (-Q) * a⁻¹ := by
+    have hkey : a * (b ^ Q * y ^ (-g) * x ^ (-Q) * a⁻¹) = b ^ Q := by
+      calc a * (b ^ Q * y ^ (-g) * x ^ (-Q) * a⁻¹)
+          = (a * b ^ Q) * y ^ (-g) * x ^ (-Q) * a⁻¹ := by group
+        _ = (b ^ Q * a * x ^ Q * y ^ g) * y ^ (-g) * x ^ (-Q) * a⁻¹ := by rw [hLA]
+        _ = b ^ Q := by group
+    calc a⁻¹ * b ^ Q = a⁻¹ * (a * (b ^ Q * y ^ (-g) * x ^ (-Q) * a⁻¹)) := by rw [hkey]
+      _ = b ^ Q * y ^ (-g) * x ^ (-Q) * a⁻¹ := by group
+  have hhe : h = -g + -Q := by
+    have h2 : 2 * h = 2 * (-g + -Q) := by linear_combination hh + hg
+    omega
+  have hmove : y ^ (-g) * (a⁻¹ * x ^ (-Q) * y ^ (-Q))
+      = a⁻¹ * x ^ (-Q) * (y ^ (-g) * y ^ (-Q)) := by
+    have hc : Commute (y ^ (-g)) (a⁻¹ * x ^ (-Q)) :=
+      (hYa.inv_right.zpow_left (-g)).mul_right ((hYx.zpow_left (-g)).zpow_right (-Q))
+    calc y ^ (-g) * (a⁻¹ * x ^ (-Q) * y ^ (-Q))
+        = (y ^ (-g) * (a⁻¹ * x ^ (-Q))) * y ^ (-Q) := by group
+      _ = ((a⁻¹ * x ^ (-Q)) * y ^ (-g)) * y ^ (-Q) := by rw [hc.eq]
+      _ = a⁻¹ * x ^ (-Q) * (y ^ (-g) * y ^ (-Q)) := by group
+  calc a⁻¹ * b ^ Q = b ^ Q * y ^ (-g) * x ^ (-Q) * a⁻¹ := e1
+    _ = b ^ Q * y ^ (-g) * (a⁻¹ * x ^ (-Q) * y ^ (-Q)) := by
+          rw [mul_assoc (b ^ Q * y ^ (-g)) (x ^ (-Q)) a⁻¹, hxainv]
+    _ = b ^ Q * (y ^ (-g) * (a⁻¹ * x ^ (-Q) * y ^ (-Q))) := by rw [mul_assoc]
+    _ = b ^ Q * (a⁻¹ * x ^ (-Q) * (y ^ (-g) * y ^ (-Q))) := by rw [hmove]
+    _ = b ^ Q * a⁻¹ * x ^ (-Q) * y ^ h := by
+          rw [← zpow_add, show (-g) + (-Q) = h from hhe.symm]; group
+
+/-- General collection of a power of `A` past a power of `Aconj`, class-3 form:
+`a^P * b^Q = b^Q * a^P * x^{PQ} * y^F` whenever `2 F = -P Q (P + Q - 2)`. Proved by
+`Int.induction_on` on `P`, using Lemma A (`mk_A_Aconj_zpow`) and Lemma A-inverse
+(`mk_Ainv_Aconj_zpow`) for the single-generator step and the class-2 shifts
+`mk_HallX_zpow_A` / `mk_HallX_zpow_Ainv` to recollect the `HallX` power. -/
+theorem mk_A_zpow_Aconj_zpow (P Q : ℤ) :
+    ∀ (F : ℤ), 2 * F = -P * Q * (P + Q - 2) →
+      (PresentedGroup.mk relators A : PresentedGroup relators) ^ P *
+          (PresentedGroup.mk relators Aconj) ^ Q =
+        (PresentedGroup.mk relators Aconj) ^ Q * (PresentedGroup.mk relators A) ^ P *
+          (PresentedGroup.mk relators HallX) ^ (P * Q) *
+          (PresentedGroup.mk relators HallY) ^ F := by
+  set a := (PresentedGroup.mk relators A : PresentedGroup relators) with ha
+  set b := (PresentedGroup.mk relators Aconj : PresentedGroup relators) with hb
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators) with hx
+  set y := (PresentedGroup.mk relators HallY : PresentedGroup relators) with hy
+  -- `g` for Lemma A (single `a` past `b^Q`) and `hval` for Lemma A-inverse (single `a⁻¹`).
+  obtain ⟨g, hg⟩ : ∃ g : ℤ, 2 * g = -Q * (Q - 1) := by
+    obtain ⟨r, hr⟩ := Int.even_mul_succ_self (Q - 1)
+    exact ⟨-r, by linear_combination hr⟩
+  obtain ⟨hval, hhv⟩ : ∃ hval : ℤ, 2 * hval = Q * (Q - 3) := by
+    obtain ⟨r, hr⟩ := Int.even_mul_succ_self (Q - 1)
+    exact ⟨r - Q, by linear_combination -hr⟩
+  have hLAg : a * b ^ Q = b ^ Q * a * x ^ Q * y ^ g := mk_A_Aconj_zpow Q g hg
+  have hLAinv : a⁻¹ * b ^ Q = b ^ Q * a⁻¹ * x ^ (-Q) * y ^ hval :=
+    mk_Ainv_Aconj_zpow Q hval hhv
+  have hxa : ∀ k : ℤ, x ^ k * a = a * x ^ k * y ^ (-k) := fun k => mk_HallX_zpow_A k
+  have hxainv : ∀ k : ℤ, x ^ k * a⁻¹ = a⁻¹ * x ^ k * y ^ k := fun k => mk_HallX_zpow_Ainv k
+  have hYa : Commute y a := mk_HallY_A_comm
+  have hYx : Commute y x := mk_HallY_HallX_comm
+  induction P using Int.induction_on with
+  | zero =>
+      intro F hF
+      have hF0 : F = 0 := by omega
+      subst hF0; simp
+  | succ n ih =>
+      intro F hF
+      have hFih : 2 * (F + (n : ℤ) * Q - g) = -(n : ℤ) * Q * ((n : ℤ) + Q - 2) := by
+        linear_combination hF - hg
+      have ihn := ih (F + (n : ℤ) * Q - g) hFih
+      calc a ^ ((n : ℤ) + 1) * b ^ Q
+          = a ^ (n : ℤ) * (a * b ^ Q) := by rw [zpow_add_one, mul_assoc]
+        _ = a ^ (n : ℤ) * (b ^ Q * a * x ^ Q * y ^ g) := by rw [hLAg]
+        _ = a ^ (n : ℤ) * b ^ Q * a * x ^ Q * y ^ g := by group
+        _ = (b ^ Q * a ^ (n : ℤ) * x ^ ((n : ℤ) * Q) * y ^ (F + (n : ℤ) * Q - g))
+              * a * x ^ Q * y ^ g := by rw [ihn]
+        -- swap `y^(F+nQ-g)` past `a`
+        _ = b ^ Q * a ^ (n : ℤ) * x ^ ((n : ℤ) * Q) * a * y ^ (F + (n : ℤ) * Q - g)
+              * x ^ Q * y ^ g := by
+              rw [mul_assoc _ (y ^ (F + (n : ℤ) * Q - g)) a,
+                (hYa.zpow_left (F + (n : ℤ) * Q - g)).eq, ← mul_assoc]
+        -- collect `x^(nQ) * a`, then flatten the block
+        _ = b ^ Q * a ^ (n : ℤ) * a * x ^ ((n : ℤ) * Q) * y ^ (-((n : ℤ) * Q))
+              * y ^ (F + (n : ℤ) * Q - g) * x ^ Q * y ^ g := by
+              rw [mul_assoc (b ^ Q * a ^ (n : ℤ)) (x ^ ((n : ℤ) * Q)) a, hxa,
+                ← mul_assoc (b ^ Q * a ^ (n : ℤ)) (a * x ^ ((n : ℤ) * Q)) (y ^ (-((n : ℤ) * Q))),
+                ← mul_assoc (b ^ Q * a ^ (n : ℤ)) a (x ^ ((n : ℤ) * Q))]
+        -- move `x^Q` left past `y^(F+nQ-g)`
+        _ = b ^ Q * a ^ (n : ℤ) * a * x ^ ((n : ℤ) * Q) * y ^ (-((n : ℤ) * Q))
+              * x ^ Q * y ^ (F + (n : ℤ) * Q - g) * y ^ g := by
+              rw [mul_assoc _ (y ^ (F + (n : ℤ) * Q - g)) (x ^ Q),
+                ((hYx.zpow_left (F + (n : ℤ) * Q - g)).zpow_right Q).eq, ← mul_assoc]
+        -- move `x^Q` left past `y^(-(nQ))`
+        _ = b ^ Q * a ^ (n : ℤ) * a * x ^ ((n : ℤ) * Q)
+              * x ^ Q * y ^ (-((n : ℤ) * Q)) * y ^ (F + (n : ℤ) * Q - g) * y ^ g := by
+              rw [mul_assoc _ (y ^ (-((n : ℤ) * Q))) (x ^ Q),
+                ((hYx.zpow_left (-((n : ℤ) * Q))).zpow_right Q).eq, ← mul_assoc]
+        _ = b ^ Q * a ^ ((n : ℤ) + 1) * x ^ (((n : ℤ) + 1) * Q) * y ^ F := by
+              have hy : -((n : ℤ) * Q) + (F + (n : ℤ) * Q - g) + g = F := by ring
+              rw [mul_assoc _ (y ^ (-((n : ℤ) * Q))) (y ^ (F + (n : ℤ) * Q - g)),
+                ← zpow_add, mul_assoc _ (y ^ (-((n : ℤ) * Q) + (F + (n : ℤ) * Q - g))) (y ^ g),
+                ← zpow_add, hy]
+              group
+  | pred n ih =>
+      intro F hF
+      set m : ℤ := -(n : ℤ) with hm
+      have hFih : 2 * (F - m * Q - hval) = -m * Q * (m + Q - 2) := by
+        linear_combination hF - hhv
+      have ihm := ih (F - m * Q - hval) hFih
+      calc a ^ (m - 1) * b ^ Q
+          = a ^ m * (a⁻¹ * b ^ Q) := by rw [zpow_sub_one, mul_assoc]
+        _ = a ^ m * (b ^ Q * a⁻¹ * x ^ (-Q) * y ^ hval) := by rw [hLAinv]
+        _ = a ^ m * b ^ Q * a⁻¹ * x ^ (-Q) * y ^ hval := by group
+        _ = (b ^ Q * a ^ m * x ^ (m * Q) * y ^ (F - m * Q - hval))
+              * a⁻¹ * x ^ (-Q) * y ^ hval := by rw [ihm]
+        -- swap `y^(F-mQ-hval)` past `a⁻¹`
+        _ = b ^ Q * a ^ m * x ^ (m * Q) * a⁻¹ * y ^ (F - m * Q - hval)
+              * x ^ (-Q) * y ^ hval := by
+              rw [mul_assoc _ (y ^ (F - m * Q - hval)) a⁻¹,
+                (hYa.inv_right.zpow_left (F - m * Q - hval)).eq, ← mul_assoc]
+        -- collect `x^(mQ) * a⁻¹`, then flatten the block
+        _ = b ^ Q * a ^ m * a⁻¹ * x ^ (m * Q) * y ^ (m * Q)
+              * y ^ (F - m * Q - hval) * x ^ (-Q) * y ^ hval := by
+              rw [mul_assoc (b ^ Q * a ^ m) (x ^ (m * Q)) a⁻¹, hxainv,
+                ← mul_assoc (b ^ Q * a ^ m) (a⁻¹ * x ^ (m * Q)) (y ^ (m * Q)),
+                ← mul_assoc (b ^ Q * a ^ m) a⁻¹ (x ^ (m * Q))]
+        -- move `x^(-Q)` left past `y^(F-mQ-hval)`
+        _ = b ^ Q * a ^ m * a⁻¹ * x ^ (m * Q) * y ^ (m * Q)
+              * x ^ (-Q) * y ^ (F - m * Q - hval) * y ^ hval := by
+              rw [mul_assoc _ (y ^ (F - m * Q - hval)) (x ^ (-Q)),
+                ((hYx.zpow_left (F - m * Q - hval)).zpow_right (-Q)).eq, ← mul_assoc]
+        -- move `x^(-Q)` left past `y^(mQ)`
+        _ = b ^ Q * a ^ m * a⁻¹ * x ^ (m * Q)
+              * x ^ (-Q) * y ^ (m * Q) * y ^ (F - m * Q - hval) * y ^ hval := by
+              rw [mul_assoc _ (y ^ (m * Q)) (x ^ (-Q)),
+                ((hYx.zpow_left (m * Q)).zpow_right (-Q)).eq, ← mul_assoc]
+        _ = b ^ Q * a ^ (m - 1) * x ^ ((m - 1) * Q) * y ^ F := by
+              have hy : m * Q + (F - m * Q - hval) + hval = F := by ring
+              rw [mul_assoc _ (y ^ (m * Q)) (y ^ (F - m * Q - hval)),
+                ← zpow_add, mul_assoc _ (y ^ (m * Q + (F - m * Q - hval))) (y ^ hval),
+                ← zpow_add, hy]
+              group
 
 /-- Theorem 4 of Bodart, recorded as an internal-facing axiom to be formalized.
-
-It states that the virtually Engel group above has intermediate geodesic growth with respect to
 the generating alphabet `S = {a, a⁻¹, t}`, i.e.\ `γ(n) ≍ exp(n^(3/5) log n)`. Discharging this
 axiom is one of the three remaining internal steps for an unconditional positive answer to
 Brönnimann's Question 3. -/
@@ -1896,13 +2483,345 @@ theorem retract_toCoordGroup_of_t :
   rw [hword]
   rfl
 
+/-!
+## Prepending a single generator to the Hall normal form
+
+The injectivity proof proceeds by a left-to-right induction on words. The only algebraic inputs
+are the identities describing how `retract` interacts with left multiplication by each generator
+coordinate. Left multiplication by `engelA^{±1}` merely bumps the leading `A`-exponent and
+leaves both lattice residues (hence `hallM`, `hallN`) unchanged, so those cases are essentially
+free. The `T` case is a genuine conjugation and is handled separately.
+-/
+
+@[simp] theorem areaResidue_engelA_mul (g : EngelCoords) :
+    (engelA * g).areaResidue = g.areaResidue := by
+  rw [EngelCoords.areaResidue_mul]; simp [EngelCoords.areaResidue]
+
+@[simp] theorem baryResidue_engelA_mul (g : EngelCoords) :
+    (engelA * g).baryResidue = g.baryResidue := by
+  rw [EngelCoords.baryResidue_mul]; simp [EngelCoords.areaResidue, EngelCoords.baryResidue]
+
+@[simp] theorem areaResidue_engelAinv_mul (g : EngelCoords) :
+    (engelA⁻¹ * g).areaResidue = g.areaResidue := by
+  rw [EngelCoords.areaResidue_mul]
+  simp [EngelCoords.areaResidue]
+
+@[simp] theorem baryResidue_engelAinv_mul (g : EngelCoords) :
+    (engelA⁻¹ * g).baryResidue = g.baryResidue := by
+  rw [EngelCoords.baryResidue_mul]
+  simp [EngelCoords.areaResidue, EngelCoords.baryResidue]
+
+/-- Left multiplication by `engelA` bumps the leading exponent: the Hall word of `engelA * g`
+is `A` times the Hall word of `g` in the presented group. -/
+theorem mk_hallWord_engelA_mul (g : EngelCoords) :
+    (PresentedGroup.mk relators (engelA * g).hallWord : PresentedGroup relators) =
+      PresentedGroup.mk relators A * PresentedGroup.mk relators g.hallWord := by
+  have hu : (engelA * g).u = g.u + 1 := by simp [engelA]; ring
+  have hv : (engelA * g).v = g.v := by simp [engelA]
+  have hm : (engelA * g).hallM = g.hallM := by
+    rw [EngelCoords.hallM, EngelCoords.hallM, areaResidue_engelA_mul]
+  have hn : (engelA * g).hallN = g.hallN := by
+    rw [EngelCoords.hallN, EngelCoords.hallN, EngelCoords.hallM, EngelCoords.hallM,
+      areaResidue_engelA_mul, baryResidue_engelA_mul]
+  rw [EngelCoords.hallWord, EngelCoords.hallWord, hu, hv, hm, hn]
+  rw [← map_mul]
+  congr 1
+  simp only [hallNormalWord]
+  group
+
+/-- Left multiplication by `engelA⁻¹` lowers the leading exponent. -/
+theorem mk_hallWord_engelAinv_mul (g : EngelCoords) :
+    (PresentedGroup.mk relators (engelA⁻¹ * g).hallWord : PresentedGroup relators) =
+      (PresentedGroup.mk relators A)⁻¹ * PresentedGroup.mk relators g.hallWord := by
+  have hu : (engelA⁻¹ * g).u = g.u + (-1) := by simp [engelA]; ring
+  have hv : (engelA⁻¹ * g).v = g.v := by simp [engelA]
+  have hm : (engelA⁻¹ * g).hallM = g.hallM := by
+    rw [EngelCoords.hallM, EngelCoords.hallM, areaResidue_engelAinv_mul]
+  have hn : (engelA⁻¹ * g).hallN = g.hallN := by
+    rw [EngelCoords.hallN, EngelCoords.hallN, EngelCoords.hallM, EngelCoords.hallM,
+      areaResidue_engelAinv_mul, baryResidue_engelAinv_mul]
+  rw [EngelCoords.hallWord, EngelCoords.hallWord, hu, hv, hm, hn]
+  rw [← map_inv, ← map_mul]
+  congr 1
+  simp only [hallNormalWord]
+  group
+
+/-- `retract` intertwines left multiplication by `coordA` with left multiplication by `mk A`. -/
+theorem retract_coordA_mul {c : CoordGroup} (hc : c ∈ coordLattice) :
+    retract (coordA * c) = PresentedGroup.mk relators A * retract c := by
+  have hmem : coordA * c ∈ coordLattice := coordLattice.mul_mem coordA_mem_lattice hc
+  rw [retract_of_mem_lattice hmem, retract_of_mem_lattice hc]
+  have hleft : (coordA * c).left = engelA * c.left := by
+    rw [SemidirectProduct.mul_left]; simp
+  have hright : (coordA * c).right = c.right := by
+    rw [SemidirectProduct.mul_right]; simp
+  show PresentedGroup.mk relators
+      ((coordA * c).left.hallWord * symmetryWord (coordA * c).right) = _
+  rw [hleft, hright]
+  show PresentedGroup.mk relators ((engelA * c.left).hallWord * symmetryWord c.right) =
+    PresentedGroup.mk relators A *
+      PresentedGroup.mk relators (c.left.hallWord * symmetryWord c.right)
+  rw [map_mul, map_mul, mk_hallWord_engelA_mul, mul_assoc]
+
+/-- `retract` intertwines left multiplication by `coordA⁻¹` with left multiplication by
+`mk A⁻¹`. -/
+theorem retract_coordAinv_mul {c : CoordGroup} (hc : c ∈ coordLattice) :
+    retract (coordA⁻¹ * c) = (PresentedGroup.mk relators A)⁻¹ * retract c := by
+  have hAmem : coordA⁻¹ ∈ coordLattice := coordLattice.inv_mem coordA_mem_lattice
+  have hmem : coordA⁻¹ * c ∈ coordLattice := coordLattice.mul_mem hAmem hc
+  rw [retract_of_mem_lattice hmem, retract_of_mem_lattice hc]
+  have hleft : (coordA⁻¹ * c).left = engelA⁻¹ * c.left := by
+    rw [SemidirectProduct.mul_left]; simp
+  have hright : (coordA⁻¹ * c).right = c.right := by
+    rw [SemidirectProduct.mul_right]; simp
+  show PresentedGroup.mk relators
+      ((coordA⁻¹ * c).left.hallWord * symmetryWord (coordA⁻¹ * c).right) = _
+  rw [hleft, hright]
+  show PresentedGroup.mk relators ((engelA⁻¹ * c.left).hallWord * symmetryWord c.right) =
+    (PresentedGroup.mk relators A)⁻¹ *
+      PresentedGroup.mk relators (c.left.hallWord * symmetryWord c.right)
+  rw [map_mul, map_mul, mk_hallWord_engelAinv_mul, mul_assoc]
+
+/-!
+## T-conjugation of the Hall normal form (GT-core)
+
+The final algebraic input for the `T`-case of the retract intertwining identity: conjugating
+the Hall normal-form word of a lattice point `g` by `T` yields the Hall normal-form word of the
+reflected point `g.reflect`. Concretely, `mk g.reflect.hallWord = mk (T * g.hallWord * T)`.
+
+The proof expands both sides into the `a, b, x, y` generators, uses the per-generator
+`T`-conjugation identities (`t a t = b`, `t b t = a`, `t x t = x⁻¹`, `t y t = y⁻¹`), and closes
+the collection of `a^{-v} b^{u}` via Lemma B (`mk_A_zpow_Aconj_zpow`). The remaining bookkeeping
+is two integer identities relating the Hall exponents of `g` and `g.reflect`, discharged from the
+lattice divisibility witnesses by `omega`. -/
+theorem mk_reflect_hallWord {g : EngelCoords} (hg : EngelCoords.InLattice g) :
+    (PresentedGroup.mk relators g.reflect.hallWord : PresentedGroup relators) =
+      PresentedGroup.mk relators (T * g.hallWord * T) := by
+  set a := (PresentedGroup.mk relators A : PresentedGroup relators) with ha
+  set b := (PresentedGroup.mk relators Aconj : PresentedGroup relators) with hb
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators) with hx
+  set y := (PresentedGroup.mk relators HallY : PresentedGroup relators) with hy
+  set t := (PresentedGroup.mk relators T : PresentedGroup relators) with ht
+  -- basic `T` facts
+  have htt : t * t = 1 := by
+    have := mk_T_sq; rw [map_mul] at this; exact this
+  have ht_inv : t⁻¹ = t := inv_eq_of_mul_eq_one_left htt
+  have hTAT : t * a * t = b := by
+    have := mk_T_A_T; rw [map_mul, map_mul] at this; exact this
+  have hTbT : t * b * t = a := by
+    rw [← hTAT, show t * (t * a * t) * t = (t * t) * a * (t * t) from by group, htt,
+      one_mul, mul_one]
+  have hTxT : t * x * t = x⁻¹ := by
+    have := mk_T_HallX_T; rw [map_mul, map_mul, map_inv] at this; exact this
+  have hTyT : t * y * t = y⁻¹ := by
+    have := mk_T_HallY_T_eq; rw [map_mul, map_mul, map_inv] at this; exact this
+  have hYx : Commute y x := mk_HallY_HallX_comm
+  -- conjugation of powers by `t`
+  have hcp : ∀ (z : PresentedGroup relators) (k : ℤ), t * z ^ k * t = (t * z * t) ^ k := by
+    intro z k
+    have hconj : (t * z * t⁻¹) ^ k = t * z ^ k * t⁻¹ := conj_zpow
+    rw [ht_inv] at hconj
+    exact hconj.symm
+  -- expansion of any Hall word into the `a, b, x, y` generators
+  have mkHall : ∀ (h : EngelCoords),
+      (PresentedGroup.mk relators h.hallWord : PresentedGroup relators)
+        = a ^ h.u * b ^ (-h.v) * x ^ h.hallM * y ^ h.hallN := by
+    intro h
+    rw [EngelCoords.hallWord, hallNormalWord, map_mul, map_mul, map_mul,
+      map_zpow, map_zpow, map_zpow, map_zpow]
+  -- right-hand side: `t * hallWord * t = b^u * a^{-v} * x^{-M} * y^{-N}`
+  have hRHSbody :
+      t * (a ^ g.u * b ^ (-g.v) * x ^ g.hallM * y ^ g.hallN) * t
+        = b ^ g.u * a ^ (-g.v) * x ^ (-g.hallM) * y ^ (-g.hallN) := by
+    have hφ : ∀ z : PresentedGroup relators, t * z * t = (MulAut.conj t) z := by
+      intro z; rw [MulAut.conj_apply, ht_inv]
+    rw [hφ, map_mul, map_mul, map_mul, map_zpow, map_zpow, map_zpow, map_zpow,
+      show (MulAut.conj t) a = b from by rw [MulAut.conj_apply, ht_inv]; exact hTAT,
+      show (MulAut.conj t) b = a from by rw [MulAut.conj_apply, ht_inv]; exact hTbT,
+      show (MulAut.conj t) x = x⁻¹ from by rw [MulAut.conj_apply, ht_inv]; exact hTxT,
+      show (MulAut.conj t) y = y⁻¹ from by rw [MulAut.conj_apply, ht_inv]; exact hTyT,
+      inv_zpow, inv_zpow, ← zpow_neg, ← zpow_neg]
+  have hRHS :
+      (PresentedGroup.mk relators (T * g.hallWord * T) : PresentedGroup relators)
+        = b ^ g.u * a ^ (-g.v) * x ^ (-g.hallM) * y ^ (-g.hallN) := by
+    rw [map_mul, map_mul, mkHall g, hRHSbody]
+  -- integer bookkeeping via lattice divisibility witnesses
+  obtain ⟨k, hk⟩ := hg.1
+  obtain ⟨l, hl⟩ := hg.2
+  obtain ⟨k', hk'⟩ := (EngelCoords.inLattice_reflect hg).1
+  obtain ⟨l', hl'⟩ := (EngelCoords.inLattice_reflect hg).2
+  have hM : g.hallM = k := by rw [EngelCoords.hallM, hk]; omega
+  have hN : g.hallN = k + l := by
+    rw [EngelCoords.hallN, EngelCoords.hallM, hk, hl]; omega
+  have hM' : g.reflect.hallM = k' := by rw [EngelCoords.hallM, hk']; omega
+  have hN' : g.reflect.hallN = k' + l' := by
+    rw [EngelCoords.hallN, EngelCoords.hallM, hk', hl']; omega
+  have e1 : (2 : ℤ) * k' = -(2 * k) + 2 * (g.u * g.v) := by
+    have h := EngelCoords.areaResidue_reflect g
+    rw [hk', hk, show (2 : ℤ) * g.u * g.v = 2 * (g.u * g.v) from by ring] at h
+    exact h
+  have e2 : (6 : ℤ) * l' = -(6 * l) - 3 * (g.u * g.v * (g.u - g.v)) := by
+    have h := EngelCoords.baryResidue_reflect g
+    rw [hl', hl,
+      show (3 : ℤ) * g.u * g.v * (g.u - g.v) = 3 * (g.u * g.v * (g.u - g.v)) from by ring] at h
+    exact h
+  -- the collection witness `FF` and Lemma B application
+  set FF : ℤ := -g.hallN - g.reflect.hallN with hFFdef
+  have hFF : 2 * FF = -(-g.v) * g.u * ((-g.v) + g.u - 2) := by
+    rw [hFFdef, hN, hN',
+      show -(-g.v) * g.u * ((-g.v) + g.u - 2)
+        = (g.u * g.v * (g.u - g.v)) - 2 * (g.u * g.v) from by ring]
+    omega
+  have hxexp : (-g.v) * g.u + g.reflect.hallM = -g.hallM := by
+    rw [hM, hM', show (-g.v) * g.u = -(g.u * g.v) from by ring]
+    omega
+  have hyexp : FF + g.reflect.hallN = -g.hallN := by rw [hFFdef]; ring
+  have hB : a ^ (-g.v) * b ^ g.u
+      = b ^ g.u * a ^ (-g.v) * x ^ ((-g.v) * g.u) * y ^ FF :=
+    mk_A_zpow_Aconj_zpow (-g.v) g.u FF hFF
+  -- the tail identity: reassociate and combine like powers
+  have tail : ∀ (p F m n : ℤ),
+      b ^ g.u * a ^ (-g.v) * x ^ p * y ^ F * x ^ m * y ^ n
+        = b ^ g.u * a ^ (-g.v) * x ^ (p + m) * y ^ (F + n) := by
+    intro p F m n
+    have hcomm : y ^ F * x ^ m = x ^ m * y ^ F := ((hYx.zpow_left F).zpow_right m).eq
+    calc b ^ g.u * a ^ (-g.v) * x ^ p * y ^ F * x ^ m * y ^ n
+        = b ^ g.u * a ^ (-g.v) * x ^ p * (y ^ F * x ^ m) * y ^ n := by group
+      _ = b ^ g.u * a ^ (-g.v) * x ^ p * (x ^ m * y ^ F) * y ^ n := by rw [hcomm]
+      _ = b ^ g.u * a ^ (-g.v) * x ^ (p + m) * y ^ (F + n) := by group
+  -- assemble
+  rw [mkHall g.reflect, hRHS]
+  have hru : g.reflect.u = -g.v := rfl
+  have hrv : g.reflect.v = -g.u := rfl
+  rw [hru, hrv, neg_neg, hB, tail ((-g.v) * g.u) FF g.reflect.hallM g.reflect.hallN,
+    hxexp, hyexp]
+
+/-- `retract` intertwines left multiplication by `coordT` with left multiplication by `mk T`.
+Both symmetry cases reduce to GT-core (`mk_reflect_hallWord`) together with `T * T = 1`. -/
+theorem retract_coordT_mul {c : CoordGroup} (hc : c ∈ coordLattice) :
+    retract (coordT * c) = PresentedGroup.mk relators T * retract c := by
+  set t := (PresentedGroup.mk relators T : PresentedGroup relators) with ht
+  have htt2 : t * t = 1 := by have := mk_T_sq; rw [map_mul] at this; exact this
+  have hmem : coordT * c ∈ coordLattice := coordLattice.mul_mem coordT_mem_lattice hc
+  rw [retract_of_mem_lattice hmem, retract_of_mem_lattice hc]
+  have hlat : EngelCoords.InLattice c.left := hc
+  have hleft : (coordT * c).left = c.left.reflect := by
+    rw [SemidirectProduct.mul_left]
+    simp [symmetryAction, EngelCoords.reflectAut]
+  have hright : (coordT * c).right = Symmetry.flip * c.right := by
+    rw [SemidirectProduct.mul_right]; simp
+  have hcore' :
+      (PresentedGroup.mk relators c.left.reflect.hallWord : PresentedGroup relators)
+        = t * PresentedGroup.mk relators c.left.hallWord * t := by
+    rw [mk_reflect_hallWord hlat, map_mul, map_mul]
+  show PresentedGroup.mk relators
+      ((coordT * c).left.hallWord * symmetryWord (coordT * c).right) =
+    t * PresentedGroup.mk relators (c.left.hallWord * symmetryWord c.right)
+  rw [hleft, hright]
+  cases hcr : c.right with
+  | id =>
+    show PresentedGroup.mk relators (c.left.reflect.hallWord * T) =
+      t * PresentedGroup.mk relators (c.left.hallWord * 1)
+    rw [map_mul, hcore', map_mul, map_one, mul_one,
+      mul_assoc (t * PresentedGroup.mk relators c.left.hallWord) t t, htt2, mul_one]
+  | flip =>
+    show PresentedGroup.mk relators (c.left.reflect.hallWord * 1) =
+      t * PresentedGroup.mk relators (c.left.hallWord * T)
+    rw [map_mul, map_one, mul_one, hcore', map_mul, mul_assoc]
+
+/-!
+## Left inverse via a per-generator intertwining induction
+
+The three intertwining lemmas `retract_coordA_mul`, `retract_coordAinv_mul`, and
+`retract_coordT_mul` say that `retract` commutes with left multiplication by each generator
+coordinate (up to the corresponding presented-group generator). A word induction over the
+presentation generators then upgrades this to the statement that `retract` is a left inverse of
+`toCoordGroup`, which is exactly injectivity of `toCoordGroup`. -/
+
+/-- The per-generator intertwining property, phrased so that it is closed under multiplication:
+`retract (toCoordGroup x * c) = x * retract c` for every lattice element `c`. -/
+theorem retract_toCoordGroup_intertwine (x : PresentedGroup relators) :
+    ∀ c ∈ coordLattice, retract (toCoordGroup x * c) = x * retract c := by
+  -- base cases and closure properties of the predicate
+  have hP1 : ∀ c ∈ coordLattice,
+      retract (toCoordGroup (1 : PresentedGroup relators) * c) = 1 * retract c := by
+    intro c _; rw [map_one, one_mul, one_mul]
+  have hPmul : ∀ z w : PresentedGroup relators,
+      (∀ c ∈ coordLattice, retract (toCoordGroup z * c) = z * retract c) →
+      (∀ c ∈ coordLattice, retract (toCoordGroup w * c) = w * retract c) →
+      (∀ c ∈ coordLattice, retract (toCoordGroup (z * w) * c) = z * w * retract c) := by
+    intro z w hz hw c hc
+    have hwc : toCoordGroup w * c ∈ coordLattice :=
+      coordLattice.mul_mem (toCoordGroup_mem_lattice w) hc
+    rw [map_mul, mul_assoc, hz _ hwc, hw c hc, mul_assoc]
+  have hofa : (PresentedGroup.of Generator.a : PresentedGroup relators)
+      = PresentedGroup.mk relators A := rfl
+  have hoft : (PresentedGroup.of Generator.t : PresentedGroup relators)
+      = PresentedGroup.mk relators T := rfl
+  have hAimg : toCoordGroup (PresentedGroup.of Generator.a) = coordA := by
+    unfold toCoordGroup; rw [PresentedGroup.toGroup.of]; rfl
+  have hTimg : toCoordGroup (PresentedGroup.of Generator.t) = coordT := by
+    unfold toCoordGroup; rw [PresentedGroup.toGroup.of]; rfl
+  have hcoordTinv : (coordT)⁻¹ = coordT := by
+    have h : (SemidirectProduct.inr Symmetry.flip : CoordGroup)⁻¹
+        = SemidirectProduct.inr (Symmetry.flip⁻¹) := (map_inv _ _).symm
+    rw [Symmetry.inv_flip] at h; exact h
+  have hPa : ∀ c ∈ coordLattice,
+      retract (toCoordGroup (PresentedGroup.of Generator.a) * c)
+        = PresentedGroup.of Generator.a * retract c := by
+    intro c hc
+    rw [hAimg, hofa, retract_coordA_mul hc]
+  have hPainv : ∀ c ∈ coordLattice,
+      retract (toCoordGroup (PresentedGroup.of Generator.a)⁻¹ * c)
+        = (PresentedGroup.of Generator.a)⁻¹ * retract c := by
+    intro c hc
+    have himg : toCoordGroup (PresentedGroup.of Generator.a)⁻¹ = coordA⁻¹ := by
+      rw [map_inv, hAimg]
+    rw [himg, hofa, retract_coordAinv_mul hc]
+  have hPt : ∀ c ∈ coordLattice,
+      retract (toCoordGroup (PresentedGroup.of Generator.t) * c)
+        = PresentedGroup.of Generator.t * retract c := by
+    intro c hc
+    rw [hTimg, hoft, retract_coordT_mul hc]
+  have hPtinv : ∀ c ∈ coordLattice,
+      retract (toCoordGroup (PresentedGroup.of Generator.t)⁻¹ * c)
+        = (PresentedGroup.of Generator.t)⁻¹ * retract c := by
+    intro c hc
+    have himg : toCoordGroup (PresentedGroup.of Generator.t)⁻¹ = coordT := by
+      rw [map_inv, hTimg, hcoordTinv]
+    have hoftinv : (PresentedGroup.of Generator.t)⁻¹ = PresentedGroup.mk relators T := by
+      rw [hoft]; exact mk_T_inv
+    rw [himg, hoftinv, retract_coordT_mul hc]
+  -- word induction
+  induction x with
+  | H z =>
+    induction z using FreeGroup.induction_on with
+    | C1 => exact hP1
+    | of i => cases i with
+      | a => exact hPa
+      | t => exact hPt
+    | inv_of i _ => cases i with
+      | a => exact hPainv
+      | t => exact hPtinv
+    | mul u v ihu ihv =>
+      have he : (PresentedGroup.mk relators (u * v) : PresentedGroup relators)
+          = PresentedGroup.mk relators u * PresentedGroup.mk relators v := map_mul _ _ _
+      rw [he]; exact hPmul _ _ ihu ihv
+
+theorem retract_leftInverse :
+    Function.LeftInverse (retract : CoordGroup → PresentedGroup relators) toCoordGroup := by
+  intro x
+  have h := retract_toCoordGroup_intertwine x 1 coordLattice.one_mem
+  simpa using h
 
 /-- Injectivity of the coordinate representation `toCoordGroup`, equivalently the statement
 that `retract` is a left inverse of `toCoordGroup`.
 
-By `toCoordGroup_injective_iff_retract` above, this is the same as: for every word `w`,
-`mk (coordLatticeWord (toCoordGroup (mk w))) = mk w` in the presented group. -/
-axiom toCoordGroup_injective : Function.Injective toCoordGroup
+By `toCoordGroup_injective_iff_retract`, this is the same as `retract` being a left inverse of
+`toCoordGroup`, which is established by `retract_leftInverse` via the per-generator intertwining
+induction `retract_toCoordGroup_intertwine`. -/
+theorem toCoordGroup_injective : Function.Injective toCoordGroup :=
+  toCoordGroup_injective_iff_retract.mpr retract_leftInverse
 
 /-- The word-problem decidability witness reconstructed from injectivity of the coordinate map.
 Given two finite words in the alphabet `Generator × Bool`, equality of the represented elements

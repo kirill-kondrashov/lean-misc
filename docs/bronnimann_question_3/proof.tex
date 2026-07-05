@@ -58,14 +58,14 @@ unconditional-shape theorem \texttt{BronnimannQuestion3.positive\_answer} instan
 witness-packaging theorem with Bodart's virtually Engel group; the local checker reports its
 axiom dependencies as the base axioms together with
 \begin{itemize}
-  \item \texttt{VirtuallyEngel.toCoordGroup\_injective},
   \item \texttt{VirtuallyEngel.irrationalGeodesicGrowth},
   \item \texttt{Lean.ofReduceBool} and \texttt{Lean.trustCompiler}, introduced by the
     \texttt{native\_decide} step inside the word-problem decision procedure.
 \end{itemize}
-The internal-facing axiom \texttt{VirtuallyEngel.theorem\_4} does not appear in this list because
-\texttt{irrationalGeodesicGrowth} is currently stated as an independent axiom; morally, however,
-(A3) is expected to be derived from (A2), so all three axioms below are treated as remaining
+The formerly internal-facing axioms \texttt{VirtuallyEngel.toCoordGroup\_injective} (A1) and
+\texttt{VirtuallyEngel.theorem\_4} (A2) have since been discharged as theorems and no longer
+appear in the axiom report; the single remaining internal-facing axiom
+\texttt{VirtuallyEngel.irrationalGeodesicGrowth} (A3) is treated as remaining
 internal work. The solvable-word-problem witness for the virtually Engel presentation is derived
 internally from injectivity of the coordinate homomorphism, so it is not itself an axiom.
 
@@ -76,7 +76,7 @@ internally from injectivity of the coordinate homomorphism, so it is not itself 
         \centering
         \textbf{Disclaimer}: the development described below contains a fully internal
         witness-packaging theorem. The unconditional positive answer to Question~3 requires
-        internalizing three further axioms recorded in the development, all listed in the
+        internalizing one further axiom recorded in the development, listed in the
         consolidated section \S\ref{sec:RemainingSteps}.
     \end{minipage}%
 }
@@ -111,31 +111,31 @@ The argument has the following form.
 \label{sec:RemainingSteps}
 
 To reach a fully formalized unconditional positive answer to Question~3 it remains to discharge
-the following three axioms currently recorded in the Bodart-side development. Each is stated as
-an internal-facing axiom to be proved, not as an imported literature fact.
+the single axiom \texttt{VirtuallyEngel.irrationalGeodesicGrowth} (A3) currently recorded in the
+Bodart-side development. Axioms (A1) and (A2) below have already been discharged as internal
+theorems and are retained here only to document the structure of the argument.
 
 \begin{enumerate}[label=(A\arabic*)]
   \item \emph{Injectivity of the coordinate homomorphism from the virtually Engel presentation
-    into its computable coordinate model.} The framework reducing this to a single
-    multiplication-compatibility identity for the Hall normal-form reconstruction is already in
-    place: the image of every element of the presented group is proved to lie in the coordinate
-    lattice, injectivity is proved equivalent to a canonical set-theoretic retract being a left
-    inverse, and the retract identity is checked on the trivial element and on each presentation
-    generator. The remaining obligation is the multiplication-compatibility identity for the
-    retract restricted to the lattice, whose input is the Hall commutation identities implied by
-    the four defining relators.
+    into its computable coordinate model.} \textbf{Discharged.} Injectivity is proved equivalent
+    to a canonical set-theoretic retract being a left inverse of the coordinate homomorphism; the
+    retract is shown to intertwine with left multiplication by each presentation generator
+    ($a$, $a^{-1}$, $t$, $t^{-1}$) on the coordinate lattice, and a free-group word induction then
+    establishes the left-inverse property. The generator-level intertwining rests on the Hall
+    commutation identities implied by the four defining relators (Lemma~B collection) and on the
+    $T$-conjugation identity for the Hall normal form. The axiom
+    \texttt{VirtuallyEngel.toCoordGroup\_injective} is now a theorem.
   \item \emph{Bodart's asymptotic estimate for the geodesic-growth function}
-    $\gamma_{\mathrm{geod}}(n)\asymp \exp(n^{3/5}\log n)$. This is the main quantitative result
-    of Bodart's paper, to be formalized from the geometric path-counting construction over the
-    virtually Engel group.
+    $\gamma_{\mathrm{geod}}(n)\asymp \exp(n^{3/5}\log n)$. \textbf{Discharged} internally
+    (\texttt{VirtuallyEngel.theorem\_4} is now a theorem).
   \item \emph{Asymptotic-to-irrationality bridge}, i.e.\ the theorem that an integer sequence
     satisfying an eventual linear recurrence with constant coefficients cannot have intermediate
-    growth of the form $\exp(n^{3/5}\log n)$. Combined with axiom~(A2), this yields the
+    growth of the form $\exp(n^{3/5}\log n)$. This yields the
     irrational-growth witness for the virtually Engel presentation with respect to the alphabet
-    $S=\{a,a^{-1},t\}$.
+    $S=\{a,a^{-1},t\}$, and is the sole remaining internal-facing axiom.
 \end{enumerate}
-Once (A1), (A2), and (A3) are proved internally, the witness-packaging theorem instantiated at
-Bodart's virtually Engel group yields the unconditional positive answer.
+With (A1) and (A2) discharged, only (A3) remains before the witness-packaging theorem instantiated
+at Bodart's virtually Engel group yields the unconditional positive answer.
 
 \begin{thebibliography}{9}
 

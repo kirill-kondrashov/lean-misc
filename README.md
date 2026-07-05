@@ -118,12 +118,13 @@ statement. This theorem is conditional: the witness properties are hypotheses, s
 no extra axioms beyond the core ones.
 It also reports the unconditional-shape Question 3 theorem `BronnimannQuestion3.positive_answer`,
 which instantiates the witness-packaging theorem with Bodart's virtually Engel group. Its
-axiom dependencies currently include the three internal-facing axioms
-`VirtuallyEngel.toCoordGroup_injective`, `VirtuallyEngel.theorem_4`, and
+axiom dependencies currently include the single remaining internal-facing axiom
 `VirtuallyEngel.irrationalGeodesicGrowth`, together with the compiler-side axioms
 `Lean.ofReduceBool` and `Lean.trustCompiler` introduced by the `native_decide` step in the word
 problem decision procedure; all of these are treated as temporary allowed axiom debt and are
-reported explicitly by the checker. Discharging the three internal-facing axioms is the
+reported explicitly by the checker. The former internal-facing axioms
+`VirtuallyEngel.toCoordGroup_injective` and `VirtuallyEngel.theorem_4` have since been discharged
+as theorems; discharging the remaining `VirtuallyEngel.irrationalGeodesicGrowth` axiom is the
 remaining internal work described in `docs/bronnimann_question_3/proof.tex`.
 It also reports the open-problem wrapper `Erdos1.erdos_1_solution_axiom`, with the placeholder
 axiom `Erdos1.erdos_1` treated as temporary allowed axiom debt in the same style as the current
@@ -185,12 +186,10 @@ Axioms used:
 - Classical.choice
 - Lean.ofReduceBool
 - Lean.trustCompiler
-- VirtuallyEngel.toCoordGroup_injective
 - VirtuallyEngel.irrationalGeodesicGrowth
 Temporarily allowed non-base axioms (must be proved later):
 - Lean.ofReduceBool
 - Lean.trustCompiler
-- VirtuallyEngel.toCoordGroup_injective
 - VirtuallyEngel.irrationalGeodesicGrowth
 ✅ The proof of 'Erdos1.erdos_1.variants.weaker' is free of 'sorry' and uses only base axioms.
 Axioms used:
