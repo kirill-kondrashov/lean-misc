@@ -739,6 +739,83 @@ theorem coordLatticeWord_spec (g : coordLattice) :
   rw [coordLatticeWord, map_mul, EngelCoords.hallWord_spec g.2, coord_symmetryWord]
   simpa using (SemidirectProduct.mk_eq_inl_mul_inr g.1.right g.1.left).symm
 
+/-!
+## Hall commutation identities inside `PresentedGroup relators`
+
+These identities are the algebraic input to the multiplication-compatibility identity that
+discharges `toCoordGroup_injective`. They are stated at the level of `PresentedGroup relators` and
+established either by pure free-group algebra (definition of `HallX`, `HallY`, `Aconj`) or by
+using one of the four defining relators.
+-/
+
+/-- `mk (T * T) = 1` — this is the first defining relator. -/
+@[simp] theorem mk_T_sq :
+    (PresentedGroup.mk relators (T * T) : PresentedGroup relators) = 1 := by
+  exact PresentedGroup.one_of_mem (by simp [relators])
+
+/-- Consequence: `mk T` is its own inverse in the presented group. -/
+theorem mk_T_inv :
+    (PresentedGroup.mk relators T)⁻¹ =
+      (PresentedGroup.mk relators T : PresentedGroup relators) := by
+  have h : PresentedGroup.mk relators T * PresentedGroup.mk relators T = 1 := by
+    have := mk_T_sq
+    simpa [map_mul] using this
+  exact inv_eq_of_mul_eq_one_left h
+
+/-- Consequence: `mk T⁻¹ = mk T`. -/
+@[simp] theorem mk_T_inv_eq_mk_T :
+    (PresentedGroup.mk relators T⁻¹ : PresentedGroup relators) = PresentedGroup.mk relators T := by
+  rw [map_inv, mk_T_inv]
+
+/-- Conjugation relation: in the presented group, `T A T = Aconj`. This is essentially the
+definition of `Aconj`, made available through `T² = 1`. -/
+theorem mk_T_A_T :
+    (PresentedGroup.mk relators (T * A * T) : PresentedGroup relators) =
+      PresentedGroup.mk relators Aconj := by
+  show PresentedGroup.mk relators (T * A * T) = PresentedGroup.mk relators (T⁻¹ * A * T)
+  simp [map_mul, mk_T_inv_eq_mk_T]
+
+/-- Commutation of `T` and `A`: `T * A = Aconj * T`. -/
+theorem mk_T_A :
+    (PresentedGroup.mk relators (T * A) : PresentedGroup relators) =
+      PresentedGroup.mk relators (Aconj * T) := by
+  -- `Aconj * T = T⁻¹ * A * T * T = T * A * (T * T) = T * A`.
+  show PresentedGroup.mk relators (T * A) = PresentedGroup.mk relators (T⁻¹ * A * T * T)
+  simp [map_mul, mk_T_inv_eq_mk_T, mul_assoc,
+    show (PresentedGroup.mk relators T) * PresentedGroup.mk relators T = 1 by
+      have := mk_T_sq; simpa [map_mul] using this]
+
+/-- Commutation of `T` and `Aconj`: `T * Aconj = A * T`. -/
+theorem mk_T_Aconj :
+    (PresentedGroup.mk relators (T * Aconj) : PresentedGroup relators) =
+      PresentedGroup.mk relators (A * T) := by
+  -- `T * Aconj = T * (T⁻¹ * A * T) = (T * T⁻¹) * A * T = A * T`.
+  show PresentedGroup.mk relators (T * (T⁻¹ * A * T)) = PresentedGroup.mk relators (A * T)
+  simp [map_mul, mk_T_inv_eq_mk_T, ← mul_assoc,
+    show (PresentedGroup.mk relators T) * PresentedGroup.mk relators T = 1 by
+      have := mk_T_sq; simpa [map_mul] using this]
+
+/-- The definition of `HallX = A⁻¹ * Aconj⁻¹ * A * Aconj` in the free group already tells us
+that `Aconj * A = A * Aconj * HallX⁻¹` there, and hence in every quotient. -/
+theorem mk_Aconj_A :
+    (PresentedGroup.mk relators (Aconj * A) : PresentedGroup relators) =
+      PresentedGroup.mk relators (A * Aconj * HallX⁻¹) := by
+  have h : (Aconj * A : FreeGroup Generator) = A * Aconj * HallX⁻¹ := by
+    show (T⁻¹ * A * T) * A = A * (T⁻¹ * A * T) *
+        (A⁻¹ * (T⁻¹ * A * T)⁻¹ * A * (T⁻¹ * A * T))⁻¹
+    group
+  rw [h]
+
+/-- The definition of `HallY = A⁻¹ * HallX⁻¹ * A * HallX` in the free group already tells us
+that `A * HallX = HallX * A * HallY` there, and hence in every quotient. -/
+theorem mk_A_HallX :
+    (PresentedGroup.mk relators (A * HallX) : PresentedGroup relators) =
+      PresentedGroup.mk relators (HallX * A * HallY) := by
+  have h : (A * HallX : FreeGroup Generator) = HallX * A * HallY := by
+    change A * HallX = HallX * A * (A⁻¹ * HallX⁻¹ * A * HallX)
+    group
+  rw [h]
+
 /-- Theorem 4 of Bodart, recorded as an internal-facing axiom to be formalized.
 
 It states that the virtually Engel group above has intermediate geodesic growth with respect to
