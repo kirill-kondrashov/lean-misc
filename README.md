@@ -9,15 +9,15 @@ after <https://github.com/kirill-kondrashov/yoccos-theorem>.
 
 - Main active fronts:
   [Erdős #1](#erdős-1), [Erdős #142](#erdős-142), and
-  [the Heisenberg-group geodesics formalization](#heisenberg-group-geodesics)
+  [Brönnimann Question 3](#brönnimann-question-3)
 - Toolchain:
   Lean `v4.27.0`, mathlib `v4.27.0`
 - Main entrypoint for the current Erdős #1 frontier:
   [ErdosProblems/Problem1CubeHalfBoundary.lean](./ErdosProblems/Problem1CubeHalfBoundary.lean)
 - Main entrypoint for the current Erdős #142 frontier:
   [ErdosProblems/Problem142Gap.lean](./ErdosProblems/Problem142Gap.lean)
-- Main entrypoint for the Heisenberg-group geodesics formalization:
-  [Groups/HeisenbergGroup.lean](./Groups/HeisenbergGroup.lean)
+- Main entrypoint for the Brönnimann Question 3 formalization:
+  [Groups/BronnimannQuestion3.lean](./Groups/BronnimannQuestion3.lean)
 
 ## Quick links
 
@@ -28,7 +28,7 @@ after <https://github.com/kirill-kondrashov/yoccos-theorem>.
 - [CI workflow](#ci-workflow-github-actions)
 - [Erdős #1](#erdős-1)
 - [Erdős #142](#erdős-142)
-- [Heisenberg group geodesics](#heisenberg-group-geodesics)
+- [Brönnimann Question 3](#brönnimann-question-3)
 
 ## Repository map
 
@@ -55,6 +55,11 @@ GitHub renders the old table too narrowly, so this section uses a list instead.
   Alekseev--Magdiev, "The language of geodesics for the discrete Heisenberg group"
   (<https://arxiv.org/pdf/1905.03226>).
   Main file: [Groups/HeisenbergGroup.lean](./Groups/HeisenbergGroup.lean)
+
+- `Groups.BronnimannQuestion3`
+  Statement-level reduction for Brönnimann's Question 3: any explicit witness with solvable word
+  problem and irrational geodesic growth yields a positive answer.
+  Main file: [Groups/BronnimannQuestion3.lean](./Groups/BronnimannQuestion3.lean)
 
 ## Toolchain and dependencies
 
@@ -83,11 +88,13 @@ All solved exercises are checked to ensure they:
 - do not use `sorry`
 - depend only on the base axioms `propext`, `Quot.sound`, and `Classical.choice`
 - build the top-level `SimpleExercises` library, including `SimpleExercises.Continuity`
-- build the top-level `Groups` library, including `Groups.HeisenbergGroup`
+- build the top-level `Groups` library, including `Groups.BronnimannQuestion3`
 - build the top-level `ErdosProblems` library, including the `Erdos1` modules
 - include the checked `Erdos1` theorems
   (`Erdos1.erdos_1.variants.weaker`, `Erdos1.choose_middle_isEquivalent`,
   and the temporary-axiom wrapper `Erdos1.erdos_1_solution_axiom`)
+- include the fully local Brönnimann Question 3 witness-packaging theorem
+  (`BronnimannQuestion3.positive_answer_of_witness`)
 - include the Problem #142 DeepMind-equivalence theorem
   (`Erdos142.erdos_problem_142_iff_deepmind`)
 - include the strengthened explicit-profile DeepMind-equivalence theorem
@@ -95,40 +102,42 @@ All solved exercises are checked to ensure they:
 - keep checker output explicit about temporary axiom frontier debt where present
 
 The checker now builds the top-level `Groups` library and imports the checked
-`SimpleExercises` and `ErdosProblems` proof modules, so `Groups.HeisenbergGroup`,
+`SimpleExercises` and `ErdosProblems` proof modules, so `Groups.BronnimannQuestion3`,
 `SimpleExercises.Continuity`, and `Erdos1` are built as part of `make check`.
 `SimpleExercises.Continuity` contributes the local `RealCont` API, including composition,
 affine transformations, sums, products, and polynomial evaluation; these declarations are checked
 and currently require no non-base axioms.
 It also reports two `Erdos1` theorems that are fully local and base-axiom clean:
 `Erdos1.erdos_1.variants.weaker` and `Erdos1.choose_middle_isEquivalent`.
+It also reports the fully local Question 3 packaging theorem
+`BronnimannQuestion3.positive_answer_of_witness`, which turns any explicit witness with solvable
+word problem and irrational geodesic growth into a core-axiom-clean proof of the existential
+statement. This theorem is conditional: the witness properties are hypotheses, so the checker sees
+no extra axioms beyond the core ones.
 It also reports the open-problem wrapper `Erdos1.erdos_1_solution_axiom`, with the placeholder
 axiom `Erdos1.erdos_1` treated as temporary allowed axiom debt in the same style as the current
 `Erdos142` frontier checks.
 The exact-value theorems proved by `native_decide` are still excluded from this checker because the
 current policy treats `Lean.ofReduceBool` / `Lean.trustCompiler` as non-base axioms.
 
-## Heisenberg Group Geodesics
+## Brönnimann Question 3
 
 The `Groups` library is the home for formalization work around geodesics in finitely generated
-groups. The current focus is `Groups.HeisenbergGroup`, which sets up the standard presentation of
-the discrete Heisenberg group and the vocabulary needed for finite and one-sided infinite geodesic
-words.
+groups. The current Question 3 front is centered on the fully internal witness-packaging theorem
+and the supporting definitions needed to formulate Bodart's virtually Engel example precisely.
 
-This track is aimed at formalizing results from Ilya Alekseev and Ruslan Magdiev,
-"The language of geodesics for the discrete Heisenberg group" (arXiv:1905.03226). The present file
-also records an imported theorem statement for the earlier one-sided infinite-geodesic
-classification used as background; that declaration is explicit axiom debt and is kept visible to
-the checker.
+The main modules are:
 
-Two adjacent literature stubs extend this setup toward Brönnimann's Question 3. The file
-`Groups.VirtuallyHeisenbergGroup` records the Bishop--Elder virtually Heisenberg example with
-polynomial geodesic growth, while `Groups.VirtuallyEngelGroup` records Bodart's virtually Engel
-example with intermediate geodesic growth. The shared file `Groups.GeodesicGrowth` provides a
-geodesic-growth definition over arbitrary finite alphabets so these examples can use the exact
-generating sets appearing in the papers, including involutory generators. Finally,
-`Groups.BronnimannQuestion3` packages Bodart's virtually Engel example into a formal positive
-answer to Brönnimann's Question 3 about solvable word problem and irrational geodesic growth.
+- `Groups.GeodesicGrowth` for generic definitions of solvable word problem and
+  rational / irrational geodesic growth;
+- `Groups.VirtuallyEngelGroup` for Bodart's virtually Engel presentation and imported witness
+  facts;
+- `Groups.BronnimannQuestion3` for the fully local witness-packaging theorem.
+
+The older `Groups.HeisenbergGroup` development remains in the repository as adjacent background,
+but it is no longer the main framing for this front. A matching standalone LaTeX report, following
+the style of the `yoccoz-theorem` repository, is available as
+[PDF](docs/bronnimann_question_3/proof.pdf).
 
 Run:
 
@@ -149,6 +158,11 @@ Axioms used:
 - Quot.sound
 - Classical.choice
 ✅ The proof of 'TaoExercises.TaoBook.Chapter2.exercise_2_6' is free of 'sorry' and uses only base axioms.
+Axioms used:
+- propext
+- Quot.sound
+- Classical.choice
+✅ The proof of 'BronnimannQuestion3.positive_answer_of_witness' is free of 'sorry' and uses only base axioms.
 Axioms used:
 - propext
 - Quot.sound

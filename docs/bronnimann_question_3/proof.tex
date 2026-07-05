@@ -1,0 +1,110 @@
+\documentclass[reqno]{amsart}
+\usepackage{amssymb, amsmath}
+\usepackage[left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{enumitem}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}[theorem]{Axiom}
+
+\title{Formalization of Br\"onnimann's Question 3}
+\author{\url{https://github.com/kirill-kondrashov/lean-misc}}
+\date{\today}
+
+\begin{document}
+
+\begin{abstract}
+  This document records the current Lean formalization around Br\"onnimann's Question 3: whether
+  there exists a group with solvable word problem and irrational geodesic growth. The repository
+  contains a fully internal theorem reducing the question to the existence of a concrete witness
+  with the required properties. The repository also contains a formal presentation of Bodart's
+  virtually Engel group from \texttt{arXiv:2306.10381}, together with an explicit computable
+  coordinate model into which the presentation maps. The final witness properties are not yet
+  derived from this model.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+
+Br\"onnimann asked in 2016 whether there exists a group with solvable word problem and irrational
+geodesic growth. Bodart's construction of a virtually Engel group with intermediate geodesic
+growth gives such an example. The formalization considered here proves the general implication that
+any presented group equipped with a finite generating alphabet, solvable word problem, and
+irrational geodesic growth yields a positive answer to Br\"onnimann's question. The Bodart witness
+is formalized at the level of its presentation, its geodesic alphabet, and an explicit computable
+coordinate model. The final instantiation is not claimed until the witness properties are proved
+internally from that structure.
+
+\section{Context}
+
+The formalization has three parts:
+\begin{itemize}
+  \item generic definitions for geodesic growth and solvable word problem;
+  \item a formal presentation of Bodart's virtually Engel witness together with a computable
+    coordinate model;
+  \item a fully local witness-packaging theorem.
+\end{itemize}
+
+\subsection{Disclaimer and Verification}
+The witness-packaging theorem is checked by the Lean kernel and uses only the base axioms. The
+application to Bodart's group presently depends on two imported witness facts: irrationality of the
+geodesic growth and solvability of the word problem for the virtually Engel presentation. What has
+now been internalized on the Bodart side is an explicit semidirect-product target and the
+verification that the defining relators hold in that target.
+
+\vspace{1em}
+\noindent
+\fcolorbox{black}{yellow!20}{%
+    \begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule}
+        \centering
+        \textbf{Disclaimer}: the development described below contains a fully internal
+        witness-packaging theorem. The Bodart witness facts needed for an unconditional conclusion
+        are recorded but not yet reproved internally.
+    \end{minipage}%
+}
+\vspace{1em}
+
+\part*{Formalization Structure}
+
+\input{Question.tex}
+\input{GeodesicGrowth.tex}
+\input{VirtuallyEngel.tex}
+\input{Formalization.tex}
+
+\section{Logical Dependencies}
+
+The argument has the following form.
+\begin{enumerate}[label=(\arabic*)]
+  \item One defines the word problem and geodesic growth for a finitely generated group presented
+    by generators and relators.
+  \item One fixes a criterion for rationality of the geodesic-growth series in terms of eventual
+    linear recurrences with constant coefficients.
+  \item One proves that any witness with solvable word problem and irrational geodesic growth gives
+    a positive answer to Br\"onnimann's Question~3.
+  \item One records Bodart's virtually Engel group, constructs an explicit computable coordinate
+    model for it, and verifies the defining relators in that model.
+  \item It remains to derive from this model the solvable-word-problem witness, and from Bodart's
+    asymptotic estimate the irrational-growth witness.
+\end{enumerate}
+
+\begin{thebibliography}{9}
+
+\bibitem{Bronnimann}
+J. M. Br\"onnimann, \textit{Geodesic Growth of Groups}, PhD thesis, Universit\'e de Neuch\^atel,
+2016.
+
+\bibitem{Bodart}
+Corentin Bodart, \textit{Intermediate geodesic growth in virtually nilpotent groups},
+arXiv:2306.10381v3, 2025.
+
+\bibitem{BishopElder}
+Alex Bishop and Murray Elder, \textit{A virtually 2-step nilpotent group with polynomial geodesic
+growth}, Algebra and Discrete Mathematics 33 (2022), no. 1, 21--28.
+
+\end{thebibliography}
+
+\end{document}

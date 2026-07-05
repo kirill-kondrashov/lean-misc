@@ -12,6 +12,7 @@ private def dotted (s : String) : Name :=
 def checkedTheorems : List Name :=
   [ dotted "TaoExercises.TaoBook.Chapter2.exercise_2_3"
   , dotted "TaoExercises.TaoBook.Chapter2.exercise_2_6"
+  , dotted "BronnimannQuestion3.positive_answer_of_witness"
   , dotted "Erdos1.erdos_1.variants.weaker"
   , dotted "Erdos1.choose_middle_isEquivalent"
   , dotted "Erdos1.erdos_1_solution_axiom"
@@ -32,6 +33,7 @@ entire proof corpus before `main` starts.
 def checkedImports : Array Import :=
   #[ { module := dotted "TaoExercises.TaoBook.Chapter2.Exercise2_3" }
    , { module := dotted "TaoExercises.TaoBook.Chapter2.Exercise2_6" }
+   , { module := dotted "Groups.BronnimannQuestion3" }
    , { module := dotted "SimpleExercises.Continuity" }
    , { module := dotted "ErdosProblems.Problem1Literature" }
    , { module := dotted "ErdosProblems.Problem142Gap" }

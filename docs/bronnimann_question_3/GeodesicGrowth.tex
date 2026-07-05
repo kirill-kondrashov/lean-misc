@@ -1,0 +1,37 @@
+\section{Generic Geodesic-Growth Layer}
+\label{sec:GeodesicGrowth}
+
+We fix a general framework in which geodesic growth can be discussed for an arbitrary presented
+group and an arbitrary finite alphabet already interpreted in that group.
+
+\subsection*{Solvable word problem}
+Let $G=\langle \alpha \mid R\rangle$ be a presented group. A finite word in the generators and
+their formal inverses determines an element of $G$. The word problem for this presentation is the
+binary relation on pairs of finite words
+\[
+(u,v)\longmapsto [u]_G=[v]_G.
+\]
+The phrase ``solvable word problem'' means that this relation is a computable predicate.
+
+\subsection*{Geodesic growth}
+Now let $\beta$ be a finite alphabet and let each letter of $\beta$ be interpreted as an element
+of $G$. A finite word $w\in \beta^\ast$ is called \emph{geodesic} if no shorter word over
+$\beta$ represents the same group element. The geodesic growth function is then
+\[
+\gamma_\beta(n)=\#\{w\in \beta^n : w \text{ is geodesic}\}.
+\]
+This is the counting function considered below.
+
+\subsection*{Rational versus irrational growth}
+To make ``irrational geodesic growth'' precise, we use the standard recurrence criterion for
+rational generating functions. Namely, the geodesic-growth series
+\[
+\Gamma_\beta(z)=\sum_{n\ge 0}\gamma_\beta(n)z^n
+\]
+is treated as rational exactly when the integer sequence $\gamma_\beta(n)$ satisfies an eventual
+linear recurrence with constant coefficients. Concretely, this means that there are an integer
+$d\ge 1$ and integers $c_0,\dots,c_{d-1}$ such that, for all sufficiently large $n$,
+\[
+\gamma_\beta(n+d)=\sum_{i=0}^{d-1} c_i\,\gamma_\beta(n+i).
+\]
+The formal notion of irrational geodesic growth is the negation of this recurrence property.
