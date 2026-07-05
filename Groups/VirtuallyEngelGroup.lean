@@ -879,6 +879,48 @@ theorem mk_C_eq_mk_Engel :
   rw [map_mul, map_inv, mul_inv_eq_one] at this
   exact this
 
+/-- Inverse form of `mk_Aconj_A`: `mk (A⁻¹ * Aconj⁻¹) = mk (HallX * Aconj⁻¹ * A⁻¹)`. -/
+theorem mk_Ainv_Aconjinv :
+    (PresentedGroup.mk relators (A⁻¹ * Aconj⁻¹) : PresentedGroup relators) =
+      PresentedGroup.mk relators (HallX * Aconj⁻¹ * A⁻¹) := by
+  have h : (A⁻¹ * Aconj⁻¹ : FreeGroup Generator) = HallX * Aconj⁻¹ * A⁻¹ := by
+    show A⁻¹ * (T⁻¹ * A * T)⁻¹ =
+      (A⁻¹ * (T⁻¹ * A * T)⁻¹ * A * (T⁻¹ * A * T)) * (T⁻¹ * A * T)⁻¹ * A⁻¹
+    group
+  rw [h]
+
+/-- Inverse form of `mk_A_HallX`: `mk (HallX⁻¹ * A⁻¹) = mk (HallY⁻¹ * A⁻¹ * HallX⁻¹)`. -/
+theorem mk_HallXinv_Ainv :
+    (PresentedGroup.mk relators (HallX⁻¹ * A⁻¹) : PresentedGroup relators) =
+      PresentedGroup.mk relators (HallY⁻¹ * A⁻¹ * HallX⁻¹) := by
+  have h : (HallX⁻¹ * A⁻¹ : FreeGroup Generator) = HallY⁻¹ * A⁻¹ * HallX⁻¹ := by
+    change HallX⁻¹ * A⁻¹ =
+      (A⁻¹ * HallX⁻¹ * A * HallX)⁻¹ * A⁻¹ * HallX⁻¹
+    group
+  rw [h]
+
+/-- `mk C` commutes with `mk A⁻¹`: `mk (C * A⁻¹) = mk (A⁻¹ * C)`. -/
+theorem mk_C_Ainv_comm :
+    (PresentedGroup.mk relators (C * A⁻¹) : PresentedGroup relators) =
+      PresentedGroup.mk relators (A⁻¹ * C) := by
+  have hcomm : Commute (PresentedGroup.mk relators C : PresentedGroup relators)
+      (PresentedGroup.mk relators A) := mk_C_A_comm
+  have hinv := hcomm.inv_right
+  show (PresentedGroup.mk relators C) * (PresentedGroup.mk relators A⁻¹) =
+    (PresentedGroup.mk relators A⁻¹) * PresentedGroup.mk relators C
+  rw [map_inv]; exact hinv
+
+/-- `mk C` commutes with `mk Aconj⁻¹`: `mk (C * Aconj⁻¹) = mk (Aconj⁻¹ * C)`. -/
+theorem mk_C_Aconjinv_comm :
+    (PresentedGroup.mk relators (C * Aconj⁻¹) : PresentedGroup relators) =
+      PresentedGroup.mk relators (Aconj⁻¹ * C) := by
+  have hcomm : Commute (PresentedGroup.mk relators C : PresentedGroup relators)
+      (PresentedGroup.mk relators Aconj) := mk_C_Aconj_comm
+  have hinv := hcomm.inv_right
+  show (PresentedGroup.mk relators C) * (PresentedGroup.mk relators Aconj⁻¹) =
+    (PresentedGroup.mk relators Aconj⁻¹) * PresentedGroup.mk relators C
+  rw [map_inv]; exact hinv
+
 /-- Theorem 4 of Bodart, recorded as an internal-facing axiom to be formalized.
 
 It states that the virtually Engel group above has intermediate geodesic growth with respect to
