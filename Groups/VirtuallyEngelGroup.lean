@@ -1678,11 +1678,56 @@ theorem mk_A_HallX_Ainv :
   have hax : a * x = x * a * y := hR ▸ hL ▸ h1
   show a * x * a⁻¹ = x * y
   rw [hax]
-  -- Goal: x * a * y * a⁻¹ = x * y. hYA : Commute y a i.e. y*a = a*y, so a*y = y*a.
   have hay : a * y = y * a := hYA.symm.eq
   have : x * a * y * a⁻¹ = x * y := by
     rw [mul_assoc x a y, hay, ← mul_assoc x y a, mul_assoc (x*y) a a⁻¹, mul_inv_cancel, mul_one]
   exact this
+
+/-- Iterated reverse shift: `mk (HallX^n * A) = mk (A * HallX^n * HallY^(-n))` for natural n. -/
+theorem mk_HallX_pow_A_nat (n : ℕ) :
+    (PresentedGroup.mk relators (HallX ^ n * A) : PresentedGroup relators) =
+      PresentedGroup.mk relators (A * HallX ^ n * HallY ^ (-(n : ℤ))) := by
+  set a := (PresentedGroup.mk relators A : PresentedGroup relators)
+  set x := (PresentedGroup.mk relators HallX : PresentedGroup relators)
+  set y := (PresentedGroup.mk relators HallY : PresentedGroup relators)
+  have hYA : Commute y a := mk_HallY_A_comm
+  have hYX : Commute y x := mk_HallY_HallX_comm
+  have hXA : x * a = a * x * y⁻¹ := by
+    have := mk_HallX_A
+    have hl : (PresentedGroup.mk relators (HallX * A) : PresentedGroup relators) = x * a := by
+      rw [map_mul]
+    have hr : (PresentedGroup.mk relators (A * HallX * HallY⁻¹) : PresentedGroup relators)
+        = a * x * y⁻¹ := by rw [map_mul, map_mul, map_inv]
+    rw [hl, hr] at this
+    simpa using this
+  suffices h : ∀ n : ℕ, x^n * a = a * x^n * y ^ (-(n : ℤ)) by
+    have := h n
+    show (PresentedGroup.mk relators (HallX ^ n * A) : PresentedGroup relators) =
+        PresentedGroup.mk relators (A * HallX ^ n * HallY ^ (-(n : ℤ)))
+    have hl : (PresentedGroup.mk relators (HallX ^ n * A) : PresentedGroup relators) = x ^ n * a := by
+      rw [map_mul, map_pow]
+    have hr : (PresentedGroup.mk relators (A * HallX ^ n * HallY ^ (-(n : ℤ))) : PresentedGroup relators)
+        = a * x ^ n * y ^ (-(n : ℤ)) := by
+      rw [map_mul, map_mul, map_pow, map_zpow]
+    rw [hl, hr]
+    exact this
+  intro k
+  induction k with
+  | zero => simp
+  | succ k ih =>
+      calc x^(k+1) * a
+          = x * (x^k * a) := by rw [pow_succ']; simp [mul_assoc]
+        _ = x * (a * x^k * y ^ (-(k : ℤ))) := by rw [ih]
+        _ = (x * a) * x^k * y ^ (-(k : ℤ)) := by simp [mul_assoc]
+        _ = (a * x * y⁻¹) * x^k * y ^ (-(k : ℤ)) := by rw [hXA]
+        _ = a * x * (y⁻¹ * x^k) * y ^ (-(k : ℤ)) := by simp [mul_assoc]
+        _ = a * x * (x^k * y⁻¹) * y ^ (-(k : ℤ)) := by rw [(hYX.pow_right k).inv_left.eq]
+        _ = a * (x * x^k) * (y⁻¹ * y ^ (-(k : ℤ))) := by simp [mul_assoc]
+        _ = a * x^(k+1) * y ^ (-(k+1 : ℤ)) := by
+          rw [← pow_succ']
+          have hy : y⁻¹ * y ^ (-(k : ℤ)) = y ^ (-(k+1 : ℤ)) := by
+            rw [show (-(k+1 : ℤ)) = (-1 : ℤ) + (-(k : ℤ)) by ring, zpow_add, zpow_neg_one]
+          rw [hy]
 
 
 
