@@ -893,6 +893,42 @@ theorem mk_C_Aconj_comm :
     PresentedGroup.mk relators Aconj * PresentedGroup.mk relators C
   exact hcomm
 
+/-!
+### Shifts through the mathlib commutator `HallXC := ⁅A, Aconj⁆`
+
+The mathlib commutator `⁅A, Aconj⁆ = A·Aconj·A⁻¹·Aconj⁻¹` is easier to shift past `A` and
+`Aconj` than the Hall commutator `HallX`, because the commutator `[A, HallXC]_mathlib` is
+exactly `C` by definition, and `C` is central. These shift lemmas are the building blocks for
+the class-3 nilpotent structure of the presented group.
+-/
+
+/-- Free-group identity: `HallXC · A = C⁻¹ · A · HallXC`. This is immediate from
+`C = A · HallXC · A⁻¹ · HallXC⁻¹` (definition of `C = ⁅A, HallXC⁆_mathlib`). -/
+theorem freeGroup_HallXC_A :
+    (⁅A, Aconj⁆ * A : FreeGroup Generator) = (⁅A, ⁅A, Aconj⁆⁆)⁻¹ * A * ⁅A, Aconj⁆ := by
+  show (A * Aconj * A⁻¹ * Aconj⁻¹) * A =
+       (A * (A * Aconj * A⁻¹ * Aconj⁻¹) * A⁻¹ * (A * Aconj * A⁻¹ * Aconj⁻¹)⁻¹)⁻¹ * A *
+         (A * Aconj * A⁻¹ * Aconj⁻¹)
+  group
+
+/-- Free-group identity: `A · HallXC = C · HallXC · A`. -/
+theorem freeGroup_A_HallXC :
+    (A * ⁅A, Aconj⁆ : FreeGroup Generator) = ⁅A, ⁅A, Aconj⁆⁆ * ⁅A, Aconj⁆ * A := by
+  show A * (A * Aconj * A⁻¹ * Aconj⁻¹) =
+       (A * (A * Aconj * A⁻¹ * Aconj⁻¹) * A⁻¹ * (A * Aconj * A⁻¹ * Aconj⁻¹)⁻¹) *
+         (A * Aconj * A⁻¹ * Aconj⁻¹) * A
+  group
+
+/-- Free-group identity: `Aconj · HallXC = ⁅Aconj, HallXC⁆ · HallXC · Aconj`. -/
+theorem freeGroup_Aconj_HallXC :
+    (Aconj * ⁅A, Aconj⁆ : FreeGroup Generator) =
+      ⁅Aconj, ⁅A, Aconj⁆⁆ * ⁅A, Aconj⁆ * Aconj := by
+  show (T⁻¹ * A * T) * (A * Aconj * A⁻¹ * Aconj⁻¹) =
+       ((T⁻¹ * A * T) * (A * Aconj * A⁻¹ * Aconj⁻¹) * (T⁻¹ * A * T)⁻¹ *
+           (A * Aconj * A⁻¹ * Aconj⁻¹)⁻¹) *
+         (A * Aconj * A⁻¹ * Aconj⁻¹) * (T⁻¹ * A * T)
+  group
+
 /-- The second relator, applied: `mk C = mk ⁅Aconj, ⁅A, Aconj⁆⁆` in the presented group. -/
 theorem mk_C_eq_mk_Engel :
     (PresentedGroup.mk relators C : PresentedGroup relators) =
@@ -951,6 +987,89 @@ theorem mk_C_Aconjinv_comm :
   show (PresentedGroup.mk relators C) * (PresentedGroup.mk relators Aconj⁻¹) =
     (PresentedGroup.mk relators Aconj⁻¹) * PresentedGroup.mk relators C
   rw [map_inv]; exact hinv
+
+/-- `mk C` commutes with `mk HallXC := mk ⁅A, Aconj⁆`, since `HallXC` is a word in `A, Aconj`
+and `mk C` commutes with both. -/
+theorem mk_C_HallXC_comm :
+    Commute (PresentedGroup.mk relators C : PresentedGroup relators)
+      (PresentedGroup.mk relators ⁅A, Aconj⁆) := by
+  have h : (PresentedGroup.mk relators ⁅A, Aconj⁆ : PresentedGroup relators) =
+      PresentedGroup.mk relators A * PresentedGroup.mk relators Aconj *
+      (PresentedGroup.mk relators A)⁻¹ * (PresentedGroup.mk relators Aconj)⁻¹ := by
+    show PresentedGroup.mk relators (A * Aconj * A⁻¹ * Aconj⁻¹) = _
+    rw [map_mul, map_mul, map_mul, map_inv, map_inv]
+  rw [h]
+  have ha : Commute (PresentedGroup.mk relators C : PresentedGroup relators)
+      (PresentedGroup.mk relators A) := mk_C_A_comm
+  have hb : Commute (PresentedGroup.mk relators C : PresentedGroup relators)
+      (PresentedGroup.mk relators Aconj) := mk_C_Aconj_comm
+  exact ((ha.mul_right hb).mul_right ha.inv_right).mul_right hb.inv_right
+
+/-!
+### Shift lemmas for `HallXC := ⁅A, Aconj⁆`
+
+Using the free-group identities `freeGroup_HallXC_A`, `freeGroup_A_HallXC`,
+`freeGroup_Aconj_HallXC` (which express `HallXC · A`, `A · HallXC`, `Aconj · HallXC` as
+"corrections" involving `C`), plus centrality of `C` (against `A`, `Aconj`, `HallXC`), we obtain
+clean shift laws in the presented group.
+-/
+
+/-- Shift of `HallXC` past `A`: `mk (HallXC · A) = mk (A · HallXC · C⁻¹)`. -/
+theorem mk_HallXC_A_shift :
+    (PresentedGroup.mk relators (⁅A, Aconj⁆ * A) : PresentedGroup relators) =
+      PresentedGroup.mk relators (A * ⁅A, Aconj⁆ * C⁻¹) := by
+  rw [freeGroup_HallXC_A]
+  set a := (PresentedGroup.mk relators A : PresentedGroup relators)
+  set xc := (PresentedGroup.mk relators ⁅A, Aconj⁆ : PresentedGroup relators)
+  set c := (PresentedGroup.mk relators C : PresentedGroup relators)
+  have hcA : Commute c a := mk_C_A_comm
+  have hcXC : Commute c xc := mk_C_HallXC_comm
+  show c⁻¹ * a * xc = a * xc * c⁻¹
+  have h1 : c⁻¹ * a = a * c⁻¹ := hcA.inv_left.eq
+  have h2 : c⁻¹ * xc = xc * c⁻¹ := hcXC.inv_left.eq
+  calc c⁻¹ * a * xc = a * c⁻¹ * xc := by rw [h1]
+    _ = a * (c⁻¹ * xc) := by rw [mul_assoc]
+    _ = a * (xc * c⁻¹) := by rw [h2]
+    _ = a * xc * c⁻¹ := by rw [mul_assoc]
+
+/-- Shift of `A` past `HallXC`: `mk (A · HallXC) = mk (HallXC · A · C)`. -/
+theorem mk_A_HallXC_shift :
+    (PresentedGroup.mk relators (A * ⁅A, Aconj⁆) : PresentedGroup relators) =
+      PresentedGroup.mk relators (⁅A, Aconj⁆ * A * C) := by
+  rw [freeGroup_A_HallXC]
+  set a := (PresentedGroup.mk relators A : PresentedGroup relators)
+  set xc := (PresentedGroup.mk relators ⁅A, Aconj⁆ : PresentedGroup relators)
+  set c := (PresentedGroup.mk relators C : PresentedGroup relators)
+  have hcA : Commute c a := mk_C_A_comm
+  have hcXC : Commute c xc := mk_C_HallXC_comm
+  show c * xc * a = xc * a * c
+  calc c * xc * a = xc * c * a := by rw [hcXC.eq]
+    _ = xc * (c * a) := by rw [mul_assoc]
+    _ = xc * (a * c) := by rw [hcA.eq]
+    _ = xc * a * c := by rw [mul_assoc]
+
+/-- Shift of `Aconj` past `HallXC`: `mk (Aconj · HallXC) = mk (HallXC · Aconj · C)`.
+
+Uses `freeGroup_Aconj_HallXC`, `mk_C_eq_mk_Engel` (identifying `mk ⁅Aconj, HallXC⁆` with `mk C`),
+and centrality of `C`. -/
+theorem mk_Aconj_HallXC_shift :
+    (PresentedGroup.mk relators (Aconj * ⁅A, Aconj⁆) : PresentedGroup relators) =
+      PresentedGroup.mk relators (⁅A, Aconj⁆ * Aconj * C) := by
+  rw [freeGroup_Aconj_HallXC]
+  set b := (PresentedGroup.mk relators Aconj : PresentedGroup relators)
+  set xc := (PresentedGroup.mk relators ⁅A, Aconj⁆ : PresentedGroup relators)
+  set c := (PresentedGroup.mk relators C : PresentedGroup relators)
+  have hcB : Commute c b := mk_C_Aconj_comm
+  have hcXC : Commute c xc := mk_C_HallXC_comm
+  have hEngel :
+      (PresentedGroup.mk relators ⁅Aconj, ⁅A, Aconj⁆⁆ : PresentedGroup relators) = c :=
+    mk_C_eq_mk_Engel.symm
+  show PresentedGroup.mk relators ⁅Aconj, ⁅A, Aconj⁆⁆ * xc * b = xc * b * c
+  rw [hEngel]
+  calc c * xc * b = xc * c * b := by rw [hcXC.eq]
+    _ = xc * (c * b) := by rw [mul_assoc]
+    _ = xc * (b * c) := by rw [hcB.eq]
+    _ = xc * b * c := by rw [mul_assoc]
 
 /-- `T` conjugation on `HallX` returns `HallX⁻¹` at the presented-group level.
 
